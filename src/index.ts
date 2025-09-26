@@ -29,12 +29,14 @@ class EscamboStack extends TerraformStack {
       key: "escambo.tfstate",
     });
 
-    const bootstrap = new Bootstrap(this, "bootstrap", { config: config.dev });
+    const envConfig = config.dev;
+
+    const bootstrap = new Bootstrap(this, "bootstrap", { config: envConfig });
 
     new ReactWebClient(this, "escambo_react_web_client", {
       rgName: bootstrap.resourceGroup.name,
       dnsZoneName: bootstrap.dnsZone.name,
-      config: config.dev,
+      config: envConfig,
     });
   }
 }
