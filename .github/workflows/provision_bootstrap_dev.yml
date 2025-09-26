@@ -47,10 +47,10 @@ jobs:
           terraform_wrapper: false
 
       - name: Setup Backend
-        run: ./setup-backend.sh
+        run: ./bin/setup-backend.sh
 
       - name: Generate Providers
         run: npx cdktf get
 
       - name: Deploy Bootstrap
-        run: ./bootstrap.sh
+        run: ./bin/bootstrap.sh
