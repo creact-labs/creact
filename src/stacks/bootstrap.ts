@@ -16,7 +16,6 @@ export class BootstrapStack extends TerraformStack {
 
     new AwsProvider(this, "aws", {
       region: envConfig.aws.region,
-      profile: envConfig.aws.profile,
     });
 
     new S3Backend(this, {
