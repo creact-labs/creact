@@ -49,7 +49,7 @@ jobs:
         run: npx cdktf get
 
       - name: Setup Backend
-        run: ruby ./ruby/setup-backend.rb
+        run: ruby ./ruby/backend.rb
 
       - name: Deploy Bootstrap
-        run: ruby ./ruby/bootstrap.rb
+        run: ruby ./ruby/deploy.rb
