@@ -1,6 +1,12 @@
 name: Provision Bootstrap
 
 on:
+  push:
+    branches:
+      - main
+      - dev
+      - qa
+      - prod
   workflow_dispatch:
     inputs:
       environment:
@@ -16,7 +22,8 @@ on:
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    # When triggered by push, environment will be inferred from branch name
+    environment: ${{ github.event.inputs.environment || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v4
