@@ -50,5 +50,9 @@ export class ReactWebClient extends Construct {
     new TerraformOutput(this, "site_url", {
       value: `https://${customDomain}`,
     });
+
+    new TerraformOutput(this, "storage_account_name", {
+      value: storage.name,
+    });
   }
 }
