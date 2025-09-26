@@ -22,9 +22,14 @@ Dir.glob("#{config_dir}/*.json").each do |file|
   puts "DynamoDB Table:#{table}"
   puts "Region:        #{region}\n"
 
-  s3  = Aws::S3::Client.new(region: region)
-  ddb = Aws::DynamoDB::Client.new(region: region)
+  creds = Aws::Credentials.new(
+    ENV["AWS_ACCESS_KEY_ID"],
+    ENV["AWS_SECRET_ACCESS_KEY"]
+  )
 
+  s3  = Aws::S3::Client.new(region: region, credentials: creds)
+  ddb = Aws::DynamoDB::Client.new(region: region, credentials: creds)
+  
   # Bucket
   begin
     s3.head_bucket(bucket: bucket)
