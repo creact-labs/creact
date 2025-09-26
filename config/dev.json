@@ -1,16 +1,13 @@
 {
   "environment": "dev",
-  "azure": {
-    "subscriptionId": "829813fe-ffb9-4ea6-83d1-7cc40a7997c7",
-    "region": "Brazil South",
-    "resourceGroupName": "escambo-platform-dev",
-    "servicePrincipalClientId": "dbd85908-d3d8-4905-852a-73d02e3ed850"
+  "aws": {
+    "region": "us-east-1",
+    "profile": "default"
   },
   "terraform": {
     "backend": {
-      "resourceGroupName": "escambo-platform-dev-tfstate",
-      "storageAccountName": "escamboplatformdevtfst",
-      "containerName": "tfstate"
+      "bucket": "escambo-platform-dev-tfstate",
+      "dynamodbTable": "escambo-platform-dev-locks"
     }
   },
   "clients": {

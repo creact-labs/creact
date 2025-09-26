@@ -4,7 +4,7 @@
   "projectId": "a6c2e2e1-16c4-4ea7-80c1-46017769ade6",
   "sendCrashReports": "false",
   "terraformProviders": [
-    "azurerm@~> 3.0"
+    "aws@~> 5.0"
   ],
   "terraformModules": [],
   "context": {}

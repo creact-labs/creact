@@ -1,12 +1,9 @@
-name: Provision Bootstrap
+name: Deploy Infra
 
 on:
   push:
     branches:
       - main
-      - dev
-      - qa
-      - prod
   workflow_dispatch:
     inputs:
       environment:
@@ -18,20 +15,29 @@ on:
           - dev
           - qa
           - prod
+  workflow_run:
+    workflows: ["Build Docker"]
+    types:
+      - completed
 
 jobs:
   bootstrap:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    # When triggered by push, environment will be inferred from branch name
+    container:
+      image: ghcr.io/escambo-me/ruby-aws-terraform:latest
+
     environment: ${{ github.event.inputs.environment || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,16 +47,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_wrapper: false
-
-      - name: Setup Backend
-        run: ./bin/setup-backend.sh
-
       - name: Generate Providers
         run: npx cdktf get
 
+      - name: Setup Backend
+        run: ruby ./ruby/setup-backend.rb
+
       - name: Deploy Bootstrap
-        run: ./bin/bootstrap.sh
+        run: ruby ./ruby/bootstrap.rb
