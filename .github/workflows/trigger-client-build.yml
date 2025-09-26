@@ -1,0 +1,29 @@
+name: Trigger Client Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Trigger Client Repository Build
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT_TOKEN }}
+          repository: escambo-me/escambo-react-web-client
+          event-type: build-react-app
+          client-payload: |
+            {
+              "environment": "${{ github.event.inputs.environment }}"
+            }
