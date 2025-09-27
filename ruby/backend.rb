@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 require "json"
 require "pastel"
-require "tty-spinner"
 require "aws-sdk-s3"
 require "aws-sdk-dynamodb"
 
@@ -27,7 +26,6 @@ ddb = Aws::DynamoDB::Client.new(region: region, credentials: creds)
 
 # --- S3 Bucket ---
 puts pastel.yellow("Checking S3 bucket: #{bucket}")
-spinner = TTY::Spinner.new("[:spinner] Working...", format: :dots)
 spinner.auto_spin
 begin
   s3.head_bucket(bucket: bucket)
@@ -54,7 +52,6 @@ puts pastel.green("Versioning enabled on bucket: #{bucket}")
 
 # --- DynamoDB Table ---
 puts pastel.yellow("\nChecking DynamoDB table: #{table}")
-spinner = TTY::Spinner.new("[:spinner] Working...", format: :dots)
 spinner.auto_spin
 begin
   ddb.describe_table(table_name: table)
