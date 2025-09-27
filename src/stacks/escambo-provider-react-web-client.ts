@@ -4,12 +4,12 @@ import { AwsProvider } from "../../.gen/providers/aws/provider";
 import { ReactWebClient } from "../constructs/react-web-client";
 import { EnvironmentConfig, sharedConfig } from "../../config";
 
-export interface EscamboReactWebClientStackProps {
+export interface EscamboProviderReactWebClientStackProps {
   config: EnvironmentConfig;
 }
 
-export class EscamboReactWebClientStack extends TerraformStack {
-  constructor(scope: Construct, id: string, props: EscamboReactWebClientStackProps) {
+export class EscamboProviderReactWebClientStack extends TerraformStack {
+  constructor(scope: Construct, id: string, props: EscamboProviderReactWebClientStackProps) {
     super(scope, id);
 
     const envConfig = props.config;
@@ -22,7 +22,7 @@ export class EscamboReactWebClientStack extends TerraformStack {
     // --- Backend ---
     new S3Backend(this, {
       bucket: sharedConfig.terraform.backend.bucket,
-      key: `${envConfig.environment}/customer-react-web-client.tfstate`,
+      key: `${envConfig.environment}/provider-react-web-client.tfstate`,
       region: sharedConfig.aws.region,
       dynamodbTable: sharedConfig.terraform.backend.dynamodbTable,
       encrypt: true,
@@ -37,11 +37,11 @@ export class EscamboReactWebClientStack extends TerraformStack {
       encrypt: true,
     });
 
-    // --- Main React Web Client ---
-    new ReactWebClient(this, "main_react_web_client", {
+    // --- Provider React Web Client ---
+    new ReactWebClient(this, "provider_react_web_client", {
       hostedZoneId: dnsState.get("dns_zone_id"),
       config: envConfig,
-      appType: 'customer',
+      appType: 'provider',
     });
   }
 }

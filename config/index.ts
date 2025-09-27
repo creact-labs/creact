@@ -17,11 +17,6 @@ export interface SharedConfig {
 
 export interface EnvironmentConfig {
   environment: string;
-  clients: {
-    reactWebClient: {
-      staticSiteName: string;
-    };
-  };
 }
 
 export type EnvType = "dev" | "qa";

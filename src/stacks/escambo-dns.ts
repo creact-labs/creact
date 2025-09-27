@@ -1,7 +1,7 @@
 import { Construct } from "constructs";
 import { TerraformStack, S3Backend } from "cdktf";
 import { AwsProvider } from "../../.gen/providers/aws/provider";
-import { EscamboDns } from "../constructs/escambo-dns";
+import { Dns } from "../constructs/dns"
 import { sharedConfig } from "../../config";
 
 export class EscamboDnsStack extends TerraformStack {
@@ -22,7 +22,7 @@ export class EscamboDnsStack extends TerraformStack {
       encrypt: true,
     });
 
-    new EscamboDns(this, "escambo_dns", {
+    new Dns(this, "escambo_dns", {
       baseDomain: baseConfig.baseDomain,
     });
   }

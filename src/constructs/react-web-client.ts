@@ -7,30 +7,35 @@ import { CloudfrontOriginAccessIdentity } from "../../.gen/providers/aws/cloudfr
 import { AcmCertificate } from "../../.gen/providers/aws/acm-certificate";
 import { AcmCertificateValidation } from "../../.gen/providers/aws/acm-certificate-validation";
 import { Route53Record } from "../../.gen/providers/aws/route53-record";
-import { TerraformOutput, Fn, IResolvable } from "cdktf";
+import { TerraformOutput, IResolvable } from "cdktf";
 import { EnvironmentConfig, sharedConfig } from "../../config";
 import * as crypto from "crypto";
 
-export interface EscamboReactWebClientProps {
+export interface ReactWebClientProps {
   hostedZoneId: string | IResolvable;
   config: EnvironmentConfig;
+  // Add unique identifier to prevent resource conflicts
+  appType: 'customer' | 'provider';
 }
 
-export class EscamboReactWebClient extends Construct {
+export class ReactWebClient extends Construct {
   private readonly config: EnvironmentConfig;
+  private readonly appType: string;
 
-  constructor(scope: Construct, id: string, props: EscamboReactWebClientProps) {
+  constructor(scope: Construct, id: string, props: ReactWebClientProps) {
     super(scope, id);
 
     this.config = props.config;
+    this.appType = props.appType;
 
     const { baseDomain } = sharedConfig;
     const isProd = this.config.environment === "prod";
-    const actualDomain = isProd ? baseDomain : `${this.config.environment}.${baseDomain}`;
-
-    const baseName = `${this.config.clients.reactWebClient.staticSiteName}-${this.config.environment}`;
-    const hash = crypto.createHash("sha1").update(baseName).digest("hex").slice(0, 8);
-    const bucketName = `${baseName}-${hash}`;
+    
+    // Create unique domains for each app type
+    const actualDomain = this.getDomainName(isProd, baseDomain);
+    const uniqueBaseName = `${this.appType}-${this.config.environment}`;
+    const hash = crypto.createHash("sha1").update(uniqueBaseName).digest("hex").slice(0, 8);
+    const bucketName = `${uniqueBaseName}-${hash}`;
 
     // --- S3 bucket (private) ---
     const siteBucket = new S3Bucket(this, "site_bucket", {
@@ -124,14 +129,23 @@ export class EscamboReactWebClient extends Construct {
       },
     });
 
-    // --- Outputs ---
+    // --- Outputs (all useful for deployment) ---
     new TerraformOutput(this, "bucket_name", { value: siteBucket.bucket });
     new TerraformOutput(this, "cloudfront_domain", { value: distribution.domainName });
     new TerraformOutput(this, "site_url", { value: `https://${actualDomain}` });
-    new TerraformOutput(this, "cert_validation_name", { value: certValidationRecord.name });
-    new TerraformOutput(this, "cert_validation_value", { value: Fn.element(certValidationRecord.records, 0) });
+    new TerraformOutput(this, "domain_name", { value: actualDomain });
     new TerraformOutput(this, "cert_arn", { value: cert.arn });
     new TerraformOutput(this, "cf_distribution_id", { value: distribution.id });
-    new TerraformOutput(this, "cf_aliases", { value: actualDomain });
+    new TerraformOutput(this, "bucket_regional_domain", { value: siteBucket.bucketRegionalDomainName });
+    new TerraformOutput(this, "oai_id", { value: oai.id });
+  }
+
+  private getDomainName(isProd: boolean, baseDomain: string): string {
+    if (isProd) {
+      return this.appType === 'provider' ? `provider.${baseDomain}` : baseDomain;
+    }
+    return this.appType === 'provider' 
+      ? `provider.${this.config.environment}.${baseDomain}` 
+      : `${this.config.environment}.${baseDomain}`;
   }
 }
