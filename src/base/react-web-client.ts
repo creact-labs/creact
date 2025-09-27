@@ -23,7 +23,6 @@ export class ReactWebClient extends Construct {
     super(scope, id);
 
     this.config = props.config;
-
     const { customDomain } = this.config.domains;
 
     // --- Generate unique, deterministic bucket name ---
@@ -59,9 +58,7 @@ export class ReactWebClient extends Construct {
         Statement: [
           {
             Effect: "Allow",
-            Principal: {
-              AWS: oai.iamArn,
-            },
+            Principal: { AWS: oai.iamArn },
             Action: "s3:GetObject",
             Resource: [`arn:aws:s3:::${bucketName}/*`],
           },
@@ -92,6 +89,7 @@ export class ReactWebClient extends Construct {
     // --- CloudFront distribution ---
     const distribution = new CloudfrontDistribution(this, "cf_distribution", {
       enabled: true,
+      aliases: [customDomain], // 👈 required for escambo.me
       origin: [
         {
           domainName: siteBucket.bucketRegionalDomainName,
@@ -117,9 +115,7 @@ export class ReactWebClient extends Construct {
       },
       defaultRootObject: "index.html",
       restrictions: {
-        geoRestriction: {
-          restrictionType: "none",
-        },
+        geoRestriction: { restrictionType: "none" },
       },
     });
 
@@ -145,5 +141,6 @@ export class ReactWebClient extends Construct {
     });
     new TerraformOutput(this, "cert_arn", { value: cert.arn });
     new TerraformOutput(this, "cf_distribution_id", { value: distribution.id });
+    new TerraformOutput(this, "cf_aliases", { value: customDomain }); // 👀 helpful debug output
   }
 }
