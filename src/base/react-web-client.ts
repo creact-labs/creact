@@ -24,6 +24,7 @@ export class ReactWebClient extends Construct {
 
     this.config = props.config;
     const { customDomain } = this.config.domains;
+    const actualDomain = `${this.config.environment}.${customDomain}`; 
 
     // --- Generate unique, deterministic bucket name ---
     const baseName = this.config.clients.reactWebClient.staticSiteName;
@@ -89,7 +90,7 @@ export class ReactWebClient extends Construct {
     // --- CloudFront distribution ---
     const distribution = new CloudfrontDistribution(this, "cf_distribution", {
       enabled: true,
-      aliases: [customDomain], // 👈 required for escambo.me
+      aliases: [actualDomain],
       origin: [
         {
           domainName: siteBucket.bucketRegionalDomainName,
@@ -122,7 +123,7 @@ export class ReactWebClient extends Construct {
     // --- DNS record: custom domain → CloudFront ---
     new Route53Record(this, "alias_record", {
       zoneId: props.hostedZoneId as string,
-      name: customDomain,
+      name: actualDomain,
       type: "A",
       alias: {
         name: distribution.domainName,
@@ -134,13 +135,13 @@ export class ReactWebClient extends Construct {
     // --- Outputs ---
     new TerraformOutput(this, "bucket_name", { value: siteBucket.bucket });
     new TerraformOutput(this, "cloudfront_domain", { value: distribution.domainName });
-    new TerraformOutput(this, "site_url", { value: `https://${customDomain}` });
+    new TerraformOutput(this, "site_url", { value: `https://${actualDomain}` });
     new TerraformOutput(this, "cert_validation_name", { value: certValidationRecord.name });
     new TerraformOutput(this, "cert_validation_value", {
       value: Fn.element(certValidationRecord.records, 0),
     });
     new TerraformOutput(this, "cert_arn", { value: cert.arn });
     new TerraformOutput(this, "cf_distribution_id", { value: distribution.id });
-    new TerraformOutput(this, "cf_aliases", { value: customDomain }); // 👀 helpful debug output
+    new TerraformOutput(this, "cf_aliases", { value: actualDomain });
   }
 }
