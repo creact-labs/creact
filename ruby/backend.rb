@@ -16,6 +16,7 @@ bucket = shared_cfg["terraform"]["backend"]["bucket"]
 table  = shared_cfg["terraform"]["backend"]["dynamodbTable"]
 region = shared_cfg["aws"]["region"]
 
+# AWS credentials
 creds = Aws::Credentials.new(
   ENV["AWS_ACCESS_KEY_ID"],
   ENV["AWS_SECRET_ACCESS_KEY"]
@@ -26,12 +27,11 @@ ddb = Aws::DynamoDB::Client.new(region: region, credentials: creds)
 
 # --- S3 Bucket ---
 puts pastel.yellow("Checking S3 bucket: #{bucket}")
-spinner.auto_spin
 begin
   s3.head_bucket(bucket: bucket)
-  spinner.success(pastel.green("Bucket already exists: #{bucket}"))
+  puts pastel.green("✔ Bucket already exists: #{bucket}")
 rescue Aws::S3::Errors::NotFound, Aws::S3::Errors::NoSuchBucket
-  spinner.update(title: "Creating bucket...")
+  puts pastel.yellow("Creating bucket: #{bucket}...")
   if region == "us-east-1"
     s3.create_bucket(bucket: bucket)
   else
@@ -40,7 +40,7 @@ rescue Aws::S3::Errors::NotFound, Aws::S3::Errors::NoSuchBucket
       create_bucket_configuration: { location_constraint: region }
     )
   end
-  spinner.success(pastel.green("Bucket created: #{bucket}"))
+  puts pastel.green("✔ Bucket created: #{bucket}")
 end
 
 # Enable versioning
@@ -48,16 +48,15 @@ s3.put_bucket_versioning(
   bucket: bucket,
   versioning_configuration: { status: "Enabled" }
 )
-puts pastel.green("Versioning enabled on bucket: #{bucket}")
+puts pastel.green("✔ Versioning enabled on bucket: #{bucket}")
 
 # --- DynamoDB Table ---
 puts pastel.yellow("\nChecking DynamoDB table: #{table}")
-spinner.auto_spin
 begin
   ddb.describe_table(table_name: table)
-  spinner.success(pastel.green("Table already exists: #{table}"))
+  puts pastel.green("✔ Table already exists: #{table}")
 rescue Aws::DynamoDB::Errors::ResourceNotFoundException
-  spinner.update(title: "Creating table...")
+  puts pastel.yellow("Creating DynamoDB table: #{table}...")
   ddb.create_table(
     table_name: table,
     attribute_definitions: [
@@ -68,11 +67,11 @@ rescue Aws::DynamoDB::Errors::ResourceNotFoundException
     ],
     billing_mode: "PAY_PER_REQUEST"
   )
-  spinner.success(pastel.green("Table created: #{table}"))
+  puts pastel.green("✔ Table created: #{table}")
 end
 
 # --- Final Output ---
-puts pastel.green("\nTerraform backend setup complete!")
-puts "S3 Bucket: #{bucket}"
-puts "DynamoDB Table: #{table}"
-puts "Region: #{region}"
+puts pastel.green.bold("\nTerraform backend setup complete!")
+puts pastel.cyan("S3 Bucket: #{bucket}")
+puts pastel.cyan("DynamoDB Table: #{table}")
+puts pastel.cyan("Region: #{region}")
