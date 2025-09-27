@@ -1,0 +1,12 @@
+{
+  "baseDomain": "escambo.me",
+  "terraform": {
+    "backend": {
+      "bucket": "escambo-platform-tfstate",
+      "dynamodbTable": "escambo-platform-locks"
+    }
+  },
+  "aws": {
+    "region": "us-east-1"
+  }
+}

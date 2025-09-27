@@ -1,20 +1,8 @@
 {
   "environment": "dev",
-  "aws": {
-    "region": "us-east-1"
-  },
-  "terraform": {
-    "backend": {
-      "bucket": "escambo-platform-dev-tfstate",
-      "dynamodbTable": "escambo-platform-dev-locks"
-    }
-  },
   "clients": {
     "reactWebClient": {
       "staticSiteName": "escambo-dev-web"
     }
-  },
-  "domains": {
-    "customDomain": "escambo.me"
   }
 }

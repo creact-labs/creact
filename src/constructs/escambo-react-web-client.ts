@@ -8,31 +8,28 @@ import { AcmCertificate } from "../../.gen/providers/aws/acm-certificate";
 import { AcmCertificateValidation } from "../../.gen/providers/aws/acm-certificate-validation";
 import { Route53Record } from "../../.gen/providers/aws/route53-record";
 import { TerraformOutput, Fn, IResolvable } from "cdktf";
-import { EnvironmentConfig } from "../../config";
+import { EnvironmentConfig, sharedConfig } from "../../config";
 import * as crypto from "crypto";
 
-export interface ReactWebClientProps {
+export interface EscamboReactWebClientProps {
   hostedZoneId: string | IResolvable;
   config: EnvironmentConfig;
 }
 
-export class ReactWebClient extends Construct {
+export class EscamboReactWebClient extends Construct {
   private readonly config: EnvironmentConfig;
 
-  constructor(scope: Construct, id: string, props: ReactWebClientProps) {
+  constructor(scope: Construct, id: string, props: EscamboReactWebClientProps) {
     super(scope, id);
 
     this.config = props.config;
-    const { customDomain } = this.config.domains;
-    const actualDomain = `${this.config.environment}.${customDomain}`; 
 
-    // --- Generate unique, deterministic bucket name ---
-    const baseName = this.config.clients.reactWebClient.staticSiteName;
-    const hash = crypto
-      .createHash("sha1")
-      .update(baseName)
-      .digest("hex")
-      .slice(0, 8);
+    const { baseDomain } = sharedConfig;
+    const isProd = this.config.environment === "prod";
+    const actualDomain = isProd ? baseDomain : `${this.config.environment}.${baseDomain}`;
+
+    const baseName = `${this.config.clients.reactWebClient.staticSiteName}-${this.config.environment}`;
+    const hash = crypto.createHash("sha1").update(baseName).digest("hex").slice(0, 8);
     const bucketName = `${baseName}-${hash}`;
 
     // --- S3 bucket (private) ---
@@ -46,12 +43,12 @@ export class ReactWebClient extends Construct {
       errorDocument: { key: "index.html" },
     });
 
-    // --- Origin Access Identity (OAI) ---
+    // --- CloudFront OAI ---
     const oai = new CloudfrontOriginAccessIdentity(this, "oai", {
       comment: `OAI for ${bucketName}`,
     });
 
-    // --- Bucket Policy: allow only CloudFront OAI ---
+    // --- Bucket Policy ---
     new S3BucketPolicy(this, "bucket_policy", {
       bucket: siteBucket.bucket,
       policy: JSON.stringify({
@@ -69,11 +66,10 @@ export class ReactWebClient extends Construct {
 
     // --- ACM Certificate ---
     const cert = new AcmCertificate(this, "cert", {
-      domainName: customDomain,
+      domainName: actualDomain,
       validationMethod: "DNS",
     });
 
-    // --- DNS record for cert validation ---
     const certValidationRecord = new Route53Record(this, "cert_validation_record", {
       zoneId: props.hostedZoneId as string,
       name: cert.domainValidationOptions.get(0).resourceRecordName,
@@ -87,7 +83,7 @@ export class ReactWebClient extends Construct {
       validationRecordFqdns: [certValidationRecord.fqdn],
     });
 
-    // --- CloudFront distribution ---
+    // --- CloudFront ---
     const distribution = new CloudfrontDistribution(this, "cf_distribution", {
       enabled: true,
       aliases: [actualDomain],
@@ -95,9 +91,7 @@ export class ReactWebClient extends Construct {
         {
           domainName: siteBucket.bucketRegionalDomainName,
           originId: "s3-origin",
-          s3OriginConfig: {
-            originAccessIdentity: oai.cloudfrontAccessIdentityPath,
-          },
+          s3OriginConfig: { originAccessIdentity: oai.cloudfrontAccessIdentityPath },
         },
       ],
       defaultCacheBehavior: {
@@ -115,12 +109,10 @@ export class ReactWebClient extends Construct {
         sslSupportMethod: "sni-only",
       },
       defaultRootObject: "index.html",
-      restrictions: {
-        geoRestriction: { restrictionType: "none" },
-      },
+      restrictions: { geoRestriction: { restrictionType: "none" } },
     });
 
-    // --- DNS record: custom domain → CloudFront ---
+    // --- DNS record ---
     new Route53Record(this, "alias_record", {
       zoneId: props.hostedZoneId as string,
       name: actualDomain,
@@ -137,9 +129,7 @@ export class ReactWebClient extends Construct {
     new TerraformOutput(this, "cloudfront_domain", { value: distribution.domainName });
     new TerraformOutput(this, "site_url", { value: `https://${actualDomain}` });
     new TerraformOutput(this, "cert_validation_name", { value: certValidationRecord.name });
-    new TerraformOutput(this, "cert_validation_value", {
-      value: Fn.element(certValidationRecord.records, 0),
-    });
+    new TerraformOutput(this, "cert_validation_value", { value: Fn.element(certValidationRecord.records, 0) });
     new TerraformOutput(this, "cert_arn", { value: cert.arn });
     new TerraformOutput(this, "cf_distribution_id", { value: distribution.id });
     new TerraformOutput(this, "cf_aliases", { value: actualDomain });

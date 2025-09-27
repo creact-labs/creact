@@ -1,10 +1,10 @@
+import * as shared from "./shared.json";
 import * as devConfig from "./dev.json";
 
-export interface EnvironmentConfig {
-  environment: string;
+export interface SharedConfig {
+  baseDomain: string;
   aws: {
     region: string;
-    profile: string;
   };
   terraform: {
     backend: {
@@ -12,17 +12,21 @@ export interface EnvironmentConfig {
       dynamodbTable: string;
     };
   };
+}
+
+export interface EnvironmentConfig {
+  environment: string;
   clients: {
     reactWebClient: {
       staticSiteName: string;
     };
   };
-  domains: {
-    customDomain: string;
-  };
-}
-export const config = {
-    dev: devConfig as EnvironmentConfig,
 }
 
-export type EnvType = 'dev';
+export type EnvType = "dev";
+
+export const config: Record<EnvType, EnvironmentConfig> = {
+  dev: devConfig as EnvironmentConfig
+};
+
+export const sharedConfig: SharedConfig = shared as SharedConfig;
