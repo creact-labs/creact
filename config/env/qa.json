@@ -1,0 +1,8 @@
+{
+  "environment": "qa",
+  "clients": {
+    "reactWebClient": {
+      "staticSiteName": "escambo-qa-web"
+    }
+  }
+}
