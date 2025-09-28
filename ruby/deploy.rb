@@ -42,6 +42,8 @@ STACKS = [
 
 env_files.each do |file|
   env = File.basename(file, ".json")
+  next if env == 'qa';
+
   cfg = JSON.parse(File.read(file))
 
   puts pastel.cyan("\n------------------------------------------------------------")

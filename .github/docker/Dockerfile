@@ -2,22 +2,26 @@ FROM docker:24.0.7-dind
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Alpine base dependencies
-RUN apk add --no-cache \
+# -----------------------------------------
+# Install core dependencies
+# -----------------------------------------
+RUN apt-get update && apt-get install -y \
     bash \
     curl \
     git \
     jq \
     unzip \
-    build-base \
-    ruby \
+    build-essential \
+    ruby-full \
     ruby-dev \
     nodejs \
     npm \
     python3 \
-    py3-pip \
-    libc6-compat \
-    gnupg
+    python3-pip \
+    gnupg \
+    ca-certificates \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------
 # Install AWS CLI v2
@@ -52,7 +56,9 @@ RUN gem install \
 
 WORKDIR /workspace
 
+# -----------------------------------------
 # Verify installations
+# -----------------------------------------
 RUN dockerd --version && \
     docker --version && \
     terraform -version && \
@@ -61,4 +67,4 @@ RUN dockerd --version && \
     npm -v && \
     node -v
 
-CMD ["/bin/sh"]
+CMD ["/bin/bash"]
