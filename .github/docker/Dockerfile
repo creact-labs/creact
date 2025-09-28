@@ -1,4 +1,4 @@
-FROM docker:24.0.7-cli
+FROM docker:24.0.7-dind
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -53,7 +53,8 @@ RUN gem install \
 WORKDIR /workspace
 
 # Verify installations
-RUN docker --version && \
+RUN dockerd --version && \
+    docker --version && \
     terraform -version && \
     aws --version && \
     ruby -v && \

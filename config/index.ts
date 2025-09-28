@@ -21,9 +21,9 @@ export interface EnvironmentConfig {
 
 export type EnvType = "dev" | "qa";
 
-export const config: Record<EnvType, EnvironmentConfig> = {
+export const config: Partial<Record<EnvType, EnvironmentConfig>> = {
   dev: devConfig as EnvironmentConfig,
-  qa: qaConfig as EnvironmentConfig,
+  // qa: qaConfig as EnvironmentConfig,
 };
 
 export const sharedConfig: SharedConfig = shared as SharedConfig;
