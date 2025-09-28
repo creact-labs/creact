@@ -1,23 +1,23 @@
-FROM ubuntu:22.04
+FROM docker:24.0.7-cli
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install core dependencies including ruby-dev
-RUN apt-get update && apt-get install -y \
+# Install Alpine base dependencies
+RUN apk add --no-cache \
+    bash \
     curl \
-    gnupg \
-    unzip \
     git \
-    ruby-full \
+    jq \
+    unzip \
+    build-base \
+    ruby \
     ruby-dev \
-    build-essential \
-    software-properties-common \
-    apt-transport-https \
-    lsb-release \
     nodejs \
     npm \
-    jq \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    py3-pip \
+    libc6-compat \
+    gnupg
 
 # -----------------------------------------
 # Install AWS CLI v2
@@ -53,10 +53,11 @@ RUN gem install \
 WORKDIR /workspace
 
 # Verify installations
-RUN terraform -version && \
+RUN docker --version && \
+    terraform -version && \
     aws --version && \
     ruby -v && \
     npm -v && \
     node -v
 
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]
