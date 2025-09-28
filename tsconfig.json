@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "alwaysStrict": true,
-    "declaration": true,
-    "experimentalDecorators": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "target": "ES2018",
+    "module": "CommonJS",
     "lib": [
       "es2018"
     ],
-    "module": "CommonJS",
+    "declaration": true,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -21,15 +22,33 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "stripInternal": true,
-    "target": "ES2018",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "paths": {
+      "@config": [
+        "./config/index.ts"
+      ],
+      "@config/*": [
+        "./config/*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
+      "@gen/*": [
+        "./.gen/*"
+      ]
+    }
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts",
+    ".gen/**/*.ts",
+    "config/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "cdktf.out"
+    "cdktf.out",
+    "dist"
   ]
 }

@@ -1,10 +1,11 @@
 import { Construct } from "constructs";
 import { TerraformStack, S3Backend } from "cdktf";
-import { AwsProvider } from "../../.gen/providers/aws/provider";
-import { Dns } from "../constructs/dns"
-import { sharedConfig } from "../../config";
 
-export class EscamboDnsStack extends TerraformStack {
+import { AwsProvider } from "@gen/providers/aws/provider";
+import { sharedConfig } from "@config";
+import { NetworkConstruct } from "@src/constructs";
+
+export class EscamboNetworkStack extends TerraformStack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
@@ -16,14 +17,15 @@ export class EscamboDnsStack extends TerraformStack {
 
     new S3Backend(this, {
       bucket: baseConfig.terraform.backend.bucket,
-      key: "dns.tfstate",
+      key: "network.tfstate",
       region: baseConfig.aws.region,
       dynamodbTable: baseConfig.terraform.backend.dynamodbTable,
       encrypt: true,
     });
 
-    new Dns(this, "escambo_dns", {
-      baseDomain: baseConfig.baseDomain,
+    new NetworkConstruct(this, "escambo_network", {
+      region: baseConfig.aws.region,
+      environment: "shared",
     });
   }
 }

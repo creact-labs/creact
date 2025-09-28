@@ -1,28 +1,28 @@
 import { Construct } from "constructs";
-import { S3Bucket } from "../../.gen/providers/aws/s3-bucket";
-import { S3BucketWebsiteConfiguration } from "../../.gen/providers/aws/s3-bucket-website-configuration";
-import { S3BucketPolicy } from "../../.gen/providers/aws/s3-bucket-policy";
-import { CloudfrontDistribution } from "../../.gen/providers/aws/cloudfront-distribution";
-import { CloudfrontOriginAccessIdentity } from "../../.gen/providers/aws/cloudfront-origin-access-identity";
-import { AcmCertificate } from "../../.gen/providers/aws/acm-certificate";
-import { AcmCertificateValidation } from "../../.gen/providers/aws/acm-certificate-validation";
-import { Route53Record } from "../../.gen/providers/aws/route53-record";
+import { S3Bucket } from "@gen/providers/aws/s3-bucket";
+import { S3BucketWebsiteConfiguration } from "@gen/providers/aws/s3-bucket-website-configuration";
+import { S3BucketPolicy } from "@gen/providers/aws/s3-bucket-policy";
+import { CloudfrontDistribution } from "@gen/providers/aws/cloudfront-distribution";
+import { CloudfrontOriginAccessIdentity } from "@gen/providers/aws/cloudfront-origin-access-identity";
+import { AcmCertificate } from "@gen/providers/aws/acm-certificate";
+import { AcmCertificateValidation } from "@gen/providers/aws/acm-certificate-validation";
+import { Route53Record } from "@gen/providers/aws/route53-record";
 import { TerraformOutput, IResolvable } from "cdktf";
-import { EnvironmentConfig, sharedConfig } from "../../config";
+import { EnvironmentConfig, sharedConfig } from "@config";
 import * as crypto from "crypto";
 
-export interface ReactWebClientProps {
+export interface ReactWebClientConstructProps {
   hostedZoneId: string | IResolvable;
   config: EnvironmentConfig;
   // Add unique identifier to prevent resource conflicts
   appType: 'customer' | 'provider';
 }
 
-export class ReactWebClient extends Construct {
+export class ReactWebClientConstruct extends Construct {
   private readonly config: EnvironmentConfig;
   private readonly appType: string;
 
-  constructor(scope: Construct, id: string, props: ReactWebClientProps) {
+  constructor(scope: Construct, id: string, props: ReactWebClientConstructProps) {
     super(scope, id);
 
     this.config = props.config;

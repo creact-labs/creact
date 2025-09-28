@@ -1,27 +1,25 @@
 import { App } from "cdktf";
 import { config } from "../config";
-import { EscamboDnsStack } from "./stacks/escambo-dns";
-import { EscamboReactWebClientStack } from "./stacks/escambo-react-web-client";
-import { EscamboProviderReactWebClientStack } from "./stacks/escambo-provider-react-web-client";
+import { EscamboCoreJavaServiceStack, EscamboDnsStack, EscamboEcrStack, EscamboProviderReactWebClientStack, EscamboReactWebClientStack } from "./stacks";
+
 
 const app = new App();
 
-// DNS stack (shared)
 new EscamboDnsStack(app, "escambo-dns");
+new EscamboEcrStack(app, 'escambo-ecr')
+// new EscamboNetworkStack(app, "escambo-network")
 
-// Environment-specific stacks
 Object.values(config).forEach((envConfig: any) => {
   const env = envConfig.environment;
-  
-  // Main app stack
-  new EscamboReactWebClientStack(app, `escambo-${env}-customer-react-web-client`, { 
-    config: envConfig 
+
+  new EscamboReactWebClientStack(app, `escambo-${env}-customer-react-web-client`, {
+    config: envConfig
   });
-  
-  // Provider app stack
-  new EscamboProviderReactWebClientStack(app, `escambo-${env}-provider-react-web-client`, { 
-    config: envConfig 
+  new EscamboProviderReactWebClientStack(app, `escambo-${env}-provider-react-web-client`, {
+    config: envConfig
   });
+
+  new EscamboCoreJavaServiceStack(app, `escambo-${env}-core-java-service`, { config: envConfig });
 });
 
 app.synth();
