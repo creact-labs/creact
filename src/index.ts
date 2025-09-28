@@ -6,11 +6,14 @@ import { EscamboCoreJavaServiceStack, EscamboDnsStack, EscamboEcrStack, EscamboP
 const app = new App();
 
 new EscamboDnsStack(app, "escambo-dns");
-new EscamboEcrStack(app, 'escambo-ecr')
 // new EscamboNetworkStack(app, "escambo-network")
 
 Object.values(config).forEach((envConfig: any) => {
   const env = envConfig.environment;
+
+  new EscamboEcrStack(app, `escambo-${env}-ecr`, {
+    config: envConfig
+  });
 
   new EscamboReactWebClientStack(app, `escambo-${env}-customer-react-web-client`, {
     config: envConfig

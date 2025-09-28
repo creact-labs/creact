@@ -1,0 +1,37 @@
+name: Build Pipeline Binaries
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "go/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build binaries
+        working-directory: go
+        run: make build
+
+      - name: Upload backend binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-binary
+          path: go/bin/backend
+
+      - name: Upload deploy binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-binary
+          path: go/bin/deploy

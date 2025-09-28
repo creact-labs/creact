@@ -31,7 +31,6 @@ export class EcrRepositoryConstruct extends Construct {
       },
     });
 
-    // Outputs for GitHub Actions
     new TerraformOutput(this, "repository_url", {
       value: repository.repositoryUrl,
     }).overrideLogicalId("repository_url");

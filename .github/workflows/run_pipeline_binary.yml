@@ -1,0 +1,49 @@
+name: Run Pipeline
+
+on:
+  workflow_run:
+    workflows: ["Build Go Binaries"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_TOKEN }}
+
+      - name: Download backend binary
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-binary
+          path: ./bin
+
+      - name: Download deploy binary
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-binary
+          path: ./bin
+
+      - name: Make binaries executable
+        run: chmod +x ./bin/backend ./bin/deploy
+
+      - name: Run backend setup
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+          GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+        run: ./bin/backend
+
+      - name: Run deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+          GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+        run: ./bin/deploy
