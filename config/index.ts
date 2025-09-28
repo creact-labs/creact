@@ -1,6 +1,5 @@
 import * as shared from "./shared/shared.json";
 import * as devConfig from "./env/dev.json";
-import * as qaConfig from "./env/qa.json";
 
 export interface SharedConfig {
   baseDomain: string;
@@ -23,7 +22,7 @@ export type EnvType = "dev" | "qa";
 
 export const config: Partial<Record<EnvType, EnvironmentConfig>> = {
   dev: devConfig as EnvironmentConfig,
-  qa: qaConfig as EnvironmentConfig,
+  // qa: qaConfig as EnvironmentConfig,
 };
 
 export const sharedConfig: SharedConfig = shared as SharedConfig;
