@@ -28,6 +28,9 @@ end
 puts pastel.yellow("==> Deploying Global DNS Stack: escambo-dns")
 exit(1) unless deploy_stack("escambo-dns", pastel)
 
+puts pastel.yellow("==> Deploying ECR: escambo-ecr")
+exit(1) unless deploy_stack("escambo-ecr", pastel)
+
 # --- Deploy per-environment stacks ---
 env_files = Dir.glob("#{config_dir}/env/*.json")
 
