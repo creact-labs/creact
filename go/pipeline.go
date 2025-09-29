@@ -61,7 +61,7 @@ func main() {
 	// --- Deploy global stacks ---
 	if !deployStack("escambo-dns", success, fail) {
 		os.Exit(1)
-	}
+	} 
 
 	// --- Deploy per-environment stacks ---
 	envDir := filepath.Join("config", "env")
