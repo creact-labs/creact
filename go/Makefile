@@ -6,7 +6,8 @@ BINARIES=$(BINARY_DIR)/backend $(BINARY_DIR)/deploy
 
 all: build
 
-build: $(BINARIES) copy-config
+build: $(BINARIES)
+	cp -r ../config $(BINARY_DIR)/config
 
 $(BINARY_DIR)/backend: backend.go
 	mkdir -p $(BINARY_DIR)
@@ -15,10 +16,6 @@ $(BINARY_DIR)/backend: backend.go
 $(BINARY_DIR)/deploy: deploy.go
 	mkdir -p $(BINARY_DIR)
 	go build -o $@ deploy.go
-
-copy-config:
-	mkdir -p $(BINARY_DIR)/config
-	cp -r ../config/* $(BINARY_DIR)/config/
 
 clean:
 	rm -rf $(BINARY_DIR)
