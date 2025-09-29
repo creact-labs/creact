@@ -1,0 +1,22 @@
+# Ignore build outputs
+/bin/
+
+# Ignore test binaries and coverage
+*.test
+*.out
+
+# Go build caches
+/go/pkg/
+/go/cache/
+
+# Logs
+*.log
+
+# IDE/editor junk
+.idea/
+.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
