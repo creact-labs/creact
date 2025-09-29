@@ -19,6 +19,13 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT_TOKEN }}
 
+      # Install Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      # Install Node.js (for CDKTF)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,6 +34,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate CDKTF providers
+        run: npx cdktf get
 
       # Download compiled Go binaries
       - name: Download backend binary
