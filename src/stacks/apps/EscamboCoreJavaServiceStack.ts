@@ -51,7 +51,7 @@ export class EscamboCoreJavaServiceStack extends TerraformStack {
       dynamodbTable: sharedConfig.terraform.backend.dynamodbTable,
       encrypt: true,
     });
-    const ecr = EcrRepositoryConstruct.fromRemoteState(ecrState);
+    const ecr = EcrRepositoryConstruct.fromRemoteState(ecrState, "core-java-service", environment);
 
     new DockerAppRunnerConstruct(this, "core_docker_app_runner", {
       hostedZoneId: dns.dnsZoneId,

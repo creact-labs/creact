@@ -3,9 +3,11 @@ import { EcrRepository } from "@gen/providers/aws/ecr-repository";
 import { TerraformOutput, DataTerraformRemoteStateS3 } from "cdktf";
 import { sharedConfig } from "@config";
 import { DataAwsCallerIdentity } from "@gen/providers/aws/data-aws-caller-identity";
+import * as crypto from "crypto";
 
 export interface EcrRepositoryConstructProps {
   repositoryName: string;
+  environment: string;
   imageTagMutability?: "MUTABLE" | "IMMUTABLE";
   scanOnPush?: boolean;
 }
@@ -23,8 +25,12 @@ export class EcrRepositoryConstruct extends Construct {
 
     const callerIdentity = new DataAwsCallerIdentity(this, "caller_identity");
 
+    const uniqueBase = `${props.repositoryName}-${props.environment}`;
+    const hash = crypto.createHash("sha1").update(uniqueBase).digest("hex").slice(0, 8);
+    const finalRepoName = `${props.repositoryName}-${props.environment}-${hash}`;
+
     const repository = new EcrRepository(this, "ecr_repo", {
-      name: props.repositoryName,
+      name: finalRepoName,
       imageTagMutability: props.imageTagMutability ?? "MUTABLE",
       imageScanningConfiguration: {
         scanOnPush: props.scanOnPush ?? true,
@@ -33,27 +39,31 @@ export class EcrRepositoryConstruct extends Construct {
 
     new TerraformOutput(this, "repository_url", {
       value: repository.repositoryUrl,
-    }).overrideLogicalId("repository_url");
+    }).overrideLogicalId(`${props.repositoryName}_${props.environment}_repository_url`);
 
     new TerraformOutput(this, "repository_name", {
       value: repository.name,
-    }).overrideLogicalId("repository_name");
+    }).overrideLogicalId(`${props.repositoryName}_${props.environment}_repository_name`);
 
     new TerraformOutput(this, "aws_region", {
       value: sharedConfig.aws.region,
-    }).overrideLogicalId("aws_region");
+    }).overrideLogicalId(`${props.repositoryName}_${props.environment}_aws_region`);
 
     new TerraformOutput(this, "aws_account_id", {
       value: callerIdentity.accountId,
-    }).overrideLogicalId("aws_account_id");
+    }).overrideLogicalId(`${props.repositoryName}_${props.environment}_aws_account_id`);
   }
 
-  static fromRemoteState(state: DataTerraformRemoteStateS3): EcrRepositoryOutputs {
+  static fromRemoteState(
+    state: DataTerraformRemoteStateS3,
+    repoName: string,
+    env: string
+  ): EcrRepositoryOutputs {
     return {
-      repositoryUrl: state.get("repository_url") as unknown as string,
-      repositoryName: state.get("repository_name") as unknown as string,
-      region: state.get("aws_region") as unknown as string,
-      accountId: state.get("aws_account_id") as unknown as string,
+      repositoryUrl: state.get(`${repoName}_${env}_repository_url`) as unknown as string,
+      repositoryName: state.get(`${repoName}_${env}_repository_name`) as unknown as string,
+      region: state.get(`${repoName}_${env}_aws_region`) as unknown as string,
+      accountId: state.get(`${repoName}_${env}_aws_account_id`) as unknown as string,
     };
   }
 }
