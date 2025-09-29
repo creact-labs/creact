@@ -10,7 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	s3Types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/fatih/color"
 )
 
@@ -67,8 +69,8 @@ func main() {
 		} else {
 			_, err = s3Client.CreateBucket(ctx, &s3.CreateBucketInput{
 				Bucket: aws.String(bucket),
-				CreateBucketConfiguration: &s3.CreateBucketConfiguration{
-					LocationConstraint: region,
+				CreateBucketConfiguration: &s3Types.CreateBucketConfiguration{
+					LocationConstraint: s3Types.BucketLocationConstraint(region),
 				},
 			})
 		}
@@ -80,8 +82,8 @@ func main() {
 
 	_, err = s3Client.PutBucketVersioning(ctx, &s3.PutBucketVersioningInput{
 		Bucket: aws.String(bucket),
-		VersioningConfiguration: &s3.VersioningConfiguration{
-			Status: "Enabled",
+		VersioningConfiguration: &s3Types.VersioningConfiguration{
+			Status: s3Types.BucketVersioningStatusEnabled,
 		},
 	})
 	if err != nil {
@@ -97,13 +99,13 @@ func main() {
 		fmt.Println(warn("Creating DynamoDB table: " + table + "..."))
 		_, err = dynamo.CreateTable(ctx, &dynamodb.CreateTableInput{
 			TableName: aws.String(table),
-			AttributeDefinitions: []dynamodb.AttributeDefinition{
-				{AttributeName: aws.String("LockID"), AttributeType: "S"},
+			AttributeDefinitions: []ddbTypes.AttributeDefinition{
+				{AttributeName: aws.String("LockID"), AttributeType: ddbTypes.ScalarAttributeTypeS},
 			},
-			KeySchema: []dynamodb.KeySchemaElement{
-				{AttributeName: aws.String("LockID"), KeyType: "HASH"},
+			KeySchema: []ddbTypes.KeySchemaElement{
+				{AttributeName: aws.String("LockID"), KeyType: ddbTypes.KeyTypeHash},
 			},
-			BillingMode: "PAY_PER_REQUEST",
+			BillingMode: ddbTypes.BillingModePayPerRequest,
 		})
 		if err != nil {
 			log.Fatalf("%s Failed to create table: %v", fail("✖"), err)

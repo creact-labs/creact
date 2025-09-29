@@ -29,8 +29,7 @@ func deployStack(name string, success, fail func(a ...interface{}) string) bool 
 	cmd := exec.Command("npx", "cdktf", "deploy", name, "--auto-approve")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		fmt.Println(fail("[FAILED] " + name + " deployment failed!"))
 		return false
 	}
@@ -74,7 +73,7 @@ func main() {
 	stacks := []string{
 		"customer-react-web-client",
 		"provider-react-web-client",
-		"ecr", // moved here
+		"ecr",
 	}
 
 	for _, file := range envFiles {
