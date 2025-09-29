@@ -26,7 +26,7 @@ jobs:
         working-directory: go
         run: make build
 
-      - name: Upload pipeline binary
+      - name: Upload pipeline binary 
         uses: actions/upload-artifact@v4
         with:
           name: pipeline-binary

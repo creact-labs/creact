@@ -1,21 +1,18 @@
 BINARY_DIR=bin
-GOFILES=backend.go deploy.go
-BINARIES=$(BINARY_DIR)/backend $(BINARY_DIR)/deploy
+GOFILES=pipeline.go
+BINARIES=$(BINARY_DIR)/pipeline
 
-.PHONY: all clean build run-backend run-deploy
+.PHONY: all clean build
 
 all: build
 
 build: $(BINARIES)
-	cp -r ../config $(BINARY_DIR)/config
 
-$(BINARY_DIR)/backend: backend.go
+$(BINARY_DIR)/pipeline: $(GOFILES)
 	mkdir -p $(BINARY_DIR)
-	go build -o $@ backend.go
-
-$(BINARY_DIR)/deploy: deploy.go
-	mkdir -p $(BINARY_DIR)
-	go build -o $@ deploy.go
+	go build -o $@ pipeline.go
+	# Copy configs into bin so pipeline can find them
+	cp -r ../config $(BINARY_DIR)/
 
 clean:
 	rm -rf $(BINARY_DIR)
