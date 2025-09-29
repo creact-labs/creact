@@ -97,13 +97,6 @@ func main() {
 		fmt.Println("S3 Bucket:  ", sharedCfg.Terraform.Backend.Bucket)
 		fmt.Println("DynamoDB:   ", sharedCfg.Terraform.Backend.DynamoDBTable)
 
-		if clients, ok := cfg["clients"].(map[string]interface{}); ok {
-			if react, ok := clients["reactWebClient"].(map[string]interface{}); ok {
-				if staticName, ok := react["staticSiteName"].(string); ok {
-					fmt.Println("StaticSite:", staticName)
-				}
-			}
-		}
 		fmt.Println(title("------------------------------------------------------------"))
 
 		for _, suffix := range stacks {
