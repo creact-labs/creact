@@ -1,5 +1,6 @@
 import { Construct } from "constructs";
 import { EcrRepository } from "@gen/providers/aws/ecr-repository";
+import { EcrLifecyclePolicy } from "@gen/providers/aws/ecr-lifecycle-policy";
 import { TerraformOutput, DataTerraformRemoteStateS3 } from "cdktf";
 import { sharedConfig } from "@config";
 import { DataAwsCallerIdentity } from "@gen/providers/aws/data-aws-caller-identity";
@@ -35,6 +36,35 @@ export class EcrRepositoryConstruct extends Construct {
       imageScanningConfiguration: {
         scanOnPush: props.scanOnPush ?? true,
       },
+    });
+
+    new EcrLifecyclePolicy(this, "ecr_lifecycle_policy", {
+      repository: repository.name,
+      policy: JSON.stringify({
+        rules: [
+          {
+            rulePriority: 1,
+            description: "Keep last 2 images tagged as latest",
+            selection: {
+              tagStatus: "tagged",
+              tagPrefixList: ["latest"],
+              countType: "imageCountMoreThan",
+              countNumber: 2,
+            },
+            action: { type: "expire" },
+          },
+          {
+            rulePriority: 2,
+            description: "Keep last 2 untagged images",
+            selection: {
+              tagStatus: "untagged",
+              countType: "imageCountMoreThan",
+              countNumber: 2,
+            },
+            action: { type: "expire" },
+          },
+        ],
+      }),
     });
 
     new TerraformOutput(this, "repository_url", {

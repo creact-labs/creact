@@ -32,5 +32,12 @@ export class EscamboEcrStack extends TerraformStack {
       imageTagMutability: "MUTABLE",
       scanOnPush: true,
     });
+
+    new EcrRepositoryConstruct(this, `widgets_service_repo_${envConfig.environment}`, {
+      repositoryName: "widgets-java-service",
+      environment: envConfig.environment,
+      imageTagMutability: "MUTABLE",
+      scanOnPush: true,
+    });
   }
 }

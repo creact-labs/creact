@@ -13,11 +13,11 @@ import { IamRolePolicyAttachment } from "@gen/providers/aws/iam-role-policy-atta
 
 export interface DockerAppRunnerConstructProps {
   hostedZoneId: string;
-  serviceName: string;
   environment: string;
   containerPort?: string;
   imageTag?: string;
   repositoryUrl: string;
+  serviceName: string;
 }
 
 export interface DockerAppRunnerOutputs {
@@ -27,6 +27,8 @@ export interface DockerAppRunnerOutputs {
   domainName: string;
   region: string;
   roleArn: string;
+  cloudfrontDomain: string;
+  siteUrl: string;
 }
 
 export class DockerAppRunnerConstruct extends Construct {
@@ -34,15 +36,15 @@ export class DockerAppRunnerConstruct extends Construct {
     super(scope, id);
 
     const { baseDomain, aws } = sharedConfig;
-    const { hostedZoneId, serviceName, environment } = props;
+    const { hostedZoneId, environment, serviceName } = props;
 
     const imageTag = props.imageTag ?? "latest";
     const containerPort = props.containerPort ?? "8080";
 
     const uniqueBase = `${serviceName}-${environment}`;
     const hash = crypto.createHash("sha1").update(uniqueBase).digest("hex").slice(0, 8);
-
     const appRunnerServiceName = `${serviceName}-${environment}-${hash}`;
+
     const domainName =
       environment === "prod"
         ? `${serviceName}.${baseDomain}`
@@ -70,7 +72,7 @@ export class DockerAppRunnerConstruct extends Construct {
     const service = new ApprunnerService(this, "docker_app_runner_service", {
       serviceName: appRunnerServiceName,
       sourceConfiguration: {
-        autoDeploymentsEnabled: true,
+        autoDeploymentsEnabled: false,
         authenticationConfiguration: { accessRoleArn: appRunnerRole.arn },
         imageRepository: {
           imageIdentifier: `${props.repositoryUrl}:${imageTag}`,
@@ -81,7 +83,7 @@ export class DockerAppRunnerConstruct extends Construct {
           },
         },
       },
-      instanceConfiguration: { cpu: "1024", memory: "2048" },
+      instanceConfiguration: { cpu: "256", memory: "512" },
     });
 
     const cert = new AcmCertificate(this, "cert", {
@@ -146,22 +148,27 @@ export class DockerAppRunnerConstruct extends Construct {
     });
 
     new TerraformOutput(this, "aws_region", { value: aws.region }).overrideLogicalId("aws_region");
+    new TerraformOutput(this, "app_runner_service_arn", { value: service.arn }).overrideLogicalId("app_runner_service_arn");
     new TerraformOutput(this, "app_runner_service_id", { value: service.serviceId }).overrideLogicalId("app_runner_service_id");
     new TerraformOutput(this, "app_runner_service_url", { value: service.serviceUrl }).overrideLogicalId("app_runner_service_url");
     new TerraformOutput(this, "app_runner_access_role_arn", { value: appRunnerRole.arn }).overrideLogicalId("app_runner_access_role_arn");
     new TerraformOutput(this, "domain_name", { value: domainName }).overrideLogicalId("domain_name");
+    new TerraformOutput(this, "site_url", { value: `https://${domainName}` }).overrideLogicalId("site_url");
     new TerraformOutput(this, "cf_distribution_id", { value: cfDistribution.id }).overrideLogicalId("cf_distribution_id");
+    new TerraformOutput(this, "cf_distribution_domain", { value: cfDistribution.domainName }).overrideLogicalId("cf_distribution_domain");
     new TerraformOutput(this, "certificate_arn", { value: cert.arn }).overrideLogicalId("certificate_arn");
   }
 
   static fromRemoteState(state: DataTerraformRemoteStateS3): DockerAppRunnerOutputs {
     return {
-      serviceArn: state.get("app_runner_service_id") as unknown as string,
+      serviceArn: state.get("app_runner_service_arn") as unknown as string,
       serviceId: state.get("app_runner_service_id") as unknown as string,
       serviceUrl: state.get("app_runner_service_url") as unknown as string,
       domainName: state.get("domain_name") as unknown as string,
       region: state.get("aws_region") as unknown as string,
       roleArn: state.get("app_runner_access_role_arn") as unknown as string,
+      cloudfrontDomain: state.get("cf_distribution_domain") as unknown as string,
+      siteUrl: state.get("site_url") as unknown as string,
     };
   }
 }

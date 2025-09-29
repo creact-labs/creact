@@ -1,6 +1,7 @@
 import { App } from "cdktf";
 import { config } from "../config";
 import { EscamboCoreJavaServiceStack, EscamboDnsStack, EscamboEcrStack, EscamboProviderReactWebClientStack, EscamboReactWebClientStack } from "./stacks";
+import { EscamboWidgetsJavaServiceStack } from "./stacks/apps/EscamboWidgetsJavaServiceStack";
 
 
 const app = new App();
@@ -23,6 +24,7 @@ Object.values(config).forEach((envConfig: any) => {
   });
 
   new EscamboCoreJavaServiceStack(app, `escambo-${env}-core-java-service`, { config: envConfig });
+  new EscamboWidgetsJavaServiceStack(app, `escambo-${env}-widgets-java-service`, { config: envConfig });
 });
 
 app.synth();

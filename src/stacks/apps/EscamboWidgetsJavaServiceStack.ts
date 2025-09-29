@@ -4,12 +4,12 @@ import { AwsProvider } from "@gen/providers/aws/provider";
 import { EnvironmentConfig, sharedConfig } from "@config";
 import { EscamboJavaServiceConstruct } from "@src/constructs";
 
-export interface EscamboCoreJavaServiceStackProps {
+export interface EscamboWidgetsJavaServiceStackProps {
   config: EnvironmentConfig;
 }
 
-export class EscamboCoreJavaServiceStack extends TerraformStack {
-  constructor(scope: Construct, id: string, props: EscamboCoreJavaServiceStackProps) {
+export class EscamboWidgetsJavaServiceStack extends TerraformStack {
+  constructor(scope: Construct, id: string, props: EscamboWidgetsJavaServiceStackProps) {
     super(scope, id);
 
     const envConfig = props.config;
@@ -20,15 +20,15 @@ export class EscamboCoreJavaServiceStack extends TerraformStack {
 
     new S3Backend(this, {
       bucket: sharedConfig.terraform.backend.bucket,
-      key: `${envConfig.environment}/core-java-service.tfstate`,
+      key: `${envConfig.environment}/widgets-java-service.tfstate`,
       region: sharedConfig.aws.region,
       dynamodbTable: sharedConfig.terraform.backend.dynamodbTable,
       encrypt: true,
     });
 
-    new EscamboJavaServiceConstruct(this, "core_java_service", {
+    new EscamboJavaServiceConstruct(this, "widgets_java_service", {
       config: envConfig,
-      serviceName: "core",
+      serviceName: "widgets",
     });
   }
 }
