@@ -20,14 +20,18 @@ jobs:
           token: ${{ secrets.GH_PAT_TOKEN }}
 
       - name: Download backend binary
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
+          github_token: ${{ secrets.GH_PAT_TOKEN }}
+          workflow: build_pipeline_binaries.yml
           name: backend-binary
           path: ./bin
 
       - name: Download deploy binary
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
+          github_token: ${{ secrets.GH_PAT_TOKEN }}
+          workflow: build_pipeline_binaries.yml
           name: deploy-binary
           path: ./bin
 
