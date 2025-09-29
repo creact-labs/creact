@@ -21,7 +21,7 @@ export class EscamboEcrStack extends TerraformStack {
 
         new S3Backend(this, {
             bucket: sharedConfig.terraform.backend.bucket,
-            key: `${envConfig.environment}/customer-react-web-client.tfstate`,
+            key: `${envConfig.environment}/ecr.tfstate`,
             region: sharedConfig.aws.region,
             dynamodbTable: sharedConfig.terraform.backend.dynamodbTable,
             encrypt: true,

@@ -71,9 +71,9 @@ func main() {
 	}
 
 	stacks := []string{
+		"ecr",
 		"customer-react-web-client",
 		"provider-react-web-client",
-		"ecr",
 	}
 
 	for _, file := range envFiles {
@@ -137,7 +137,15 @@ func setupCdktfDeps(success, fail func(a ...interface{}) string) {
 	if err := cmd.Run(); err != nil {
 		log.Fatalf("%s cdktf get failed: %v", fail("✖"), err)
 	}
-	fmt.Println(success("✔ cdktf get completed"))
+
+	fmt.Println(color.YellowString("==> RUnning CDKTF synth (cdktf synth)"))
+	cmd = exec.Command("npx", "cdktf", "synth")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("%s cdktf synth failed: %v", fail("✖"), err)
+	}
+	fmt.Println(success("✔ cdktf synth completed"))
 }
 
 // --- Backend setup (S3 + DynamoDB) ---
