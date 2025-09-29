@@ -75,7 +75,7 @@ func main() {
 		"customer-react-web-client",
 		"provider-react-web-client",
 		"core-java-service",
-		"widgets-java-service"
+		"widgets-java-service",
 	}
 
 	for _, file := range envFiles {
@@ -133,7 +133,7 @@ func setupCdktfDeps(success, fail func(a ...interface{}) string) {
 		log.Fatalf("%s cdktf get failed: %v", fail("✖"), err)
 	}
 
-	fmt.Println(color.YellowString("==> RUnning CDKTF synth (cdktf synth)"))
+	fmt.Println(color.YellowString("==> Running CDKTF synth (cdktf synth)"))
 	cmd = exec.Command("npx", "cdktf", "synth")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
