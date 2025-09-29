@@ -74,8 +74,8 @@ func main() {
 		"ecr",
 		"customer-react-web-client",
 		"provider-react-web-client",
-		"core-java-service"
-		"widgets-java-service",
+		"core-java-service",
+		"widgets-java-service"
 	}
 
 	for _, file := range envFiles {
