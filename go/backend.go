@@ -36,7 +36,7 @@ func main() {
 	fail := color.New(color.FgRed).SprintFunc()
 
 	// Load shared.json
-	sharedFile := "../config/shared/shared.json"
+	sharedFile := "./config/shared/shared.json"
 	data, err := os.ReadFile(sharedFile)
 	if err != nil {
 		log.Fatalf("Failed to read shared config: %v", err)
