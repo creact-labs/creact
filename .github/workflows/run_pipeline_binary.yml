@@ -37,7 +37,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v6
         with:
           github_token: ${{ secrets.GH_PAT_TOKEN }}
-          workflow: build_pipeline_binaries.yml
+          workflow: build_pipeline_binary.yml
           name: pipeline-binary
           path: ./bin
 
