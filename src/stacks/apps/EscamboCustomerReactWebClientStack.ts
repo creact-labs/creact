@@ -5,12 +5,12 @@ import { AwsProvider } from "@gen/providers/aws/provider";
 import { EnvironmentConfig, sharedConfig } from "@config";
 import { DnsConstruct, ReactWebClientConstruct } from "@src/constructs";
 
-export interface EscamboReactWebClientStackProps {
+export interface EscamboCustomerReactWebClientStackProps {
   config: EnvironmentConfig;
 }
 
-export class EscamboReactWebClientStack extends TerraformStack {
-  constructor(scope: Construct, id: string, props: EscamboReactWebClientStackProps) {
+export class EscamboCustomerReactWebClientStack extends TerraformStack {
+  constructor(scope: Construct, id: string, props: EscamboCustomerReactWebClientStackProps) {
     super(scope, id);
 
     const envConfig = props.config;
@@ -37,7 +37,7 @@ export class EscamboReactWebClientStack extends TerraformStack {
 
     const dns = DnsConstruct.fromRemoteState(dnsState);
 
-    new ReactWebClientConstruct(this, "main_react_web_client", {
+    new ReactWebClientConstruct(this, "customer_react_web_client", {
       hostedZoneId: dns.dnsZoneId,
       config: envConfig,
       appType: "customer",

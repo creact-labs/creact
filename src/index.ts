@@ -1,6 +1,6 @@
 import { App } from "cdktf";
 import { config } from "../config";
-import { EscamboCoreJavaServiceStack, EscamboDnsStack, EscamboEcrStack, EscamboNetworkStack, EscamboProviderReactWebClientStack, EscamboReactWebClientStack, EscamboSecretsManagerStack } from "./stacks";
+import { EscamboCoreJavaServiceStack, EscamboDnsStack, EscamboEcrStack, EscamboNetworkStack, EscamboProviderReactWebClientStack, EscamboCustomerReactWebClientStack, EscamboSecretsManagerStack } from "./stacks";
 import { EscamboWidgetsJavaServiceStack } from "./stacks/apps/EscamboWidgetsJavaServiceStack";
 import { EscamboGraphqlOrchestratorNodejsServiceStack } from "./stacks/apps/EscamboGraphqlOrchestratorNodejsServiceStack";
 
@@ -21,7 +21,7 @@ Object.values(config).forEach((envConfig: any) => {
     config: envConfig
   });
 
-  new EscamboReactWebClientStack(app, `escambo-${env}-customer-react-web-client`, {
+  new EscamboCustomerReactWebClientStack(app, `escambo-${env}-customer-react-web-client`, {
     config: envConfig
   });
   new EscamboProviderReactWebClientStack(app, `escambo-${env}-provider-react-web-client`, {

@@ -8,6 +8,7 @@
     "declaration": true,
     "alwaysStrict": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "noEmitOnError": true,
@@ -24,6 +25,8 @@
     "stripInternal": true,
     "incremental": true,
     "skipLibCheck": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "disableSourceOfProjectReferenceRedirect": true,
     "rootDir": ".",
     "outDir": "dist",
     "paths": {
