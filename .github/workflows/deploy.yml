@@ -48,12 +48,12 @@ jobs:
         run: npx cdktf deploy ${{ github.event.inputs.stack }} --auto-approve
 
       - name: Resume N8N workflow
-        if: ${{ github.event.inputs.resumeUrl != '' }}
+        if: ${{ github.event.inputs.resumeUrl != '' && always() }}
         run: |
           curl -X POST "${{ github.event.inputs.resumeUrl }}" \
             -H "Content-Type: application/json" \
             -d "{
-              \"status\": \"success\",
+              \"status\": \"${{ job.status }}\",
               \"stack\": \"${{ github.event.inputs.stack }}\",
               \"run_id\": \"${{ github.run_id }}\",
               \"repository\": \"${{ github.repository }}\"
