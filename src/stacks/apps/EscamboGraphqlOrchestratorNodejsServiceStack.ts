@@ -2,14 +2,14 @@ import { Construct } from "constructs";
 import { TerraformStack, S3Backend } from "cdktf";
 import { AwsProvider } from "@gen/providers/aws/provider";
 import { EnvironmentConfig, sharedConfig } from "@config";
-import { JavaServiceConstruct } from "@src/constructs";
+import { NodeJsServiceConstruct } from "@src/constructs";
 
-export interface EscamboCoreJavaServiceStackProps {
+export interface EscamboGraphqlOrchestratorNodejsServiceStackProps {
   config: EnvironmentConfig;
 }
 
-export class EscamboCoreJavaServiceStack extends TerraformStack {
-  constructor(scope: Construct, id: string, props: EscamboCoreJavaServiceStackProps) {
+export class EscamboGraphqlOrchestratorNodejsServiceStack extends TerraformStack {
+  constructor(scope: Construct, id: string, props: EscamboGraphqlOrchestratorNodejsServiceStackProps) {
     super(scope, id);
 
     const envConfig = props.config;
@@ -20,15 +20,16 @@ export class EscamboCoreJavaServiceStack extends TerraformStack {
 
     new S3Backend(this, {
       bucket: sharedConfig.terraform.backend.bucket,
-      key: `${envConfig.environment}/core-java-service.tfstate`,
+      key: `${envConfig.environment}/graphql-orchestrator-nodejs-service.tfstate`,
       region: sharedConfig.aws.region,
       dynamodbTable: sharedConfig.terraform.backend.dynamodbTable,
       encrypt: true,
     });
 
-    new JavaServiceConstruct(this, "core_java_service", {
+    new NodeJsServiceConstruct(this, "graphql_orchestrator_nodejs_service", {
       config: envConfig,
-      serviceName: "core",
+      serviceName: "graphql-orchestrator",
+      urlService: "api",
     });
   }
 }

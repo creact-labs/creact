@@ -18,6 +18,7 @@ export interface DockerAppRunnerConstructProps {
   imageTag?: string;
   repositoryUrl: string;
   serviceName: string;
+  urlService?: string;
 }
 
 export interface DockerAppRunnerOutputs {
@@ -36,7 +37,7 @@ export class DockerAppRunnerConstruct extends Construct {
     super(scope, id);
 
     const { baseDomain, aws } = sharedConfig;
-    const { hostedZoneId, environment, serviceName } = props;
+    const { hostedZoneId, environment, serviceName, urlService } = props;
 
     const imageTag = props.imageTag ?? "latest";
     const containerPort = props.containerPort ?? "8080";
@@ -47,8 +48,8 @@ export class DockerAppRunnerConstruct extends Construct {
 
     const domainName =
       environment === "prod"
-        ? `${serviceName}.${baseDomain}`
-        : `${serviceName}.${environment}.${baseDomain}`;
+        ? `${urlService ? urlService : serviceName}.${baseDomain}`
+        : `${urlService ? urlService : serviceName}.${environment}.${baseDomain}`;
 
     const appRunnerRole = new IamRole(this, "apprunner_ecr_role", {
       name: `${serviceName}-${environment}-apprunner-role`,

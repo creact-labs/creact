@@ -39,5 +39,13 @@ export class EscamboEcrStack extends TerraformStack {
       imageTagMutability: "MUTABLE",
       scanOnPush: true,
     });
+
+
+    new EcrRepositoryConstruct(this, `graphql_orchestrator_nodejs_service_repo_${envConfig.environment}`, {
+      repositoryName: "graphql-orchestrator-nodejs-service",
+      environment: envConfig.environment,
+      imageTagMutability: "MUTABLE",
+      scanOnPush: true,
+    });
   }
 }

@@ -3,15 +3,16 @@ import { DataTerraformRemoteStateS3 } from "cdktf";
 import { EnvironmentConfig, sharedConfig } from "@config";
 import { DnsConstruct, DockerAppRunnerConstruct, EcrRepositoryConstruct } from "@src/constructs";
 
-export interface EscamboJavaServiceConstructProps {
+export interface JavaServiceConstructProps {
   config: EnvironmentConfig;
   serviceName: string;
   containerPort?: string;
   imageTag?: string;
+  urlService?: string;
 }
 
-export class EscamboJavaServiceConstruct extends Construct {
-  constructor(scope: Construct, id: string, props: EscamboJavaServiceConstructProps) {
+export class JavaServiceConstruct extends Construct {
+  constructor(scope: Construct, id: string, props: JavaServiceConstructProps) {
     super(scope, id);
 
     const { config, serviceName } = props;
@@ -38,12 +39,11 @@ export class EscamboJavaServiceConstruct extends Construct {
       encrypt: true,
     });
     const ecr = EcrRepositoryConstruct.fromRemoteState(
-      ecrState, 
-      `${serviceName}-java-service`, 
+      ecrState,
+      `${serviceName}-java-service`,
       environment
     );
 
-    // Docker App Runner
     new DockerAppRunnerConstruct(this, `${serviceName}_docker_app_runner`, {
       hostedZoneId: dns.dnsZoneId,
       environment,

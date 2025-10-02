@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { TerraformStack, S3Backend } from "cdktf";
 import { AwsProvider } from "@gen/providers/aws/provider";
 import { EnvironmentConfig, sharedConfig } from "@config";
-import { EscamboJavaServiceConstruct } from "@src/constructs";
+import { JavaServiceConstruct } from "@src/constructs";
 
 export interface EscamboWidgetsJavaServiceStackProps {
   config: EnvironmentConfig;
@@ -26,7 +26,7 @@ export class EscamboWidgetsJavaServiceStack extends TerraformStack {
       encrypt: true,
     });
 
-    new EscamboJavaServiceConstruct(this, "widgets_java_service", {
+    new JavaServiceConstruct(this, "widgets_java_service", {
       config: envConfig,
       serviceName: "widgets",
     });
