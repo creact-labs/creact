@@ -110,7 +110,11 @@ export class CloudDOMBuilder {
     // Sort root nodes for deterministic order
     rootNodes.sort((a, b) => a.id.localeCompare(b.id));
 
-
+    // Debug trace in development mode
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`[CloudDOMBuilder] Built ${rootNodes.length} root CloudDOM nodes from ${cloudDOMNodes.length} total nodes`);
+      console.debug('[CloudDOMBuilder] Tree:', JSON.stringify(rootNodes, null, 2));
+    }
 
     // Lifecycle hook: afterBuild (supports async, isolated errors)
     if (this.afterBuildHook) {

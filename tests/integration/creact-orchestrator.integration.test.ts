@@ -130,7 +130,10 @@ describe('CReact Orchestrator - Integration Tests', () => {
       // Assert: File contains formatted JSON
       const fileContent = fs.readFileSync(cloudDOMPath, 'utf-8');
       const parsedContent = JSON.parse(fileContent);
-      expect(parsedContent).toEqual(cloudDOM);
+      
+      // Compare without construct field (functions can't be serialized)
+      const cloudDOMWithoutConstruct = JSON.parse(JSON.stringify(cloudDOM));
+      expect(parsedContent).toEqual(cloudDOMWithoutConstruct);
 
       // Assert: JSON is formatted (has indentation)
       // Note: Empty arrays produce '[]' which is correct, non-empty arrays have newlines
@@ -468,7 +471,10 @@ describe('CReact Orchestrator - Integration Tests', () => {
       // Assert: Persisted file matches CloudDOM structure
       const fileContent = fs.readFileSync(path.join(testDir, 'clouddom.json'), 'utf-8');
       const parsedContent = JSON.parse(fileContent);
-      expect(parsedContent).toEqual(cloudDOM);
+      
+      // Compare without construct field (functions can't be serialized)
+      const cloudDOMWithoutConstruct = JSON.parse(JSON.stringify(cloudDOM));
+      expect(parsedContent).toEqual(cloudDOMWithoutConstruct);
 
       // Assert: Checksum is valid
       const checksum = fs.readFileSync(path.join(testDir, 'clouddom.sha256'), 'utf-8');

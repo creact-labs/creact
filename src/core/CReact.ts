@@ -162,6 +162,7 @@ export class CReact {
     // return this.reconciler.diff(previous, current);
     
     // Placeholder implementation
+    console.log('[CReact] compare() - Reconciler not yet implemented (Phase 3)');
     return {
       creates: [],
       updates: [],
@@ -200,12 +201,15 @@ export class CReact {
       const hasChanges = JSON.stringify(previousState.cloudDOM) !== JSON.stringify(cloudDOM);
       
       if (!hasChanges) {
+        console.log('[CReact] No changes detected. Deployment skipped (idempotent).');
         this.log('CloudDOM is identical to previous state');
         return;
       }
       
+      console.log('[CReact] Changes detected, proceeding with deployment...');
       this.log('CloudDOM differs from previous state');
     } else {
+      console.log('[CReact] No previous state found, proceeding with initial deployment...');
       this.log('First deployment for this stack');
     }
     
@@ -476,10 +480,6 @@ export class CReact {
       const checksum = this.calculateChecksum(cloudDOMJson);
       this.log(`CloudDOM checksum: ${checksum}`);
       
-      // Defensive check: ensure directory still exists after lock acquisition
-      // (it might have been deleted by cleanup between lock and write)
-      await fs.promises.mkdir(creactDir, { recursive: true });
-      
       // Use atomic writes to prevent partial data corruption
       // Write to temp file first, then rename (atomic operation)
       const cloudDOMPath = path.join(creactDir, 'clouddom.json');
@@ -487,23 +487,18 @@ export class CReact {
       const tmpPath = `${cloudDOMPath}.tmp`;
       const tmpChecksumPath = `${checksumPath}.tmp`;
       
-      // Write files with defensive directory checks before each operation
-      // This handles race conditions where cleanup might delete the directory
+      // Write files atomically
       try {
         this.log(`Writing CloudDOM to temporary file: ${tmpPath}`);
-        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
         await fs.promises.writeFile(tmpPath, cloudDOMJson, 'utf-8');
         
         this.log(`Writing checksum to temporary file: ${tmpChecksumPath}`);
-        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
         await fs.promises.writeFile(tmpChecksumPath, checksum, 'utf-8');
         
         this.log(`Atomically renaming to: ${cloudDOMPath}`);
-        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
         await fs.promises.rename(tmpPath, cloudDOMPath);
         
         this.log(`Atomically renaming checksum to: ${checksumPath}`);
-        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
         await fs.promises.rename(tmpChecksumPath, checksumPath);
       } catch (error: any) {
         // Clean up temp files if they exist
@@ -522,8 +517,10 @@ export class CReact {
       this.log(
         `CloudDOM persistence completed at ${new Date(endTime).toISOString()} (latency: ${latencyMs}ms)`
       );
-      this.log(
-        `CloudDOM persisted to: ${cloudDOMPath} (${latencyMs}ms, checksum: ${checksum.substring(0, 8)}...)`
+      
+      // Log file path after successful save (for user feedback and testing)
+      console.log(
+        `[CReact] CloudDOM persisted to: ${cloudDOMPath} (${latencyMs}ms, checksum: ${checksum.substring(0, 8)}...)`
       );
       
       return cloudDOMPath;

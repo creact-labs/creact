@@ -270,11 +270,11 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - Unit tests verify file persistence
     - Integration tests verify persistence after build
   - **QA Checklist:**
-    - [ ] .creact/ directory created if missing
-    - [ ] CloudDOM saved to .creact/clouddom.json
-    - [ ] JSON formatted with indentation
-    - [ ] File path logged after saving
-    - [ ] Tests verify persistence works
+    - [x] .creact/ directory created if missing
+    - [x] CloudDOM saved to .creact/clouddom.json
+    - [x] JSON formatted with indentation
+    - [x] File path logged after saving
+    - [x] Tests verify persistence works
 
 - [x] 9. Implement useInstance hook
   - Create `useInstance(construct, props)` hook
@@ -292,12 +292,12 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - Unit tests verify node attachment to Fiber
     - Integration tests verify hook usage in components
   - **QA Checklist:**
-    - [ ] useInstance hook created
-    - [ ] Resource ID generated from Fiber path
-    - [ ] CloudDOM node created and attached
-    - [ ] Construct type and props stored
-    - [ ] Reference to resource returned
-    - [ ] Tests verify hook behavior
+    - [x] useInstance hook created
+    - [x] Resource ID generated from Fiber path
+    - [x] CloudDOM node created and attached
+    - [x] Construct type and props stored
+    - [x] Reference to resource returned
+    - [x] Tests verify hook behavior
 
 - [ ] 10. Implement naming system
   - Generate resource IDs from Fiber paths (e.g., `['registry', 'service']` → `'registry.service'`)
