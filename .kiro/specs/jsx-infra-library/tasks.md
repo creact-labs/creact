@@ -27,12 +27,12 @@ Each task references the corresponding requirement (REQ-XX) from the CReact Desi
 Foundation: Provider interfaces, dummy implementations, and core pipeline components.
 
 - [x] 1. Setup package structure
-  - Create `lib/creact/` directory with src/ subdirectories
+  - Create root directory structure with `src/` subdirectories
   - Initialize package.json with TypeScript and JSX support
   - Configure tsconfig.json for JSX transformation
   - Install dependencies: React types only (no CDKTF for POC)
   - _Requirements: All_
-  - **Note:** Do NOT run npm install automatically
+  - **Note:** Project is now in root directory (standalone repository), not `lib/creact/`
 
 - [x] 2. Implement provider interfaces (dependency injection foundation)
   - Create `ICloudProvider` interface with `materialize()` method
@@ -77,7 +77,7 @@ Foundation: Provider interfaces, dummy implementations, and core pipeline compon
   - _Requirements: REQ-07_
   - **Note:** Do NOT run any test commands
 
-- [ ] 6. Implement CloudDOMBuilder (Fiber → CloudDOM)
+- [x] 6. Implement CloudDOMBuilder (Fiber → CloudDOM)
   - Create `CloudDOMBuilder` class that receives `ICloudProvider` via constructor
   - Implement `build(fiber)` method that traverses Fiber tree
   - Collect nodes with `useInstance` calls
@@ -90,121 +90,23 @@ Foundation: Provider interfaces, dummy implementations, and core pipeline compon
 
 ## Phase 0.5: Test Reorganization (Before Milestone 1)
 
-Foundation: Reorganize and optimize existing tests before continuing with new features.
+**See detailed tasks in:** `.kiro/specs/test-reorganization/tasks.md`
 
-- [ ] 0.1. Analyze current test structure
-  - Document total lines per test file
-  - Identify duplicate patterns across files
-  - Categorize tests by value (critical/important/nice-to-have)
-  - Measure test execution time per file
-  - Create analysis report in `.kiro/specs/test-reorganization/analysis.md`
-  - _Requirements: Test Reorganization REQ-01_
+Foundation: Reorganize and optimize existing tests before continuing with new features. This phase reduces test code by 43% (6,600 → 3,800 lines), eliminates 50%+ duplication through shared helpers, and improves test execution time by 20%+.
 
-- [ ] 0.2. Create shared test helpers
-  - Create `lib/creact/src/__tests__/helpers/` directory
-  - Implement `fiber-helpers.ts` with `createMockFiber()`, `createFiberTree()`
-  - Implement `clouddom-helpers.ts` with `createMockCloudDOM()`, `createCloudDOMTree()`
-  - Implement `provider-helpers.ts` with `createMockProvider()`, `createMockBackend()`
-  - Implement `assertion-helpers.ts` with `expectValidationError()`, `expectNoThrow()`
-  - Export all helpers from `helpers/index.ts`
-  - _Requirements: Test Reorganization REQ-03_
+**Quick Summary:**
+- Create shared test helpers to eliminate duplication
+- Reorganize tests into domain-based structure (unit/integration/edge-cases/performance/contracts)
+- Split oversized files (some are 1,593 lines!) into focused files (<300 lines each)
+- Use parameterized tests to reduce redundancy
+- Separate performance tests from regular test runs
 
-- [ ] 0.3. Create domain-based test structure
-  - Create `lib/creact/src/__tests__/unit/` directory
-  - Create `lib/creact/src/__tests__/integration/` directory
-  - Create `lib/creact/src/__tests__/edge-cases/` directory
-  - Create `lib/creact/src/__tests__/performance/` directory
-  - Create `lib/creact/src/__tests__/contracts/` directory
-  - Add README.md explaining test organization
-  - _Requirements: Test Reorganization REQ-02_
-
-- [ ] 0.4. Reorganize Renderer tests
-  - Split `Renderer.test.ts` into:
-    - `unit/renderer.unit.test.ts` (core functionality, <300 lines)
-    - `edge-cases/renderer.edge-cases.test.ts` (edge cases, <300 lines)
-  - Move production-critical tests from `Renderer.production.test.ts` to edge-cases
-  - Convert similar test cases to parameterized tests using `it.each()`
-  - Use shared helpers to reduce boilerplate
-  - Remove redundant tests that duplicate coverage
-  - _Requirements: Test Reorganization REQ-02, REQ-04, REQ-05_
-
-- [ ] 0.5. Reorganize Validator tests
-  - Split `Validator.test.ts` into:
-    - `unit/validator.unit.test.ts` (core validation, <300 lines)
-    - `edge-cases/validator.edge-cases.test.ts` (edge cases, <300 lines)
-  - Move production-critical tests from `Validator.production.test.ts` to edge-cases
-  - Consolidate duplicate validation scenarios
-  - Use parameterized tests for similar validation cases
-  - Use shared helpers for Fiber creation
-  - _Requirements: Test Reorganization REQ-02, REQ-04, REQ-05_
-
-- [ ] 0.6. Reorganize CloudDOMBuilder tests
-  - Split `CloudDOMBuilder.test.ts` into:
-    - `unit/clouddom-builder.unit.test.ts` (core building, <300 lines)
-    - `edge-cases/clouddom-builder.edge-cases.test.ts` (edge cases, <200 lines)
-  - Use shared helpers for Fiber and CloudDOM creation
-  - Convert repetitive hierarchy tests to parameterized tests
-  - Remove tests that duplicate coverage
-  - _Requirements: Test Reorganization REQ-02, REQ-04, REQ-05_
-
-- [ ] 0.7. Reorganize Provider tests
-  - Split `providers.test.ts` into:
-    - `unit/cloud-provider.unit.test.ts` (DummyCloudProvider, <300 lines)
-    - `unit/backend-provider.unit.test.ts` (DummyBackendProvider, <300 lines)
-  - Move production-critical tests from `providers.production.test.ts` to:
-    - `edge-cases/cloud-provider.edge-cases.test.ts` (<200 lines)
-    - `edge-cases/backend-provider.edge-cases.test.ts` (<200 lines)
-  - Use shared provider helpers
-  - Consolidate concurrent operation tests
-  - _Requirements: Test Reorganization REQ-02, REQ-04_
-
-- [ ] 0.8. Consolidate integration tests
-  - Move `integration-pipeline.test.ts` to `integration/pipeline.integration.test.ts`
-  - Combine related workflow scenarios
-  - Remove redundant integration tests
-  - Focus on critical user journeys
-  - Keep file under 400 lines
-  - _Requirements: Test Reorganization REQ-08_
-
-- [ ] 0.9. Separate performance tests
-  - Move performance tests to `performance/` directory:
-    - `performance/renderer.performance.test.ts`
-    - `performance/validator.performance.test.ts`
-    - `performance/clouddom-builder.performance.test.ts`
-    - `performance/providers.performance.test.ts`
-  - Add performance thresholds and assertions
-  - Tag tests for separate execution
-  - Keep each file under 200 lines
-  - _Requirements: Test Reorganization REQ-07_
-
-- [ ] 0.10. Move contract tests
-  - Move `interface-contracts.test.ts` to `contracts/provider-contracts.test.ts`
-  - Add contract tests for other interfaces
-  - Keep file under 200 lines
-  - _Requirements: Test Reorganization REQ-02_
-
-- [ ] 0.11. Consolidate parameterized tests
-  - Move `parameterized.test.ts` content into relevant domain tests
-  - Ensure parameterized patterns are used throughout
-  - Remove standalone parameterized file
-  - _Requirements: Test Reorganization REQ-05_
-
-- [ ] 0.12. Update test configuration
-  - Update vitest.config.ts to recognize new structure
-  - Add test:unit, test:integration, test:performance scripts
-  - Update CI/CD to run tests separately
-  - Verify all tests still pass
-  - _Requirements: Test Reorganization REQ-09_
-
-- [ ] 0.13. Document test organization
-  - Create `lib/creact/src/__tests__/README.md` with:
-    - Directory structure explanation
-    - Guidelines for adding new tests
-    - Examples of using test helpers
-    - How to run different test suites
-  - Document test helper APIs
-  - Add migration notes for contributors
-  - _Requirements: Test Reorganization REQ-09_
+**Expected Outcomes:**
+- 20 focused test files (vs 10 large files)
+- ~3,800 lines (vs ~6,600 lines)
+- Max file size: 300 lines (vs 1,593 lines)
+- Same or better code coverage
+- 20%+ faster test execution
 
 ### Milestone 0.5 Verification (After Test Reorganization)
 
@@ -241,7 +143,7 @@ $ ts-node examples/poc.tsx --dry-run
 
 Build the main orchestrator and implement hooks for resource creation and state management.
 
-- [ ] 7. Implement CReact orchestrator (main class)
+- [x] 7. Implement CReact orchestrator (main class)
   - Create `CReactConfig` interface with: `cloudProvider`, `backendProvider`, `migrationMap?`, `asyncTimeout?`
   - Create `CReact` class that receives `CReactConfig` via constructor
   - Instantiate `Renderer`, `Validator`, `CloudDOMBuilder` (inject cloudProvider), `Reconciler` (inject migrationMap)
@@ -277,33 +179,39 @@ Build the main orchestrator and implement hooks for resource creation and state 
   - _Requirements: REQ-01_
   - **Note:** Do NOT run any test commands
 
-- [ ] 11. Implement useState hook
-  - Create `useState(initialValue)` hook
-  - Store state in current Fiber node
+- [ ] 11. Implement useState hook (declarative output binding)
+  - Create `useState(initialOutputs)` hook
+  - Store outputs in current Fiber node
   - Return `[state, setState]` tuple
-  - `setState` is no-op for now (build-time only)
-  - State becomes outputs for the component
+  - Implement `setState(updates)` to update output map (NOT a render trigger)
+  - During build: `setState()` collects values known at build-time
+  - During deploy: `setState()` patches in async resources (queue URLs, ARNs)
+  - Outputs become persisted state for the component
   - _Requirements: REQ-02_
+  - **Key:** `setState()` is a persistent output update mechanism, not a reactive updater
   - **Note:** Do NOT run any test commands
 
 - [ ] 12. Implement Stack Context
   - Create `StackContext` with `Provider` and `Consumer`
   - Implement `useStackContext()` hook
-  - Traverse Fiber tree depth-first to find nearest Provider (REQ-02.3)
+  - Traverse Fiber tree depth-first to find nearest Provider (REQ-02.5)
   - Return Provider's value
-  - Support optional stack name parameter for remote state
+  - Support optional stack name parameter for remote state (REQ-02.8)
   - _Requirements: REQ-02_
   - **Note:** Do NOT run any test commands
 
-- [ ] 13. Implement output system
+- [ ] 13. Implement output system (persistent state snapshots)
   - Extract outputs from `useState` calls in Fiber nodes
   - Store outputs in CloudDOM nodes
   - Generate output names: `nodeId.stateKey` (e.g., `'registry.repositoryUrl'`)
+  - Persist outputs to backend provider after deploy (REQ-02.7)
+  - On next build, merge persisted outputs into state context
   - DummyCloudProvider logs outputs during materialization
   - _Requirements: REQ-02, REQ-06_
+  - **Key:** Outputs are persisted to backend for reconciliation on next build
   - **Note:** Do NOT run any test commands
 
-### Milestone 2 Verification (After Task 13)
+### Milestone 2 Verification (After Task 14)
 
 **Verification Run:**
 ```bash
@@ -311,17 +219,22 @@ $ ts-node examples/poc.tsx
 ```
 
 ✅ **Expect:**
-- ✔ Hooks work correctly (`useInstance`, `useState`, `useStackContext`)
+- ✔ Hooks work correctly (`useInstance`, `useState`, `useStackContext`, `useEffect`)
+- ✔ `useState()` declares outputs (NOT reactive state)
+- ✔ `setState()` updates output map (NOT a render trigger)
+- ✔ `useEffect()` runs once at mount, cleanup runs at unmount
 - ✔ CloudDOM nodes have correct IDs and outputs
 - ✔ Stack Context resolves depth-first to nearest Provider
 - ✔ Outputs logged in format: `nodeId.outputKey = value`
-- _Validates: REQ-01, REQ-02, REQ-03_
+- ✔ Outputs persisted to backend provider
+- ✔ On next build, persisted outputs merged into state context
+- _Validates: REQ-01, REQ-02, REQ-03, REQ-12_
 
-## Phase 3: Diff & Lifecycle (Tasks 14–18)
+## Phase 3: Diff & Lifecycle (Tasks 15–19)
 
-Implement reconciliation, migration hooks, and lifecycle management.
+Implement reconciliation, migration hooks, lifecycle management, and component callbacks.
 
-- [ ] 14. Implement Reconciler (diff logic)
+- [ ] 15. Implement Reconciler (diff logic)
   - Create `Reconciler` class that receives optional `migrationMap` via constructor
   - Implement `diff(previous, current)` method
   - Compare CloudDOM trees by ID
@@ -329,10 +242,10 @@ Implement reconciliation, migration hooks, and lifecycle management.
   - Detect: deletes (ID in previous only)
   - Detect: updates (ID in both, props changed)
   - Detect: moves (same resource, different ID)
-  - _Requirements: REQ-01, REQ-05_
+  - _Requirements: REQ-05, REQ-08_
   - **Note:** Do NOT run any test commands
 
-- [ ] 15. Implement migration map versioning (REQ-08.5)
+- [ ] 16. Implement migration map versioning
   - Store migration maps in backend state with version and timestamp
   - Create `MigrationMapVersion` interface
   - Append to `migrationHistory` array in state
@@ -340,7 +253,7 @@ Implement reconciliation, migration hooks, and lifecycle management.
   - _Requirements: REQ-08.5_
   - **Note:** Do NOT run any test commands
 
-- [ ] 16. Implement migration hooks (REQ-08)
+- [ ] 17. Implement migration hooks
   - Update `Reconciler` to check migration map for ID changes (REQ-08.2)
   - Treat mapped ID changes as updates (REQ-08.1)
   - Preserve resource state during refactoring (REQ-08.3)
@@ -348,7 +261,7 @@ Implement reconciliation, migration hooks, and lifecycle management.
   - _Requirements: REQ-08_
   - **Note:** Do NOT run any test commands
 
-- [ ] 17. Implement provider lifecycle hooks (REQ-09)
+- [ ] 18. Implement provider lifecycle hooks
   - Update `CReact.deploy()` to call lifecycle hooks
   - Call `preDeploy(cloudDOM)` before materialization (REQ-09.1)
   - Call `postDeploy(cloudDOM, outputs)` after materialization (REQ-09.2)
@@ -367,11 +280,38 @@ Implement reconciliation, migration hooks, and lifecycle management.
   - _Requirements: REQ-09_
   - **Note:** Do NOT run any test commands
 
-## Phase 4: CLI & Utilities (Tasks 19–24)
+- [ ] 19. Implement component lifecycle callbacks
+  - Add support for `onDeploy` callback in useInstance props (REQ-11.1)
+  - Add support for `onStage` callback in useInstance props (REQ-11.2)
+  - Add support for `onDestroy` callback in useInstance props (REQ-11.3)
+  - Invoke callbacks at appropriate lifecycle stages
+  - Pass outputs and CloudDOM node to callbacks (REQ-11.5)
+  - Support async callbacks (REQ-11.6)
+  - Halt deployment on callback failure (REQ-11.4)
+  - _Requirements: REQ-11_
+  - **Note:** Do NOT run any test commands
 
-Build CLI commands and implement security/logging utilities.
+### Milestone 3 Verification (After Task 19)
 
-- [ ] 18. Implement async resource handling (REQ-10)
+**Verification Run:**
+```bash
+$ ts-node examples/lifecycle-example.tsx
+```
+
+✅ **Expect:**
+- ✔ Reconciler correctly diffs CloudDOM trees
+- ✔ Migration maps preserve resource identity during refactoring
+- ✔ Provider lifecycle hooks execute in correct order (preDeploy → materialize → postDeploy)
+- ✔ Component callbacks (onDeploy, onStage, onDestroy) execute at correct stages
+- ✔ Structured JSON logs emitted for lifecycle events
+- ✔ Deployment halts on hook/callback failures
+- _Validates: REQ-05, REQ-08, REQ-09, REQ-11_
+
+## Phase 4: Async Handling & CLI (Tasks 20–26)
+
+Build async resource handling, CLI commands, and security/logging utilities.
+
+- [ ] 20. Implement async resource handling
   - Add `asyncTimeout` to `CReactConfig` (default 5 minutes) (REQ-10.5)
   - Update deployment to resolve dependencies in order (REQ-10.2)
   - Wait for parent outputs before deploying children (REQ-10.3)
@@ -380,7 +320,7 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-10_
   - **Note:** Do NOT run any test commands
 
-- [ ] 19. Implement CLI: build command
+- [ ] 21. Implement CLI: build command
   - Create `cli/build.ts`
   - Parse JSX file path from arguments
   - Instantiate DummyCloudProvider and DummyBackendProvider
@@ -392,7 +332,7 @@ Build CLI commands and implement security/logging utilities.
   - **Key:** CLI is where providers are instantiated and injected
   - **Note:** Do NOT run CLI commands automatically
 
-- [ ] 20. Implement CLI: validate command
+- [ ] 22. Implement CLI: validate command
   - Create `cli/validate.ts`
   - Parse JSX file path from arguments
   - Instantiate CReact with dummy providers
@@ -403,7 +343,7 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-07_
   - **Note:** Do NOT run CLI commands automatically
 
-- [ ] 21. Implement CLI: compare command
+- [ ] 23. Implement CLI: compare command
   - Create `cli/compare.ts`
   - Load previous CloudDOM from `.creact/clouddom.json`
   - Build current CloudDOM from JSX
@@ -416,7 +356,7 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-05_
   - **Note:** Do NOT run CLI commands automatically
 
-- [ ] 22. Implement CLI: deploy command
+- [ ] 24. Implement CLI: deploy command
   - Create `cli/deploy.ts`
   - Load CloudDOM from `.creact/clouddom.json`
   - Call `creact.deploy(cloudDOM)`
@@ -426,7 +366,26 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-05_
   - **Note:** Do NOT run CLI commands automatically
 
-- [ ] 23. Implement secret redaction (REQ-NF-02.1)
+### Milestone 4 Verification (After Task 24)
+
+**Verification Run:**
+```bash
+$ creact validate examples/poc.tsx
+$ creact build examples/poc.tsx
+$ creact compare examples/poc.tsx
+$ creact deploy
+```
+
+✅ **Expect:**
+- ✔ All CLI commands execute successfully
+- ✔ Async resources resolve with proper timeout handling
+- ✔ Build completes in <2s for <10 resources
+- ✔ Compare completes in <1s
+- ✔ Progress indicators show during long operations
+- ✔ Error messages include file paths and remediation suggestions
+- _Validates: REQ-01, REQ-05, REQ-07, REQ-10, REQ-NF-01, REQ-NF-03_
+
+- [ ] 25. Implement secret redaction
   - Create `SecretRedactor` class
   - Define secret patterns: password, secret, token, key, credential
   - Implement `redact(obj)` method that recursively redacts secrets
@@ -435,7 +394,7 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-NF-02.1_
   - **Note:** Do NOT run any test commands
 
-- [ ] 24. Implement structured logging (REQ-09.5)
+- [ ] 26. Implement structured logging
   - Add log levels: info, warn, error
   - Emit JSON logs for lifecycle hooks
   - Include timestamps and request IDs
@@ -443,14 +402,14 @@ Build CLI commands and implement security/logging utilities.
   - _Requirements: REQ-09.5, REQ-NF-02_
   - **Note:** Do NOT run any test commands
 
-## Phase 5: Examples & Validation (Tasks 25–27)
+## Phase 5: Examples & Final Validation (Tasks 27–29)
 
-Create examples and perform final POC validation.
+Create comprehensive examples and perform final POC validation.
 
-- [ ] 25. Create POC example with dependency injection
+- [ ] 27. Create POC example with dependency injection
   - Create `examples/poc.tsx`
   - Define dummy constructs: `DummyRegistry`, `DummyService`
-  - Create `RegistryStack` component with `useInstance` and `useState`
+  - Create `RegistryStack` component with `useInstance`, `useState`, and `useEffect`
   - Create `Service` component with `useStackContext`
   - Show dependency injection pattern:
     ```typescript
@@ -464,24 +423,51 @@ Create examples and perform final POC validation.
   - **Key:** Example demonstrates dependency injection
   - **Note:** Do NOT run the example automatically
 
-- [ ] 26. Create custom hook examples (REQ-03)
+- [ ] 28. Create custom hook examples
   - Create `examples/custom-hooks.tsx`
   - Implement `useVpc()` hook with sensible defaults
   - Implement `useDatabase()` hook with best practices
-  - Show composition of `useInstance` and `useStackContext`
+  - Show composition of `useInstance`, `useStackContext`, and `useEffect`
   - Document how to create domain-specific hooks
   - _Requirements: REQ-03_
   - **Note:** Do NOT run any test commands
 
-- [ ] 27. Verification Run (Final POC Validation)
+- [ ] 29. Verification Run (Final POC Validation)
   - Run full CLI flow manually: `build`, `validate`, `compare`, `deploy`
   - Confirm expected output logs match POC Success Criteria
   - Measure build time (<2s for <10 resources) (REQ-NF-01.1)
   - Measure compare time (<1s) (REQ-NF-01.2)
   - Validate no secrets appear in output (REQ-NF-02.1)
+  - Test useEffect setup/teardown behavior
+  - Test component lifecycle callbacks (onDeploy, onStage, onDestroy)
   - Document results in README
-  - _Requirements: REQ-NF-01, REQ-NF-02, REQ-NF-03_
+  - _Requirements: REQ-NF-01, REQ-NF-02, REQ-NF-03, REQ-11, REQ-12_
   - **Note:** Manual verification - document results
+
+### Milestone 5 Verification (Final POC Complete)
+
+**Verification Run:**
+```bash
+$ npm run test:all
+$ creact validate examples/poc.tsx
+$ creact build examples/poc.tsx
+$ creact compare examples/poc.tsx
+$ creact deploy
+```
+
+✅ **Expect:**
+- ✔ All tests pass (unit, integration, edge-cases, performance)
+- ✔ Full CLI workflow executes successfully
+- ✔ All hooks work correctly (useState, useStackContext, useInstance, useEffect)
+- ✔ Component lifecycle callbacks execute at correct stages
+- ✔ Provider lifecycle hooks execute in correct order
+- ✔ Secrets redacted in all output
+- ✔ Performance targets met (<2s build, <1s compare)
+- ✔ CloudDOM persisted correctly
+- ✔ State persisted to backend
+- ✔ Migration maps preserve resource identity
+- ✔ Idempotent deployments work correctly
+- _Validates: ALL REQUIREMENTS (REQ-01 through REQ-12, REQ-NF-01 through REQ-NF-03)_
 
 ## POC Success Criteria
 
@@ -576,12 +562,13 @@ $ creact deploy
 
 | Deliverable | Description | Location |
 |-------------|-------------|----------|
-| **Core library** | CReact core classes (Renderer, Validator, CloudDOMBuilder, Reconciler, CReact) | `lib/creact/core/` |
-| **Dummy providers** | Logging + in-memory POC providers | `lib/creact/providers/` |
-| **CLI commands** | Build / Validate / Compare / Deploy | `lib/creact/cli/` |
-| **Hooks** | useInstance / useState / useStackContext | `lib/creact/hooks/` |
-| **Context** | StackContext Provider/Consumer | `lib/creact/context/` |
+| **Core library** | CReact core classes (Renderer, Validator, CloudDOMBuilder, Reconciler, CReact) | `src/core/` |
+| **Dummy providers** | Logging + in-memory POC providers | `src/providers/` |
+| **CLI commands** | Build / Validate / Compare / Deploy | `src/cli/` |
+| **Hooks** | useInstance / useState / useStackContext | `src/hooks/` |
+| **Context** | StackContext Provider/Consumer | `src/context/` |
 | **Examples** | POC & custom hooks | `examples/` |
+| **Tests** | Unit, integration, edge-cases, performance | `tests/` |
 | **Output** | CloudDOM JSON (persisted) | `.creact/clouddom.json` |
 | **Logs** | Structured JSON logs | Console output |
 

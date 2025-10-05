@@ -2,18 +2,25 @@
 
   ## Core Analogy
 
-  CReact is React for infrastructure. Same concepts, different target.
+  CReact is React for infrastructure. Same concepts, different semantics.
 
-  | React | CReact | Purpose |
-  |-------|--------|---------|
-  | JSX → DOM | JSX → CloudDOM | Declarative definition |
-  | `useState()` | `useState()` | Manage component state/outputs |
-  | `useContext()` | `useStackContext()` | Share stack state |
-  | `ReactDOM.render()` | `creact build` | Build phase |
-  | Reconciler diff | `creact compare` | Show changes |
-  | Auto-apply | `creact deploy` (manual) | User approval required |
+  | Concept | React | CReact | Purpose |
+  |---------|-------|--------|---------|
+  | JSX | JSX → DOM | JSX → CloudDOM | Declarative definition |
+  | `useState()` | Initialize local state | Declare initial outputs | State vs Output declaration |
+  | `setState()` | Triggers re-render | Updates output map persisted after build/deploy | Reactivity vs Persistence |
+  | `useContext()` | Share state | `useStackContext()` - Share outputs | Context sharing |
+  | Runtime model | Continuous loop | One-shot render (build, diff, deploy) | Execution model |
+  | Persistence | In memory | To backend (S3, DynamoDB, etc.) | State storage |
+  | `ReactDOM.render()` | Render to DOM | `creact build` | Build phase |
+  | Reconciler diff | Virtual DOM diff | `creact compare` | Show changes |
+  | Auto-apply | Immediate | `creact deploy` (manual) | User approval required |
 
-  **Key difference:** Infrastructure changes are high-risk, require approval.
+  **Key differences:**
+  - Infrastructure changes are high-risk, require approval
+  - `useState()` does NOT mean "update state at runtime" - it means "declare the outputs this component will publish to the next render cycle"
+  - `setState()` is NOT a reactive updater like React - it's a declarative binder that tells CReact what to persist in the state snapshot
+  - State is persisted to backend for reproducibility, not kept in memory
 
   ## Design Principles
 
@@ -73,20 +80,23 @@
 
   | Design Component | Implements / Supports |
   |------------------|----------------------|
-  | **Renderer.ts** | REQ-01 |
-  | **CloudDOMBuilder.ts** | REQ-01, REQ-05 |
-  | **Validator.ts** | REQ-07 |
-  | **Reconciler.ts** | REQ-05, REQ-08 |
-  | **useState.ts** | REQ-02 |
-  | **useStackContext.ts** | REQ-02 |
-  | **useInstance.ts** | REQ-03 |
-  | **ICloudProvider.ts** | REQ-04, REQ-09 |
-  | **IBackendProvider.ts** | REQ-04, REQ-05, REQ-06 |
-  | **CReact.ts** | REQ-01 → REQ-10 (orchestrates all) |
-  | **DummyCloudProvider.ts** | REQ-04 (test), REQ-09 |
-  | **DummyBackendProvider.ts** | REQ-04, REQ-06 (test) |
-  | **CLI (build, compare, deploy)** | REQ-01, REQ-05, REQ-07, REQ-NF-03 |
-  | **Logging subsystem** | REQ-09.5 |
+  | **Renderer.ts** | REQ-01 (JSX → CloudDOM rendering) |
+  | **CloudDOMBuilder.ts** | REQ-01 (CloudDOM building), REQ-05 (Deployment orchestration) |
+  | **Validator.ts** | REQ-07 (Error handling & validation) |
+  | **Reconciler.ts** | REQ-05 (Deployment orchestration), REQ-08 (Migration hooks) |
+  | **useState.ts** | REQ-02 (Stack Context - declarative outputs) |
+  | **useStackContext.ts** | REQ-02 (Stack Context - declarative outputs) |
+  | **useInstance.ts** | REQ-03 (Resource creation via hooks) |
+  | **useEffect.ts** | REQ-12 (useEffect hook - setup/teardown) |
+  | **ICloudProvider.ts** | REQ-04 (Providers), REQ-09 (Provider lifecycle hooks), REQ-11 (Component lifecycle callbacks) |
+  | **IBackendProvider.ts** | REQ-04 (Providers), REQ-05 (Deployment), REQ-06 (Universal output access) |
+  | **CReact.ts** | REQ-01 → REQ-12 (orchestrates all functional requirements) |
+  | **DummyCloudProvider.ts** | REQ-04 (Providers - test impl), REQ-09 (Lifecycle hooks - test impl) |
+  | **DummyBackendProvider.ts** | REQ-04 (Providers - test impl), REQ-06 (Output access - test impl) |
+  | **CLI (build, compare, deploy)** | REQ-01 (Build), REQ-05 (Deploy), REQ-07 (Validation), REQ-NF-03 (Usability) |
+  | **SecretRedactor.ts** | REQ-NF-02 (Security - secret redaction) |
+  | **Logging subsystem** | REQ-09 (Structured JSON logging), REQ-NF-03 (Usability) |
+  | **Component callbacks** | REQ-11 (onDeploy, onStage, onDestroy callbacks) |
 
   ## Architecture
 
@@ -104,7 +114,7 @@
 
   ## CReact Lifecycle
 
-  ### Phase 1 — Render (JSX → Fiber)
+  ### Phase 1 — Render (JSX → Fiber) [REQ-01]
 
   **Input:** JSX components  
   **Output:** Fiber tree (includes ALL components)
@@ -128,7 +138,7 @@
 
   **Key:** Fiber includes containers + resources
 
-  ### Phase 2 — Commit (Fiber → CloudDOM)
+  ### Phase 2 — Commit (Fiber → CloudDOM) [REQ-01]
 
   **Input:** Fiber tree  
   **Output:** CloudDOM tree (only `useInstance` calls)
@@ -153,7 +163,7 @@
   - Resource IDs unique
   - No circular dependencies
 
-  ### Phase 3 — Reconciliation (Diff CloudDOM)
+  ### Phase 3 — Reconciliation (Diff CloudDOM) [REQ-05, REQ-08]
 
   **Input:** Previous + Current CloudDOM  
   **Output:** Diff (creates, updates, deletes)
@@ -202,24 +212,53 @@
 
   ## Hooks
 
-  ### useState
+  ### useState - Declarative Output Binding [REQ-02]
 
   ```typescript
   function RegistryStack({ children }) {
     const repo = useInstance(EcrRepository, { name: 'app' });
     
-    const [state] = useState({
+    // Declare initial outputs
+    const [state, setState] = useState({
       repositoryUrl: repo.repositoryUrl
     });
+    
+    // Optional: Enrich outputs after async materialization
+    useEffect(async () => {
+      // After deploy, provider may resolve actual URLs/ARNs
+      const queueUrl = await queue.getUrl();
+      setState(prev => ({ ...prev, queueUrl })); // Updates persisted outputs
+    }, [queue]);
     
     return <StackContext.Provider value={state}>{children}</StackContext.Provider>;
   }
   ```
 
-  **Purpose:** Manage component state (outputs)  
-  **Key difference:** Build-time only (no reactivity)
+  **Purpose:** Declare component outputs (NOT reactive state)
+  **Implements:** REQ-02 (Stack Context - declarative outputs)
+  
+  **Semantics:**
+  - `useState(initialOutputs)` - Declares what outputs this component will publish
+  - `setState(updates)` during build - Updates the output map for build-time enrichment
+  - `setState(updates)` during deploy - Updates persisted outputs after provider materialization
+  - NOT a render trigger - it's a persistent output update mechanism
+  - Acts as a state mutation bridge between deployments
+  
+  **Key difference from React:**
+  - React: `setState()` causes re-render in memory
+  - CReact: `setState()` updates persisted outputs
+  - React: Data flow = Parent → Child reactivity
+  - CReact: Data flow = Stack → Provider → State snapshot
+  - React: Goal = sync UI with user interaction
+  - CReact: Goal = sync declared infra with real world
+  
+  **What actually happens:**
+  1. During build, `setState()` collects values known at build-time
+  2. During deploy, async resources (queue URLs, ARNs) can be patched in and persisted via backend provider
+  3. On next build, CReact merges persisted outputs into state context
+  4. `setState()` acts like a persistent output update mechanism, not a render trigger
 
-  ### useStackContext
+  ### useStackContext [REQ-02]
 
   ```typescript
   function Service() {
@@ -235,8 +274,9 @@
 
   **Purpose:** Access parent's state (avoid prop drilling)  
   **Resolution:** Depth-first traversal to nearest Provider (REQ-02.3)
+  **Implements:** REQ-02 (Stack Context - declarative outputs)
 
-  ### useInstance
+  ### useInstance [REQ-03]
 
   ```typescript
   function Registry() {
@@ -247,8 +287,55 @@
 
   **Purpose:** Create infrastructure resource  
   **ID generation:** Uses component hierarchy path (e.g., `['registry', 'service']` → `'registry.service'`)
+  **Implements:** REQ-03 (Resource creation via hooks)
 
-  ### Custom Hooks
+  ### useEffect - Setup and Teardown [REQ-12]
+
+  ```typescript
+  function QueueStack() {
+    const queue = useInstance(SQSQueue, { name: 'messages' });
+    const [state, setState] = useState({});
+    
+    // Setup: runs once at first render
+    useEffect(() => {
+      console.log('Component mounted, setting up...');
+      
+      // Async enrichment after deployment
+      const enrichOutputs = async () => {
+        const queueUrl = await queue.getUrl();
+        setState(prev => ({ ...prev, queueUrl }));
+      };
+      enrichOutputs();
+      
+      // Cleanup: runs when component unmounts
+      return () => {
+        console.log('Component unmounting, cleaning up...');
+      };
+    });
+    
+    return <StackContext.Provider value={state} />;
+  }
+  ```
+
+  **Purpose:** Run setup logic at mount, cleanup at unmount
+  **Implements:** REQ-12 (useEffect hook)
+  
+  **Semantics:**
+  - Effect function runs once at first render (component mount)
+  - Cleanup function (if returned) runs when component unmounts
+  - Useful for async output enrichment after deployment
+  - Useful for resource cleanup before destruction
+  - NOT reactive like React - runs once per lifecycle, not on every render
+  
+  **Key difference from React:**
+  - React: Effects run after every render (unless deps array prevents it)
+  - CReact: Effects run once at mount, cleanup once at unmount
+  - React: Multiple re-renders trigger multiple effect runs
+  - CReact: One-shot render = one effect execution
+  - React: Dependency array controls re-execution
+  - CReact: No re-renders, so dependency array is optional (future enhancement)
+
+  ### Custom Hooks [REQ-03]
 
   ```typescript
   function useDatabase() {
@@ -258,10 +345,11 @@
   ```
 
   **Purpose:** Reusable infrastructure logic with best practices
+  **Implements:** REQ-03.3 (Custom hooks composition)
 
-  ## Deployment Order
+  ## Deployment Order [REQ-05]
 
-  **Rule:** Parents deploy before children
+  **Rule:** Parents deploy before children (REQ-05.3)
 
   ```
   Registry
@@ -274,9 +362,9 @@
   3. ServiceB (parent: Registry)
   ```
 
-  ## Providers (Dependency Injection)
+  ## Providers (Dependency Injection) [REQ-04, REQ-09]
 
-  ### ICloudProvider
+  ### ICloudProvider [REQ-04, REQ-09]
 
   ```typescript
   interface ICloudProvider {
@@ -284,85 +372,104 @@
     materialize(cloudDOM: CloudDOMNode[], scope: any): void;
     
     // Lifecycle hooks (optional) (REQ-09)
-    preDeploy?(cloudDOM: CloudDOMNode[]): Promise<void>;
-    postDeploy?(cloudDOM: CloudDOMNode[], outputs: any): Promise<void>;
-    onError?(error: Error, cloudDOM: CloudDOMNode[]): Promise<void>;
+    preDeploy?(cloudDOM: CloudDOMNode[]): Promise<void>;  // REQ-09.1
+    postDeploy?(cloudDOM: CloudDOMNode[], outputs: any): Promise<void>;  // REQ-09.2
+    onError?(error: Error, cloudDOM: CloudDOMNode[]): Promise<void>;  // REQ-09.3
   }
   ```
 
   **Implementations:**
-  - `DummyCloudProvider` - Logs CloudDOM (POC/testing)
-  - `CDKTFProvider` - Generates Terraform (production)
+  - `DummyCloudProvider` - Logs CloudDOM (POC/testing) [REQ-04]
+  - `CDKTFProvider` - Generates Terraform (production) [REQ-04]
+  
+  **Implements:** REQ-04 (Providers), REQ-09 (Provider lifecycle hooks)
 
-  ### IBackendProvider
+  ### IBackendProvider [REQ-04, REQ-06]
 
   ```typescript
   interface IBackendProvider {
     initialize?(): Promise<void>;  // Optional async init (REQ-04.4)
-    getState(stackName: string): Promise<any>;
-    saveState(stackName: string, state: any): Promise<void>;
+    getState(stackName: string): Promise<any>;  // REQ-06
+    saveState(stackName: string, state: any): Promise<void>;  // REQ-02, REQ-06
   }
   ```
 
   **Implementations:**
-  - `DummyBackendProvider` - In-memory storage (POC/testing)
-  - `S3BackendProvider` - S3 + DynamoDB (production)
+  - `DummyBackendProvider` - In-memory storage (POC/testing) [REQ-04]
+  - `S3BackendProvider` - S3 + DynamoDB (production) [REQ-04, REQ-NF-02]
+  
+  **Implements:** REQ-04 (Providers), REQ-06 (Universal output access)
 
-  ### Injection Flow
+  ### Injection Flow [REQ-04]
 
   ```typescript
   // Step 1: Instantiate providers
-  const cloudProvider = new DummyCloudProvider();
-  const backendProvider = new DummyBackendProvider();
+  const cloudProvider = new DummyCloudProvider();  // REQ-04.2
+  const backendProvider = new DummyBackendProvider();  // REQ-04.3
 
   // Step 2: Initialize if needed (async)
-  await cloudProvider.initialize?.();
-  await backendProvider.initialize?.();
+  await cloudProvider.initialize?.();  // REQ-04.4
+  await backendProvider.initialize?.();  // REQ-04.4
 
-  // Step 3: Inject into CReact
+  // Step 3: Inject into CReact (Dependency Injection)
   const creact = new CReact({
-    cloudProvider,
-    backendProvider
+    cloudProvider,  // REQ-04.2
+    backendProvider  // REQ-04.3
   });
 
   // Step 4: Use orchestrator
-  await creact.build(<App />);
-  await creact.deploy(cloudDOM);
+  await creact.build(<App />);  // REQ-01
+  await creact.deploy(cloudDOM);  // REQ-05
   ```
+  
+  **Implements:** REQ-04 (Providers with dependency injection)
 
   ## Package Structure
 
   ```
-  lib/creact/
-  ├── core/
-  │   ├── Renderer.ts           # JSX → Fiber
-  │   ├── Validator.ts          # Validate Fiber (REQ-07)
-  │   ├── CloudDOMBuilder.ts    # Fiber → CloudDOM (receives ICloudProvider)
-  │   ├── Reconciler.ts         # Diff CloudDOM
-  │   └── CReact.ts             # Main orchestrator (receives providers)
-  ├── providers/
-  │   ├── ICloudProvider.ts     # Interface
-  │   ├── IBackendProvider.ts   # Interface
-  │   ├── DummyCloudProvider.ts # POC implementation
-  │   └── DummyBackendProvider.ts # POC implementation
-  ├── hooks/
-  │   ├── useState.ts
-  │   ├── useStackContext.ts
-  │   └── useInstance.ts
-  ├── context/
-  │   └── StackContext.ts
-  └── cli/
-      ├── build.ts
-      ├── compare.ts
-      └── deploy.ts
+  creact/                        # Root directory (standalone repository)
+  ├── src/
+  │   ├── core/
+  │   │   ├── Renderer.ts           # JSX → Fiber
+  │   │   ├── Validator.ts          # Validate Fiber (REQ-07)
+  │   │   ├── CloudDOMBuilder.ts    # Fiber → CloudDOM (receives ICloudProvider)
+  │   │   ├── Reconciler.ts         # Diff CloudDOM
+  │   │   └── CReact.ts             # Main orchestrator (receives providers)
+  │   ├── providers/
+  │   │   ├── ICloudProvider.ts     # Interface
+  │   │   ├── IBackendProvider.ts   # Interface
+  │   │   ├── DummyCloudProvider.ts # POC implementation
+  │   │   └── DummyBackendProvider.ts # POC implementation
+  │   ├── hooks/
+  │   │   ├── useState.ts
+  │   │   ├── useStackContext.ts
+  │   │   └── useInstance.ts
+  │   ├── context/
+  │   │   └── StackContext.ts
+  │   └── cli/
+  │       ├── build.ts
+  │       ├── compare.ts
+  │       └── deploy.ts
+  ├── tests/                        # Test suite (organized by type)
+  │   ├── unit/
+  │   ├── integration/
+  │   ├── edge-cases/
+  │   ├── performance/
+  │   └── helpers/
+  ├── examples/
+  │   ├── poc.tsx                   # POC verification script
+  │   └── custom-hooks.tsx          # Custom hook examples
+  ├── package.json
+  ├── tsconfig.json
+  └── vitest.config.ts
   ```
 
-  ## CReact Orchestrator
+  ## CReact Orchestrator [REQ-01, REQ-04, REQ-05, REQ-07, REQ-08, REQ-09, REQ-10]
 
   ```typescript
   interface CReactConfig {
-    cloudProvider: ICloudProvider;
-    backendProvider: IBackendProvider;
+    cloudProvider: ICloudProvider;  // REQ-04
+    backendProvider: IBackendProvider;  // REQ-04
     migrationMap?: Record<string, string>;  // Optional (REQ-08)
     asyncTimeout?: number;  // Default 5 minutes (REQ-10.5)
   }
@@ -457,15 +564,15 @@
   });
   ```
 
-  ## CLI Workflow
+  ## CLI Workflow [REQ-01, REQ-05, REQ-07, REQ-NF-03]
 
   ### Commands
 
   ```bash
-  creact validate  # Validate JSX → Fiber tree without committing
-  creact build     # Render JSX → CloudDOM (with validation)
-  creact compare   # Diff CloudDOM and show changes
-  creact deploy    # Deploy infrastructure (requires approval)
+  creact validate  # Validate JSX → Fiber tree without committing [REQ-07]
+  creact build     # Render JSX → CloudDOM (with validation) [REQ-01, REQ-07]
+  creact compare   # Diff CloudDOM and show changes [REQ-05, REQ-08]
+  creact deploy    # Deploy infrastructure (requires approval) [REQ-05, REQ-09, REQ-10]
   ```
 
   ### Sequence Diagram
@@ -510,13 +617,13 @@
   ✔ Deployment complete (2m 14s)
   ```
 
-  ## Error Handling & Validation (REQ-07)
+  ## Error Handling & Validation [REQ-07, REQ-NF-03]
 
-  **Validation checks:**
-  - Required props present
-  - Context available when `useStackContext` called
-  - Resource IDs unique
-  - No circular dependencies
+  **Validation checks (REQ-07):**
+  - Required props present (REQ-07.2)
+  - Context available when `useStackContext` called (REQ-07.3)
+  - Resource IDs unique (REQ-07.4)
+  - No circular dependencies (REQ-07.1)
 
   **Example error (REQ-NF-03.1):**
   ```
@@ -530,34 +637,69 @@
 
   ## Non-Functional Goals (POC)
 
-  ### Performance (REQ-NF-01)
-  - Build small stacks (<10 resources) in <2s
-  - Compare operations in <1s
+  ### Performance [REQ-NF-01]
+  - Build small stacks (<10 resources) in <2s (REQ-NF-01.1)
+  - Compare operations in <1s (REQ-NF-01.2)
 
-  ### Security (REQ-NF-02)
-  - Redact secrets in CLI output
-  - Encrypt state at rest
-  - Use HTTPS/TLS for remote connections
+  ### Security [REQ-NF-02]
+  - Redact secrets in CLI output (REQ-NF-02.1)
+  - Encrypt state at rest using KMS (REQ-NF-02.2)
+  - Use HTTPS/TLS for remote connections (REQ-NF-02.3)
+  - Enforce environment isolation (REQ-NF-02.4)
+  - Integrate with secret management services (REQ-NF-02.5)
 
-  ### Usability (REQ-NF-03)
-  - Show file paths and line numbers in errors
-  - Provide progress indicators for long operations
-  - Suggest remediation steps on failure
+  ### Usability [REQ-NF-03]
+  - Show file paths and line numbers in errors (REQ-NF-03.1)
+  - Provide progress indicators for long operations (REQ-NF-03.2)
+  - Suggest remediation steps on failure (REQ-NF-03.3)
 
-  ### Logging
+  ### Logging [REQ-09, REQ-NF-03]
   - CLI and providers SHALL emit timestamped logs with levels (info/warn/error)
   - Structured JSON logging for lifecycle hooks (REQ-09.5)
   - Logs help debugging during POC demos
 
+  ## Component Lifecycle Callbacks [REQ-11]
+
+  Components can define lifecycle callbacks for custom logic during deployment stages:
+
+  ```typescript
+  function Database() {
+    const db = useInstance(RDSInstance, {
+      name: 'app-db',
+      onDeploy: async (outputs) => {  // REQ-11.1
+        console.log(`Database deployed: ${outputs.endpoint}`);
+        await runMigrations(outputs.endpoint);
+      },
+      onStage: async (node) => {  // REQ-11.2
+        console.log(`Staging database: ${node.id}`);
+        await validateSchema();
+      },
+      onDestroy: async (outputs) => {  // REQ-11.3
+        console.log(`Backing up database before destroy`);
+        await backupDatabase(outputs.endpoint);
+      }
+    });
+    return null;
+  }
+  ```
+
+  **Lifecycle stages:**
+  - `onStage` - Runs during staging phase before deployment (REQ-11.2)
+  - `onDeploy` - Runs after resource is deployed with outputs (REQ-11.1)
+  - `onDestroy` - Runs before resource is destroyed (REQ-11.3)
+
+  **Error handling:** Callbacks that fail will halt deployment (REQ-11.4)
+
   ## Key Insights
 
-  - 🌳 **Composition:** Infrastructure mirrors UI patterns (parent-child, state sharing, reusable components)
-  - ⚙️ **Stack Context:** Enables cross-stack sharing, avoids prop drilling
-  - 📦 **useState for outputs:** Component state = infrastructure outputs
-  - 🔐 **Approval:** Infrastructure diffs require manual confirmation (high-risk changes)
-  - 🔑 **Immutable IDs:** Path-based identity tracking with migration hooks for safe refactoring
-  - 💉 **Dependency Injection:** Swappable providers, testable, no tight coupling
-  - 📋 **Declarative Reconciliation:** Like Terraform plan/apply or GitOps model
+  - 🌳 **Composition [REQ-01, REQ-03]:** Infrastructure mirrors UI patterns (parent-child, state sharing, reusable components)
+  - ⚙️ **Stack Context [REQ-02]:** Enables cross-stack sharing, avoids prop drilling
+  - 📦 **useState for outputs [REQ-02]:** Component state = infrastructure outputs
+  - 🔐 **Approval [REQ-05]:** Infrastructure diffs require manual confirmation (high-risk changes)
+  - 🔑 **Immutable IDs [REQ-01, REQ-08]:** Path-based identity tracking with migration hooks for safe refactoring
+  - 💉 **Dependency Injection [REQ-04]:** Swappable providers, testable, no tight coupling
+  - 📋 **Declarative Reconciliation [REQ-05, REQ-08]:** Like Terraform plan/apply or GitOps model
+  - 🔄 **Lifecycle Hooks [REQ-09, REQ-11, REQ-12]:** Provider hooks, component callbacks, and useEffect for observability
 
   ## POC Implementation Plan
 
