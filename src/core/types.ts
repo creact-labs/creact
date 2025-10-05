@@ -17,8 +17,8 @@ export interface FiberNode {
   /** Hierarchical path from root (e.g., ['registry', 'service']) */
   path: string[];
   
-  /** CloudDOM node attached by useInstance (if any) */
-  cloudDOMNode?: CloudDOMNode;
+  /** CloudDOM nodes attached by useInstance calls (if any) */
+  cloudDOMNodes?: CloudDOMNode[];
   
   /** State attached by useState (if any) */
   state?: Record<string, any>;

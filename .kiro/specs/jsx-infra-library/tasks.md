@@ -255,7 +255,7 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - [ ] Providers injected, not created
     - [ ] All tests passing
 
-- [-] 8. Implement CloudDOM persistence (REQ-01.6)
+- [x] 8. Implement CloudDOM persistence (REQ-01.6)
   - Create `.creact/` directory if it doesn't exist
   - Save CloudDOM to `.creact/clouddom.json` after build
   - Format JSON with indentation for readability
@@ -276,7 +276,7 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - [ ] File path logged after saving
     - [ ] Tests verify persistence works
 
-- [ ] 9. Implement useInstance hook
+- [x] 9. Implement useInstance hook
   - Create `useInstance(construct, props)` hook
   - Generate resource ID from current Fiber path
   - Create CloudDOM node and attach to Fiber

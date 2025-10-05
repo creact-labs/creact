@@ -1,6 +1,7 @@
 // REQ-01: Renderer - JSX → Fiber transformation
 
 import { FiberNode, JSXElement } from './types';
+import { setRenderContext, clearRenderContext } from '../hooks/useInstance';
 
 /**
  * Renderer transforms JSX into a Fiber tree
@@ -25,20 +26,6 @@ export class Renderer {
   render(jsx: JSXElement): FiberNode {
     this.currentPath = [];
     this.currentFiber = this.renderElement(jsx, []);
-    
-    // Optional debug trace for development introspection
-    if (process.env.NODE_ENV === 'development') {
-      const typeName = typeof jsx.type === 'function' 
-        ? (jsx.type.displayName || jsx.type.name || 'Anonymous')
-        : jsx.type;
-      console.debug('[Renderer] Rendering:', typeName);
-    }
-    
-    // Enhanced debug tracing for Validator integration
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.log('[Renderer] Fiber tree:', JSON.stringify(this.currentFiber, null, 2));
-    }
-    
     return this.currentFiber;
   }
   
@@ -74,17 +61,20 @@ export class Renderer {
     const nodeName = this.getNodeName(type, safeProps, key);
     const path = [...parentPath, nodeName];
     
-    // Create Fiber node
+    // Create Fiber node for component execution
     const fiber: FiberNode = {
       type,
       props: { ...safeProps },
       children: [],
       path,
       key,
+      cloudDOMNodes: [], // Will be populated by useInstance
     };
     
-    // Execute component function to get children
+    // Set context and execute component function to get children
+    setRenderContext(fiber, path);
     const children = this.executeComponent(type, safeProps, path);
+    clearRenderContext();
     
     // Recursively render children
     if (children) {
@@ -96,6 +86,8 @@ export class Renderer {
   
   /**
    * Execute a component function to resolve its children
+   * 
+   * Note: setRenderContext should already be called by renderComponent before this
    * 
    * @param type - Component type (function or class)
    * @param props - Props to pass
@@ -127,8 +119,14 @@ export class Renderer {
       
       throw new Error(`Unknown component type: ${type}`);
     } finally {
+      // Clear rendering context for useInstance hook
+      clearRenderContext();
+      
       // Restore previous path
       this.currentPath = previousPath;
+      
+      // Copy CloudDOM nodes from temp fiber to actual fiber (will be done in renderElement)
+      // This is handled by returning the tempFiber's cloudDOMNodes
     }
   }
   

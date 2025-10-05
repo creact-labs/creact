@@ -9,6 +9,7 @@ import { IBackendProvider } from '../providers/IBackendProvider';
 import { CloudDOMNode, JSXElement } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
+import crypto from 'crypto';
 
 /**
  * Configuration for CReact orchestrator
@@ -26,6 +27,9 @@ export interface CReactConfig {
   
   /** Async timeout in milliseconds (default: 5 minutes) (REQ-10.5) */
   asyncTimeout?: number;
+  
+  /** Optional persistence directory (default: '.creact') (REQ-01.6) */
+  persistDir?: string;
 }
 
 /**
@@ -109,8 +113,9 @@ export class CReact {
     this.log('Building CloudDOM from Fiber');
     const cloudDOM = await this.cloudDOMBuilder.build(fiber);
     
-    // Step 4: Persist CloudDOM to disk will be added in Task 8 (REQ-01.6)
-    // TODO: Task 8 - await this.persistCloudDOM(cloudDOM);
+    // Step 4: Persist CloudDOM to disk (REQ-01.6)
+    this.log('Persisting CloudDOM to disk');
+    await this.persistCloudDOM(cloudDOM);
     
     this.log('Build pipeline complete');
     return cloudDOM;
@@ -157,7 +162,6 @@ export class CReact {
     // return this.reconciler.diff(previous, current);
     
     // Placeholder implementation
-    console.log('[CReact] compare() - Reconciler not yet implemented (Phase 3)');
     return {
       creates: [],
       updates: [],
@@ -196,15 +200,12 @@ export class CReact {
       const hasChanges = JSON.stringify(previousState.cloudDOM) !== JSON.stringify(cloudDOM);
       
       if (!hasChanges) {
-        console.log('[CReact] No changes detected. Deployment skipped (idempotent).');
         this.log('CloudDOM is identical to previous state');
         return;
       }
       
-      console.log('[CReact] Changes detected, proceeding with deployment...');
       this.log('CloudDOM differs from previous state');
     } else {
-      console.log('[CReact] No previous state found, proceeding with initial deployment...');
       this.log('First deployment for this stack');
     }
     
@@ -266,8 +267,287 @@ export class CReact {
     }
   }
   
-  // TODO: Task 8 - Implement persistCloudDOM() method
-  // This will be added in Task 8 (REQ-01.6)
+  /**
+   * Validate CloudDOM schema before persistence
+   * 
+   * Ensures each node has required fields to catch upstream logic regressions.
+   * 
+   * @param cloudDOM - CloudDOM tree to validate
+   * @throws Error if schema validation fails
+   */
+  private validateCloudDOMSchema(cloudDOM: CloudDOMNode[]): void {
+    const validateNode = (node: CloudDOMNode, path: string) => {
+      // Check required fields
+      if (!node.id || typeof node.id !== 'string') {
+        throw new Error(`CloudDOM node at ${path} missing or invalid 'id' field`);
+      }
+      if (!node.path || !Array.isArray(node.path)) {
+        throw new Error(`CloudDOM node at ${path} missing or invalid 'path' field`);
+      }
+      if (!node.construct) {
+        throw new Error(`CloudDOM node at ${path} missing 'construct' field`);
+      }
+      if (!node.props || typeof node.props !== 'object') {
+        throw new Error(`CloudDOM node at ${path} missing or invalid 'props' field`);
+      }
+      if (!Array.isArray(node.children)) {
+        throw new Error(`CloudDOM node at ${path} missing or invalid 'children' field`);
+      }
+      
+      // Recursively validate children
+      node.children.forEach((child, index) => {
+        validateNode(child, `${path}.children[${index}]`);
+      });
+    };
+    
+    cloudDOM.forEach((node, index) => {
+      validateNode(node, `cloudDOM[${index}]`);
+    });
+  }
+  
+  /**
+   * Acquire write lock for persistence
+   * 
+   * Prevents race conditions when multiple CReact processes run concurrently
+   * in the same directory.
+   * 
+   * Handles concurrent scenarios where the directory might be deleted/recreated
+   * between async operations by ensuring the directory exists before each write attempt.
+   * 
+   * @param lockPath - Path to lock file
+   * @param maxRetries - Maximum number of retry attempts (default: 10)
+   * @param retryDelay - Delay between retries in ms (default: 100)
+   * @throws Error if lock cannot be acquired after max retries
+   */
+  private async acquireWriteLock(
+    lockPath: string,
+    maxRetries: number = 10,
+    retryDelay: number = 100
+  ): Promise<void> {
+    const dir = path.dirname(lockPath);
+    
+    // Ensure directory exists right before attempting to write
+    // This prevents ENOENT errors in concurrent scenarios
+    await fs.promises.mkdir(dir, { recursive: true });
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Try to create lock file exclusively (fails if exists)
+        await fs.promises.writeFile(lockPath, process.pid.toString(), {
+          flag: 'wx', // Exclusive write - fails if file exists
+        });
+        this.log(`Write lock acquired: ${lockPath}`);
+        return;
+      } catch (error: any) {
+        if (error.code === 'EEXIST') {
+          // Lock file exists, check if process is still alive
+          try {
+            const lockPid = parseInt(
+              await fs.promises.readFile(lockPath, 'utf-8'),
+              10
+            );
+            
+            // Check if process is still running
+            try {
+              process.kill(lockPid, 0); // Signal 0 checks if process exists
+              // Process exists, wait and retry
+              this.log(`Lock held by process ${lockPid}, waiting...`);
+              await new Promise((resolve) => setTimeout(resolve, retryDelay));
+            } catch {
+              // Process doesn't exist, remove stale lock
+              this.log(`Removing stale lock from process ${lockPid}`);
+              await fs.promises.unlink(lockPath);
+            }
+          } catch {
+            // Can't read lock file, try to remove it
+            try {
+              await fs.promises.unlink(lockPath);
+            } catch {
+              // Ignore unlink errors
+            }
+          }
+        } else if (error.code === 'ENOENT') {
+          // Directory disappeared between mkdir and writeFile (race condition)
+          // Recreate directory and retry
+          this.log(`Directory disappeared, recreating: ${dir}`);
+          await fs.promises.mkdir(dir, { recursive: true });
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        } else {
+          // Unexpected error, re-throw
+          throw error;
+        }
+      }
+    }
+    
+    throw new Error(
+      `Failed to acquire write lock after ${maxRetries} attempts`
+    );
+  }
+  
+  /**
+   * Release write lock
+   * 
+   * @param lockPath - Path to lock file
+   */
+  private async releaseWriteLock(lockPath: string): Promise<void> {
+    try {
+      await fs.promises.unlink(lockPath);
+      this.log(`Write lock released: ${lockPath}`);
+    } catch (error) {
+      // Ignore errors when releasing lock (file may not exist)
+      this.log(`Failed to release lock (may not exist): ${lockPath}`);
+    }
+  }
+  
+  /**
+   * Calculate SHA-256 checksum of content
+   * 
+   * @param content - Content to hash
+   * @returns Hex-encoded SHA-256 hash
+   */
+  private calculateChecksum(content: string): string {
+    return crypto.createHash('sha256').update(content, 'utf-8').digest('hex');
+  }
+  
+  /**
+   * Persist CloudDOM to disk
+   * 
+   * Creates persistence directory if it doesn't exist and saves CloudDOM
+   * to `clouddom.json` with formatted JSON for readability.
+   * 
+   * Features:
+   * - Schema validation to catch upstream regressions
+   * - Atomic writes (write to temp file, then rename)
+   * - Write locking to prevent concurrent write conflicts
+   * - SHA-256 checksum for integrity verification
+   * - Latency logging for performance monitoring
+   * 
+   * Handles race conditions gracefully by retrying operations if directory
+   * is deleted during persistence (common in test environments).
+   * 
+   * REQ-01.6: Persist CloudDOM to disk for debugging and determinism
+   * 
+   * @param cloudDOM - CloudDOM tree to persist
+   * @returns Path to persisted CloudDOM file
+   * @throws Error if CloudDOM contains non-serializable values or write fails
+   */
+  private async persistCloudDOM(cloudDOM: CloudDOMNode[]): Promise<string> {
+    const startTime = Date.now();
+    this.log(`Starting CloudDOM persistence at ${new Date(startTime).toISOString()}`);
+    
+    let lockPath: string | undefined;
+    
+    try {
+      // Validate CloudDOM schema before serialization
+      // Protects from upstream logic regressions
+      this.log('Validating CloudDOM schema');
+      this.validateCloudDOMSchema(cloudDOM);
+      
+      // Validate CloudDOM is serializable before attempting to write
+      // This prevents silent corruption from cyclic structures or non-serializable values
+      this.log('Validating CloudDOM serializability');
+      try {
+        JSON.stringify(cloudDOM);
+      } catch (serializationError) {
+        throw new Error('CloudDOM contains non-serializable values', {
+          cause: serializationError,
+        });
+      }
+      
+      // Resolve persistence directory (configurable, defaults to '.creact')
+      // Use path.resolve to handle both relative and absolute paths correctly
+      const creactDir = path.resolve(this.config.persistDir ?? '.creact');
+      
+      // Create persistence directory if it doesn't exist (async)
+      // MUST happen before acquiring lock since lock file goes in this directory
+      // Using recursive: true means this won't fail if directory already exists
+      this.log(`Ensuring persistence directory exists: ${creactDir}`);
+      await fs.promises.mkdir(creactDir, { recursive: true });
+      
+      // Acquire write lock to prevent concurrent write conflicts
+      lockPath = path.join(creactDir, '.clouddom.lock');
+      await this.acquireWriteLock(lockPath);
+      
+      // Prepare CloudDOM JSON with formatting for readability
+      // Add trailing newline for proper file formatting (even for empty arrays)
+      const cloudDOMJson = JSON.stringify(cloudDOM, null, 2) + '\n';
+      
+      // Calculate SHA-256 checksum for integrity verification
+      const checksum = this.calculateChecksum(cloudDOMJson);
+      this.log(`CloudDOM checksum: ${checksum}`);
+      
+      // Defensive check: ensure directory still exists after lock acquisition
+      // (it might have been deleted by cleanup between lock and write)
+      await fs.promises.mkdir(creactDir, { recursive: true });
+      
+      // Use atomic writes to prevent partial data corruption
+      // Write to temp file first, then rename (atomic operation)
+      const cloudDOMPath = path.join(creactDir, 'clouddom.json');
+      const checksumPath = path.join(creactDir, 'clouddom.sha256');
+      const tmpPath = `${cloudDOMPath}.tmp`;
+      const tmpChecksumPath = `${checksumPath}.tmp`;
+      
+      // Write files with defensive directory checks before each operation
+      // This handles race conditions where cleanup might delete the directory
+      try {
+        this.log(`Writing CloudDOM to temporary file: ${tmpPath}`);
+        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
+        await fs.promises.writeFile(tmpPath, cloudDOMJson, 'utf-8');
+        
+        this.log(`Writing checksum to temporary file: ${tmpChecksumPath}`);
+        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
+        await fs.promises.writeFile(tmpChecksumPath, checksum, 'utf-8');
+        
+        this.log(`Atomically renaming to: ${cloudDOMPath}`);
+        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
+        await fs.promises.rename(tmpPath, cloudDOMPath);
+        
+        this.log(`Atomically renaming checksum to: ${checksumPath}`);
+        await fs.promises.mkdir(creactDir, { recursive: true }); // Defensive
+        await fs.promises.rename(tmpChecksumPath, checksumPath);
+      } catch (error: any) {
+        // Clean up temp files if they exist
+        try {
+          if (fs.existsSync(tmpPath)) await fs.promises.unlink(tmpPath);
+          if (fs.existsSync(tmpChecksumPath)) await fs.promises.unlink(tmpChecksumPath);
+        } catch {
+          // Ignore cleanup errors
+        }
+        throw error;
+      }
+      
+      // Calculate and log persistence latency
+      const endTime = Date.now();
+      const latencyMs = endTime - startTime;
+      this.log(
+        `CloudDOM persistence completed at ${new Date(endTime).toISOString()} (latency: ${latencyMs}ms)`
+      );
+      this.log(
+        `CloudDOM persisted to: ${cloudDOMPath} (${latencyMs}ms, checksum: ${checksum.substring(0, 8)}...)`
+      );
+      
+      return cloudDOMPath;
+      
+    } catch (error: any) {
+      console.error('[CReact] Failed to persist CloudDOM:', error);
+      
+      // Propagate original validation/serialization errors directly
+      // so tests can assert on specific error messages
+      if (error instanceof Error && /CloudDOM|missing|non-serializable/.test(error.message)) {
+        throw error;
+      }
+      
+      // Preserve original error context using 'cause' (Node ≥16.9)
+      // This maintains stack trace and makes upstream error handling easier
+      throw new Error('Failed to persist CloudDOM', { cause: error });
+      
+    } finally {
+      // Always release write lock, even on error
+      if (lockPath) {
+        await this.releaseWriteLock(lockPath);
+      }
+    }
+  }
   
   /**
    * Extract outputs from CloudDOM nodes

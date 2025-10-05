@@ -110,11 +110,7 @@ export class CloudDOMBuilder {
     // Sort root nodes for deterministic order
     rootNodes.sort((a, b) => a.id.localeCompare(b.id));
 
-    // Debug trace in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(`[CloudDOMBuilder] Built ${rootNodes.length} root CloudDOM nodes from ${cloudDOMNodes.length} total nodes`);
-      console.debug('[CloudDOMBuilder] Tree:', JSON.stringify(rootNodes, null, 2));
-    }
+
 
     // Lifecycle hook: afterBuild (supports async, isolated errors)
     if (this.afterBuildHook) {
@@ -150,7 +146,7 @@ export class CloudDOMBuilder {
    * Recursively collect CloudDOM nodes from Fiber tree
    * 
    * Traverses the Fiber tree depth-first and collects all nodes that have
-   * cloudDOMNode attached (i.e., components that called useInstance).
+   * cloudDOMNode or cloudDOMNodes attached (i.e., components that called useInstance).
    * 
    * Normalizes paths and IDs during collection for consistency.
    * 
@@ -158,7 +154,23 @@ export class CloudDOMBuilder {
    * @param collected - Array to collect CloudDOM nodes into
    */
   private collectCloudDOMNodes(fiber: FiberNode, collected: CloudDOMNode[]): void {
-    // If this Fiber node has a CloudDOM node attached, collect it
+    // Check for cloudDOMNodes array (multiple nodes from useInstance calls)
+    if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
+      for (const cloudNode of (fiber as any).cloudDOMNodes) {
+        if (this.isValidCloudNode(cloudNode)) {
+          // Normalize path and regenerate ID for consistency
+          cloudNode.path = this.normalizePath(cloudNode.path);
+          cloudNode.id = cloudNode.path.join('.');
+          
+          collected.push(cloudNode);
+        } else {
+          const nodeId = (cloudNode as any)?.id ?? 'unknown';
+          console.warn(`[CloudDOMBuilder] Skipping invalid CloudDOM node: ${nodeId}`);
+        }
+      }
+    }
+    
+    // Also check for single cloudDOMNode (legacy/alternative approach)
     if (fiber.cloudDOMNode) {
       // Store reference to avoid type narrowing issues
       const cloudNode = fiber.cloudDOMNode;

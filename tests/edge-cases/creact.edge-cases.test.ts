@@ -6,8 +6,55 @@ import { CReact, CReactConfig } from '@/core/CReact';
 import { DummyCloudProvider } from '@/providers/DummyCloudProvider';
 import { DummyBackendProvider } from '@/providers/DummyBackendProvider';
 import { CloudDOMNode, JSXElement } from '@/core/types';
-import * as fs from 'fs';
-import { cleanupCreactDir } from '../helpers/cleanup-helpers';
+
+// Mock filesystem state
+let mockFiles: Map<string, string>;
+let mockDirs: Set<string>;
+
+// Mock fs module at the top level
+vi.mock('fs', async () => {
+  const actual = await vi.importActual<typeof import('fs')>('fs');
+  return {
+    ...actual,
+    existsSync: vi.fn((path: any) => {
+      const pathStr = path.toString();
+      return mockDirs.has(pathStr) || mockFiles.has(pathStr);
+    }),
+    promises: {
+      ...actual.promises,
+      mkdir: vi.fn(async (path: any) => {
+        const pathStr = path.toString();
+        mockDirs.add(pathStr);
+        return pathStr;
+      }),
+      writeFile: vi.fn(async (path: any, data: any) => {
+        const pathStr = path.toString();
+        mockFiles.set(pathStr, data.toString());
+        return undefined;
+      }),
+      readFile: vi.fn(async (path: any) => {
+        const pathStr = path.toString();
+        const content = mockFiles.get(pathStr);
+        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), { code: 'ENOENT' });
+        return content;
+      }),
+      rename: vi.fn(async (oldPath: any, newPath: any) => {
+        const oldPathStr = oldPath.toString();
+        const newPathStr = newPath.toString();
+        const content = mockFiles.get(oldPathStr);
+        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`), { code: 'ENOENT' });
+        mockFiles.set(newPathStr, content);
+        mockFiles.delete(oldPathStr);
+        return undefined;
+      }),
+      unlink: vi.fn(async (path: any) => {
+        const pathStr = path.toString();
+        mockFiles.delete(pathStr);
+        return undefined;
+      }),
+    },
+  };
+});
 
 describe('CReact - Edge Cases', () => {
   let cloudProvider: DummyCloudProvider;
@@ -15,6 +62,10 @@ describe('CReact - Edge Cases', () => {
   let config: CReactConfig;
 
   beforeEach(() => {
+    // Initialize mock filesystem state
+    mockFiles = new Map();
+    mockDirs = new Set();
+    
     cloudProvider = new DummyCloudProvider();
     backendProvider = new DummyBackendProvider();
     config = {
@@ -25,7 +76,6 @@ describe('CReact - Edge Cases', () => {
 
   afterEach(() => {
     backendProvider.clearAll();
-    cleanupCreactDir();
   });
 
   describe('Empty and Null Inputs', () => {
