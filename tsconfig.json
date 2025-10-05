@@ -1,57 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "CommonJS",
-    "lib": [
-      "es2018"
-    ],
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "jsx": "react",
+    "jsxFactory": "CReact.createElement",
     "declaration": true,
-    "alwaysStrict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "stripInternal": true,
-    "incremental": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "assumeChangesOnlyAffectDirectDependencies": true,
-    "disableSourceOfProjectReferenceRedirect": true,
-    "rootDir": ".",
-    "outDir": "dist",
-    "paths": {
-      "@config": [
-        "./config/index.ts"
-      ],
-      "@config/*": [
-        "./config/*"
-      ],
-      "@src/*": [
-        "./src/*"
-      ],
-      "@gen/*": [
-        "./.gen/*"
-      ]
-    }
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    ".gen/**/*.ts",
-    "config/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "cdktf.out",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
