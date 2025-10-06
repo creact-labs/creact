@@ -119,7 +119,7 @@ export class Reconciler {
     };
   } {
     const changes: Array<{
-      type: 'create' | 'update' | 'delete' | 'replace' | 'move';
+      type: 'create' | 'update' | 'delete' | 'replacement' | 'move';
       nodeId: string;
       details?: any;
     }> = [];

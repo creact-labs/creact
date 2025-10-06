@@ -58,7 +58,9 @@ function fastHash(value: any): string {
     if (primitiveHashCache.size >= MAX_PRIMITIVE_CACHE_SIZE) {
       // Clear oldest entry (simple FIFO)
       const firstKey = primitiveHashCache.keys().next().value;
-      primitiveHashCache.delete(firstKey);
+      if (firstKey !== undefined) {
+        primitiveHashCache.delete(firstKey);
+      }
     }
     primitiveHashCache.set(primitiveKey, primitiveKey);
     
@@ -142,7 +144,9 @@ export function deepEqual(a: any, b: any, useMemoization: boolean = true): boole
       if (equalityCache.size >= MAX_CACHE_SIZE) {
         // Clear oldest entries (simple FIFO)
         const firstKey = equalityCache.keys().next().value;
-        equalityCache.delete(firstKey);
+        if (firstKey !== undefined) {
+          equalityCache.delete(firstKey);
+        }
       }
       equalityCache.set(cacheKey, result);
       

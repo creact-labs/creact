@@ -5,5 +5,5 @@ export * from './Renderer';
 export * from './Validator';
 export * from './CloudDOMBuilder';
 export * from './CReact';
-export * from './Reconciler';
-export * from './errors';
+export { Reconciler } from './Reconciler';
+export { ReconciliationError } from './errors';
