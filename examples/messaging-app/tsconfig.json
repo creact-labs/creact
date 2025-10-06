@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/examples/messaging-app",
+    "noEmit": false,
+    "jsx": "react",
+    "jsxFactory": "CReact.createElement",
+    "jsxFragmentFactory": "CReact.Fragment",
+    "types": ["node"]
+  },
+  "include": ["./**/*", "../../src/**/*"],
+  "exclude": ["node_modules"]
+}

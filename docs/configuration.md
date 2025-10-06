@@ -1,310 +1,276 @@
 # CReact Configuration
 
-CReact uses a `creact.config.ts` (or `.js`) file to configure the runtime behavior, providers, and deployment settings.
+CReact uses a React-style singleton API for configuration. All configuration is done in your entry file using the `CReact` singleton.
 
-## Configuration File
+## Quick Start
 
-Create a `creact.config.ts` file in your project root:
+Create an entry file (e.g., `index.tsx`) with your infrastructure and configuration:
 
 ```typescript
+/**
+ * @jsx CReact.createElement
+ * @jsxFrag CReact.Fragment
+ */
+
+import { CReact } from '@escambo/creact';
 import { DummyCloudProvider } from '@escambo/creact/providers';
 import { DummyBackendProvider } from '@escambo/creact/providers';
-import type { CReactUserConfig } from '@escambo/creact/cli';
 
-const config: CReactUserConfig = {
-  // Stack name for state isolation
-  stackName: 'default',
+// Configure providers (singleton pattern, like ReactDOM)
+CReact.cloudProvider = new DummyCloudProvider();
+CReact.backendProvider = new DummyBackendProvider();
 
-  // Cloud provider for resource materialization
-  cloudProvider: new DummyCloudProvider(),
-
-  // Backend provider for state management
-  backendProvider: new DummyBackendProvider(),
-
-  // Entry point for infrastructure code
-  entry: './index.ts',
-
-  // Global retry policy
-  retryPolicy: {
-    maxRetries: 3,
-    initialDelay: 1000,
-    maxDelay: 30000,
-    backoffMultiplier: 2,
-    timeout: 300000,
-  },
-
-  // Provider-specific retry policies
-  providerRetryPolicies: {
-    terraform: {
-      maxRetries: 5,
-      timeout: 600000,
-    },
-  },
-
-  // Global async timeout
-  asyncTimeout: 300000,
-
-  // Migration map for refactoring
-  migrationMap: {
-    'old-resource-id': 'new-resource-id',
-  },
-
-  // Logging options
-  verbose: false,
-  debug: false,
+// Optional: Configure retry policies
+CReact.retryPolicy = {
+  maxRetries: 3,
+  initialDelay: 1000,
+  maxDelay: 30000,
+  backoffMultiplier: 2,
+  timeout: 300000,
 };
 
-export default config;
+// Optional: Configure async timeout
+CReact.asyncTimeout = 600000; // 10 minutes
+
+// Define your infrastructure
+function MyApp() {
+  return (
+    <>
+      <AwsLambda key="api" handler="index.handler" />
+      <DockerContainer key="db" image="postgres:14" />
+    </>
+  );
+}
+
+// Render to CloudDOM (like ReactDOM.render)
+export default CReact.renderCloudDOM(<MyApp />, 'my-stack');
+```
+
+Then use the CLI:
+
+```bash
+creact build --entry index.tsx
+creact deploy --entry index.tsx
 ```
 
 ## Configuration Options
 
-### Required Fields
+### Required Configuration
 
-#### `cloudProvider`
-- **Type**: `ICloudProvider`
-- **Description**: Provider for materializing cloud resources
-- **Examples**: `DummyCloudProvider`, `TerraformCloudProvider`, `AwsCloudProvider`
+#### `CReact.cloudProvider`
 
-#### `backendProvider`
-- **Type**: `IBackendProvider`
-- **Description**: Provider for state management and persistence
-- **Examples**: `DummyBackendProvider`, `SqliteBackendProvider`, `S3BackendProvider`
+The cloud provider handles resource materialization (creating, updating, deleting infrastructure).
 
-### Optional Fields
+```typescript
+import { AwsCloudProvider } from '@escambo/creact/providers';
 
-#### `stackName`
-- **Type**: `string`
-- **Default**: `'default'`
-- **Description**: Stack name for state isolation. Different stacks maintain separate state (e.g., dev, staging, prod)
-
-#### `entry`
-- **Type**: `string`
-- **Default**: `'./index.ts'`
-- **Description**: Entry point for infrastructure code, relative to config file
-
-#### `retryPolicy`
-- **Type**: `RetryPolicy`
-- **Description**: Global retry policy for all providers
-- **Fields**:
-  - `maxRetries` (default: 3): Maximum number of retry attempts
-  - `initialDelay` (default: 1000): Initial backoff delay in milliseconds
-  - `maxDelay` (default: 30000): Maximum backoff delay in milliseconds
-  - `backoffMultiplier` (default: 2): Backoff multiplier for exponential backoff
-  - `timeout` (default: 300000): Timeout for each operation in milliseconds
-
-#### `providerRetryPolicies`
-- **Type**: `Record<string, RetryPolicy>`
-- **Description**: Provider-specific retry policy overrides
-- **Example**:
-  ```typescript
-  providerRetryPolicies: {
-    terraform: {
-      maxRetries: 5,
-      timeout: 600000,
-    },
-  }
-  ```
-
-#### `asyncTimeout`
-- **Type**: `number`
-- **Default**: `300000` (5 minutes)
-- **Description**: Global async timeout in milliseconds
-
-#### `migrationMap`
-- **Type**: `Record<string, string>`
-- **Description**: Maps old resource IDs to new resource IDs for refactoring without destroying resources
-
-#### `verbose`
-- **Type**: `boolean`
-- **Default**: `false`
-- **Description**: Enable verbose logging
-
-#### `debug`
-- **Type**: `boolean`
-- **Default**: `false`
-- **Description**: Enable debug mode with internal state information
-
-## CLI Usage
-
-### Default Configuration
-
-By default, CReact looks for `creact.config.ts` (or `.js`, `.mjs`) in the current directory:
-
-```bash
-creact build
-creact deploy
+CReact.cloudProvider = new AwsCloudProvider({
+  region: 'us-east-1',
+  profile: 'default',
+});
 ```
 
-### Custom Configuration Path
+Available providers:
+- `DummyCloudProvider` - Mock provider for testing
+- `AwsCloudProvider` - AWS resources (coming soon)
+- `DockerCloudProvider` - Docker containers (coming soon)
+- `ProviderRouter` - Multi-provider support (coming soon)
 
-Use the `--config` flag to specify a custom configuration file:
+#### `CReact.backendProvider`
 
-```bash
-creact build --config ./config/production.config.ts
-creact deploy --config ./config/staging.config.ts
+The backend provider handles state management, locking, and secrets.
+
+```typescript
+import { S3BackendProvider } from '@escambo/creact/providers';
+
+CReact.backendProvider = new S3BackendProvider({
+  bucket: 'my-terraform-state',
+  region: 'us-east-1',
+});
 ```
 
-### CLI Flag Overrides
+Available backends:
+- `DummyBackendProvider` - In-memory backend for testing
+- `FileBackendProvider` - Local file storage (coming soon)
+- `S3BackendProvider` - AWS S3 storage (coming soon)
+- `PostgresBackendProvider` - PostgreSQL storage (coming soon)
 
-CLI flags override configuration file settings:
+### Optional Configuration
 
-```bash
-# Override verbose setting
-creact build --verbose
+#### `CReact.retryPolicy`
 
-# Override debug setting
-creact deploy --debug
+Global retry policy for transient errors:
 
-# Combine multiple flags
-creact plan --config ./custom.config.ts --verbose --json
+```typescript
+CReact.retryPolicy = {
+  maxRetries: 3,              // Maximum retry attempts
+  initialDelay: 1000,         // Initial backoff delay (ms)
+  maxDelay: 30000,            // Maximum backoff delay (ms)
+  backoffMultiplier: 2,       // Exponential backoff multiplier
+  timeout: 300000,            // Operation timeout (ms)
+};
 ```
 
-## Configuration File Locations
+#### `CReact.asyncTimeout`
 
-CReact searches for configuration files in the following order:
+Global timeout for async operations:
 
-1. Explicit path via `--config` flag
-2. `./creact.config.ts` in current directory
-3. `./creact.config.js` in current directory
-4. `./creact.config.mjs` in current directory
+```typescript
+CReact.asyncTimeout = 600000; // 10 minutes
+```
+
+#### `CReact.migrationMap`
+
+Resource ID remapping for refactoring (avoids destroy/recreate):
+
+```typescript
+CReact.migrationMap = {
+  'old-database-id': 'new-database-id',
+  'old-api-id': 'new-api-id',
+};
+```
 
 ## Multi-Environment Setup
 
-Use different configuration files for different environments:
+Use environment variables to configure different environments:
 
-```
-project/
-├── creact.config.ts          # Default (development)
-├── creact.config.prod.ts     # Production
-├── creact.config.staging.ts  # Staging
-└── index.ts                  # Infrastructure code
+```typescript
+// index.tsx
+import { CReact } from '@escambo/creact';
+import { AwsCloudProvider, S3BackendProvider } from '@escambo/creact/providers';
+
+// Environment-specific configuration
+const isProd = process.env.NODE_ENV === 'production';
+
+CReact.cloudProvider = new AwsCloudProvider({
+  region: isProd ? 'us-east-1' : 'us-west-2',
+  profile: isProd ? 'production' : 'development',
+});
+
+CReact.backendProvider = new S3BackendProvider({
+  bucket: isProd ? 'prod-terraform-state' : 'dev-terraform-state',
+});
+
+// Stack name from environment
+const stackName = process.env.STACK_NAME || 'my-app-dev';
+
+function MyApp() {
+  return <>{/* Your infrastructure */}</>;
+}
+
+export default CReact.renderCloudDOM(<MyApp />, stackName);
 ```
 
-Deploy to different environments:
+Then deploy:
 
 ```bash
 # Development
-creact deploy
-
-# Staging
-creact deploy --config ./creact.config.staging.ts
+creact deploy --entry index.tsx
 
 # Production
-creact deploy --config ./creact.config.prod.ts
+NODE_ENV=production STACK_NAME=my-app-prod creact deploy --entry index.tsx
 ```
 
-## TypeScript Support
+## CLI Flags
 
-CReact fully supports TypeScript configuration files with type checking:
+All CLI commands require the `--entry` flag:
 
-```typescript
-import type { CReactUserConfig } from '@escambo/creact/cli';
+```bash
+# Build CloudDOM
+creact build --entry index.tsx
 
-const config: CReactUserConfig = {
-  // TypeScript will validate all fields
-  cloudProvider: new MyCloudProvider(),
-  backendProvider: new MyBackendProvider(),
-};
+# Show diff
+creact plan --entry index.tsx
 
-export default config;
+# Deploy
+creact deploy --entry index.tsx
+
+# Override stack name
+creact deploy --entry index.tsx --stack production
+
+# Verbose output
+creact build --entry index.tsx --verbose
+
+# JSON output (for CI/CD)
+creact plan --entry index.tsx --json
 ```
 
 ## Error Handling
 
-If the configuration file is missing or invalid, CReact will:
+### Missing Providers
 
-1. Display a clear error message
-2. Show the cause of the error (if available)
-3. Suggest creating a configuration file
-4. Exit with code 1
-
-Example error output:
+If you forget to set providers, you'll get a clear error:
 
 ```
-Configuration Error: Failed to load configuration file: Cannot find module './providers'
-Caused by: Cannot find module './providers'
+Configuration Error: CReact.cloudProvider must be set in entry file.
 
-Create a creact.config.ts file in your project root.
-See examples/creact.config.example.ts for reference.
+Example:
+  import { CReact } from '@escambo/creact';
+  import { AwsCloudProvider } from '@escambo/creact/providers';
+
+  CReact.cloudProvider = new AwsCloudProvider();
+  CReact.backendProvider = new S3BackendProvider();
+```
+
+### Entry File Not Found
+
+```bash
+$ creact build --entry missing.tsx
+
+Configuration Error: Entry file not found: missing.tsx
+```
+
+### TypeScript Support
+
+TypeScript entry files require `tsx` to be installed:
+
+```bash
+npm install tsx
+```
+
+If not installed, you'll get:
+
+```
+Configuration Error: TypeScript entry files require "tsx" to be installed.
+
+Install tsx:
+  npm install tsx
 ```
 
 ## Best Practices
 
-1. **Version Control**: Commit `creact.config.ts` to version control
-2. **Secrets**: Don't store secrets in config files. Use environment variables or the secrets manager
-3. **Environment-Specific**: Use separate config files for different environments
-4. **Type Safety**: Use TypeScript for configuration files to catch errors early
-5. **Documentation**: Document custom providers and their configuration options
+1. **Single Source of Truth**: Keep all configuration in your entry file
+2. **Environment Variables**: Use env vars for environment-specific config
+3. **Type Safety**: Use TypeScript for full type checking
+4. **Secrets**: Never hardcode secrets - use environment variables or the secrets manager
+5. **Stack Names**: Use descriptive stack names (e.g., `my-app-prod`, `my-app-staging`)
 
-## Example Configurations
+## Migration from Config Files
 
-### Local Development
+If you're migrating from the old `creact.config.ts` approach:
 
+**Old (deprecated):**
 ```typescript
-import { DummyCloudProvider } from '@escambo/creact/providers';
-import { DummyBackendProvider } from '@escambo/creact/providers';
-
+// creact.config.ts
 export default {
-  stackName: 'dev',
-  cloudProvider: new DummyCloudProvider(),
-  backendProvider: new DummyBackendProvider(),
-  verbose: true,
-  debug: true,
+  cloudProvider: new AwsCloudProvider(),
+  backendProvider: new S3BackendProvider(),
+  entry: './index.tsx',
 };
+
+// index.tsx
+export default <MyApp />;
 ```
 
-### Production
-
+**New:**
 ```typescript
-import { AwsCloudProvider } from '@escambo/creact/providers';
-import { S3BackendProvider } from '@escambo/creact/providers';
+// index.tsx
+import { CReact } from '@escambo/creact';
 
-export default {
-  stackName: 'prod',
-  cloudProvider: new AwsCloudProvider({
-    region: 'us-east-1',
-  }),
-  backendProvider: new S3BackendProvider({
-    bucket: 'my-terraform-state',
-    key: 'prod/terraform.tfstate',
-  }),
-  retryPolicy: {
-    maxRetries: 5,
-    timeout: 600000, // 10 minutes
-  },
-  verbose: false,
-  debug: false,
-};
+CReact.cloudProvider = new AwsCloudProvider();
+CReact.backendProvider = new S3BackendProvider();
+
+export default CReact.renderCloudDOM(<MyApp />, 'my-stack');
 ```
 
-### Multi-Provider
-
-```typescript
-import { ProviderRouter } from '@escambo/creact/core';
-import { TerraformCloudProvider } from '@escambo/creact/adapters';
-import { DockerCloudProvider } from '@escambo/creact/providers';
-import { PostgresBackendProvider } from '@escambo/creact/providers';
-
-const router = new ProviderRouter();
-router.register(/^terraform:/, new TerraformCloudProvider());
-router.register(/^docker:/, new DockerCloudProvider());
-
-export default {
-  stackName: 'hybrid',
-  cloudProvider: router,
-  backendProvider: new PostgresBackendProvider({
-    connectionString: process.env.DATABASE_URL,
-  }),
-  providerRetryPolicies: {
-    terraform: {
-      maxRetries: 5,
-      timeout: 600000,
-    },
-    docker: {
-      maxRetries: 3,
-      timeout: 120000,
-    },
-  },
-};
-```
+Then delete `creact.config.ts` and update CLI commands to use `--entry` instead of `--config`.

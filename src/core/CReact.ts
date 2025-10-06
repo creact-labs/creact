@@ -11,6 +11,7 @@ import { IBackendProvider } from '../providers/IBackendProvider';
 import { CloudDOMNode, JSXElement, ChangeSet } from './types';
 import { setPreviousOutputs } from '../hooks/useInstance';
 import { DeploymentError } from './errors';
+import { CReact as JSXCReact } from '../jsx';
 
 /**
  * Configuration for CReact orchestrator
@@ -31,6 +32,17 @@ export interface CReactConfig {
 }
 
 /**
+ * Retry policy configuration
+ */
+export interface RetryPolicy {
+  maxRetries?: number;
+  initialDelay?: number;
+  maxDelay?: number;
+  backoffMultiplier?: number;
+  timeout?: number;
+}
+
+/**
  * CReact orchestrator - main class
  *
  * Orchestrates the entire infrastructure-as-code pipeline:
@@ -48,6 +60,17 @@ export interface CReactConfig {
  * REQ-O01: StateMachine handles all state management
  */
 export class CReact {
+  // Singleton configuration (React-style API)
+  static cloudProvider: ICloudProvider;
+  static backendProvider: IBackendProvider;
+  static retryPolicy?: RetryPolicy;
+  static asyncTimeout?: number;
+  static migrationMap?: Record<string, string>;
+
+  // Re-export JSX functions for convenience (so users only need one import)
+  static createElement = JSXCReact.createElement;
+  static Fragment = JSXCReact.Fragment;
+
   private renderer: Renderer;
   private validator: Validator;
   private cloudDOMBuilder: CloudDOMBuilder;
@@ -430,5 +453,64 @@ export class CReact {
    */
   getStateMachine(): StateMachine {
     return this.stateMachine;
+  }
+
+  /**
+   * React-style render method (singleton API)
+   *
+   * Renders JSX to CloudDOM using the singleton configuration.
+   * This is the recommended API for entry files.
+   *
+   * Example:
+   * ```typescript
+   * // Configure providers
+   * CReact.cloudProvider = new AwsCloudProvider();
+   * CReact.backendProvider = new S3BackendProvider();
+   *
+   * // Render app
+   * export default CReact.renderCloudDOM(<MyApp />, 'my-stack');
+   * ```
+   *
+   * @param element - JSX element to render
+   * @param stackName - Stack name for state management
+   * @returns Promise resolving to CloudDOM tree
+   * @throws Error if providers are not configured
+   */
+  static async renderCloudDOM(element: JSXElement, stackName: string): Promise<CloudDOMNode[]> {
+    // Validate that providers are configured
+    if (!CReact.cloudProvider) {
+      throw new Error(
+        'CReact.cloudProvider must be set before calling renderCloudDOM.\n\n' +
+          'Example:\n' +
+          '  import { CReact } from \'@escambo/creact\';\n' +
+          '  import { AwsCloudProvider } from \'@escambo/creact/providers\';\n\n' +
+          '  CReact.cloudProvider = new AwsCloudProvider();\n' +
+          '  CReact.backendProvider = new S3BackendProvider();\n\n' +
+          '  export default CReact.renderCloudDOM(<App />, \'my-stack\');'
+      );
+    }
+
+    if (!CReact.backendProvider) {
+      throw new Error(
+        'CReact.backendProvider must be set before calling renderCloudDOM.\n\n' +
+          'Example:\n' +
+          '  import { CReact } from \'@escambo/creact\';\n' +
+          '  import { S3BackendProvider } from \'@escambo/creact/providers\';\n\n' +
+          '  CReact.cloudProvider = new AwsCloudProvider();\n' +
+          '  CReact.backendProvider = new S3BackendProvider();\n\n' +
+          '  export default CReact.renderCloudDOM(<App />, \'my-stack\');'
+      );
+    }
+
+    // Create instance with singleton configuration
+    const instance = new CReact({
+      cloudProvider: CReact.cloudProvider,
+      backendProvider: CReact.backendProvider,
+      migrationMap: CReact.migrationMap,
+      asyncTimeout: CReact.asyncTimeout,
+    });
+
+    // Build and return CloudDOM
+    return instance.build(element, stackName);
   }
 }

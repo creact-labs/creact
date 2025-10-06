@@ -18,23 +18,23 @@ export const colors = {
   error: chalk.red,
   warning: chalk.yellow,
   info: chalk.blue,
-  
+
   // Diff colors (for plan command)
   create: chalk.green,
   update: chalk.yellow,
   delete: chalk.red,
   move: chalk.cyan,
-  
+
   // Semantic colors
   primary: chalk.cyan,
   secondary: chalk.gray,
   highlight: chalk.bold.white,
   dim: chalk.dim,
-  
+
   // Resource types
   resource: chalk.magenta,
   output: chalk.blue,
-  
+
   // Symbols
   checkmark: chalk.green('✓'),
   cross: chalk.red('✗'),
@@ -365,11 +365,11 @@ export function formatDeploymentStatus(status: string): string {
  */
 export function formatResource(construct: string, id: string, status?: string): string {
   const resourceStr = `${colors.resource(construct)}.${colors.highlight(id)}`;
-  
+
   if (status) {
     return `${resourceStr} ${colors.dim('→')} ${formatDeploymentStatus(status)}`;
   }
-  
+
   return resourceStr;
 }
 

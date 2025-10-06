@@ -1,12 +1,11 @@
 {
   "name": "@escambo/creact",
   "version": "0.1.0",
-  "type": "module",
   "description": "CReact - React for Infrastructure. Render JSX to CloudDOM.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "creact": "./dist/src/cli/index.js"
+    "creact": "./dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -39,6 +38,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.45.0",
     "vitest": "^3.2.4"
@@ -47,8 +47,9 @@
     "react": "^18.0.0"
   },
   "dependencies": {
-    "chalk": "^5.6.2",
+    "chalk": "^4.1.2",
     "cli-progress": "^3.12.0",
-    "ora": "^9.0.0"
+    "ora": "^5.4.1",
+    "tsx": "^4.20.6"
   }
 }

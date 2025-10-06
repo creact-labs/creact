@@ -1,265 +1,228 @@
 # CReact Implementation Tasks
 
 **Last Updated:** 2025-10-06  
-**Status:** Milestone 1 Complete, Milestone 2 In Progress
+**Status:** MVP Implementation
 
 ---
 
 ## Overview
 
-CReact is a React-inspired infrastructure-as-code library that renders JSX to CloudDOM (Cloud Document Object Model) for declarative infrastructure management.
+CReact is a JSX-based infrastructure library that brings React-style developer experience to infrastructure-as-code. Write infrastructure components using familiar JSX syntax and get instant feedback with hot reload.
 
-**Vision:** Production-ready universal declarative runtime that bridges infrastructure tools (Terraform, Helm, Docker) and application frameworks (React, Vue, Python).
-
----
-
-## ✅ Milestone 1: Core Foundation (COMPLETE)
-
-**What's Built:**
-- JSX → Fiber → CloudDOM rendering pipeline
-- Hooks: `useInstance`, `useState`, `useContext`, `createContext`
-- Provider interfaces: `ICloudProvider`, `IBackendProvider`
-- Validation engine with circular dependency detection
-- Reconciler with diff algorithm and dependency-aware ordering
-- StateMachine with deployment state tracking and locking
-- CloudDOM persistence with atomic writes
-- 696 tests passing
-
-**Key Files:**
-- `src/core/Renderer.ts` - JSX to Fiber tree
-- `src/core/Validator.ts` - Pre-deployment validation
-- `src/core/CloudDOMBuilder.ts` - Fiber to CloudDOM
-- `src/core/Reconciler.ts` - Diff computation
-- `src/core/StateMachine.ts` - Deployment orchestration
-- `src/core/CReact.ts` - Main orchestrator
-- `src/hooks/` - React-style hooks
-- `src/providers/` - Provider interfaces
+**Current Status:** Core engine is complete (696 tests passing). Need to finish CLI, hot reload, and critical safety fixes.
 
 ---
 
-## 🎯 Milestone 2: Production Readiness (IN PROGRESS)
+## 🎯 MVP Implementation Plan
 
-### Phase 1: Complete State Machine (HIGH PRIORITY)
+### Phase 1: Critical Safety Fixes (MUST FIX FIRST)
 
-**Status:** 95% Complete
+- [ ] 1. Fix hook context async safety
+  - Implement AsyncLocalStorage for currentFiber and contextStacks
+  - Ensure thread-safe hook execution in concurrent deployments
+  - _Requirements: REQ-CORE-01_
 
-**Remaining Work:**
-- [x] Implement crash recovery (`resumeDeployment()`)
-- [x] Implement rollback (`rollback()` with reverse change sets)
-- [x] Integrate StateMachine fully into `CReact.deploy()`
-- [ ] Add CLI prompts for resume vs rollback on startup
+- [ ] 2. Fix memory leak in context stacks
+  - Add clearContextStacks() in Renderer's finally block
+  - Prevent unbounded growth of contextStacks Map
+  - _Requirements: REQ-CORE-01_
 
-**Why This Matters:** Enables transactional deployments with crash recovery - critical for production reliability.
+- [ ] 3. Implement lock auto-renewal (for backends that support locking)
+  - Add setInterval to renew locks at 50% TTL
+  - Clean up renewal timers on deployment completion
+  - _Requirements: REQ-PROVIDER-01_
 
-**Requirements:** REQ-O01
+### Phase 2: Complete CLI Commands
 
----
+- [ ] 4. Implement `creact build` command
+  - Create CLI wrapper around existing build functionality
+  - Add proper error handling and user-friendly output
+  - Support `index.ts` as default entry point
+  - _Requirements: REQ-CLI-01_
 
-### Phase 2: CLI & Developer Workflow (HIGH PRIORITY)
+- [ ] 5. Implement `creact plan` command
+  - Create CLI wrapper around existing reconciler diff
+  - Add colored output (green=create, yellow=update, red=delete)
+  - Support JSON output with `--json` flag
+  - _Requirements: REQ-CLI-01_
 
-**Status:** 25% Complete
+- [ ] 6. Implement `creact deploy` command
+  - Create CLI wrapper around existing deployment functionality
+  - Add progress indicators and deployment status
+  - Handle deployment errors gracefully
+  - _Requirements: REQ-CLI-01_
 
-**What to Build:**
+- [ ] 7. Implement `creact dev` command (hot reload)
+  - Set up file watcher for `index.ts` and imported files
+  - Implement incremental rebuild on file changes
+  - Apply minimal change sets via reconciler
+  - Add rollback on failed hot reload
+  - Target < 5 seconds for small changes
+  - _Requirements: REQ-HOT-01_
 
-#### CLI Foundation
-- [X] Entry point with command routing (`src/cli/index.ts`)
-- [X] Configuration loader (`creact.config.ts` support)
-- [ ] Colored output, spinners, progress indicators
-- [ ] Build and packaging setup (bin entry in package.json)
+### Phase 3: Architecture Cleanup
 
-#### Core Commands
-- [ ] `creact build` - Compile JSX to CloudDOM, save to backend
-- [ ] `creact plan` - Show colored diff (+green, ~yellow, -red)
-- [ ] `creact deploy` - Apply changes with confirmation prompt
-- [ ] `creact resume` - Continue interrupted deployments
-- [ ] `creact info` - Show registered providers and stack status
+- [ ] 8. Remove ProviderRouter complexity
+  - Simplify to single CloudProvider per app
+  - Remove regex-based provider routing
+  - Update existing code to use single provider pattern
+  - _Requirements: REQ-PROVIDER-01_
 
-**Why This Matters:** Developers need a usable CLI for daily workflow. This is the primary interface.
+- [ ] 9. Simplify IBackendProvider interface
+  - Remove secrets-related methods (getSecret, setSecret, listSecrets)
+  - Keep locking methods as optional
+  - Update existing backend implementations
+  - _Requirements: REQ-PROVIDER-01_
 
-**Requirements:** REQ-O04, REQ-O08
+- [ ] 10. Remove escambo references
+  - Update all import statements to use 'creact' instead of '@escambo/creact'
+  - Update package.json and build configuration
+  - Update documentation and examples
+  - _Requirements: REQ-CORE-01_
 
----
+### Phase 4: Performance & Reliability Improvements
 
-### Phase 3: External Tool Integration (MEDIUM PRIORITY)
+- [ ] 11. Fix deep copy implementation
+  - Replace shallow copy with proper deep copy using structuredClone()
+  - Add fallback for environments without structuredClone
+  - Prevent mutation bugs in CloudDOM building
+  - _Requirements: REQ-CORE-01_
 
-**Status:** Not Started
+- [ ] 12. Improve hash function robustness
+  - Replace JSON.stringify-based hashing with recursive type-aware function
+  - Handle edge cases and prevent hash collisions
+  - Ensure deterministic change detection
+  - _Requirements: REQ-CORE-01_
 
-**What to Build:**
+- [ ] 13. Better error messages
+  - Add context to validation errors (actual vs expected values)
+  - Include suggestions for common mistakes
+  - Improve circular dependency error reporting
+  - _Requirements: REQ-CORE-01_
 
-#### Adapter Framework
-- [ ] `IIaCAdapter` interface extending `ICloudProvider`
-- [ ] Deterministic ID generation (content-hash based, no timestamps)
-- [ ] Output mapping from external tools to CloudDOM
+### Phase 5: Developer Experience Polish
 
-#### Provider Router
-- [ ] Route CloudDOM nodes to multiple providers by construct type
-- [ ] Handle cross-provider dependencies
-- [ ] Example: Mix AWS + Docker + Kubernetes in one tree
+- [ ] 14. Improve TypeScript types
+  - Replace `any` types with proper interfaces
+  - Add discriminated unions for hook states
+  - Improve type inference for component props
+  - _Requirements: REQ-CORE-01_
 
-#### Terraform Adapter (Reference Implementation)
-- [ ] Load Terraform modules as CloudDOM nodes
-- [ ] Execute `terraform apply` and capture outputs
-- [ ] Map Terraform outputs to `node.outputs`
+- [ ] 15. Add deployment timeout protection
+  - Wrap materialize() calls in Promise.race() with timeout
+  - Make timeout configurable per provider
+  - Prevent hanging deployments
+  - _Requirements: REQ-PROVIDER-01_
 
-**Why This Matters:** Enables wrapping existing IaC tools (Terraform, Helm) as CReact components.
-
-**Requirements:** REQ-I01, REQ-I04, REQ-I05
-
----
-
-### Phase 4: State Bridge (MEDIUM PRIORITY)
-
-**Status:** Not Started
-
-**What to Build:**
-
-#### State Sync Server
-- [ ] WebSocket server for real-time CloudDOM updates
-- [ ] Subscription protocol (subscribe/unsubscribe/state_update)
-- [ ] Publish CloudDOM state after build/deploy
-- [ ] JSON serialization with schema versioning
-
-#### React Integration Package
-- [ ] New package: `creact-react-interop`
-- [ ] `useCReactContext()` hook for consuming CloudDOM state
-- [ ] WebSocket client with reconnection logic
-- [ ] TypeScript types for outputs
-
-**Why This Matters:** Enables React/Vue apps to consume infrastructure state in real-time (e.g., API URLs, database connections).
-
-**Requirements:** REQ-I02, REQ-I06
-
----
-
-### Phase 5: Advanced Features (LOW PRIORITY)
-
-**Status:** Not Started
-
-**What to Build:**
-
-#### Nested App Deployment
-- [ ] `CReactApp` component for deploying child apps
-- [ ] Context inheritance (parent → child)
-- [ ] Output propagation (child → parent)
-
-#### Hot Reload
-- [ ] `creact dev` command with file watcher
-- [ ] Incremental CloudDOM updates (only affected subtrees)
-- [ ] Rollback on failed reloads
-- [ ] Target: <5 second iteration time
-
-**Why This Matters:** Enables apps deploying apps (monorepos) and React-style hot reload for infrastructure.
-
-**Requirements:** REQ-I03, REQ-O07
+- [ ] 16. Improve module cache clearing for hot reload
+  - Clear entire dependency tree, not just entry file
+  - Prevent stale code issues in development mode
+  - _Requirements: REQ-HOT-01_
 
 ---
 
-### Phase 6: Production Hardening (MEDIUM PRIORITY)
+## 🧪 Testing Strategy
 
-**Status:** Not Started
+### Unit Tests (Maintain Current Coverage)
+- [ ]* 17. Update tests for simplified interfaces
+  - Modify tests to work with simplified IBackendProvider
+  - Remove tests for removed ProviderRouter functionality
+  - Ensure 696+ tests still pass after changes
+  - _Requirements: REQ-CORE-01_
 
-**What to Build:**
+### Integration Tests
+- [ ]* 18. Add CLI integration tests
+  - Test `creact build`, `plan`, `deploy` commands end-to-end
+  - Verify proper exit codes and error handling
+  - Test with various provider configurations
+  - _Requirements: REQ-CLI-01_
 
-#### Secrets Management
-- [ ] Extend `IBackendProvider` with `getSecret()`, `setSecret()`, `listSecrets()`
-- [ ] Encrypted storage in backend
-- [ ] `creact secrets` CLI commands
+- [ ]* 19. Add hot reload integration tests
+  - Test file watching and incremental updates
+  - Verify rollback behavior on failed reloads
+  - Test with complex component hierarchies
+  - _Requirements: REQ-HOT-01_
 
-#### Audit Logging
-- [ ] Append-only JSONL audit log
-- [ ] Log: user, timestamp, stack, action, changes
-- [ ] `creact audit list` command
-- [ ] Cryptographic signatures for tamper detection
-
-#### Error Handling & Retry
-- [ ] Exponential backoff for transient errors
-- [ ] Configurable retry policies (CLI flags + config file)
-- [ ] Clear error taxonomy (AdapterError, ProviderTimeoutError, etc.)
-
-#### RBAC (Optional)
-- [ ] Role-based permissions (viewer, editor, admin)
-- [ ] Permission checks before deployment
-
-**Why This Matters:** Security, reliability, and observability for production deployments.
-
-**Requirements:** REQ-O02, REQ-O03, REQ-O05, REQ-O06
-
----
-
-## 📊 Progress Tracking
-
-| Phase | Status | Priority | Completion |
-|-------|--------|----------|------------|
-| Milestone 1: Core Foundation | ✅ Complete | - | 100% |
-| Phase 1: State Machine | 🟡 In Progress | HIGH | 95% |
-| Phase 2: CLI & Workflow | 🟡 In Progress | HIGH | 25% |
-| Phase 3: External Tools | ⚪ Not Started | MEDIUM | 0% |
-| Phase 4: State Bridge | ⚪ Not Started | MEDIUM | 0% |
-| Phase 5: Advanced Features | ⚪ Not Started | LOW | 0% |
-| Phase 6: Production Hardening | ⚪ Not Started | MEDIUM | 0% |
+### Performance Tests
+- [ ]* 20. Add hot reload performance benchmarks
+  - Measure time from file save to deployment completion
+  - Verify < 5 second target for small changes
+  - Test with various CloudDOM sizes
+  - _Requirements: REQ-HOT-01_
 
 ---
 
-## 🎯 Recommended Next Steps
+## 📋 Acceptance Criteria Verification
 
-1. **Finish crash recovery** - Complete `resumeDeployment()` and `rollback()` in StateMachine
-2. **Wire StateMachine into CReact** - Integrate checkpoints into `CReact.deploy()`
-3. **Build CLI foundation** - Entry point, config loader, command routing
-4. **Implement core commands** - `build`, `plan`, `deploy` for daily workflow
-5. **Add Terraform adapter** - Prove external tool integration pattern works
-6. **Build state sync server** - Enable React apps to consume CloudDOM state
+### REQ-CLI-01: Basic CLI Commands
+- [ ] `creact build` compiles JSX to CloudDOM
+- [ ] `creact plan` shows diff preview without deploying
+- [ ] `creact deploy` applies changes to infrastructure
+- [ ] All commands show help with `--help` flag
+- [ ] Commands return proper exit codes (0 for success, non-zero for failure)
 
----
+### REQ-HOT-01: Hot Reload Development Mode
+- [ ] `creact dev` watches source files for changes and auto-applies
+- [ ] File changes trigger rebuild and apply only affected CloudDOM subtree
+- [ ] Hot reload shows "Δ applied" and updated resource count
+- [ ] Failed reloads rollback to last stable CloudDOM
+- [ ] Hot reload completes in under 5 seconds for small changes
 
-## 🔑 Key Architectural Principles
+### REQ-CORE-01: JSX Infrastructure Components
+- [ ] JSX infrastructure components render to CloudDOM
+- [ ] Hooks (useState, useContext, useInstance) work in infrastructure components
+- [ ] Component composition builds coherent CloudDOM tree
+- [ ] CloudDOM builds are deterministic (same input = same output)
 
-1. **Determinism First** - All IDs are content-hash based, no timestamps in CloudDOM
-2. **StateMachine Owns Orchestration** - Providers only materialize resources, no retry/rollback logic
-3. **Provider-Orchestration Separation** - Clear boundary between execution and orchestration (REQ-ARCH-01)
-4. **CLI UX Matters** - Follow Terraform conventions (plan/apply), clear error messages
-5. **Type Safety Everywhere** - Full TypeScript support from CloudDOM to React apps
-6. **Test Coverage** - Maintain high coverage (currently 686 tests passing)
-
----
-
-## 📝 Requirements Mapping
-
-| Requirement | Description | Status | Phase |
-|-------------|-------------|--------|-------|
-| REQ-O01 | State Machine with crash recovery | 🟡 95% | Phase 1 |
-| REQ-O02 | State locking | ✅ Done | Milestone 1 |
-| REQ-O03 | Error handling & retry | ⚪ Todo | Phase 6 |
-| REQ-O04 | Plan command | ⚪ Todo | Phase 2 |
-| REQ-O05 | Audit log & RBAC | ⚪ Todo | Phase 6 |
-| REQ-O06 | Secrets management | ⚪ Todo | Phase 6 |
-| REQ-O07 | Hot reload | ⚪ Todo | Phase 5 |
-| REQ-O08 | CLI surface | 🟡 In Progress | Phase 2 |
-| REQ-O09 | Dependency injection | ✅ Done | Milestone 1 |
-| REQ-I01 | External IaC adapters | ⚪ Todo | Phase 3 |
-| REQ-I02 | State bridge | ⚪ Todo | Phase 4 |
-| REQ-I03 | Nested apps | ⚪ Todo | Phase 5 |
-| REQ-I04 | Multi-provider routing | ⚪ Todo | Phase 3 |
-| REQ-I05 | Deterministic outputs | ✅ Done | Milestone 1 |
-| REQ-I06 | Type safety | ⚪ Todo | Phase 4 |
-| REQ-ARCH-01 | Provider-orchestration separation | ✅ Done | Milestone 1 |
+### REQ-PROVIDER-01: Basic Provider System
+- [ ] ICloudProvider implementations handle resource materialization
+- [ ] IBackendProvider implementations handle state persistence
+- [ ] Providers are configurable and used during deployment
+- [ ] Provider failures provide clear error messages
 
 ---
 
-## 🚀 Success Criteria
+## 🚀 Implementation Notes
 
-**Milestone 2 is complete when:**
-- [ ] CLI commands work end-to-end (`build`, `plan`, `deploy`)
-- [ ] Crash recovery and rollback work reliably
-- [ ] Terraform adapter demonstrates external tool integration
-- [ ] React apps can consume CloudDOM state via `useCReactContext()`
-- [ ] All tests pass (target: >700 tests)
-- [ ] Documentation covers all CLI commands and APIs
+### Development Workflow
+1. **Start with Phase 1** - Critical safety fixes must be done first
+2. **One task at a time** - Complete each task fully before moving to next
+3. **Test after each task** - Ensure no regressions
+4. **Update documentation** - Keep examples and README current
+
+### Key Files to Modify
+- `src/cli/` - New CLI command implementations
+- `src/hooks/` - Async safety fixes
+- `src/core/Renderer.ts` - Memory leak fixes
+- `src/core/StateMachine.ts` - Lock auto-renewal
+- `src/providers/IBackendProvider.ts` - Interface simplification
+- `package.json` - Remove escambo references
+
+### Testing Approach
+- Run full test suite after each change
+- Add new tests for CLI functionality
+- Use DummyCloudProvider and FileBackendProvider for testing
+- Test hot reload with real file changes
 
 ---
 
-## 📚 Reference Documents
+## 📊 Success Metrics
 
-- **Design:** `.kiro/specs/jsx-infra-library/design.md`
-- **Requirements:** `.kiro/specs/jsx-infra-library/requirements.md`
-- **Manifesto:** `.kiro/specs/jsx-infra-library/manifesto.md`
-- **Steering Rules:** `.kiro/steering/`
+**MVP Complete When:**
+- [ ] All Phase 1-3 tasks completed
+- [ ] All acceptance criteria verified
+- [ ] CLI commands work end-to-end
+- [ ] Hot reload works reliably
+- [ ] No escambo references remain
+- [ ] Test suite passes (696+ tests)
+
+**Production Ready When:**
+- [ ] All phases completed
+- [ ] Performance benchmarks met
+- [ ] Error messages are developer-friendly
+- [ ] TypeScript types are comprehensive
+- [ ] Documentation is complete
+
+---
+
+**End of Implementation Tasks**

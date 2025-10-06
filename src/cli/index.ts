@@ -7,8 +7,6 @@
  * Provides developer-friendly commands following IaC conventions (plan/apply).
  */
 
-import { parseArgs } from 'node:util';
-
 const VERSION = '0.1.0';
 
 interface CommandContext {
@@ -23,56 +21,204 @@ type CommandHandler = (ctx: CommandContext) => Promise<number>;
  */
 const commands: Record<string, CommandHandler> = {
   build: async (ctx) => {
-    const { loadConfigFromContext, logVerbose, outputJson, formatError } = await import('./utils.js');
-    const { Spinner, printSuccess, printWarning, colors } = await import('./output.js');
-    
+    const { loadConfigFromContext, logVerbose, outputJson, formatError } = require('./utils');
+    const { Spinner, printSuccess, printError, colors } = require('./output');
+    const { CReact } = require('../core/CReact');
+    const { existsSync } = require('fs');
+
     try {
       const spinner = new Spinner(!!ctx.flags.json);
-      
+
       // Load configuration
       spinner.start('Loading configuration...');
       const config = await loadConfigFromContext(ctx);
       spinner.succeed('Configuration loaded');
-      
+
       logVerbose('Configuration loaded successfully', config);
       logVerbose(`Stack: ${config.stackName}`, config);
       logVerbose(`Entry: ${config.entry}`, config);
-      
-      // TODO: Implement build logic
-      // 1. Load entry file
-      // 2. Render JSX to CloudDOM
-      // 3. Validate CloudDOM
-      // 4. Save to backend
-      
-      spinner.start('Building CloudDOM...');
-      // Simulate work
-      await new Promise(resolve => setTimeout(resolve, 500));
-      spinner.warn('Build not yet implemented');
-      
-      printWarning('This command will compile JSX → CloudDOM');
-      console.log(colors.dim('Implementation coming soon...'));
-      
-      if (outputJson({ status: 'not_implemented' }, ctx)) {
+
+      // Check if entry file exists
+      if (!existsSync(config.entry)) {
+        spinner.fail(`Entry file not found: ${config.entry}`);
+        printError(`Entry file does not exist: ${config.entry}`);
+
+        if (outputJson({
+          status: 'error',
+          error: 'Entry file not found',
+          path: config.entry
+        }, ctx)) {
+          return 1;
+        }
+
         return 1;
       }
-      
-      return 1;
+
+      // Load entry file
+      spinner.start('Loading entry file...');
+      logVerbose(`Loading JSX from: ${config.entry}`, config);
+
+      // Handle TypeScript files (.ts/.tsx) vs compiled JavaScript files (.js)
+      const isTypeScript = config.entry.endsWith('.tsx') || config.entry.endsWith('.ts');
+
+      if (isTypeScript) {
+        // Register tsx with esbuild loader options for CReact JSX
+        try {
+          const { tsImport } = require('tsx/esm/api');
+          logVerbose('Using tsx for TypeScript runtime support', config);
+        } catch (tsxError) {
+          spinner.fail('TypeScript entry files require tsx');
+          printError(
+            'To use TypeScript entry files:\n' +
+            '  npm install tsx'
+          );
+
+          if (config.verbose) {
+            console.error(colors.dim(`\nError: ${(tsxError as Error).message}`));
+          }
+
+          return 1;
+        }
+      }
+
+      // Clear require cache to allow reloading
+      try {
+        delete require.cache[require.resolve(config.entry)];
+      } catch {
+        // Ignore if not in cache
+      }
+
+      // Load the entry module
+      let entryModule;
+      try {
+        entryModule = require(config.entry);
+      } catch (loadError) {
+        spinner.fail('Failed to load entry file');
+        printError(`Could not load entry file: ${config.entry}`);
+
+        if (isTypeScript) {
+          console.error(colors.warning('\nTypeScript files must include JSX pragma comments:'));
+          console.error(colors.dim('  /** @jsx CReact.createElement */'));
+          console.error(colors.dim('  /** @jsxFrag CReact.Fragment */'));
+          console.error(colors.dim('  import { CReact } from \'@escambo/creact\';'));
+        }
+
+        if (config.verbose) {
+          console.error(colors.dim(`\nError: ${(loadError as Error).message}`));
+          if ((loadError as Error).stack) {
+            console.error(colors.dim((loadError as Error).stack!));
+          }
+        }
+
+        return 1;
+      }
+
+      // Support both default export and named 'app' export
+      const exported = entryModule.default || entryModule.app;
+
+      if (!exported) {
+        spinner.fail('Entry file must export CloudDOM');
+        printError('Entry file must export a default CloudDOM promise from CReact.renderCloudDOM()');
+
+        if (outputJson({
+          status: 'error',
+          error: 'No export found',
+          path: config.entry
+        }, ctx)) {
+          return 1;
+        }
+
+        return 1;
+      }
+
+      spinner.succeed('Entry file loaded');
+      logVerbose('Entry module loaded successfully', config);
+
+      // Initialize providers
+      spinner.start('Initializing providers...');
+      if (config.cloudProvider.initialize) {
+        await config.cloudProvider.initialize();
+      }
+      if (config.backendProvider.initialize) {
+        await config.backendProvider.initialize();
+      }
+      spinner.succeed('Providers initialized');
+
+      // Build CloudDOM
+      spinner.start('Building CloudDOM...');
+      logVerbose('Awaiting CloudDOM from entry file', config);
+
+      // The entry file should export the result of CReact.renderCloudDOM()
+      // which is a Promise<CloudDOMNode[]>
+      const cloudDOM = await exported;
+
+      spinner.succeed('CloudDOM built');
+      logVerbose(`CloudDOM contains ${cloudDOM.length} root nodes`, config);
+
+      // Save CloudDOM to backend
+      spinner.start('Saving CloudDOM to backend...');
+      logVerbose('Persisting CloudDOM state', config);
+
+      await config.backendProvider.saveState(config.stackName, {
+        status: 'PENDING',
+        cloudDOM,
+        timestamp: Date.now(),
+        user: process.env.USER || 'system',
+      });
+
+      spinner.succeed('CloudDOM saved to backend');
+
+      // Success output
+      printSuccess(`Build complete: ${cloudDOM.length} resources`);
+
+      if (config.verbose) {
+        console.log('\n' + colors.highlight('CloudDOM Summary:'));
+        const resourceCounts = countResources(cloudDOM);
+        for (const [type, count] of Object.entries(resourceCounts)) {
+          console.log(`  ${colors.resource(type)}: ${colors.dim(String(count))}`);
+        }
+      }
+
+      if (outputJson({
+        status: 'success',
+        stackName: config.stackName,
+        resourceCount: cloudDOM.length,
+        resources: cloudDOM.map((node: any) => ({
+          id: node.id,
+          type: node.construct?.name || 'Unknown',
+          path: node.path,
+        })),
+      }, ctx)) {
+        return 0;
+      }
+
+      return 0;
     } catch (error) {
+      printError('Build failed');
       console.error(formatError(error as Error, ctx.flags.verbose as boolean));
+
+      if (outputJson({
+        status: 'error',
+        error: (error as Error).message,
+        stack: ctx.flags.verbose ? (error as Error).stack : undefined,
+      }, ctx)) {
+        return 1;
+      }
+
       return 1;
     }
   },
 
   plan: async (ctx) => {
-    const { Spinner, formatDiff, printWarning, colors } = await import('./output.js');
-    
+    const { Spinner, formatDiff, printWarning, colors } = require('./output');
+
     const spinner = new Spinner(!!ctx.flags.json);
-    
+
     spinner.start('Computing diff...');
     // Simulate work
     await new Promise(resolve => setTimeout(resolve, 500));
     spinner.succeed('Diff computed');
-    
+
     // Example diff output (will be replaced with actual reconciler output)
     const exampleDiff = {
       creates: [
@@ -89,39 +235,39 @@ const commands: Record<string, CommandHandler> = {
         { from: 'frontend.old', to: 'frontend.new' },
       ],
     };
-    
+
     console.log(formatDiff(exampleDiff));
     printWarning('Plan command not fully implemented yet');
     console.log(colors.dim('This is example output. Real diff will come from Reconciler.'));
-    
+
     return 1;
   },
 
   deploy: async (ctx) => {
-    const { Spinner, ProgressBar, printSuccess, printWarning, colors } = await import('./output.js');
-    
+    const { Spinner, ProgressBar, printSuccess, printWarning, colors } = require('./output');
+
     const spinner = new Spinner(!!ctx.flags.json);
-    
+
     spinner.start('Preparing deployment...');
     await new Promise(resolve => setTimeout(resolve, 500));
     spinner.succeed('Deployment prepared');
-    
+
     // Example progress bar
     const progress = new ProgressBar(!!ctx.flags.json);
     progress.start(5, 0, 'Deploying resources');
-    
+
     // Simulate deployment
     for (let i = 1; i <= 5; i++) {
       await new Promise(resolve => setTimeout(resolve, 300));
       progress.update(i, `Resource ${i}/5`);
     }
-    
+
     progress.stop();
-    
+
     printSuccess('Deployment completed (example)');
     printWarning('Deploy command not fully implemented yet');
     console.log(colors.dim('This is example output. Real deployment will use StateMachine.'));
-    
+
     return 1;
   },
 
@@ -156,10 +302,10 @@ const commands: Record<string, CommandHandler> = {
   },
 
   info: async (ctx) => {
-    const { printHeader, printTable, printWarning, colors } = await import('./output.js');
-    
+    const { printHeader, printTable, printWarning, colors } = require('./output');
+
     printHeader('CReact System Information');
-    
+
     console.log('\n' + colors.highlight('Registered Providers:'));
     printTable(
       ['Name', 'Type', 'Version', 'Status'],
@@ -168,7 +314,7 @@ const commands: Record<string, CommandHandler> = {
         ['DummyBackendProvider', 'Backend', '0.1.0', colors.success('Active')],
       ]
     );
-    
+
     console.log('\n' + colors.highlight('Registered Adapters:'));
     printTable(
       ['Name', 'Type', 'Version', 'Status'],
@@ -177,11 +323,11 @@ const commands: Record<string, CommandHandler> = {
         ['HelmAdapter', 'IaC', 'N/A', colors.dim('Not Loaded')],
       ]
     );
-    
+
     console.log('');
     printWarning('Info command not fully implemented yet');
     console.log(colors.dim('This is example output. Real info will query DI container.'));
-    
+
     return 1;
   },
 
@@ -225,19 +371,21 @@ COMMANDS:
   version     Show version information
 
 GLOBAL OPTIONS:
-  --help      Show help for a command
-  --json      Output machine-readable JSON
-  --verbose   Enable verbose logging
+  --entry <path>  Path to entry file (required)
+  --stack <name>  Stack name (default: default)
+  --help          Show help for a command
+  --json          Output machine-readable JSON
+  --verbose       Enable verbose logging
 
 EXAMPLES:
-  creact build                    # Build CloudDOM from JSX
-  creact plan --json              # Show diff in JSON format
-  creact deploy                   # Deploy infrastructure
-  creact dev --step               # Hot reload with manual approval
-  creact secrets list             # List secret keys
-  creact info                     # Show registered providers
+  creact build --entry index.tsx          # Build CloudDOM from entry file
+  creact plan --entry index.tsx --json    # Show diff in JSON format
+  creact deploy --entry index.tsx         # Deploy infrastructure
+  creact dev --entry index.tsx --step     # Hot reload with manual approval
+  creact secrets list --stack production  # List secret keys
+  creact info                             # Show registered providers
 
-For more information, visit: https://github.com/escambo/creact
+For more information, visit: 
 `);
 }
 
@@ -250,26 +398,33 @@ function showCommandHelp(command: string): void {
 creact build - Compile JSX to CloudDOM
 
 USAGE:
-  creact build [options]
+  creact build --entry <path> [options]
 
 OPTIONS:
-  --config <path>    Path to creact.config.ts (default: ./creact.config.ts)
+  --entry <path>     Path to entry file (required)
+  --stack <name>     Stack name (default: default)
   --json             Output machine-readable JSON
   --verbose          Enable verbose logging
 
 DESCRIPTION:
   Compiles JSX infrastructure definitions to CloudDOM representation.
   Validates the CloudDOM tree and saves it to the backend provider.
+  
+  Entry file must configure CReact singleton:
+    CReact.cloudProvider = new AwsCloudProvider();
+    CReact.backendProvider = new S3BackendProvider();
+    export default CReact.renderCloudDOM(<App />, 'my-stack');
 `,
 
     plan: `
 creact plan - Show diff preview without apply
 
 USAGE:
-  creact plan [options]
+  creact plan --entry <path> [options]
 
 OPTIONS:
-  --config <path>    Path to creact.config.ts
+  --entry <path>     Path to entry file (required)
+  --stack <name>     Stack name (default: default)
   --json             Output machine-readable JSON (for CI/CD)
   --verbose          Enable verbose logging
 
@@ -282,10 +437,11 @@ DESCRIPTION:
 creact deploy - Apply changes to infrastructure
 
 USAGE:
-  creact deploy [options]
+  creact deploy --entry <path> [options]
 
 OPTIONS:
-  --config <path>    Path to creact.config.ts
+  --entry <path>     Path to entry file (required)
+  --stack <name>     Stack name (default: default)
   --auto-approve     Skip confirmation prompt
   --json             Output machine-readable JSON
   --verbose          Enable verbose logging
@@ -315,10 +471,11 @@ DESCRIPTION:
 creact dev - Hot reload infrastructure
 
 USAGE:
-  creact dev [options]
+  creact dev --entry <path> [options]
 
 OPTIONS:
-  --config <path>    Path to creact.config.ts
+  --entry <path>     Path to entry file (required)
+  --stack <name>     Stack name (default: default)
   --step             Pause after each change for manual approval
   --verbose          Enable verbose logging
 
@@ -482,10 +639,8 @@ async function main(): Promise<number> {
   }
 }
 
-// Run CLI if executed directly (ESM compatible check)
-// Check if this file is being run directly
-const isMainModule = process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
-if (isMainModule) {
+// Run CLI if executed directly (CommonJS check)
+if (require.main === module) {
   main()
     .then((exitCode) => {
       process.exit(exitCode);
@@ -494,6 +649,30 @@ if (isMainModule) {
       console.error('Fatal error:', error);
       process.exit(1);
     });
+}
+
+/**
+ * Count resources by type in CloudDOM tree
+ * 
+ * @param cloudDOM - CloudDOM tree
+ * @returns Map of construct type to count
+ */
+function countResources(cloudDOM: any[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+
+  const walk = (nodes: any[]) => {
+    for (const node of nodes) {
+      const type = node.construct?.name || 'Unknown';
+      counts[type] = (counts[type] || 0) + 1;
+
+      if (node.children && node.children.length > 0) {
+        walk(node.children);
+      }
+    }
+  };
+
+  walk(cloudDOM);
+  return counts;
 }
 
 export { main, commands, showHelp, parseCliArgs };
