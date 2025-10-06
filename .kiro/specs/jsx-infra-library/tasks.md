@@ -38,7 +38,7 @@
 
 Build the core diff and state management infrastructure.
 
-- [ ] 1. Create Reconciler class with diff algorithm
+- [x] 1. Create Reconciler class with diff algorithm
   - Create `src/core/Reconciler.ts`
   - Implement `reconcile(previous: CloudDOMNode[], current: CloudDOMNode[]): ChangeSet`
   - Build ID maps for O(n) lookup: `Map<string, CloudDOMNode>`
@@ -51,8 +51,8 @@ Build the core diff and state management infrastructure.
 #### ✅ QA & Deliverables Checklist
 
 **Quality Criteria**
-- [ ] Unit tests written for all new public functions
-- [ ] Integration tests for Reconciler diff algorithm
+- [x] Unit tests written for all new public functions
+- [x] Integration tests for Reconciler diff algorithm
 - [ ] TypeScript passes `npm run typecheck`
 - [ ] Lint passes `npm run lint`
 - [ ] All interfaces documented with JSDoc
@@ -75,7 +75,7 @@ Build the core diff and state management infrastructure.
 
 ---
 
-- [ ] 2. Build dependency graph from CloudDOM
+- [x] 2. Build dependency graph from CloudDOM
   - Scan node props for references to other node IDs
   - Build adjacency list: `Map<string, string[]>` (node ID → dependency IDs)
   - Detect circular dependencies using DFS
@@ -108,7 +108,7 @@ Build the core diff and state management infrastructure.
 
 ---
 
-- [ ] 3. Implement topological sort for deployment order
+- [x] 3. Implement topological sort for deployment order
   - Use Kahn's algorithm on dependency graph
   - Return array of node IDs in deployment order
   - Sort nodes with same depth by ID for determinism
@@ -140,7 +140,7 @@ Build the core diff and state management infrastructure.
 
 ---
 
-- [ ] 4. Compute parallel deployment batches
+- [x] 4. Compute parallel deployment batches
   - Group nodes by depth in dependency graph
   - Nodes at same depth can deploy in parallel
   - Return `string[][]` (array of batches)
@@ -172,7 +172,7 @@ Build the core diff and state management infrastructure.
 
 ---
 
-- [ ] 5. Add ChangeSet interface to types
+- [x] 5. Add ChangeSet interface to types
   - Update `src/core/types.ts`
   - Add ChangeSet, DependencyGraph interfaces
   - Export from `src/core/index.ts`

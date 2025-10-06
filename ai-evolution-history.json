@@ -1,0 +1,12 @@
+[
+  {
+    "cycle": 1,
+    "newProvider": "ProviderCycle1",
+    "total": 0
+  },
+  {
+    "cycle": 2,
+    "newProvider": "ProviderCycle2",
+    "total": 0
+  }
+]

@@ -1,826 +1,630 @@
-// Unit tests for Reconciler
-// REQ-O01, REQ-O04: Test diff algorithm, dependency graph, and deployment ordering
+// Unit tests for Reconciler - Testing internal helpers and algorithms
+// Uses __testing__ API to test pure functions in isolation
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Reconciler } from '../../src/core/Reconciler';
+import { Reconciler, ChangeSet, DependencyGraph } from '../../src/core/Reconciler';
 import { CloudDOMNode } from '../../src/core/types';
 import { ReconciliationError } from '../../src/core/errors';
 
-describe('Reconciler', () => {
+// Mock construct classes
+class S3Bucket {
+  constructor(public props: any) {}
+}
+
+class Lambda {
+  constructor(public props: any) {}
+}
+
+class ApiGateway {
+  constructor(public props: any) {}
+}
+
+// Helper to create mock CloudDOM nodes
+function createMockNode(
+  id: string,
+  construct: any,
+  props: Record<string, any> = {},
+  path: string[] = []
+): CloudDOMNode {
+  return {
+    id,
+    construct,
+    props,
+    path: path.length > 0 ? path : id.split('.'),
+    children: [],
+  };
+}
+
+describe('Reconciler Unit Tests', () => {
   let reconciler: Reconciler;
   
   beforeEach(() => {
     reconciler = new Reconciler();
   });
   
-  describe('reconcile - basic diff operations', () => {
-    it('should detect creates (nodes in current but not in previous)', () => {
-      const previous: CloudDOMNode[] = [];
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test' },
-          children: [],
-        },
-      ];
+  describe('computeShallowHash', () => {
+    it('should compute stable hash for identical props', () => {
+      const props1 = { bucketName: 'my-bucket', region: 'us-east-1' };
+      const props2 = { bucketName: 'my-bucket', region: 'us-east-1' };
       
-      const changeSet = reconciler.reconcile(previous, current);
+      const hash1 = reconciler.__testing__.computeShallowHash(props1);
+      const hash2 = reconciler.__testing__.computeShallowHash(props2);
       
-      expect(changeSet.creates).toHaveLength(1);
-      expect(changeSet.creates[0].id).toBe('node1');
-      expect(changeSet.updates).toHaveLength(0);
-      expect(changeSet.deletes).toHaveLength(0);
-      expect(changeSet.replacements).toHaveLength(0);
+      expect(hash1).toBe(hash2);
     });
     
-    it('should detect deletes (nodes in previous but not in current)', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test' },
-          children: [],
-        },
-      ];
-      const current: CloudDOMNode[] = [];
+    it('should compute different hash for different props', () => {
+      const props1 = { bucketName: 'bucket-1' };
+      const props2 = { bucketName: 'bucket-2' };
       
-      const changeSet = reconciler.reconcile(previous, current);
+      const hash1 = reconciler.__testing__.computeShallowHash(props1);
+      const hash2 = reconciler.__testing__.computeShallowHash(props2);
       
-      expect(changeSet.creates).toHaveLength(0);
-      expect(changeSet.updates).toHaveLength(0);
-      expect(changeSet.deletes).toHaveLength(1);
-      expect(changeSet.deletes[0].id).toBe('node1');
-      expect(changeSet.replacements).toHaveLength(0);
+      expect(hash1).not.toBe(hash2);
     });
     
-    it('should detect updates (nodes with changed props)', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', value: 1 },
-          children: [],
-        },
-      ];
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', value: 2 },
-          children: [],
-        },
-      ];
+    it('should ignore key order (stable hash)', () => {
+      const props1 = { a: 1, b: 2, c: 3 };
+      const props2 = { c: 3, a: 1, b: 2 };
       
-      const changeSet = reconciler.reconcile(previous, current);
+      const hash1 = reconciler.__testing__.computeShallowHash(props1);
+      const hash2 = reconciler.__testing__.computeShallowHash(props2);
       
-      expect(changeSet.creates).toHaveLength(0);
-      expect(changeSet.updates).toHaveLength(1);
-      expect(changeSet.updates[0].id).toBe('node1');
-      expect(changeSet.deletes).toHaveLength(0);
-      expect(changeSet.replacements).toHaveLength(0);
+      expect(hash1).toBe(hash2);
     });
     
-    it('should detect replacements (nodes with changed construct type)', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'OldConstruct' },
-          props: { name: 'test' },
-          children: [],
-        },
-      ];
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'NewConstruct' },
-          props: { name: 'test' },
-          children: [],
-        },
-      ];
+    it('should filter out metadata keys (starting with _)', () => {
+      const props1 = { bucketName: 'my-bucket', _internal: 'metadata' };
+      const props2 = { bucketName: 'my-bucket', _internal: 'different' };
       
-      const changeSet = reconciler.reconcile(previous, current);
+      const hash1 = reconciler.__testing__.computeShallowHash(props1);
+      const hash2 = reconciler.__testing__.computeShallowHash(props2);
       
-      expect(changeSet.creates).toHaveLength(0);
-      expect(changeSet.updates).toHaveLength(0);
-      expect(changeSet.deletes).toHaveLength(0);
-      expect(changeSet.replacements).toHaveLength(1);
-      expect(changeSet.replacements[0].id).toBe('node1');
+      // Hashes should match because _internal is filtered out
+      expect(hash1).toBe(hash2);
     });
     
-    it('should not detect changes when nodes are identical', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', value: 1 },
-          children: [],
-        },
-      ];
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', value: 1 },
-          children: [],
-        },
-      ];
+    it('should handle nested objects', () => {
+      const props1 = { config: { versioning: true, encryption: 'AES256' } };
+      const props2 = { config: { versioning: true, encryption: 'AES256' } };
       
-      const changeSet = reconciler.reconcile(previous, current);
+      const hash1 = reconciler.__testing__.computeShallowHash(props1);
+      const hash2 = reconciler.__testing__.computeShallowHash(props2);
       
-      expect(changeSet.creates).toHaveLength(0);
-      expect(changeSet.updates).toHaveLength(0);
-      expect(changeSet.deletes).toHaveLength(0);
-      expect(changeSet.replacements).toHaveLength(0);
+      expect(hash1).toBe(hash2);
     });
     
-    it('should ignore metadata props (starting with _) when detecting updates', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', _internal: 'old' },
-          children: [],
-        },
-      ];
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'TestConstruct' },
-          props: { name: 'test', _internal: 'new' },
-          children: [],
-        },
-      ];
+    it('should handle null and undefined', () => {
+      const hash1 = reconciler.__testing__.computeShallowHash(null as any);
+      const hash2 = reconciler.__testing__.computeShallowHash(undefined as any);
       
-      const changeSet = reconciler.reconcile(previous, current);
-      
-      // Should not detect update since only metadata changed
-      expect(changeSet.updates).toHaveLength(0);
+      expect(hash1).toBe('null');
+      expect(hash2).toBe('null');
     });
   });
   
-  describe('reconcile - nested nodes', () => {
-    it('should handle nested CloudDOM trees', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'parent',
-          path: ['parent'],
-          construct: { name: 'Parent' },
-          props: {},
-          children: [
-            {
-              id: 'parent.child',
-              path: ['parent', 'child'],
-              construct: { name: 'Child' },
-              props: { value: 1 },
-              children: [],
-            },
-          ],
-        },
-      ];
-      
-      const current: CloudDOMNode[] = [
-        {
-          id: 'parent',
-          path: ['parent'],
-          construct: { name: 'Parent' },
-          props: {},
-          children: [
-            {
-              id: 'parent.child',
-              path: ['parent', 'child'],
-              construct: { name: 'Child' },
-              props: { value: 2 },
-              children: [],
-            },
-          ],
-        },
-      ];
-      
-      const changeSet = reconciler.reconcile(previous, current);
-      
-      expect(changeSet.updates).toHaveLength(1);
-      expect(changeSet.updates[0].id).toBe('parent.child');
+  describe('isMetadataKey', () => {
+    it('should identify metadata keys starting with underscore', () => {
+      expect(reconciler.__testing__.isMetadataKey('_internal')).toBe(true);
+      expect(reconciler.__testing__.isMetadataKey('_propHash')).toBe(true);
+      expect(reconciler.__testing__.isMetadataKey('_metadata')).toBe(true);
+    });
+    
+    it('should not identify regular keys as metadata', () => {
+      expect(reconciler.__testing__.isMetadataKey('bucketName')).toBe(false);
+      expect(reconciler.__testing__.isMetadataKey('region')).toBe(false);
+      expect(reconciler.__testing__.isMetadataKey('name')).toBe(false);
     });
   });
   
-  describe('detectChangeType - pure function tests', () => {
-    it('should detect replacement when construct changes', () => {
-      const previous: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'OldConstruct' },
-        props: { value: 1 },
-        children: [],
-      };
+  describe('detectChangeType', () => {
+    it('should detect no change for identical nodes', () => {
+      const node1 = createMockNode('bucket', S3Bucket, { bucketName: 'my-bucket' });
+      const node2 = createMockNode('bucket', S3Bucket, { bucketName: 'my-bucket' });
       
-      const current: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'NewConstruct' },
-        props: { value: 1 },
-        children: [],
-      };
+      const changeType = reconciler.__testing__.detectChangeType(node1, node2);
       
-      const changeType = reconciler.__testing__.detectChangeType(previous, current);
-      expect(changeType).toBe('replacement');
+      expect(changeType).toBe('none');
     });
     
     it('should detect update when props change', () => {
-      const previous: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'TestConstruct' },
-        props: { value: 1 },
-        children: [],
-      };
+      const node1 = createMockNode('bucket', S3Bucket, { bucketName: 'bucket-1' });
+      const node2 = createMockNode('bucket', S3Bucket, { bucketName: 'bucket-2' });
       
-      const current: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'TestConstruct' },
-        props: { value: 2 },
-        children: [],
-      };
+      const changeType = reconciler.__testing__.detectChangeType(node1, node2);
       
-      const changeType = reconciler.__testing__.detectChangeType(previous, current);
       expect(changeType).toBe('update');
     });
     
-    it('should detect no change when nodes are identical', () => {
-      const previous: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'TestConstruct' },
-        props: { value: 1 },
-        children: [],
+    it('should detect replacement when construct changes', () => {
+      const node1 = createMockNode('resource', S3Bucket, { name: 'test' });
+      const node2 = createMockNode('resource', Lambda, { name: 'test' });
+      
+      const changeType = reconciler.__testing__.detectChangeType(node1, node2);
+      
+      expect(changeType).toBe('replacement');
+    });
+    
+    it('should use hash-based fast path for identical props', () => {
+      const props = {
+        bucketName: 'my-bucket',
+        tags: { env: 'prod', team: 'platform' },
+        config: { versioning: true },
       };
       
-      const current: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'TestConstruct' },
-        props: { value: 1 },
-        children: [],
-      };
+      const node1 = createMockNode('bucket', S3Bucket, props);
+      const node2 = createMockNode('bucket', S3Bucket, props);
       
-      const changeType = reconciler.__testing__.detectChangeType(previous, current);
+      // Pre-compute hashes
+      (node1 as any)._propHash = reconciler.__testing__.computeShallowHash(props);
+      (node2 as any)._propHash = reconciler.__testing__.computeShallowHash(props);
+      
+      const changeType = reconciler.__testing__.detectChangeType(node1, node2);
+      
+      expect(changeType).toBe('none');
+    });
+    
+    it('should ignore metadata keys in prop comparison', () => {
+      const node1 = createMockNode('bucket', S3Bucket, {
+        bucketName: 'my-bucket',
+        _internal: 'metadata1',
+      });
+      const node2 = createMockNode('bucket', S3Bucket, {
+        bucketName: 'my-bucket',
+        _internal: 'metadata2',
+      });
+      
+      const changeType = reconciler.__testing__.detectChangeType(node1, node2);
+      
+      // Should be 'none' because _internal is ignored
       expect(changeType).toBe('none');
     });
   });
   
-  describe('buildDependencyGraph - pure function tests', () => {
-    it('should build dependency graph from explicit dependsOn', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
+  describe('extractDependencies', () => {
+    it('should extract explicit dependsOn dependencies', () => {
+      const node = createMockNode('lambda', Lambda, {
+        functionName: 'my-function',
+        dependsOn: 'bucket',
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toEqual(['bucket']);
+    });
+    
+    it('should extract array of dependsOn dependencies', () => {
+      const node = createMockNode('api', ApiGateway, {
+        apiName: 'my-api',
+        dependsOn: ['bucket', 'lambda'],
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda', 'api']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toContain('bucket');
+      expect(deps).toContain('lambda');
+    });
+    
+    it('should extract ref prop as dependency', () => {
+      const node = createMockNode('lambda', Lambda, {
+        functionName: 'my-function',
+        ref: 'bucket',
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toContain('bucket');
+    });
+    
+    it('should extract implicit dependencies from prop values', () => {
+      const node = createMockNode('lambda', Lambda, {
+        functionName: 'my-function',
+        environment: {
+          BUCKET_ID: 'bucket',
         },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'node1' },
-          children: [],
-        },
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toContain('bucket');
+    });
+    
+    it('should not extract self-references', () => {
+      const node = createMockNode('lambda', Lambda, {
+        functionName: 'my-function',
+        dependsOn: 'lambda',
+      });
+      
+      const nodeIds = new Set(['lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toEqual([]);
+    });
+    
+    it('should skip metadata keys', () => {
+      const node = createMockNode('lambda', Lambda, {
+        functionName: 'my-function',
+        _internal: 'bucket', // Should be ignored
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toEqual([]);
+    });
+    
+    it('should skip known non-ID props', () => {
+      const node = createMockNode('lambda', Lambda, {
+        name: 'bucket', // 'name' is known non-ID prop
+        description: 'lambda', // 'description' is known non-ID prop
+      });
+      
+      const nodeIds = new Set(['bucket', 'lambda']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toEqual([]);
+    });
+    
+    it('should handle nested arrays', () => {
+      const node = createMockNode('api', ApiGateway, {
+        apiName: 'my-api',
+        integrations: [
+          { target: 'lambda1' },
+          { target: 'lambda2' },
+        ],
+      });
+      
+      const nodeIds = new Set(['lambda1', 'lambda2', 'api']);
+      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      
+      expect(deps).toContain('lambda1');
+      expect(deps).toContain('lambda2');
+    });
+  });
+  
+  describe('buildDependencyGraph', () => {
+    it('should build graph for independent nodes', () => {
+      const nodes = [
+        createMockNode('bucket1', S3Bucket, { bucketName: 'bucket-1' }),
+        createMockNode('bucket2', S3Bucket, { bucketName: 'bucket-2' }),
       ];
       
       const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       
-      expect(graph.dependencies.get('node2')).toEqual(['node1']);
-      expect(graph.dependents.get('node1')).toEqual(['node2']);
+      expect(graph.dependencies.get('bucket1')).toEqual([]);
+      expect(graph.dependencies.get('bucket2')).toEqual([]);
     });
     
-    it('should handle multiple dependencies', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node3',
-          path: ['node3'],
-          construct: { name: 'Test' },
-          props: { dependsOn: ['node1', 'node2'] },
-          children: [],
-        },
+    it('should build graph with explicit dependencies', () => {
+      const nodes = [
+        createMockNode('bucket', S3Bucket, { bucketName: 'my-bucket' }),
+        createMockNode('lambda', Lambda, {
+          functionName: 'my-function',
+          dependsOn: 'bucket',
+        }),
       ];
       
       const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       
-      expect(graph.dependencies.get('node3')).toEqual(['node1', 'node2']);
+      expect(graph.dependencies.get('bucket')).toEqual([]);
+      expect(graph.dependencies.get('lambda')).toEqual(['bucket']);
+      expect(graph.dependents.get('bucket')).toEqual(['lambda']);
     });
     
-    it('should detect circular dependencies', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'node2' },
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'node1' },
-          children: [],
-        },
+    it('should build graph with implicit dependencies', () => {
+      const nodes = [
+        createMockNode('bucket', S3Bucket, { bucketName: 'my-bucket' }),
+        createMockNode('lambda', Lambda, {
+          functionName: 'my-function',
+          environment: { BUCKET: 'bucket' },
+        }),
+      ];
+      
+      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
+      
+      expect(graph.dependencies.get('lambda')).toContain('bucket');
+      expect(graph.dependents.get('bucket')).toContain('lambda');
+    });
+    
+    it('should throw on circular dependencies', () => {
+      const nodes = [
+        createMockNode('node1', S3Bucket, { dependsOn: 'node2' }),
+        createMockNode('node2', Lambda, { dependsOn: 'node1' }),
       ];
       
       expect(() => {
         reconciler.__testing__.buildDependencyGraph(nodes);
       }).toThrow(ReconciliationError);
+      
+      expect(() => {
+        reconciler.__testing__.buildDependencyGraph(nodes);
+      }).toThrow(/Circular dependencies detected/);
     });
     
-    it('should extract dependencies from ref prop', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: { ref: 'node1' },
-          children: [],
-        },
+    it('should silently ignore missing dependencies during extraction', () => {
+      const nodes = [
+        createMockNode('lambda', Lambda, {
+          functionName: 'my-function',
+          dependsOn: 'missing-bucket',
+        }),
       ];
       
+      // Missing dependencies are filtered out during extraction
+      // so they don't appear in the graph
       const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       
-      expect(graph.dependencies.get('node2')).toEqual(['node1']);
-    });
-    
-    it('should extract implicit dependencies from nested prop values', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'database',
-          path: ['database'],
-          construct: { name: 'Database' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'api',
-          path: ['api'],
-          construct: { name: 'API' },
-          props: { config: { connectionString: 'database' } },
-          children: [],
-        },
-      ];
-      
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
-      
-      expect(graph.dependencies.get('api')).toContain('database');
-    });
-    
-    it('should skip known non-ID props', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: { name: 'node2', description: 'node3' },
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node3',
-          path: ['node3'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-      ];
-      
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
-      
-      // Should not detect dependencies since 'name' and 'description' are known non-ID props
-      expect(graph.dependencies.get('node1')).toEqual([]);
+      expect(graph.dependencies.get('lambda')).toEqual([]);
     });
   });
   
-  describe('topologicalSort - pure function tests', () => {
-    it('should sort nodes in dependency order', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'c',
-          path: ['c'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'b' },
-          children: [],
-        },
-        {
-          id: 'b',
-          path: ['b'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'a' },
-          children: [],
-        },
-        {
-          id: 'a',
-          path: ['a'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-      ];
+  describe('topologicalSort', () => {
+    it('should sort independent nodes deterministically', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['bucket1', []],
+          ['bucket2', []],
+          ['bucket3', []],
+        ]),
+        dependents: new Map([
+          ['bucket1', []],
+          ['bucket2', []],
+          ['bucket3', []],
+        ]),
+      };
       
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       const sorted = reconciler.__testing__.topologicalSort(graph);
       
-      expect(sorted).toEqual(['a', 'b', 'c']);
+      expect(sorted).toHaveLength(3);
+      expect(sorted).toContain('bucket1');
+      expect(sorted).toContain('bucket2');
+      expect(sorted).toContain('bucket3');
+      // Should be sorted alphabetically for determinism
+      expect(sorted).toEqual(['bucket1', 'bucket2', 'bucket3']);
     });
     
-    it('should sort nodes with same depth by ID for determinism', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node3',
-          path: ['node3'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-      ];
+    it('should sort linear dependency chain', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['bucket', []],
+          ['lambda', ['bucket']],
+          ['api', ['lambda']],
+        ]),
+        dependents: new Map([
+          ['bucket', ['lambda']],
+          ['lambda', ['api']],
+          ['api', []],
+        ]),
+      };
       
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       const sorted = reconciler.__testing__.topologicalSort(graph);
       
-      // All nodes have no dependencies, should be sorted alphabetically
-      expect(sorted).toEqual(['node1', 'node2', 'node3']);
+      expect(sorted).toEqual(['bucket', 'lambda', 'api']);
     });
     
-    it('should handle diamond dependencies', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'a',
-          path: ['a'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'b',
-          path: ['b'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'a' },
-          children: [],
-        },
-        {
-          id: 'c',
-          path: ['c'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'a' },
-          children: [],
-        },
-        {
-          id: 'd',
-          path: ['d'],
-          construct: { name: 'Test' },
-          props: { dependsOn: ['b', 'c'] },
-          children: [],
-        },
-      ];
+    it('should sort diamond dependency pattern', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['root', []],
+          ['left', ['root']],
+          ['right', ['root']],
+          ['bottom', ['left', 'right']],
+        ]),
+        dependents: new Map([
+          ['root', ['left', 'right']],
+          ['left', ['bottom']],
+          ['right', ['bottom']],
+          ['bottom', []],
+        ]),
+      };
       
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
       const sorted = reconciler.__testing__.topologicalSort(graph);
       
-      // 'a' must come first, 'd' must come last
-      expect(sorted[0]).toBe('a');
-      expect(sorted[3]).toBe('d');
-      // 'b' and 'c' can be in any order but must be between 'a' and 'd'
-      expect(sorted.slice(1, 3).sort()).toEqual(['b', 'c']);
+      // root must come first
+      expect(sorted[0]).toBe('root');
+      // bottom must come last
+      expect(sorted[3]).toBe('bottom');
+      // left and right can be in any order but should be sorted
+      expect(sorted.slice(1, 3).sort()).toEqual(['left', 'right']);
+    });
+    
+    it('should handle complex dependency graph', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['a', []],
+          ['b', ['a']],
+          ['c', ['a']],
+          ['d', ['b', 'c']],
+          ['e', ['c']],
+          ['f', ['d', 'e']],
+        ]),
+        dependents: new Map([
+          ['a', ['b', 'c']],
+          ['b', ['d']],
+          ['c', ['d', 'e']],
+          ['d', ['f']],
+          ['e', ['f']],
+          ['f', []],
+        ]),
+      };
+      
+      const sorted = reconciler.__testing__.topologicalSort(graph);
+      
+      // Verify all nodes are present
+      expect(sorted).toHaveLength(6);
+      
+      // Verify ordering constraints
+      expect(sorted.indexOf('a')).toBeLessThan(sorted.indexOf('b'));
+      expect(sorted.indexOf('a')).toBeLessThan(sorted.indexOf('c'));
+      expect(sorted.indexOf('b')).toBeLessThan(sorted.indexOf('d'));
+      expect(sorted.indexOf('c')).toBeLessThan(sorted.indexOf('d'));
+      expect(sorted.indexOf('c')).toBeLessThan(sorted.indexOf('e'));
+      expect(sorted.indexOf('d')).toBeLessThan(sorted.indexOf('f'));
+      expect(sorted.indexOf('e')).toBeLessThan(sorted.indexOf('f'));
     });
   });
   
-  describe('computeParallelBatches - pure function tests', () => {
-    it('should group independent nodes into parallel batches', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node3',
-          path: ['node3'],
-          construct: { name: 'Test' },
-          props: { dependsOn: ['node1', 'node2'] },
-          children: [],
-        },
-      ];
+  describe('computeParallelBatches', () => {
+    it('should create single batch for independent nodes', () => {
+      const deploymentOrder = ['bucket1', 'bucket2', 'bucket3'];
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['bucket1', []],
+          ['bucket2', []],
+          ['bucket3', []],
+        ]),
+        dependents: new Map([
+          ['bucket1', []],
+          ['bucket2', []],
+          ['bucket3', []],
+        ]),
+      };
       
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
-      const deploymentOrder = reconciler.__testing__.topologicalSort(graph);
       const batches = reconciler.__testing__.computeParallelBatches(deploymentOrder, graph);
       
-      expect(batches).toHaveLength(2);
-      expect(batches[0]).toHaveLength(2); // node1, node2
-      expect(batches[0].sort()).toEqual(['node1', 'node2']);
-      expect(batches[1]).toEqual(['node3']);
+      expect(batches).toHaveLength(1);
+      expect(batches[0]).toHaveLength(3);
+      expect(batches[0]).toEqual(['bucket1', 'bucket2', 'bucket3']);
     });
     
-    it('should handle linear dependencies (no parallelism)', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'node2',
-          path: ['node2'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'node1' },
-          children: [],
-        },
-        {
-          id: 'node3',
-          path: ['node3'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'node2' },
-          children: [],
-        },
-      ];
+    it('should create separate batches for linear chain', () => {
+      const deploymentOrder = ['bucket', 'lambda', 'api'];
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['bucket', []],
+          ['lambda', ['bucket']],
+          ['api', ['lambda']],
+        ]),
+        dependents: new Map([
+          ['bucket', ['lambda']],
+          ['lambda', ['api']],
+          ['api', []],
+        ]),
+      };
       
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
-      const deploymentOrder = reconciler.__testing__.topologicalSort(graph);
-      const batches = reconciler.__testing__.computeParallelBatches(deploymentOrder, graph);
-      
-      // Each node in its own batch (linear chain)
-      expect(batches).toHaveLength(3);
-      expect(batches[0]).toEqual(['node1']);
-      expect(batches[1]).toEqual(['node2']);
-      expect(batches[2]).toEqual(['node3']);
-    });
-    
-    it('should handle complex dependency graphs', () => {
-      const nodes: CloudDOMNode[] = [
-        {
-          id: 'a',
-          path: ['a'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'b',
-          path: ['b'],
-          construct: { name: 'Test' },
-          props: {},
-          children: [],
-        },
-        {
-          id: 'c',
-          path: ['c'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'a' },
-          children: [],
-        },
-        {
-          id: 'd',
-          path: ['d'],
-          construct: { name: 'Test' },
-          props: { dependsOn: 'b' },
-          children: [],
-        },
-        {
-          id: 'e',
-          path: ['e'],
-          construct: { name: 'Test' },
-          props: { dependsOn: ['c', 'd'] },
-          children: [],
-        },
-      ];
-      
-      const graph = reconciler.__testing__.buildDependencyGraph(nodes);
-      const deploymentOrder = reconciler.__testing__.topologicalSort(graph);
       const batches = reconciler.__testing__.computeParallelBatches(deploymentOrder, graph);
       
       expect(batches).toHaveLength(3);
-      // Batch 0: a, b (no dependencies)
-      expect(batches[0].sort()).toEqual(['a', 'b']);
-      // Batch 1: c, d (depend on batch 0)
-      expect(batches[1].sort()).toEqual(['c', 'd']);
-      // Batch 2: e (depends on batch 1)
-      expect(batches[2]).toEqual(['e']);
+      expect(batches[0]).toEqual(['bucket']);
+      expect(batches[1]).toEqual(['lambda']);
+      expect(batches[2]).toEqual(['api']);
+    });
+    
+    it('should batch nodes at same depth', () => {
+      const deploymentOrder = ['root', 'left', 'right', 'bottom'];
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['root', []],
+          ['left', ['root']],
+          ['right', ['root']],
+          ['bottom', ['left', 'right']],
+        ]),
+        dependents: new Map([
+          ['root', ['left', 'right']],
+          ['left', ['bottom']],
+          ['right', ['bottom']],
+          ['bottom', []],
+        ]),
+      };
+      
+      const batches = reconciler.__testing__.computeParallelBatches(deploymentOrder, graph);
+      
+      expect(batches).toHaveLength(3);
+      expect(batches[0]).toEqual(['root']);
+      expect(batches[1].sort()).toEqual(['left', 'right']);
+      expect(batches[2]).toEqual(['bottom']);
     });
   });
   
-  describe('extractDependencies - pure function tests', () => {
-    it('should extract dependencies from explicit dependsOn array', () => {
-      const node: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'Test' },
-        props: { dependsOn: ['node2', 'node3'] },
-        children: [],
-      };
+  describe('detectMoves', () => {
+    it('should detect when node moves between parents', () => {
+      const previousMap = new Map([
+        ['parent1.child', createMockNode('parent1.child', Lambda, {}, ['parent1', 'child'])],
+      ]);
       
-      const nodeIds = new Set(['node1', 'node2', 'node3']);
-      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      const currentMap = new Map([
+        ['parent2.child', createMockNode('parent2.child', Lambda, {}, ['parent2', 'child'])],
+      ]);
       
-      expect(deps.sort()).toEqual(['node2', 'node3']);
+      // Note: In real scenario, the ID would stay the same but path changes
+      // For this test, we're simulating the detection logic
+      const moves = reconciler.__testing__.detectMoves(previousMap, currentMap);
+      
+      // This test shows the limitation - moves are detected by ID match with path change
+      // Since IDs are different here, no move is detected
+      expect(moves).toHaveLength(0);
     });
     
-    it('should extract dependencies from ref prop', () => {
-      const node: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'Test' },
-        props: { ref: 'node2' },
-        children: [],
-      };
+    it('should detect move when same ID has different parent path', () => {
+      const previousMap = new Map([
+        ['child', createMockNode('child', Lambda, {}, ['parent1', 'child'])],
+      ]);
       
-      const nodeIds = new Set(['node1', 'node2']);
-      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      const currentMap = new Map([
+        ['child', createMockNode('child', Lambda, {}, ['parent2', 'child'])],
+      ]);
       
-      expect(deps).toEqual(['node2']);
+      const moves = reconciler.__testing__.detectMoves(previousMap, currentMap);
+      
+      expect(moves).toHaveLength(1);
+      expect(moves[0].nodeId).toBe('child');
+      expect(moves[0].from).toBe('parent1');
+      expect(moves[0].to).toBe('parent2');
     });
     
-    it('should extract implicit dependencies from string values', () => {
-      const node: CloudDOMNode = {
-        id: 'api',
-        path: ['api'],
-        construct: { name: 'Test' },
-        props: { database: 'db', cache: 'redis' },
-        children: [],
-      };
+    it('should not detect move when path is unchanged', () => {
+      const previousMap = new Map([
+        ['child', createMockNode('child', Lambda, {}, ['parent', 'child'])],
+      ]);
       
-      const nodeIds = new Set(['api', 'db', 'redis']);
-      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
+      const currentMap = new Map([
+        ['child', createMockNode('child', Lambda, {}, ['parent', 'child'])],
+      ]);
       
-      expect(deps.sort()).toEqual(['db', 'redis']);
-    });
-    
-    it('should skip metadata props starting with underscore', () => {
-      const node: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'Test' },
-        props: { _internal: 'node2', value: 'node3' },
-        children: [],
-      };
+      const moves = reconciler.__testing__.detectMoves(previousMap, currentMap);
       
-      const nodeIds = new Set(['node1', 'node2', 'node3']);
-      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
-      
-      // Should only find node3, not node2 (metadata)
-      expect(deps).toEqual(['node3']);
-    });
-    
-    it('should not create self-dependencies', () => {
-      const node: CloudDOMNode = {
-        id: 'node1',
-        path: ['node1'],
-        construct: { name: 'Test' },
-        props: { ref: 'node1' },
-        children: [],
-      };
-      
-      const nodeIds = new Set(['node1']);
-      const deps = reconciler.__testing__.extractDependencies(node, nodeIds);
-      
-      expect(deps).toEqual([]);
+      expect(moves).toHaveLength(0);
     });
   });
   
-  describe('edge cases', () => {
-    it('should handle empty CloudDOM trees', () => {
-      const changeSet = reconciler.reconcile([], []);
+  describe('validateGraph', () => {
+    it('should validate graph with all dependencies present', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['bucket', []],
+          ['lambda', ['bucket']],
+        ]),
+        dependents: new Map([
+          ['bucket', ['lambda']],
+          ['lambda', []],
+        ]),
+      };
       
-      expect(changeSet.creates).toHaveLength(0);
-      expect(changeSet.updates).toHaveLength(0);
-      expect(changeSet.deletes).toHaveLength(0);
-      expect(changeSet.replacements).toHaveLength(0);
-      expect(changeSet.deploymentOrder).toHaveLength(0);
-      expect(changeSet.parallelBatches).toHaveLength(0);
+      expect(() => {
+        reconciler.__testing__.validateGraph(graph);
+      }).not.toThrow();
     });
     
-    it('should handle nodes with complex nested props', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {
-            config: {
-              nested: {
-                value: 1,
-                array: [1, 2, 3],
-              },
-            },
-          },
-          children: [],
-        },
-      ];
+    it('should throw on missing dependency', () => {
+      const graph: DependencyGraph = {
+        dependencies: new Map([
+          ['lambda', ['missing-bucket']],
+        ]),
+        dependents: new Map([
+          ['lambda', []],
+        ]),
+      };
       
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: {
-            config: {
-              nested: {
-                value: 2,
-                array: [1, 2, 3],
-              },
-            },
-          },
-          children: [],
-        },
-      ];
+      expect(() => {
+        reconciler.__testing__.validateGraph(graph);
+      }).toThrow(ReconciliationError);
       
-      const changeSet = reconciler.reconcile(previous, current);
-      
-      expect(changeSet.updates).toHaveLength(1);
-    });
-    
-    it('should handle nodes with array props', () => {
-      const previous: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: { tags: ['a', 'b'] },
-          children: [],
-        },
-      ];
-      
-      const current: CloudDOMNode[] = [
-        {
-          id: 'node1',
-          path: ['node1'],
-          construct: { name: 'Test' },
-          props: { tags: ['a', 'b', 'c'] },
-          children: [],
-        },
-      ];
-      
-      const changeSet = reconciler.reconcile(previous, current);
-      
-      expect(changeSet.updates).toHaveLength(1);
+      expect(() => {
+        reconciler.__testing__.validateGraph(graph);
+      }).toThrow(/Missing dependency/);
     });
   });
 });
