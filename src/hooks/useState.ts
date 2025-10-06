@@ -1,17 +1,14 @@
 // REQ-02: useState hook for declarative output binding
 // This hook declares component outputs that persist across build/deploy cycles
 
-/**
- * Current rendering context for useState
- * This is set by the Renderer during component execution
- */
-let currentFiber: any = null;
-
-/**
- * Current hook index for tracking multiple useState calls
- * Reset at the start of each component render
- */
-let hookIndex: number = 0;
+import {
+  setStateRenderContext as setStateRenderContextInternal,
+  clearStateRenderContext as clearStateRenderContextInternal,
+  getStateContext,
+  incrementHookIndex,
+  hasStateContext as hasStateContextInternal,
+  getCurrentState as getCurrentStateInternal,
+} from './context';
 
 /**
  * Set the current rendering context for useState
@@ -20,8 +17,7 @@ let hookIndex: number = 0;
  * @internal
  */
 export function setStateRenderContext(fiber: any): void {
-  currentFiber = fiber;
-  hookIndex = 0; // Reset hook index for new component
+  setStateRenderContextInternal(fiber);
 }
 
 /**
@@ -31,8 +27,7 @@ export function setStateRenderContext(fiber: any): void {
  * @internal
  */
 export function clearStateRenderContext(): void {
-  currentFiber = null;
-  hookIndex = 0;
+  clearStateRenderContextInternal();
 }
 
 /**
@@ -89,6 +84,10 @@ export function clearStateRenderContext(): void {
 export function useState<T = undefined>(
   initialValue?: T
 ): [T, (value: T | ((prev: T) => T)) => void] {
+  // Get current context from AsyncLocalStorage
+  const context = getStateContext();
+  const { currentFiber } = context;
+  
   // Validate hook is called during rendering
   if (!currentFiber) {
     throw new Error(
@@ -103,8 +102,7 @@ export function useState<T = undefined>(
   }
 
   // Get current hook index and increment for next call
-  const currentHookIndex = hookIndex;
-  hookIndex++;
+  const currentHookIndex = incrementHookIndex();
 
   // Initialize this hook's state if first render
   if (currentFiber.hooks[currentHookIndex] === undefined) {
@@ -149,7 +147,7 @@ export function useState<T = undefined>(
  * @internal
  */
 export function hasStateContext(): boolean {
-  return currentFiber !== null;
+  return hasStateContextInternal();
 }
 
 /**
@@ -158,5 +156,5 @@ export function hasStateContext(): boolean {
  * @internal
  */
 export function getCurrentState(): Record<string, any> | undefined {
-  return currentFiber?.state;
+  return getCurrentStateInternal();
 }

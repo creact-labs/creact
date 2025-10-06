@@ -25,9 +25,11 @@
 
 CReact is a **JSX-based infrastructure library** that brings React-style developer experience to infrastructure-as-code. Write infrastructure components using familiar JSX syntax and get instant feedback with hot reload.
 
+**Critical Understanding:** CReact hooks are **declarative, not reactive** - they declare persistent outputs rather than triggering re-renders. This is by design for infrastructure use cases.
+
 **CloudDOM:** The intermediate representation between JSX and cloud resources — analogous to React's Virtual DOM, but for infrastructure.
 
-**Goal:** Make infrastructure development as fast and intuitive as frontend development, with a lean MVP that can be extended.
+**Goal:** Make infrastructure development as fast and intuitive as frontend development, while maintaining infrastructure-appropriate behavior patterns.
 
 **Developer Experience:** Focus on the core developer loop: edit JSX → hot reload → see changes applied incrementally.
 
@@ -76,14 +78,32 @@ CReact is a **JSX-based infrastructure library** that brings React-style develop
 
 ### REQ-CORE-01 JSX Infrastructure Components
 
-**User Story:** As a developer, I want to define infrastructure using JSX components, so that I can use familiar React patterns.
+**User Story:** As a developer, I want to define infrastructure using JSX components with non-reactive hooks, so that I can use familiar React patterns while maintaining infrastructure-appropriate behavior.
 
 #### Acceptance Criteria
 
 1. WHEN I write JSX infrastructure components THEN they SHALL render to CloudDOM
-2. WHEN I use hooks like useState and useContext THEN they SHALL work in infrastructure components
-3. WHEN I compose components THEN they SHALL build a coherent CloudDOM tree
-4. WHEN CloudDOM is built THEN it SHALL be deterministic (same input = same output)
+2. WHEN I use hooks like useState and useContext THEN they SHALL work as declarative output mechanisms (NOT reactive state)
+3. WHEN I call setState during render THEN it SHALL update persisted output without triggering re-render
+4. WHEN I use useContext THEN it SHALL return static values for the current render cycle
+5. WHEN I compose components THEN they SHALL build a coherent CloudDOM tree
+6. WHEN CloudDOM is built THEN it SHALL be deterministic (same input = same output)
+
+---
+
+### REQ-HOOKS-01 Non-Reactive Hook Behavior
+
+**User Story:** As a developer, I want CReact hooks to behave as declarative output mechanisms rather than reactive state, so that infrastructure changes are predictable and controlled.
+
+#### Acceptance Criteria
+
+1. WHEN I call useState THEN it SHALL return current persisted value and a setter function
+2. WHEN I call setState during render THEN it SHALL update persisted output without causing re-render
+3. WHEN I call setState multiple times in one render THEN all updates SHALL be applied to persisted state
+4. WHEN I call useContext THEN it SHALL return static value from nearest Provider for current render
+5. WHEN Provider value changes THEN it SHALL NOT cause child components to re-render
+6. WHEN I deploy after state changes THEN new state values SHALL be available in next build cycle
+7. WHEN hooks are called outside render context THEN they SHALL throw clear error messages
 
 ---
 
@@ -121,6 +141,7 @@ These features can be built as CReact components or extensions later:
 | CLI-01  | Basic CLI Commands              |
 | HOT-01  | Hot Reload Development Mode     |
 | CORE-01 | JSX Infrastructure Components   |
+| HOOKS-01 | Non-Reactive Hook Behavior     |
 | PROVIDER-01 | Basic Provider System       |
 
 ---

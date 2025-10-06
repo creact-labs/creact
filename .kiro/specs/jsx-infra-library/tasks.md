@@ -17,7 +17,7 @@ CReact is a JSX-based infrastructure library that brings React-style developer e
 
 ### Phase 1: Critical Safety Fixes (MUST FIX FIRST)
 
-- [ ] 1. Fix hook context async safety
+- [x] 1. Fix hook context async safety
   - Implement AsyncLocalStorage for currentFiber and contextStacks
   - Ensure thread-safe hook execution in concurrent deployments
   - _Requirements: REQ-CORE-01_
@@ -94,11 +94,12 @@ CReact is a JSX-based infrastructure library that brings React-style developer e
   - Ensure deterministic change detection
   - _Requirements: REQ-CORE-01_
 
-- [ ] 13. Better error messages
+- [ ] 13. Better error messages and non-reactive behavior documentation
   - Add context to validation errors (actual vs expected values)
-  - Include suggestions for common mistakes
+  - Include clear messaging about non-reactive hook behavior in error messages
+  - Update hook error messages to explain declarative vs reactive nature
   - Improve circular dependency error reporting
-  - _Requirements: REQ-CORE-01_
+  - _Requirements: REQ-CORE-01, REQ-HOOKS-01_
 
 ### Phase 5: Developer Experience Polish
 
@@ -119,32 +120,43 @@ CReact is a JSX-based infrastructure library that brings React-style developer e
   - Prevent stale code issues in development mode
   - _Requirements: REQ-HOT-01_
 
+- [ ] 17. Create comprehensive non-reactive behavior documentation
+  - Update README with clear explanation of non-reactive hooks
+  - Add migration guide for React developers
+  - Create examples showing correct vs incorrect mental models
+  - Document when state changes take effect (next deployment cycle)
+  - Add JSDoc comments to all hook functions explaining non-reactive behavior
+  - _Requirements: REQ-HOOKS-01_
+
 ---
 
 ## 🧪 Testing Strategy
 
 ### Unit Tests (Maintain Current Coverage)
-- [ ]* 17. Update tests for simplified interfaces
+- [ ]* 18. Update tests for simplified interfaces and non-reactive behavior
   - Modify tests to work with simplified IBackendProvider
   - Remove tests for removed ProviderRouter functionality
+  - Add explicit tests for non-reactive hook behavior
+  - Test that setState doesn't cause re-renders
+  - Test that useContext returns static values during render
   - Ensure 696+ tests still pass after changes
-  - _Requirements: REQ-CORE-01_
+  - _Requirements: REQ-CORE-01, REQ-HOOKS-01_
 
 ### Integration Tests
-- [ ]* 18. Add CLI integration tests
+- [ ]* 19. Add CLI integration tests
   - Test `creact build`, `plan`, `deploy` commands end-to-end
   - Verify proper exit codes and error handling
   - Test with various provider configurations
   - _Requirements: REQ-CLI-01_
 
-- [ ]* 19. Add hot reload integration tests
+- [ ]* 20. Add hot reload integration tests
   - Test file watching and incremental updates
   - Verify rollback behavior on failed reloads
   - Test with complex component hierarchies
   - _Requirements: REQ-HOT-01_
 
 ### Performance Tests
-- [ ]* 20. Add hot reload performance benchmarks
+- [ ]* 21. Add hot reload performance benchmarks
   - Measure time from file save to deployment completion
   - Verify < 5 second target for small changes
   - Test with various CloudDOM sizes
@@ -173,6 +185,15 @@ CReact is a JSX-based infrastructure library that brings React-style developer e
 - [ ] Hooks (useState, useContext, useInstance) work in infrastructure components
 - [ ] Component composition builds coherent CloudDOM tree
 - [ ] CloudDOM builds are deterministic (same input = same output)
+
+### REQ-HOOKS-01: Non-Reactive Hook Behavior
+- [ ] useState returns current persisted value and setter function
+- [ ] setState updates persisted output without causing re-render
+- [ ] Multiple setState calls in one render are all applied to persisted state
+- [ ] useContext returns static value from nearest Provider for current render
+- [ ] Provider value changes do not cause child components to re-render
+- [ ] State changes are available in next build cycle after deployment
+- [ ] Hooks throw clear error messages when called outside render context
 
 ### REQ-PROVIDER-01: Basic Provider System
 - [ ] ICloudProvider implementations handle resource materialization

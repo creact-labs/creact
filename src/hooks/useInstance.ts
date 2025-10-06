@@ -3,14 +3,14 @@
 
 import { CloudDOMNode } from '../core/types';
 import { generateResourceId, toKebabCase } from '../utils/naming';
-
-/**
- * Current rendering context
- * This is set by the Renderer during component execution
- */
-let currentFiber: any = null;
-let currentPath: string[] = [];
-let previousOutputsMap: Map<string, Record<string, any>> | null = null;
+import {
+  setInstanceRenderContext,
+  clearInstanceRenderContext,
+  getInstanceContext,
+  setPreviousOutputs as setPreviousOutputsInternal,
+  getCurrentPath as getCurrentPathInternal,
+  isRendering as isRenderingInternal,
+} from './context';
 
 /**
  * Set the current rendering context
@@ -19,8 +19,7 @@ let previousOutputsMap: Map<string, Record<string, any>> | null = null;
  * @internal
  */
 export function setRenderContext(fiber: any, path: string[]): void {
-  currentFiber = fiber;
-  currentPath = path;
+  setInstanceRenderContext(fiber, path);
 }
 
 /**
@@ -30,8 +29,7 @@ export function setRenderContext(fiber: any, path: string[]): void {
  * @internal
  */
 export function clearRenderContext(): void {
-  currentFiber = null;
-  currentPath = [];
+  clearInstanceRenderContext();
 }
 
 /**
@@ -41,7 +39,7 @@ export function clearRenderContext(): void {
  * @internal
  */
 export function setPreviousOutputs(outputsMap: Map<string, Record<string, any>> | null): void {
-  previousOutputsMap = outputsMap;
+  setPreviousOutputsInternal(outputsMap);
 }
 
 /**
@@ -96,6 +94,9 @@ export function useInstance<T = any>(
   construct: new (...args: any[]) => T,
   props: Record<string, any>
 ): CloudDOMNode {
+  // Get current context from AsyncLocalStorage
+  const { currentFiber, currentPath, previousOutputsMap } = getInstanceContext();
+  
   // Validate hook is called during rendering
   if (!currentFiber) {
     throw new Error(
@@ -182,7 +183,7 @@ export function resetConstructCounts(fiber: any): void {
  * @internal
  */
 export function getCurrentPath(): string[] {
-  return [...currentPath];
+  return getCurrentPathInternal();
 }
 
 /**
@@ -192,5 +193,5 @@ export function getCurrentPath(): string[] {
  * @internal
  */
 export function isRendering(): boolean {
-  return currentFiber !== null;
+  return isRenderingInternal();
 }

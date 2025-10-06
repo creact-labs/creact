@@ -15,7 +15,20 @@ Write infrastructure as declarative JSX components, similar to React, but for cl
 - **Provider architecture** - Pluggable cloud and backend providers
 - **Hooks support** - useState, useContext, useInstance for stateful infrastructure
 - **Validation** - Pre-deployment validation to catch errors early
+- **Hot reload development** - Change code, see updates in <5 seconds
 
 ## Target Use Case
 
 Infrastructure-as-code for teams familiar with React who want to leverage JSX patterns for defining cloud resources. Provides a higher-level abstraction than raw Terraform/CloudFormation while maintaining type safety and composability.
+
+## MVP Focus
+
+The current MVP focuses on:
+- Basic CLI commands (build, plan, deploy, dev)
+- Hot reload development mode
+- JSX infrastructure components with hooks
+- Simple provider system for extensibility
+
+For detailed requirements, see: #[[file:.kiro/specs/jsx-infra-library/requirements.md]]
+For architecture and design decisions, see: #[[file:.kiro/specs/jsx-infra-library/design.md]]
+For implementation tasks, see: #[[file:.kiro/specs/jsx-infra-library/tasks.md]]

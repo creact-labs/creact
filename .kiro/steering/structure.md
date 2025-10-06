@@ -172,3 +172,21 @@ All builds are deterministic (REQ-I05):
 8. **Nested composition** - Apps can deploy apps recursively
 9. **Provider-orchestration separation** - Providers are pure executors, orchestration is centralized
 10. **Deterministic builds** - Same input always produces same CloudDOM (content-hash IDs)
+
+## MVP Simplifications
+
+For the MVP implementation, several architectural components will be simplified:
+- **ProviderRouter removal** - Single provider per app instead of multi-provider routing
+- **Simplified IBackendProvider** - Remove secrets management, keep optional locking
+- **Focus on core CLI** - build, plan, deploy, dev commands only
+
+## Current Implementation Status
+
+The core engine is complete with 696 tests passing. Current focus is on:
+- Critical safety fixes (async hook context, memory leaks, lock renewal)
+- CLI command implementation
+- Hot reload development mode
+
+For detailed implementation tasks, see: #[[file:.kiro/specs/jsx-infra-library/tasks.md]]
+For architecture details and design decisions, see: #[[file:.kiro/specs/jsx-infra-library/design.md]]
+For requirements and acceptance criteria, see: #[[file:.kiro/specs/jsx-infra-library/requirements.md]]

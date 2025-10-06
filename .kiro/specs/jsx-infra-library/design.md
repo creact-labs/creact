@@ -57,7 +57,7 @@ creact deploy
 creact dev
 ```
 
-**Key Insight:** If you know React, you already know CReact. Same patterns, same hooks, same component model - just for infrastructure instead of UI.
+**Key Insight:** CReact uses familiar React patterns but with a fundamental difference - hooks are **declarative, not reactive**. This is by design for infrastructure use cases.
 
 ### How to Extend CReact
 
@@ -89,7 +89,101 @@ function App() {
 
 ---
 
-## 2. Current Implementation Status
+## 2. Critical Understanding: CReact Hooks Are NOT Reactive
+
+**This is the most important concept to understand about CReact.**
+
+### React vs CReact: Fundamental Difference
+
+| Aspect | React (UI) | CReact (Infrastructure) |
+|--------|------------|-------------------------|
+| **useState** | `setState()` → triggers re-render → component sees new state immediately | `setState()` → updates persisted output → takes effect in next build/deploy cycle |
+| **useContext** | Context changes → subscribers re-render → components see new values | Context values → resolved once during render → static for that render cycle |
+| **Mental Model** | **Runtime Reactive** - Changes cause immediate re-execution | **Build-time Declarative** - Components declare desired outputs |
+| **When Changes Apply** | Immediately in memory | Next deployment cycle |
+
+### Why CReact Hooks Are Not Reactive
+
+**Infrastructure is fundamentally different from UI:**
+
+1. **Infrastructure Has Deploy Cycles, Not Render Cycles**
+   - UI: User clicks → state changes → re-render (milliseconds)
+   - Infrastructure: Code changes → build → deploy (seconds/minutes)
+
+2. **Infrastructure Resources Are Expensive to Create/Destroy**
+   - UI: Creating/destroying DOM nodes is cheap
+   - Infrastructure: Creating/destroying cloud resources costs time and money
+
+3. **Infrastructure Needs Persistence Across Deployments**
+   - UI: State lives in memory during user session
+   - Infrastructure: State must persist across build/deploy cycles
+
+4. **Infrastructure Changes Should Be Deliberate, Not Reactive**
+   - UI: Reactive updates provide smooth user experience
+   - Infrastructure: Reactive updates could cause accidental resource churn
+
+### What CReact Hooks Actually Do
+
+```tsx
+function MyStack() {
+  // useState declares an OUTPUT that persists across cycles
+  const [dbUrl, setDbUrl] = useState(''); // NOT reactive state
+  
+  // useContext reads configuration (static during this render)
+  const config = useContext(ConfigContext); // NOT reactive subscription
+  
+  // useInstance creates infrastructure resources
+  const db = useInstance(Database, { 
+    name: 'my-db',
+    region: config.region 
+  });
+  
+  // setState updates the OUTPUT for next cycle (doesn't re-render)
+  setDbUrl(db.connectionUrl); // Takes effect after deployment
+  
+  return null; // Components don't return JSX for rendering
+}
+```
+
+### When State Changes Take Effect
+
+```tsx
+// Build Cycle 1: Initial deployment
+function App() {
+  const [status, setStatus] = useState('deploying'); // Initial value
+  const db = useInstance(Database, { name: 'my-db' });
+  
+  // This setState doesn't cause re-render - it updates persisted output
+  setStatus('deployed'); 
+  
+  return null;
+}
+// Result: Database created, status output = 'deployed'
+
+// Build Cycle 2: Code change triggers new deployment
+function App() {
+  const [status, setStatus] = useState('deploying'); // Reads previous value: 'deployed'
+  const db = useInstance(Database, { name: 'my-db' }); // Existing resource
+  
+  setStatus('updated');
+  
+  return null;
+}
+// Result: No infrastructure changes, status output = 'updated'
+```
+
+### This Design Is Intentional
+
+CReact's non-reactive design prevents common infrastructure anti-patterns:
+
+- **No Accidental Resource Churn** - State changes don't immediately recreate resources
+- **Predictable Deployment Cycles** - Changes only apply when you explicitly deploy
+- **Cost Control** - No surprise resource creation from reactive updates
+- **Debugging** - Clear separation between build-time and deploy-time behavior
+
+---
+
+## 3. Current Implementation Status
 
 ### What's Already Built ✅
 
@@ -125,7 +219,7 @@ CReact has a solid foundation that's already working:
 
 ---
 
-## 3. Architecture
+## 4. Architecture
 
 CReact follows the same architecture pattern as React, but for infrastructure:
 
@@ -159,7 +253,7 @@ index.ts → Renderer → Validator → CloudDOMBuilder → CloudDOM
 
 ---
 
-## 4. Core Interfaces
+## 5. Core Interfaces
 
 CReact's extensibility comes from two simple interfaces:
 
@@ -216,7 +310,7 @@ export default CReact.renderCloudDOM(<App />, 'my-stack');
 
 ---
 
-## 5. CLI Commands (MVP)
+## 6. CLI Commands (MVP)
 
 CReact CLI follows familiar patterns from React and other dev tools:
 
@@ -262,7 +356,7 @@ $ creact dev
 
 ---
 
-## 6. Production Readiness Improvements
+## 7. Production Readiness Improvements
 
 While CReact's core engine is solid, several improvements are needed for production use:
 
@@ -390,7 +484,7 @@ type HookState =
 
 ---
 
-## 7. Future Enhancements (Not MVP)
+## 8. Future Enhancements (Not MVP)
 
 These advanced features can be built as CReact components or extensions later:
 
@@ -423,7 +517,7 @@ Wrap Terraform, Helm, Pulumi modules as CReact components with deterministic out
 
 ---
 
-## 8. Testing Strategy
+## 9. Testing Strategy
 
 ### MVP Testing Focus
 
@@ -444,13 +538,19 @@ Wrap Terraform, Helm, Pulumi modules as CReact components with deterministic out
 
 ---
 
-## 9. Key Design Decisions
+## 10. Key Design Decisions
 
 ### Why JSX for Infrastructure?
 - **Familiar** - React developers already know the patterns
 - **Composable** - Easy to build reusable infrastructure components
 - **Type-safe** - Full TypeScript support with inference
 - **Declarative** - Describe what you want, not how to build it
+
+### Why Non-Reactive Hooks?
+- **Infrastructure-appropriate** - Matches deploy cycles, not render cycles
+- **Cost control** - Prevents accidental resource churn
+- **Predictable** - Changes only apply when explicitly deployed
+- **Persistent** - State survives across build/deploy cycles
 
 ### Why Hot Reload?
 - **Fast feedback** - See changes in seconds, not minutes
@@ -464,7 +564,7 @@ Wrap Terraform, Helm, Pulumi modules as CReact components with deterministic out
 
 ---
 
-## 10. Document History
+## 11. Document History
 
 | Version | Date       | Changes                                    |
 | ------- | ---------- | ------------------------------------------ |

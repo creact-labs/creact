@@ -52,3 +52,32 @@ npm run format:check     # Check formatting without changes
 - Compiled output: `dist/`
 - Type declarations: `dist/**/*.d.ts`
 - Entry point: `dist/index.js`
+
+## CLI Commands (MVP)
+
+```bash
+# CReact CLI commands
+creact build             # Compile JSX to CloudDOM
+creact plan              # Show diff preview without deploying
+creact deploy            # Apply changes to infrastructure
+creact dev               # Hot reload development mode
+```
+
+## Development Priorities
+
+Current MVP implementation focuses on:
+1. **Critical safety fixes** - Async hook context, memory leaks, lock renewal
+2. **CLI completion** - Finish build, plan, deploy, dev commands
+3. **Hot reload** - File watching and incremental updates
+4. **Architecture cleanup** - Remove ProviderRouter, simplify interfaces
+
+## Implementation Guidelines
+
+- **One task at a time** - Complete each task fully before moving to next
+- **Test after changes** - Maintain 696+ test coverage
+- **Safety first** - Fix critical issues before adding features
+- **MVP focus** - Defer advanced features to post-MVP
+
+For detailed requirements, see: #[[file:.kiro/specs/jsx-infra-library/requirements.md]]
+For implementation tasks and priorities, see: #[[file:.kiro/specs/jsx-infra-library/tasks.md]]
+For architecture and design context, see: #[[file:.kiro/specs/jsx-infra-library/design.md]]

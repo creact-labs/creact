@@ -3,18 +3,15 @@
 
 import { Context } from '../context/createContext';
 import { FiberNode } from '../core/types';
-
-/**
- * Current rendering context for useContext
- * This is set by the Renderer during component execution
- */
-let currentFiber: FiberNode | null = null;
-
-/**
- * Context stack - maps context ID to stack of values
- * The Renderer pushes/pops values as it enters/exits Providers
- */
-const contextStacks = new Map<symbol, any[]>();
+import {
+  setContextRenderContext as setContextRenderContextInternal,
+  clearContextRenderContext as clearContextRenderContextInternal,
+  pushContextValue as pushContextValueInternal,
+  popContextValue as popContextValueInternal,
+  getContextRenderContext,
+  getContextValue,
+  clearContextStacks as clearContextStacksInternal,
+} from './context';
 
 /**
  * Set the current rendering context for useContext
@@ -23,7 +20,7 @@ const contextStacks = new Map<symbol, any[]>();
  * @internal
  */
 export function setContextRenderContext(fiber: FiberNode): void {
-  currentFiber = fiber;
+  setContextRenderContextInternal(fiber);
 }
 
 /**
@@ -33,7 +30,7 @@ export function setContextRenderContext(fiber: FiberNode): void {
  * @internal
  */
 export function clearContextRenderContext(): void {
-  currentFiber = null;
+  clearContextRenderContextInternal();
 }
 
 /**
@@ -43,10 +40,7 @@ export function clearContextRenderContext(): void {
  * @internal
  */
 export function pushContextValue(contextId: symbol, value: any): void {
-  if (!contextStacks.has(contextId)) {
-    contextStacks.set(contextId, []);
-  }
-  contextStacks.get(contextId)!.push(value);
+  pushContextValueInternal(contextId, value);
 }
 
 /**
@@ -56,10 +50,17 @@ export function pushContextValue(contextId: symbol, value: any): void {
  * @internal
  */
 export function popContextValue(contextId: symbol): void {
-  const stack = contextStacks.get(contextId);
-  if (stack && stack.length > 0) {
-    stack.pop();
-  }
+  popContextValueInternal(contextId);
+}
+
+/**
+ * Clear all context stacks
+ * Called by Renderer to prevent memory leaks
+ *
+ * @internal
+ */
+export function clearContextStacks(): void {
+  clearContextStacksInternal();
 }
 
 /**
@@ -90,6 +91,9 @@ export function popContextValue(contextId: symbol): void {
  * ```
  */
 export function useContext<T>(context: Context<T>): T {
+  // Get current context from AsyncLocalStorage
+  const currentFiber = getContextRenderContext();
+  
   // Validate hook is called during rendering
   if (!currentFiber) {
     throw new Error(
@@ -99,11 +103,11 @@ export function useContext<T>(context: Context<T>): T {
   }
 
   // Look up the context value from the stack
-  const stack = contextStacks.get(context._contextId);
+  const result = getContextValue(context._contextId);
 
-  // If Provider found, return the top value from the stack (nearest Provider)
-  if (stack && stack.length > 0) {
-    return stack[stack.length - 1] as T;
+  // If Provider found, return the value (even if it's undefined)
+  if (result.hasValue) {
+    return result.value as T;
   }
 
   // If no Provider found, use default value

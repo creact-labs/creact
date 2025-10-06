@@ -8,7 +8,9 @@ import {
   clearContextRenderContext,
   pushContextValue,
   popContextValue,
+  clearContextStacks,
 } from '../hooks/useContext';
+import { runWithHookContext } from '../hooks/context';
 import { getNodeName } from '../utils/naming';
 
 /**
@@ -32,9 +34,17 @@ export class Renderer {
    * @returns Root Fiber node
    */
   render(jsx: JSXElement): FiberNode {
-    this.currentPath = [];
-    this.currentFiber = this.renderElement(jsx, []);
-    return this.currentFiber;
+    // Run rendering within AsyncLocalStorage context for thread safety
+    return runWithHookContext(() => {
+      try {
+        this.currentPath = [];
+        this.currentFiber = this.renderElement(jsx, []);
+        return this.currentFiber;
+      } finally {
+        // Clear context stacks to prevent memory leaks
+        clearContextStacks();
+      }
+    });
   }
 
   /**
