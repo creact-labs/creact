@@ -60,6 +60,8 @@ export namespace CReact {
   /**
    * Fragment symbol for <>...</> syntax
    * Fragments allow grouping multiple children without adding extra nodes
+   * 
+   * Note: Fragment is a Symbol at runtime, but typed as a function for JSX compatibility
    */
-  export const Fragment = Symbol.for('CReact.Fragment');
+  export const Fragment = Symbol.for('CReact.Fragment') as any as ((props: { children?: any }) => JSXElement);
 }

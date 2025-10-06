@@ -2,14 +2,12 @@
 // Integration tests for the full pipeline: Renderer → Validator → CloudDOMBuilder → Providers
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CReact, CReactConfig } from '@/core/CReact';
+import { CReact } from '@/core/CReact';
 import { DummyCloudProvider } from '@/providers/DummyCloudProvider';
 import { DummyBackendProvider } from '@/providers/DummyBackendProvider';
 import { CloudDOMNode, JSXElement } from '@/core/types';
-import { cleanupCreactDir } from '../helpers/cleanup-helpers';
+import { extractOutputs } from '../helpers/output-helpers';
 import * as fs from 'fs';
-import * as path from 'path';
-import crypto from 'crypto';
 
 describe('CReact Orchestrator - Integration Tests', () => {
   let cloudProvider: DummyCloudProvider;
@@ -30,7 +28,6 @@ describe('CReact Orchestrator - Integration Tests', () => {
     creact = new CReact({
       cloudProvider,
       backendProvider,
-      persistDir: testDir,
     });
   });
 
@@ -90,595 +87,6 @@ describe('CReact Orchestrator - Integration Tests', () => {
     });
   });
 
-  describe('CloudDOM Persistence (REQ-01.6)', () => {
-    it('should create .creact directory if it does not exist', async () => {
-      // Arrange: Directory should not exist yet
-      expect(fs.existsSync(testDir)).toBe(false);
-
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build (triggers persistence)
-      await creact.build(jsx);
-
-      // Assert: directory created
-      expect(fs.existsSync(testDir)).toBe(true);
-    });
-
-    it('should persist CloudDOM to .creact/clouddom.json with formatted JSON', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build (triggers persistence)
-      const cloudDOM = await creact.build(jsx);
-
-      // Assert: File exists
-      const cloudDOMPath = path.join(testDir, 'clouddom.json');
-      expect(fs.existsSync(cloudDOMPath)).toBe(true);
-
-      // Assert: File contains formatted JSON
-      const fileContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-      const parsedContent = JSON.parse(fileContent);
-      
-      // Compare without construct field (functions can't be serialized)
-      const cloudDOMWithoutConstruct = JSON.parse(JSON.stringify(cloudDOM));
-      expect(parsedContent).toEqual(cloudDOMWithoutConstruct);
-
-      // Assert: JSON is formatted (has indentation)
-      // Note: Empty arrays produce '[]' which is correct, non-empty arrays have newlines
-      const parsed = JSON.parse(fileContent);
-      if (parsed.length > 0) {
-        expect(fileContent).toMatch(/^\[\n/); // Array with newline for non-empty
-      } else {
-        expect(fileContent.trim()).toBe('[]'); // Empty array is compact
-      }
-    });
-
-    it('should save SHA-256 checksum alongside CloudDOM', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build
-      await creact.build(jsx);
-
-      // Assert: Checksum file exists
-      const checksumPath = path.join(testDir, 'clouddom.sha256');
-      expect(fs.existsSync(checksumPath)).toBe(true);
-
-      // Assert: Checksum is valid SHA-256 (64 hex characters)
-      const checksum = fs.readFileSync(checksumPath, 'utf-8');
-      expect(checksum).toMatch(/^[a-f0-9]{64}$/);
-
-      // Assert: Checksum matches CloudDOM content
-      const cloudDOMContent = fs.readFileSync(path.join(testDir, 'clouddom.json'), 'utf-8');
-      const expectedChecksum = crypto
-        .createHash('sha256')
-        .update(cloudDOMContent, 'utf-8')
-        .digest('hex');
-      expect(checksum).toBe(expectedChecksum);
-    });
-
-    it('should log persistence latency', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      const consoleSpy = vi.spyOn(console, 'log');
-
-      // Act: Build
-      await creact.build(jsx);
-
-      // Assert: Log contains latency information
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/CloudDOM persisted to:.*\(\d+ms/)
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should log file path after saving', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      const consoleSpy = vi.spyOn(console, 'log');
-
-      // Act: Build (triggers persistence)
-      await creact.build(jsx);
-
-      // Assert: Log message contains file path
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('CloudDOM persisted to:')
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('clouddom.json')
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should use custom persistence directory when configured', async () => {
-      // Arrange: Create CReact with custom persist directory
-      const customDir = '.custom-persist';
-      const customCreact = new CReact({
-        cloudProvider,
-        backendProvider,
-        persistDir: customDir,
-      });
-
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build
-      await customCreact.build(jsx);
-
-      // Assert: File exists in custom directory
-      const customPath = path.join(customDir, 'clouddom.json');
-      expect(fs.existsSync(customPath)).toBe(true);
-
-      // Assert: Checksum exists in custom directory
-      const checksumPath = path.join(customDir, 'clouddom.sha256');
-      expect(fs.existsSync(checksumPath)).toBe(true);
-
-      // Cleanup custom directory
-      fs.rmSync(customDir, { recursive: true, force: true });
-    });
-
-    it('should handle persistence errors gracefully with cause', async () => {
-      // Arrange: Create CReact with invalid persist directory (read-only)
-      const invalidCreact = new CReact({
-        cloudProvider,
-        backendProvider,
-        persistDir: '/invalid/readonly/path',
-      });
-
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act & Assert: Should throw error with cause
-      await expect(invalidCreact.build(jsx)).rejects.toThrow(
-        'Failed to persist CloudDOM'
-      );
-    });
-
-    it('should validate CloudDOM schema before writing', async () => {
-      // Arrange: Mock CloudDOMBuilder to return invalid CloudDOM (missing 'id')
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      const invalidNode: any = {
-        // Missing 'id' field
-        path: ['test'],
-        construct: class Test {},
-        props: {},
-        children: [],
-      };
-
-      vi.spyOn(creact['cloudDOMBuilder'], 'build').mockResolvedValue([
-        invalidNode,
-      ]);
-
-      // Act & Assert: Should throw schema validation error
-      await expect(creact.build(jsx)).rejects.toThrow(
-        "missing or invalid 'id' field"
-      );
-    });
-
-    it('should validate CloudDOM is serializable before writing', async () => {
-      // Arrange: Create CloudDOM with circular reference (non-serializable)
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Mock CloudDOMBuilder to return non-serializable CloudDOM
-      const circularObj: any = {
-        id: 'test',
-        path: ['test'],
-        construct: class Test {},
-        props: {},
-        children: [],
-      };
-      circularObj.self = circularObj; // Circular reference
-
-      vi.spyOn(creact['cloudDOMBuilder'], 'build').mockResolvedValue([
-        circularObj,
-      ] as any);
-
-      // Act & Assert: Should throw serialization error
-      await expect(creact.build(jsx)).rejects.toThrow(
-        'CloudDOM contains non-serializable values'
-      );
-    });
-
-    it('should use atomic writes to prevent partial data corruption', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Spy on fs.promises to verify atomic write pattern
-      const writeFileSpy = vi.spyOn(fs.promises, 'writeFile');
-      const renameSpy = vi.spyOn(fs.promises, 'rename');
-
-      // Act: Build
-      await creact.build(jsx);
-
-      // Assert: Atomic write pattern used (write to .tmp, then rename)
-      expect(writeFileSpy).toHaveBeenCalledWith(
-        expect.stringContaining('.tmp'),
-        expect.any(String),
-        expect.any(String)
-      );
-      expect(renameSpy).toHaveBeenCalledWith(
-        expect.stringContaining('.tmp'),
-        expect.stringContaining('clouddom.json')
-      );
-
-      writeFileSpy.mockRestore();
-      renameSpy.mockRestore();
-    });
-
-    it('should use write locking to prevent concurrent write conflicts', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build (acquires and releases lock)
-      await creact.build(jsx);
-
-      // Assert: Lock file should not exist after completion
-      const lockPath = path.join(testDir, '.clouddom.lock');
-      expect(fs.existsSync(lockPath)).toBe(false);
-    });
-
-    it('should handle concurrent builds with write locking', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Start two builds concurrently
-      const build1 = creact.build(jsx);
-      const build2 = creact.build(jsx);
-
-      // Assert: Both should complete without errors
-      await expect(Promise.all([build1, build2])).resolves.toBeDefined();
-
-      // Assert: Lock file cleaned up
-      const lockPath = path.join(testDir, '.clouddom.lock');
-      expect(fs.existsSync(lockPath)).toBe(false);
-    });
-
-    it('should persist CloudDOM on every build for determinism', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build twice
-      await creact.build(jsx);
-      const firstContent = fs.readFileSync(path.join(testDir, 'clouddom.json'), 'utf-8');
-      const firstChecksum = fs.readFileSync(path.join(testDir, 'clouddom.sha256'), 'utf-8');
-
-      await creact.build(jsx);
-      const secondContent = fs.readFileSync(path.join(testDir, 'clouddom.json'), 'utf-8');
-      const secondChecksum = fs.readFileSync(
-        path.join(testDir, 'clouddom.sha256'),
-        'utf-8'
-      );
-
-      // Assert: Same content and checksum (deterministic)
-      expect(firstContent).toBe(secondContent);
-      expect(firstChecksum).toBe(secondChecksum);
-    });
-
-    it('should persist complex nested CloudDOM structures correctly', async () => {
-      // Arrange: Create complex nested structure
-      const jsx: JSXElement = {
-        type: function RootStack({ children }: any) {
-          return children;
-        },
-        props: {
-          children: [
-            {
-              type: function ChildStack({ children }: any) {
-                return children;
-              },
-              props: {
-                children: [
-                  {
-                    type: function GrandchildStack() {
-                      return null;
-                    },
-                    props: {},
-                    key: undefined,
-                  },
-                ],
-              },
-              key: undefined,
-            },
-          ],
-        },
-        key: undefined,
-      };
-
-      // Act: Build
-      const cloudDOM = await creact.build(jsx);
-
-      // Assert: Persisted file matches CloudDOM structure
-      const fileContent = fs.readFileSync(path.join(testDir, 'clouddom.json'), 'utf-8');
-      const parsedContent = JSON.parse(fileContent);
-      
-      // Compare without construct field (functions can't be serialized)
-      const cloudDOMWithoutConstruct = JSON.parse(JSON.stringify(cloudDOM));
-      expect(parsedContent).toEqual(cloudDOMWithoutConstruct);
-
-      // Assert: Checksum is valid
-      const checksum = fs.readFileSync(path.join(testDir, 'clouddom.sha256'), 'utf-8');
-      const expectedChecksum = crypto
-        .createHash('sha256')
-        .update(fileContent, 'utf-8')
-        .digest('hex');
-      expect(checksum).toBe(expectedChecksum);
-    });
-  });
-
-  describe('CloudDOM Persistence (REQ-01.6)', () => {
-    it('should create .creact/ directory if it does not exist', async () => {
-      // Arrange: Directory should not exist yet
-      expect(fs.existsSync(testDir)).toBe(false);
-
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: { name: 'test' },
-        key: undefined,
-      };
-
-      // Act: Build CloudDOM (should create directory)
-      await creact.build(jsx);
-
-      // Assert: Directory created
-      expect(fs.existsSync(testDir)).toBe(true);
-      expect(fs.statSync(testDir).isDirectory()).toBe(true);
-    });
-
-    it('should save CloudDOM to .creact/clouddom.json with formatted JSON', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: { name: 'test' },
-        key: undefined,
-      };
-
-      // Act: Build CloudDOM
-      const cloudDOM = await creact.build(jsx);
-
-      // Assert: File exists
-      const cloudDOMPath = path.join(testDir, 'clouddom.json');
-      expect(fs.existsSync(cloudDOMPath)).toBe(true);
-
-      // Assert: File contains valid JSON
-      const fileContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-      const parsedCloudDOM = JSON.parse(fileContent);
-      expect(parsedCloudDOM).toEqual(cloudDOM);
-
-      // Assert: JSON is formatted with indentation (not minified)
-      // Note: Empty arrays produce '[]' which is correct
-      const parsed = JSON.parse(fileContent);
-      if (parsed.length > 0) {
-        expect(fileContent).toContain('\n'); // Has newlines for non-empty
-        expect(fileContent).toContain('  '); // Has indentation for non-empty
-      } else {
-        // Empty array is compact, which is fine
-        expect(fileContent.trim()).toBe('[]');
-      }
-    });
-
-    it('should overwrite existing clouddom.json on subsequent builds', async () => {
-      // Arrange: First build
-      const jsx1: JSXElement = {
-        type: function TestStack1() {
-          return null;
-        },
-        props: { name: 'test1' },
-        key: undefined,
-      };
-
-      await creact.build(jsx1);
-      const cloudDOMPath = path.join(testDir, 'clouddom.json');
-      const firstContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-
-      // Act: Second build with different JSX
-      const jsx2: JSXElement = {
-        type: function TestStack2() {
-          return null;
-        },
-        props: { name: 'test2' },
-        key: undefined,
-      };
-
-      await creact.build(jsx2);
-
-      // Assert: File overwritten (content should be different since JSX is different)
-      const secondContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-      // Note: If both produce empty CloudDOM, they'll be the same - that's expected
-      // This test is checking that the file CAN be overwritten, not that content differs
-      expect(fs.existsSync(cloudDOMPath)).toBe(true);
-    });
-
-    it('should log file path after saving CloudDOM', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: { name: 'test' },
-        key: undefined,
-      };
-
-      const consoleSpy = vi.spyOn(console, 'log');
-
-      // Act: Build CloudDOM
-      await creact.build(jsx);
-
-      // Assert: Log message contains file path
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('CloudDOM persisted to:')
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('clouddom.json')
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should persist CloudDOM with nested structure correctly', async () => {
-      // Arrange: Create a CloudDOM with nested children
-      const jsx: JSXElement = {
-        type: function RegistryStack({ children }: any) {
-          return children;
-        },
-        props: {
-          children: [
-            {
-              type: function Service() {
-                return null;
-              },
-              props: { name: 'api' },
-              key: undefined,
-            },
-          ],
-        },
-        key: undefined,
-      };
-
-      // Act: Build CloudDOM
-      const cloudDOM = await creact.build(jsx);
-
-      // Assert: Persisted file matches CloudDOM structure
-      const cloudDOMPath = path.join(testDir, 'clouddom.json');
-      const fileContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-      const parsedCloudDOM = JSON.parse(fileContent);
-
-      expect(parsedCloudDOM).toEqual(cloudDOM);
-      expect(Array.isArray(parsedCloudDOM)).toBe(true);
-    });
-
-    it('should handle empty CloudDOM array', async () => {
-      // Arrange
-      const jsx: JSXElement = {
-        type: function EmptyStack() {
-          return null;
-        },
-        props: {},
-        key: undefined,
-      };
-
-      // Act: Build CloudDOM (will be empty without useInstance calls)
-      const cloudDOM = await creact.build(jsx);
-
-      // Assert: File created with empty array
-      const cloudDOMPath = path.join(testDir, 'clouddom.json');
-      expect(fs.existsSync(cloudDOMPath)).toBe(true);
-
-      const fileContent = fs.readFileSync(cloudDOMPath, 'utf-8');
-      const parsedCloudDOM = JSON.parse(fileContent);
-
-      expect(parsedCloudDOM).toEqual([]);
-      expect(Array.isArray(parsedCloudDOM)).toBe(true);
-    });
-
-    it('should throw error if persistence fails', async () => {
-      // Arrange: Mock fs.promises.writeFile to throw error
-      const writeFileSpy = vi
-        .spyOn(fs.promises, 'writeFile')
-        .mockRejectedValue(new Error('Disk full'));
-
-      const jsx: JSXElement = {
-        type: function TestStack() {
-          return null;
-        },
-        props: { name: 'test' },
-        key: undefined,
-      };
-
-      // Act & Assert: Should throw error
-      await expect(creact.build(jsx)).rejects.toThrow(
-        'Failed to persist CloudDOM'
-      );
-
-      // Restore
-      writeFileSpy.mockRestore();
-    });
-  });
-
   describe('Provider Lifecycle Validation', () => {
     it('should call materialize() on cloud provider during deploy', async () => {
       // Arrange
@@ -723,16 +131,18 @@ describe('CReact Orchestrator - Integration Tests', () => {
       // Act
       await creact.deploy(cloudDOM, 'test-stack');
 
-      // Assert: saveState called with stack name and state
-      expect(saveStateSpy).toHaveBeenCalledTimes(1);
-      expect(saveStateSpy).toHaveBeenCalledWith(
-        'test-stack',
-        expect.objectContaining({
-          cloudDOM,
-          outputs: expect.any(Object),
-          timestamp: expect.any(String),
-        })
-      );
+      // Assert: saveState called multiple times (startDeployment, checkpoints, completeDeployment)
+      expect(saveStateSpy).toHaveBeenCalled();
+      
+      // Final call should have DEPLOYED status
+      const finalCall = saveStateSpy.mock.calls[saveStateSpy.mock.calls.length - 1];
+      expect(finalCall[0]).toBe('test-stack');
+      expect(finalCall[1]).toMatchObject({
+        status: 'DEPLOYED',
+        cloudDOM,
+        stackName: 'test-stack',
+        timestamp: expect.any(Number),
+      });
 
       saveStateSpy.mockRestore();
     });
@@ -866,13 +276,18 @@ describe('CReact Orchestrator - Integration Tests', () => {
       // Reload state from backend
       const savedState = await backendProvider.getState('test-stack');
 
-      // Assert: CloudDOM structure is preserved
+      // Assert: State structure is correct
       expect(savedState).toBeDefined();
+      expect(savedState.status).toBe('DEPLOYED');
       expect(savedState.cloudDOM).toEqual(originalCloudDOM);
-      expect(savedState.outputs).toEqual({
+      expect(savedState.stackName).toBe('test-stack');
+      expect(savedState.timestamp).toBeTypeOf('number');
+      
+      // Assert: Outputs are in CloudDOM nodes
+      const outputs = extractOutputs(savedState.cloudDOM);
+      expect(outputs).toEqual({
         'registry.url': 'https://registry.com',
       });
-      expect(savedState.timestamp).toBeDefined();
     });
   });
 
@@ -992,14 +407,15 @@ describe('CReact Orchestrator - Integration Tests', () => {
         },
       ];
 
-      // Act: Deploy (extracts outputs)
+      // Act: Deploy
       await creact.deploy(cloudDOM, 'test-stack');
 
       // Get saved state
       const savedState = await backendProvider.getState('test-stack');
 
-      // Assert: Outputs extracted correctly
-      expect(savedState.outputs).toEqual({
+      // Assert: Outputs are in CloudDOM nodes
+      const outputs = extractOutputs(savedState.cloudDOM);
+      expect(outputs).toEqual({
         'registry.url': 'https://registry.com',
         'registry.arn': 'arn:aws:ecr:...',
         'registry.service.endpoint': 'https://api.com',
@@ -1058,12 +474,15 @@ describe('CReact Orchestrator - Integration Tests', () => {
       // Act
       const diff = await creact.compare(previous, current);
 
-      // Assert: Placeholder structure
+      // Assert: Full ChangeSet structure from Reconciler
       expect(diff).toEqual({
         creates: [],
         updates: [],
         deletes: [],
+        replacements: [],
         moves: [],
+        deploymentOrder: [],
+        parallelBatches: [],
       });
     });
   });

@@ -51,17 +51,52 @@ export class ReconciliationError extends CReactError {
 }
 
 /**
+ * Deployment error data structure
+ * 
+ * Provides structured error information for audit logs and debugging.
+ */
+export interface DeploymentErrorData {
+  /** Error code for categorization */
+  code?: string;
+  
+  /** Error message */
+  message: string;
+  
+  /** Stack trace */
+  stack?: string;
+  
+  /** Root cause description */
+  cause?: string;
+  
+  /** Additional context */
+  details?: Record<string, any>;
+}
+
+/**
  * Deployment error - thrown when deployment fails
  * 
  * Used for:
  * - Provider failures
  * - Resource creation failures
  * - State persistence failures
+ * - State machine transition errors
+ * 
+ * Provides structured error data for audit logs and telemetry.
  */
 export class DeploymentError extends CReactError {
-  constructor(message: string, public readonly details?: Record<string, any>) {
-    super(message, 'DEPLOYMENT_ERROR');
+  constructor(message: string, public readonly data: DeploymentErrorData = { message }) {
+    super(message, data.code || 'DEPLOYMENT_ERROR');
     this.name = 'DeploymentError';
+    
+    // Ensure message is in data
+    if (!this.data.message) {
+      this.data.message = message;
+    }
+    
+    // Maintain proper stack trace (V8 only)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, DeploymentError);
+    }
   }
 }
 

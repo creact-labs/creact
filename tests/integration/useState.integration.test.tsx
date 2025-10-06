@@ -27,7 +27,6 @@ describe('useState Hook - Integration Tests', () => {
     const config: CReactConfig = {
       cloudProvider,
       backendProvider,
-      persistDir: testDir,
     };
 
     creact = new CReactClass(config);

@@ -81,7 +81,6 @@ describe('Reconciler Integration Tests', () => {
     creact = new CReactCore({
       cloudProvider,
       backendProvider,
-      persistDir: testDir,
     });
     reconciler = new Reconciler();
   });

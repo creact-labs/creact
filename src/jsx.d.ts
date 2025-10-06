@@ -44,6 +44,7 @@ declare global {
       key?: string | number;
     }
   }
+  
 }
 
 /**

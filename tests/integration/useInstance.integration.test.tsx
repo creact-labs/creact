@@ -44,7 +44,6 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
     creact = new CReactCore({
       cloudProvider,
       backendProvider,
-      persistDir: testDir,
     });
   });
 

@@ -19,16 +19,13 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.0.0",
-    "@types/react": "^18.2.0",
+    "better-sqlite3": "^12.4.1",
     "typescript": "^5.0.0",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "react": "^18.0.0"
-  },
-  "dependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "better-sqlite3": "^12.4.1"
   }
 }

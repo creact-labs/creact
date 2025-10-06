@@ -6,6 +6,7 @@ import { CReact, CReactConfig } from '@/core/CReact';
 import { DummyCloudProvider } from '@/providers/DummyCloudProvider';
 import { DummyBackendProvider } from '@/providers/DummyBackendProvider';
 import { CloudDOMNode, JSXElement } from '@/core/types';
+import { extractOutputs } from '../helpers/output-helpers';
 
 // Mock filesystem state
 let mockFiles: Map<string, string>;
@@ -325,7 +326,9 @@ describe('CReact - Performance Tests', () => {
 
       // Verify all outputs extracted
       const state = await backendProvider.getState('test-stack');
-      expect(Object.keys(state.outputs).length).toBe(300); // 100 resources * 3 outputs
+      expect(state).toBeDefined();
+      const outputs = extractOutputs(state!.cloudDOM);
+      expect(Object.keys(outputs).length).toBe(300); // 100 resources * 3 outputs
     });
 
     it('should extract outputs from deeply nested CloudDOM efficiently', async () => {
@@ -366,7 +369,9 @@ describe('CReact - Performance Tests', () => {
 
       // Verify all outputs extracted
       const state = await backendProvider.getState('test-stack');
-      expect(Object.keys(state.outputs).length).toBe(10); // 10 levels
+      expect(state).toBeDefined();
+      const outputs = extractOutputs(state!.cloudDOM);
+      expect(Object.keys(outputs).length).toBe(10); // 10 levels
     });
   });
 
