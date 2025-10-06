@@ -26,6 +26,9 @@ import { IBackendProvider } from './IBackendProvider';
 export class DummyBackendProvider implements IBackendProvider {
   private state = new Map<string, any>();
   private initialized = false;
+  private locks = new Map<string, { holder: string; acquiredAt: number; ttl: number }>();
+  private auditLogs = new Map<string, any[]>();
+  private snapshots = new Map<string, any[]>();
 
   /**
    * Optional initialization (simulates async setup)
@@ -93,5 +96,112 @@ export class DummyBackendProvider implements IBackendProvider {
    */
   getAllState(): Map<string, any> {
     return new Map(this.state);
+  }
+
+  /**
+   * Acquire lock for a stack (optional method for StateMachine)
+   * REQ-O02: State locking to prevent concurrent deployments
+   *
+   * @param stackName - Name of the stack to lock
+   * @param holder - Identifier of the lock holder (user/process)
+   * @param ttl - Time-to-live in seconds
+   * @throws Error if lock is already held and not expired
+   */
+  async acquireLock(stackName: string, holder: string, ttl: number): Promise<void> {
+    const existingLock = this.locks.get(stackName);
+
+    if (existingLock) {
+      const now = Date.now();
+      const lockAge = now - existingLock.acquiredAt;
+      const lockTTL = existingLock.ttl * 1000; // Convert to milliseconds
+
+      if (lockAge < lockTTL) {
+        throw new Error(
+          `Stack "${stackName}" is locked by ${existingLock.holder} ` +
+            `(acquired ${new Date(existingLock.acquiredAt).toISOString()})`
+        );
+      }
+    }
+
+    this.locks.set(stackName, { holder, acquiredAt: Date.now(), ttl });
+    console.debug(`[DummyBackendProvider] Lock acquired for stack: ${stackName} by ${holder}`);
+  }
+
+  /**
+   * Release lock for a stack (optional method for StateMachine)
+   * REQ-O02: State locking to prevent concurrent deployments
+   *
+   * @param stackName - Name of the stack to unlock
+   */
+  async releaseLock(stackName: string): Promise<void> {
+    this.locks.delete(stackName);
+    console.debug(`[DummyBackendProvider] Lock released for stack: ${stackName}`);
+  }
+
+  /**
+   * Check lock status for a stack (optional method for StateMachine)
+   * REQ-O02: State locking to prevent concurrent deployments
+   *
+   * @param stackName - Name of the stack to check
+   * @returns Lock info if lock exists, null otherwise
+   */
+  async checkLock(
+    stackName: string
+  ): Promise<{ holder: string; acquiredAt: number; ttl: number } | null> {
+    return this.locks.get(stackName) || null;
+  }
+
+  /**
+   * Append audit log entry (optional method for StateMachine)
+   * REQ-O05: Audit log for compliance and debugging
+   *
+   * @param stackName - Name of the stack
+   * @param entry - Audit log entry to append
+   */
+  async appendAuditLog(stackName: string, entry: any): Promise<void> {
+    if (!this.auditLogs.has(stackName)) {
+      this.auditLogs.set(stackName, []);
+    }
+    this.auditLogs.get(stackName)!.push(entry);
+    console.debug(`[DummyBackendProvider] Audit log entry appended for stack: ${stackName}`);
+  }
+
+  /**
+   * Save state snapshot (optional method for StateMachine)
+   * REQ-O01: State snapshots for time-travel debugging
+   *
+   * @param stackName - Name of the stack
+   * @param state - State snapshot to save
+   */
+  async saveSnapshot(stackName: string, state: any): Promise<void> {
+    if (!this.snapshots.has(stackName)) {
+      this.snapshots.set(stackName, []);
+    }
+    this.snapshots.get(stackName)!.push(state);
+    console.debug(`[DummyBackendProvider] Snapshot saved for stack: ${stackName}`);
+  }
+
+  /**
+   * Helper method: Check if lock exists (useful for testing)
+   * Not part of IBackendProvider interface
+   */
+  hasLock(stackName: string): boolean {
+    return this.locks.has(stackName);
+  }
+
+  /**
+   * Helper method: Get audit logs (useful for testing)
+   * Not part of IBackendProvider interface
+   */
+  getAuditLogs(stackName: string): any[] {
+    return this.auditLogs.get(stackName) || [];
+  }
+
+  /**
+   * Helper method: Get snapshots (useful for testing)
+   * Not part of IBackendProvider interface
+   */
+  getSnapshots(stackName: string): any[] {
+    return this.snapshots.get(stackName) || [];
   }
 }

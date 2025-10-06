@@ -105,21 +105,7 @@ export interface StateMachineEventPayload {
   metadata?: Record<string, any>;
 }
 
-/**
- * Extended IBackendProvider interface with optional locking and audit methods
- *
- * These methods will be added to IBackendProvider in a future task (REQ-O02, REQ-O05).
- * For now, we check if they exist before calling them.
- */
-interface ExtendedBackendProvider<TState = any> extends IBackendProvider<TState> {
-  acquireLock?(stackName: string, holder: string, ttl: number): Promise<void>;
-  releaseLock?(stackName: string): Promise<void>;
-  checkLock?(
-    stackName: string
-  ): Promise<{ holder: string; acquiredAt: number; ttl: number } | null>;
-  appendAuditLog?(stackName: string, entry: AuditLogEntry): Promise<void>;
-  saveSnapshot?(stackName: string, state: TState): Promise<void>;
-}
+
 
 /**
  * StateMachine manages deployment lifecycle with crash recovery
@@ -193,7 +179,7 @@ export class StateMachine {
   };
 
   constructor(
-    private backendProvider: ExtendedBackendProvider<DeploymentState>,
+    private backendProvider: IBackendProvider<DeploymentState>,
     private options: {
       /** Number of retries for transient backend failures (default: 3) */
       maxRetries?: number;

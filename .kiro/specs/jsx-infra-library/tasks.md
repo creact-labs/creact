@@ -23,7 +23,7 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 - Reconciler with diff algorithm and dependency-aware ordering
 - StateMachine with deployment state tracking and locking
 - CloudDOM persistence with atomic writes
-- 686 tests passing
+- 696 tests passing
 
 **Key Files:**
 - `src/core/Renderer.ts` - JSX to Fiber tree
@@ -41,12 +41,12 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 
 ### Phase 1: Complete State Machine (HIGH PRIORITY)
 
-**Status:** 80% Complete
+**Status:** 95% Complete
 
 **Remaining Work:**
-- [ ] Implement crash recovery (`resumeDeployment()`)
-- [ ] Implement rollback (`rollback()` with reverse change sets)
-- [ ] Integrate StateMachine fully into `CReact.deploy()`
+- [x] Implement crash recovery (`resumeDeployment()`)
+- [x] Implement rollback (`rollback()` with reverse change sets)
+- [x] Integrate StateMachine fully into `CReact.deploy()`
 - [ ] Add CLI prompts for resume vs rollback on startup
 
 **Why This Matters:** Enables transactional deployments with crash recovery - critical for production reliability.
@@ -191,7 +191,7 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 | Phase | Status | Priority | Completion |
 |-------|--------|----------|------------|
 | Milestone 1: Core Foundation | ✅ Complete | - | 100% |
-| Phase 1: State Machine | 🟡 In Progress | HIGH | 80% |
+| Phase 1: State Machine | 🟡 In Progress | HIGH | 95% |
 | Phase 2: CLI & Workflow | ⚪ Not Started | HIGH | 0% |
 | Phase 3: External Tools | ⚪ Not Started | MEDIUM | 0% |
 | Phase 4: State Bridge | ⚪ Not Started | MEDIUM | 0% |
@@ -226,7 +226,7 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 
 | Requirement | Description | Status | Phase |
 |-------------|-------------|--------|-------|
-| REQ-O01 | State Machine with crash recovery | 🟡 80% | Phase 1 |
+| REQ-O01 | State Machine with crash recovery | 🟡 95% | Phase 1 |
 | REQ-O02 | State locking | ✅ Done | Milestone 1 |
 | REQ-O03 | Error handling & retry | ⚪ Todo | Phase 6 |
 | REQ-O04 | Plan command | ⚪ Todo | Phase 2 |

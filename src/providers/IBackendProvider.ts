@@ -3,6 +3,19 @@
 // REQ-06: Universal output access
 
 /**
+ * Lock information for state locking
+ * REQ-O02: State locking to prevent concurrent deployments
+ */
+export interface LockInfo {
+  /** Process/user holding the lock */
+  holder: string;
+  /** Timestamp when lock was acquired (milliseconds since epoch) */
+  acquiredAt: number;
+  /** Time-to-live in seconds */
+  ttl: number;
+}
+
+/**
  * IBackendProvider defines the interface for state storage backends.
  * Implementations manage persistent state for CloudDOM trees and outputs.
  *
@@ -16,6 +29,7 @@
  * ```typescript
  * class DummyBackendProvider implements IBackendProvider {
  *   private state = new Map<string, any>();
+ *   private locks = new Map<string, LockInfo>();
  *
  *   async initialize() {
  *     console.log('Backend initialized');
@@ -27,6 +41,18 @@
  *
  *   async saveState(stackName: string, state: any): Promise<void> {
  *     this.state.set(stackName, state);
+ *   }
+ *
+ *   async acquireLock(stackName: string, holder: string, ttl: number): Promise<void> {
+ *     // Implementation
+ *   }
+ *
+ *   async releaseLock(stackName: string): Promise<void> {
+ *     this.locks.delete(stackName);
+ *   }
+ *
+ *   async checkLock(stackName: string): Promise<LockInfo | null> {
+ *     return this.locks.get(stackName) || null;
  *   }
  * }
  * ```
@@ -69,4 +95,66 @@ export interface IBackendProvider<TState = any> {
    * @returns Promise that resolves when state is saved
    */
   saveState(stackName: string, state: TState): Promise<void>;
+
+  /**
+   * Acquire lock for a stack to prevent concurrent deployments.
+   * Locking mechanism is backend-specific:
+   * - File backend: flock on .creact/.lock
+   * - S3 backend: DynamoDB conditional writes
+   * - Redis backend: SETNX with TTL
+   *
+   * REQ-O02: State locking to prevent concurrent deployments
+   * REQ-O02.1: WHEN deployment starts THEN CReact SHALL call acquireLock
+   * REQ-O02.2: WHEN lock is held THEN acquireLock SHALL throw error with lock holder info
+   *
+   * @param stackName - Name of the stack to lock
+   * @param holder - Identifier of the lock holder (user/process)
+   * @param ttl - Time-to-live in seconds (lock auto-expires after this duration)
+   * @throws Error if lock is already held and not expired
+   */
+  acquireLock?(stackName: string, holder: string, ttl: number): Promise<void>;
+
+  /**
+   * Release lock for a stack.
+   *
+   * REQ-O02: State locking to prevent concurrent deployments
+   * REQ-O02.5: WHEN deployment completes THEN CReact SHALL call releaseLock
+   *
+   * @param stackName - Name of the stack to unlock
+   */
+  releaseLock?(stackName: string): Promise<void>;
+
+  /**
+   * Check lock status for a stack.
+   * Returns lock info if lock exists, null otherwise.
+   *
+   * REQ-O02: State locking to prevent concurrent deployments
+   * REQ-O02.3: WHEN process crashes THEN lock SHALL have TTL and auto-expire
+   *
+   * @param stackName - Name of the stack to check
+   * @returns Lock info if lock exists, null otherwise
+   */
+  checkLock?(stackName: string): Promise<LockInfo | null>;
+
+  /**
+   * Append audit log entry for compliance and debugging.
+   * Optional method for backends that support audit logging.
+   *
+   * REQ-O05: Audit log for compliance and debugging
+   *
+   * @param stackName - Name of the stack
+   * @param entry - Audit log entry to append
+   */
+  appendAuditLog?(stackName: string, entry: any): Promise<void>;
+
+  /**
+   * Save state snapshot for time-travel debugging.
+   * Optional method for backends that support snapshots.
+   *
+   * REQ-O01: State snapshots for time-travel debugging
+   *
+   * @param stackName - Name of the stack
+   * @param state - State snapshot to save
+   */
+  saveSnapshot?(stackName: string, state: TState): Promise<void>;
 }
