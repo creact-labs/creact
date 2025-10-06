@@ -2,6 +2,7 @@
 
 import { FiberNode, CloudDOMNode } from './types';
 import { ICloudProvider } from '../providers/ICloudProvider';
+import { generateResourceId, normalizePath as normalizePathUtil } from '../utils/naming';
 
 /**
  * CloudDOMBuilder transforms a Fiber tree into a CloudDOM tree
@@ -158,13 +159,21 @@ export class CloudDOMBuilder {
    * @param collected - Array to collect CloudDOM nodes into
    */
   private collectCloudDOMNodes(fiber: FiberNode, collected: CloudDOMNode[]): void {
+    // Extract outputs from useState hooks in this Fiber node
+    const outputs = this.extractOutputsFromFiber(fiber);
+    
     // Check for cloudDOMNodes array (multiple nodes from useInstance calls)
     if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
       for (const cloudNode of (fiber as any).cloudDOMNodes) {
         if (this.isValidCloudNode(cloudNode)) {
           // Normalize path and regenerate ID for consistency
-          cloudNode.path = this.normalizePath(cloudNode.path);
-          cloudNode.id = cloudNode.path.join('.');
+          cloudNode.path = normalizePathUtil(cloudNode.path);
+          cloudNode.id = generateResourceId(cloudNode.path);
+          
+          // Attach outputs from useState hooks to CloudDOM node
+          if (Object.keys(outputs).length > 0) {
+            cloudNode.outputs = { ...cloudNode.outputs, ...outputs };
+          }
           
           collected.push(cloudNode);
         } else {
@@ -182,8 +191,13 @@ export class CloudDOMBuilder {
       // Type guard validation
       if (this.isValidCloudNode(cloudNode)) {
         // Normalize path and regenerate ID for consistency
-        cloudNode.path = this.normalizePath(cloudNode.path);
-        cloudNode.id = cloudNode.path.join('.');
+        cloudNode.path = normalizePathUtil(cloudNode.path);
+        cloudNode.id = generateResourceId(cloudNode.path);
+        
+        // Attach outputs from useState hooks to CloudDOM node
+        if (Object.keys(outputs).length > 0) {
+          cloudNode.outputs = { ...cloudNode.outputs, ...outputs };
+        }
         
         collected.push(cloudNode);
       } else {
@@ -199,6 +213,33 @@ export class CloudDOMBuilder {
         this.collectCloudDOMNodes(child, collected);
       }
     }
+  }
+  
+  /**
+   * Extract outputs from useState hooks in a Fiber node
+   * 
+   * REQ-02: Extract outputs from useState calls
+   * REQ-06: Universal output access
+   * 
+   * @param fiber - Fiber node to extract outputs from
+   * @returns Object mapping output keys to values
+   */
+  private extractOutputsFromFiber(fiber: FiberNode): Record<string, any> {
+    const outputs: Record<string, any> = {};
+    
+    // Check if this Fiber has hooks from useState calls
+    if (fiber.hooks && Array.isArray(fiber.hooks) && fiber.hooks.length > 0) {
+      // Each hook in the array represents a useState call
+      // We need to generate keys for each hook value
+      fiber.hooks.forEach((hookValue, index) => {
+        // Generate output key: hook-{index} or use a more meaningful name if available
+        // For now, use index-based keys since we don't have explicit names
+        const outputKey = `state${index}`;
+        outputs[outputKey] = hookValue;
+      });
+    }
+    
+    return outputs;
   }
 
   /**

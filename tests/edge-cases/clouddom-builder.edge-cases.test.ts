@@ -181,8 +181,8 @@ describe('CloudDOMBuilder - Edge Cases', () => {
 
       const cloudDOM = await builder.build(fiber);
 
-      expect(cloudDOM[0].id).toBe('myapp.api-service.worker-task');
-      expect(cloudDOM[0].path).toEqual(['myapp', 'api-service', 'worker-task']);
+      expect(cloudDOM[0].id).toBe('my-app.api-service.worker-task');
+      expect(cloudDOM[0].path).toEqual(['my-app', 'api-service', 'worker-task']);
     });
 
     it('should handle paths with leading/trailing hyphens', async () => {

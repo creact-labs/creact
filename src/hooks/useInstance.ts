@@ -2,6 +2,7 @@
 // This hook registers infrastructure resources in the CloudDOM during rendering
 
 import { CloudDOMNode } from '../core/types';
+import { generateResourceId, toKebabCase } from '../utils/naming';
 
 /**
  * Current rendering context
@@ -33,32 +34,54 @@ export function clearRenderContext(): void {
 }
 
 /**
- * useInstance hook - Register an infrastructure resource
+ * Track construct call counts per component for auto-ID generation
+ * Maps component fiber to construct type to call count
+ */
+const constructCallCounts = new WeakMap<any, Map<any, number>>();
+
+/**
+ * useInstance hook - Register an infrastructure resource (React-like API)
  * 
  * This hook creates a CloudDOM node and attaches it to the current Fiber.
  * It must be called during component rendering (inside a component function).
  * 
  * REQ-01: JSX → CloudDOM rendering
- * REQ-03: Resource creation via hooks
+ * REQ-04: Resource creation via hooks (React-like API)
  * 
- * @param id - Unique identifier for this resource (within parent scope)
  * @param construct - Constructor/class for the infrastructure resource
- * @param props - Properties/configuration for the resource
+ * @param props - Properties/configuration for the resource (may include `key`)
  * @returns Reference to the created CloudDOM node
  * 
  * @example
  * ```tsx
+ * // With explicit key (like React)
  * function MyBucket() {
- *   const bucket = useInstance('assets', S3Bucket, {
+ *   const bucket = useInstance(S3Bucket, {
+ *     key: 'assets',
  *     bucketName: 'my-assets',
  *     publicReadAccess: true
  *   });
  *   return null;
  * }
+ * 
+ * // Without key (auto-generated from construct type)
+ * function MyBucket() {
+ *   const bucket = useInstance(S3Bucket, {
+ *     bucketName: 'my-assets'
+ *   });
+ *   // ID will be auto-generated as 's3bucket'
+ *   return null;
+ * }
+ * 
+ * // Multiple calls with same type (auto-indexed)
+ * function MultiDatabase() {
+ *   const db1 = useInstance(RDSInstance, { name: 'db-1' }); // 'rdsinstance-0'
+ *   const db2 = useInstance(RDSInstance, { name: 'db-2' }); // 'rdsinstance-1'
+ *   return null;
+ * }
  * ```
  */
 export function useInstance<T = any>(
-  id: string,
   construct: new (...args: any[]) => T,
   props: Record<string, any>
 ): CloudDOMNode {
@@ -70,17 +93,45 @@ export function useInstance<T = any>(
     );
   }
   
+  // Extract key from props (React-like)
+  const { key, ...restProps } = props;
+  
+  // Generate ID from key or construct type
+  let id: string;
+  if (key !== undefined) {
+    // Use explicit key if provided
+    id = String(key);
+  } else {
+    // Auto-generate ID from construct type name (kebab-case)
+    const constructName = toKebabCase(construct.name);
+    
+    // Track call count for this construct type in this component
+    if (!constructCallCounts.has(currentFiber)) {
+      constructCallCounts.set(currentFiber, new Map());
+    }
+    const counts = constructCallCounts.get(currentFiber)!;
+    const count = counts.get(construct) || 0;
+    counts.set(construct, count + 1);
+    
+    // Append index if multiple calls with same type
+    if (count > 0) {
+      id = `${constructName}-${count}`;
+    } else {
+      id = constructName;
+    }
+  }
+  
   // Generate full resource ID from current path
   // Example: ['registry', 'service'] + 'bucket' → 'registry.service.bucket'
   const fullPath = [...currentPath, id];
-  const resourceId = fullPath.join('.');
+  const resourceId = generateResourceId(fullPath);
   
   // Create CloudDOM node
   const node: CloudDOMNode = {
     id: resourceId,
     path: fullPath,
     construct,
-    props: { ...props }, // Clone props to avoid mutations
+    props: { ...restProps }, // Clone props (without key) to avoid mutations
     children: [],
     outputs: {}, // Will be populated during materialization
   };
@@ -95,6 +146,16 @@ export function useInstance<T = any>(
   // Return reference to the node
   // This allows components to reference the resource (e.g., for outputs)
   return node;
+}
+
+/**
+ * Reset construct call counts for a fiber
+ * Called by Renderer before executing a component
+ * 
+ * @internal
+ */
+export function resetConstructCounts(fiber: any): void {
+  constructCallCounts.delete(fiber);
 }
 
 /**

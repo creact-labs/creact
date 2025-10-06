@@ -5,6 +5,7 @@
     "lib": ["ES2020"],
     "jsx": "react",
     "jsxFactory": "CReact.createElement",
+    "jsxFragmentFactory": "CReact.Fragment",
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",

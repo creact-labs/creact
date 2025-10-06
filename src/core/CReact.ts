@@ -222,10 +222,9 @@ export class CReact {
       
       // Materialize CloudDOM to infrastructure
       this.log('Materializing CloudDOM to infrastructure');
-      this.config.cloudProvider.materialize(cloudDOM, null);
+      await this.config.cloudProvider.materialize(cloudDOM, null);
       
-      // Collect outputs from materialization
-      // TODO: In Phase 2 (Task 13), extract outputs from CloudDOM nodes
+      // Collect outputs from materialization (REQ-02, REQ-06)
       this.log('Extracting outputs from CloudDOM');
       const outputs = this.extractOutputs(cloudDOM);
       
@@ -489,11 +488,21 @@ export class CReact {
       
       // Write files atomically
       try {
+        // Ensure directory exists right before each write operation
+        // This handles race conditions in parallel test execution
+        await fs.promises.mkdir(creactDir, { recursive: true });
+        
         this.log(`Writing CloudDOM to temporary file: ${tmpPath}`);
         await fs.promises.writeFile(tmpPath, cloudDOMJson, 'utf-8');
         
+        // Ensure directory still exists before second write
+        await fs.promises.mkdir(creactDir, { recursive: true });
+        
         this.log(`Writing checksum to temporary file: ${tmpChecksumPath}`);
         await fs.promises.writeFile(tmpChecksumPath, checksum, 'utf-8');
+        
+        // Ensure directory exists before rename operations
+        await fs.promises.mkdir(creactDir, { recursive: true });
         
         this.log(`Atomically renaming to: ${cloudDOMPath}`);
         await fs.promises.rename(tmpPath, cloudDOMPath);
@@ -549,21 +558,41 @@ export class CReact {
   /**
    * Extract outputs from CloudDOM nodes
    * 
+   * Walks the CloudDOM tree and collects all outputs from nodes.
+   * Outputs are formatted as nodeId.outputKey (e.g., 'registry.state0').
+   * 
    * REQ-02: Extract outputs from useState calls
    * REQ-06: Universal output access
    * 
-   * Note: This will be fully implemented in Phase 2 (Task 13)
-   * 
    * @param cloudDOM - CloudDOM tree
-   * @returns Outputs object
+   * @returns Outputs object with keys in format nodeId.outputKey
    */
   private extractOutputs(cloudDOM: CloudDOMNode[]): Record<string, any> {
     const outputs: Record<string, any> = {};
     
+    // Safety check
+    if (!Array.isArray(cloudDOM)) {
+      this.log('Warning: cloudDOM is not an array, returning empty outputs');
+      return outputs;
+    }
+    
     const walk = (nodes: CloudDOMNode[]) => {
+      if (!nodes) {
+        return;
+      }
+      
+      if (!Array.isArray(nodes)) {
+        this.log(`Warning: nodes is not an array: ${typeof nodes}, value: ${JSON.stringify(nodes)}`);
+        return;
+      }
+      
       for (const node of nodes) {
+        if (!node) {
+          continue;
+        }
+        
         // Extract outputs from node
-        if (node.outputs) {
+        if (node.outputs && typeof node.outputs === 'object') {
           for (const [key, value] of Object.entries(node.outputs)) {
             // Output name format: nodeId.outputKey (REQ-06)
             const outputName = `${node.id}.${key}`;
@@ -572,8 +601,10 @@ export class CReact {
         }
         
         // Recursively walk children
-        if (node.children && node.children.length > 0) {
-          walk(node.children);
+        if (node.children) {
+          if (Array.isArray(node.children) && node.children.length > 0) {
+            walk(node.children);
+          }
         }
       }
     };

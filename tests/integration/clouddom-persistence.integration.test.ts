@@ -85,17 +85,17 @@ describe('CloudDOM Persistence - Integration Tests', () => {
       }
 
       function StaticAssets() {
-        useInstance('assets-bucket', S3Bucket, {
+        const bucket = useInstance(S3Bucket, {
           bucketName: 'my-assets',
         });
-        useInstance('cdn', CloudFrontDistribution, {
+        const cdn = useInstance(CloudFrontDistribution, {
           originBucket: 'assets-bucket',
         });
         return null;
       }
 
       function ApiBackend() {
-        useInstance('api-handler', LambdaFunction, {
+        const handler = useInstance(LambdaFunction, {
           functionName: 'api',
           runtime: 'nodejs20.x',
         });

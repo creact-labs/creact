@@ -116,25 +116,25 @@ describe('Renderer - Performance', () => {
 
       const fiber = renderer.render(jsx);
 
-      expect(fiber.path).toEqual(['level1']);
-      expect(fiber.children[0].path).toEqual(['level1', 'level2']);
-      expect(fiber.children[0].children[0].path).toEqual(['level1', 'level2', 'level3']);
+      expect(fiber.path).toEqual(['level-1']);
+      expect(fiber.children[0].path).toEqual(['level-1', 'level-2']);
+      expect(fiber.children[0].children[0].path).toEqual(['level-1', 'level-2', 'level-3']);
       expect(fiber.children[0].children[0].children[0].path).toEqual([
-        'level1',
-        'level2',
-        'level3',
-        'level4',
+        'level-1',
+        'level-2',
+        'level-3',
+        'level-4',
       ]);
       expect(fiber.children[0].children[0].children[0].children[0].path).toEqual([
-        'level1',
-        'level2',
-        'level3',
-        'level4',
-        'level5',
+        'level-1',
+        'level-2',
+        'level-3',
+        'level-4',
+        'level-5',
       ]);
       expect(
         fiber.children[0].children[0].children[0].children[0].children[0].path
-      ).toEqual(['level1', 'level2', 'level3', 'level4', 'level5', 'level6']);
+      ).toEqual(['level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']);
     });
 
     it('should detect infinite recursion before stack overflow', () => {

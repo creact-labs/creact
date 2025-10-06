@@ -78,10 +78,11 @@ describe('CloudDOM Persistence - Performance Tests', () => {
 
       function MediumStack() {
         // Create 10 resources
+        const buckets = [];
         for (let i = 0; i < 10; i++) {
-          useInstance(`bucket-${i}`, S3Bucket, {
+          buckets.push(useInstance(S3Bucket, {
             bucketName: `bucket-${i}`,
-          });
+          }, `bucket-${i}`));
         }
         return null;
       }
@@ -110,15 +111,16 @@ describe('CloudDOM Persistence - Performance Tests', () => {
 
       function LargeStack() {
         // Create 100 resources
+        const buckets = [];
         for (let i = 0; i < 100; i++) {
-          useInstance(`bucket-${i}`, S3Bucket, {
+          buckets.push(useInstance(S3Bucket, {
             bucketName: `bucket-${i}`,
             tags: {
               Environment: 'test',
               Index: i,
               Description: 'Test bucket for performance testing',
             },
-          });
+          }, `bucket-${i}`));
         }
         return null;
       }
@@ -257,15 +259,16 @@ describe('CloudDOM Persistence - Performance Tests', () => {
 
       function LargeStack() {
         // Create 100 resources with large props
+        const buckets = [];
         for (let i = 0; i < 100; i++) {
-          useInstance(`bucket-${i}`, S3Bucket, {
+          buckets.push(useInstance(S3Bucket, {
             bucketName: `bucket-${i}`,
             tags: {
               Environment: 'test',
               Index: i,
               Description: 'A'.repeat(1000), // Large string
             },
-          });
+          }, `bucket-${i}`));
         }
         return null;
       }

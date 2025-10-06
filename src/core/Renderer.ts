@@ -1,7 +1,10 @@
 // REQ-01: Renderer - JSX → Fiber transformation
 
 import { FiberNode, JSXElement } from './types';
-import { setRenderContext, clearRenderContext } from '../hooks/useInstance';
+import { setRenderContext, clearRenderContext, resetConstructCounts } from '../hooks/useInstance';
+import { setStateRenderContext, clearStateRenderContext } from '../hooks/useState';
+import { setContextRenderContext, clearContextRenderContext, pushContextValue, popContextValue } from '../hooks/useContext';
+import { getNodeName } from '../utils/naming';
 
 /**
  * Renderer transforms JSX into a Fiber tree
@@ -58,7 +61,7 @@ export class Renderer {
     const safeProps = props || {};
     
     // Generate path for this node
-    const nodeName = this.getNodeName(type, safeProps, key);
+    const nodeName = getNodeName(type, safeProps, key);
     const path = [...parentPath, nodeName];
     
     // Create Fiber node for component execution
@@ -71,14 +74,32 @@ export class Renderer {
       cloudDOMNodes: [], // Will be populated by useInstance
     };
     
+    // Check if this is a Context Provider and push value onto stack
+    const isProvider = typeof type === 'function' && (type as any)._isContextProvider;
+    if (isProvider) {
+      const contextId = (type as any)._contextId;
+      pushContextValue(contextId, safeProps.value);
+    }
+    
     // Set context and execute component function to get children
     setRenderContext(fiber, path);
+    setStateRenderContext(fiber);
+    setContextRenderContext(fiber);
+    resetConstructCounts(fiber); // Reset construct call counts for this component
     const children = this.executeComponent(type, safeProps, path);
     clearRenderContext();
+    clearStateRenderContext();
+    clearContextRenderContext();
     
     // Recursively render children
     if (children) {
       fiber.children = this.renderChildren(children, path);
+    }
+    
+    // Pop context value from stack after rendering children
+    if (isProvider) {
+      const contextId = (type as any)._contextId;
+      popContextValue(contextId);
     }
     
     return fiber;
@@ -100,6 +121,12 @@ export class Renderer {
     this.currentPath = path;
     
     try {
+      // Handle Fragment (symbol type)
+      if (typeof type === 'symbol') {
+        // Fragments just pass through their children
+        return props.children;
+      }
+      
       // Handle function components
       if (typeof type === 'function') {
         // Check if it's a class component
@@ -117,10 +144,12 @@ export class Renderer {
         return props.children;
       }
       
-      throw new Error(`Unknown component type: ${type}`);
+      throw new Error(`Unknown component type: ${String(type)}`);
     } finally {
-      // Clear rendering context for useInstance hook
+      // Clear rendering context for hooks
       clearRenderContext();
+      clearStateRenderContext();
+      clearContextRenderContext();
       
       // Restore previous path
       this.currentPath = previousPath;
@@ -165,69 +194,6 @@ export class Renderer {
       
       return null;
     }).filter((node): node is FiberNode => node !== null);
-  }
-  
-  /**
-   * Generate a node name from component type and props
-   * 
-   * Priority:
-   * 1. key prop (if provided)
-   * 2. name prop (if provided)
-   * 3. Component function name (converted to kebab-case)
-   * 
-   * @param type - Component type
-   * @param props - Component props
-   * @param key - Key prop
-   * @returns Node name
-   */
-  private getNodeName(type: any, props: Record<string, any>, key?: string): string {
-    // Use key if provided
-    if (key) {
-      return this.toKebabCase(key);
-    }
-    
-    // Use name prop if provided
-    if (props.name) {
-      return this.toKebabCase(props.name);
-    }
-    
-    // Use component function name or displayName
-    if (typeof type === 'function') {
-      const name = type.displayName || type.name || 'anonymous';
-      return this.toKebabCase(name);
-    }
-    
-    // Use string type as-is
-    if (typeof type === 'string') {
-      return this.toKebabCase(type);
-    }
-    
-    return 'unknown';
-  }
-  
-  /**
-   * Convert string to kebab-case
-   * 
-   * Examples:
-   * - 'RegistryStack' → 'registry-stack'
-   * - 'ServiceAPI' → 'service-api'
-   * - 'my-service' → 'my-service'
-   * 
-   * @param str - String to convert
-   * @returns Kebab-case string
-   */
-  private toKebabCase(str: string): string {
-    return str
-      // Insert hyphen before uppercase letters
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      // Convert to lowercase
-      .toLowerCase()
-      // Replace spaces and underscores with hyphens
-      .replace(/[\s_]+/g, '-')
-      // Remove multiple consecutive hyphens
-      .replace(/-+/g, '-')
-      // Remove leading/trailing hyphens
-      .replace(/^-|-$/g, '');
   }
   
   /**

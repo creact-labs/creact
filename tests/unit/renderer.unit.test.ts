@@ -88,8 +88,8 @@ describe('Renderer - Core Functionality', () => {
       const fiber = renderer.render(jsx);
 
       expect(fiber.children).toHaveLength(2);
-      expect(fiber.children[0].path).toEqual(['parent', 'child1']);
-      expect(fiber.children[1].path).toEqual(['parent', 'child2']);
+      expect(fiber.children[0].path).toEqual(['parent', 'child-1']);
+      expect(fiber.children[1].path).toEqual(['parent', 'child-2']);
     });
   });
 

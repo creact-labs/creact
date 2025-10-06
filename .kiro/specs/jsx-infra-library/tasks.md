@@ -276,30 +276,70 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - [x] File path logged after saving
     - [x] Tests verify persistence works
 
-- [x] 9. Implement useInstance hook
-  - Create `useInstance(construct, props)` hook
-  - Generate resource ID from current Fiber path
+- [x] 8.5. Implement JSX support (createElement factory)
+  - Create `src/jsx.ts` with `CReact.createElement` factory function
+  - Implement createElement to return JSXElement objects with `type`, `props`, `key`
+  - Handle children normalization (single child vs array)
+  - Extract `key` from props and store separately
+  - Create `CReact.Fragment` symbol for fragment support
+  - Create `src/jsx.d.ts` with JSX type definitions
+  - Update `tsconfig.json` with `jsxFactory: "CReact.createElement"`
+  - _Requirements: REQ-03_
+  - **Key:** This enables actual JSX syntax instead of manual object building
+  - **Deliverables:**
+    - `src/jsx.ts` - createElement factory and Fragment
+    - `src/jsx.d.ts` - JSX type definitions
+    - Updated `tsconfig.json` with JSX configuration
+  - **Testing Strategy:**
+    - Unit tests verify createElement transforms JSX correctly
+    - Unit tests verify children normalization
+    - Unit tests verify key extraction
+    - Integration tests verify JSX syntax works in components
+    - TypeScript compilation tests verify type checking
+  - **QA Checklist:**
+    - [x] createElement factory function created
+    - [x] Returns JSXElement with type, props, key
+    - [x] Children normalized correctly
+    - [x] Key extracted from props
+    - [x] Fragment symbol created
+    - [x] JSX type definitions created
+    - [x] tsconfig.json configured for JSX
+    - [x] Tests verify JSX transformation
+    - [x] TypeScript validates props correctly
+
+- [x] 9. Implement useInstance hook (React-like API with key prop)
+  - Create `useInstance(construct, props)` hook (no separate ID parameter)
+  - Extract `key` from props if provided, otherwise auto-generate from construct type
+  - Support multiple calls with same construct type via index appending
+  - Generate full resource ID from component hierarchy path + construct key
   - Create CloudDOM node and attach to Fiber
   - Store construct type and props
   - Return reference to resource
-  - _Requirements: REQ-01, REQ-03_
+  -nts: REQ-04_
+  - **Key:** React-like API - ID comes from `key` prop, not separate parameter
   - **Deliverables:**
     - `src/hooks/useInstance.ts` - Resource creation hook
-    - CloudDOM node creation logic
+    - CloudDOM node creation logic with key-based ID generation
   - **Testing Strategy:**
-    - Unit tests verify resource ID generation
+    - Unit tests verify key prop extraction
+    - Unit tests verify auto-generated IDs from construct type
+    - Unit tests verify multiple calls with same type (index appending)
     - Unit tests verify CloudDOM node creation
     - Unit tests verify node attachment to Fiber
     - Integration tests verify hook usage in components
   - **QA Checklist:**
-    - [x] useInstance hook created
-    - [x] Resource ID generated from Fiber path
+    - [x] useInstance hook created with (construct, props) signature
+    - [x] Key extracted from props if provided
+    - [x] Auto-generates ID from construct type if no key
+    - [x] Multiple calls with same type append index
+    - [x] Full resource ID generated from path + key
     - [x] CloudDOM node created and attached
     - [x] Construct type and props stored
     - [x] Reference to resource returned
-    - [x] Tests verify hook behavior
+    - [x] Tests verify key-based ID generation
+    eration fallback
 
-- [ ] 10. Implement naming system
+- [x] 10. Implement naming system
   - Generate resource IDs from Fiber paths (e.g., `['registry', 'service']` → `'registry.service'`)
   - Use kebab-case for multi-word names (e.g., `'registry-service'`)
   - Support custom keys via `key` prop
@@ -314,61 +354,163 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - Unit tests verify custom key support
     - Unit tests verify ID uniqueness enforcement
   - **QA Checklist:**
-    - [ ] IDs generated from Fiber paths
-    - [ ] Kebab-case used for multi-word names
-    - [ ] Custom keys supported via key prop
-    - [ ] IDs unique within scope
-    - [ ] Tests verify naming logic
+    - [x] IDs generated from Fiber paths
+    - [x] Kebab-case used for multi-word names
+    - [x] Custom keys supported via key prop
+    - [x] IDs unique within scope
+    - [x] Tests verify naming logic
 
-- [ ] 11. Implement useState hook (declarative output binding)
-  - Create `useState(initialOutputs)` hook
-  - Store outputs in current Fiber node
+- [x] 11. Implement useState hook (declarative output binding)
+  - Create `useState(initialValue)` hook that accepts a single value (like React)
+  - Store outputs in Fiber node's hooks array (index-based tracking)
   - Return `[state, setState]` tuple
-  - Implement `setState(updates)` to update output map (NOT a render trigger)
+  - Implement `setState(value)` to update output value (NOT a render trigger)
+  - Support multiple useState calls per component using hook index
+  - Reset hook index at start of each component render
   - During build: `setState()` collects values known at build-time
   - During deploy: `setState()` patches in async resources (queue URLs, ARNs)
   - Outputs become persisted state for the component
   - _Requirements: REQ-02_
   - **Key:** `setState()` is a persistent output update mechanism, not a reactive updater
+  - **Key:** Mimics React's hooks array pattern for multiple useState calls
   - **Deliverables:**
-    - `src/hooks/useState.ts` - Declarative output hook
-    - Output storage in Fiber nodes
+    - `src/hooks/useState.ts` - Declarative output hook with hooks array
+    - Output storage in Fiber nodes (hooks array)
   - **Testing Strategy:**
-    - Unit tests verify output declaration
-    - Unit tests verify setState updates output map
+    - Unit tests verify single output declaration
+    - Unit tests verify multiple useState calls tracked independently
+    - Unit tests verify setState updates output value
+    - Unit tests verify hook index resets per component
     - Integration tests verify build-time vs deploy-time behavior
     - Integration tests verify output persistence
   - **QA Checklist:**
-    - [ ] useState hook created
-    - [ ] Outputs stored in Fiber node
-    - [ ] [state, setState] tuple returned
-    - [ ] setState updates output map (not render trigger)
-    - [ ] Build-time collection works
-    - [ ] Deploy-time patching works
-    - [ ] Tests verify declarative semantics
+    - [x] useState hook created with single value parameter
+    - [x] Outputs stored in Fiber node's hooks array
+    - [x] [state, setState] tuple returned
+    - [x] setState updates output value (not render trigger)
 
-- [ ] 12. Implement Stack Context
-  - Create `StackContext` with `Provider` and `Consumer`
-  - Implement `useStackContext()` hook
-  - Traverse Fiber tree depth-first to find nearest Provider (REQ-02.5)
-  - Return Provider's value
-  - Support optional stack name parameter for remote state (REQ-02.8)
-  - _Requirements: REQ-02_
+- [x] 12. Migrate useInstance to React-like API (remove ID parameter)
+  - Update `useInstance` signature from `useInstance(id, Construct, props)` to `useInstance(Construct, props)`
+  - Extract `key` from props if provided (like React's key prop)
+  - Auto-generate ID from construct type name if no key provided (e.g., `RDSInstance` → `'rdsinstance'`)
+  - Support multiple calls with same construct type by appending index (`-0`, `-1`, etc.)
+  - Track construct call count per component using hooks array pattern
+  - Update all existing tests to use new API
+  - _Requirements: REQ-04_
+  - **Key:** Makes API more React-like by removing manual ID parameter
   - **Deliverables:**
-    - `src/context/StackContext.ts` - Context implementation
-    - `src/hooks/useStackContext.ts` - Context hook
+    - Updated `src/hooks/useInstance.ts` with new signature
+    - Auto-ID generation logic
+    - Migrated tests
   - **Testing Strategy:**
-    - Unit tests verify Provider/Consumer creation
-    - Unit tests verify depth-first traversal
-    - Integration tests verify parent-child output sharing
-    - Integration tests verify remote state support
+    - Unit tests verify key extraction from props
+    - Unit tests verify auto-ID generation from construct type
+    - Unit tests verify multiple calls with same type get unique IDs
+    - Integration tests verify backward compatibility
   - **QA Checklist:**
-    - [ ] StackContext with Provider and Consumer created
-    - [ ] useStackContext hook implemented
-    - [ ] Depth-first traversal to nearest Provider
-    - [ ] Provider's value returned
-    - [ ] Optional stack name parameter supported
-    - [ ] Tests verify context propagation
+    - [x] useInstance signature updated to (Construct, props)
+    - [x] key extracted from props
+    - [x] Auto-ID generation works
+    - [x] Multiple calls get unique IDs
+    - [x] All tests migrated and passing
+
+- [x] 13. Refactor useState to follow new design specification
+  - Update `useState` implementation to follow React-like hooks array pattern
+  - Change signature from `useState(key, initialValue)` to `useState(initialValue)` (single parameter like React)
+  - Implement hooks array tracking in Fiber nodes for multiple useState calls
+  - Add hook index counter that resets at component render start
+  - Return `[state, setState]` tuple (React-like API)
+  - Update `setState` to update output value in hooks array by index
+  - Ensure setState is NOT a render trigger - it's a persistent output update mechanism
+  - Support multiple useState calls per component using index-based tracking
+  - Update output extraction logic to read from hooks array
+  - Migrate all useState tests to use new single-parameter API
+  - Update integration tests to use JSX syntax with pragma comments
+  - _Requirements: REQ-02_
+  - **Key:** This aligns useState with React's API - single parameter, hooks array tracking
+  - **Deliverables:**
+    - Updated `src/hooks/useState.ts` with new signature and hooks array
+    - Hook index tracking in Fiber nodes
+    - Migrated tests using new API and JSX syntax
+  - **Testing Strategy:**
+    - Unit tests verify single parameter API
+    - Unit tests verify hooks array tracking
+    - Unit tests verify multiple useState calls get unique indices
+    - Unit tests verify hook index resets per component
+    - Unit tests verify setState updates correct hook by index
+    - Integration tests verify output extraction from hooks array
+    - Integration tests verify JSX syntax works with useState
+  - **QA Checklist:**
+    - [x] useState signature changed to (initialValue) only
+    - [x] Hooks array implemented in Fiber nodes
+    - [x] Hook index counter resets at component start
+    - [x] [state, setState] tuple returned
+    - [x] setState updates output by hook index
+    - [x] Multiple useState calls tracked independently
+    - [x] Output extraction reads from hooks array
+    - [x] All tests migrated to new API
+    - [x] Tests migrated to JSX syntax
+    - [x] All tests passing
+
+- [x] 14. Implement createContext and useContext (React-like context API)
+  - Create `createContext<T>(defaultValue?)` function that returns context object with Provider and Consumer
+  - Implement `useContext(MyContext)` hook that retrieves value from nearest Provider
+  - Store context instances in Fiber nodes during rendering
+  - Implement depth-first traversal to find nearest Provider of specific context
+  - Support multiple independent contexts (each with own Provider/Consumer)
+  - Support default values when no Provider exists
+  - Throw error when useContext called without Provider and no default value
+  - Update Renderer to track context providers during component execution
+  - Create context registry to map context objects to their values
+  - _Requirements: REQ-02_
+  - **Key:** This replaces the global StackContext with React's createContext pattern
+  - **Deliverables:**
+    - `src/context/createContext.ts` - Context creation function
+    - `src/hooks/useContext.ts` - Context consumption hook
+    - Context tracking in Renderer
+    - Provider/Consumer components
+  - **Testing Strategy:**
+    - Unit tests verify createContext returns context object with Provider/Consumer
+    - Unit tests verify useContext retrieves value from nearest Provider
+    - Unit tests verify multiple contexts work independently
+    - Unit tests verify default value fallback
+    - Unit tests verify error when no Provider and no default
+    - Integration tests verify context propagation in component trees
+    - Integration tests verify nested providers of same context
+  - **QA Checklist:**
+    - [x] createContext<T>(defaultValue?) function created
+    - [x] Returns context object with Provider and Consumer
+    - [x] useContext(MyContext) hook implemented
+    - [x] Depth-first traversal to nearest Provider
+    - [x] Multiple independent contexts supported
+    - [x] Default values work correctly
+    - [x] Error thrown when no Provider and no default
+    - [x] Context tracking in Renderer
+    - [x] All tests passing
+    - [x] Type-safe with TypeScript generics
+
+- [ ] 15. Migrate tests from manual objects to JSX
+  - Update all test files to use JSX syntax instead of manual object creation
+  - Replace `{ type: Component, props: {} }` with `<Component />`
+  - Update integration tests to use JSX
+  - Verify all tests still pass with JSX
+  - _Requirements: REQ-03_
+  - **Deliverables:**
+    - Migrated test files using JSX
+  - **Testing Strategy:**
+    - Run all tests to verify JSX works correctly
+    - Verify test readability improved
+  - **QA Checklist:**
+    - [ ] All tests migrated to JSX
+    - [ ] Tests more readable
+    - [ ] All tests passing
+    - [ ] No manual object creation remaining
+    - [x] Multiple useState calls supported via hook index
+    - [x] Hook index resets at component render start
+    - [x] Build-time collection works
+    - [x] Deploy-time patching works
+    - [x] Tests verify declarative semantics
+    - [x] Tests verify multiple useState calls
 
 - [ ] 13. Implement output system (persistent state snapshots)
   - Extract outputs from `useState` calls in Fiber nodes
@@ -394,9 +536,7 @@ Build the main orchestrator and implement hooks for resource creation and state 
     - [ ] Output names follow nodeId.stateKey pattern
     - [ ] Outputs persisted to backend after deploy
     - [ ] Outputs merged into context on next build
-    - [ ] DummyCloudProvider logs outputs
-    - [ ] Tests verify output system
-
+    - [ ] DummyCloudProvider lAf or Task 16)
 ### Milestone 2 Verification (After Task 14)
 
 **Verification Run:**
@@ -419,7 +559,7 @@ $ ts-node examples/poc.tsx
 ## Phase 3: Diff & Lifecycle (Tasks 15–19)
 
 Implement reconciliation, migration hooks, lifecycle management, and component callbacks.
-
+- [ ] 17. Implement Reconciler (diff logic)
 - [ ] 15. Implement Reconciler (diff logic)
   - Create `Reconciler` class that receives optional `migrationMap` via constructor
   - Implement `diff(previous, current)` method
@@ -443,9 +583,9 @@ Implement reconciliation, migration hooks, lifecycle management, and component c
     - [ ] diff() compares CloudDOM trees by ID
     - [ ] Creates detected (ID in current only)
     - [ ] Deletes detected (ID in previous only)
-    - [ ] Updates detected (ID in both, props changed)
-    - [ ] Moves detected (same resource, different ID)
-    - [ ] Tests verify diff logic
+    - [ ] Updates detected (ID in both, ningprops changed)
+  [ ] 18. Implement migration map versiosource, different ID)
+-   - [ ] Tests verify diff logic
 
 - [ ] 16. Implement migration map versioning
   - Store migration maps in backend state with version and timestamp
@@ -463,8 +603,8 @@ Implement reconciliation, migration hooks, lifecycle management, and component c
   - **QA Checklist:**
     - [ ] Migration maps stored with version and timestamp
     - [ ] MigrationMapVersion interface created
-    - [ ] History appended to migrationHistory array
-    - [ ] History loaded when comparing
+    - [ ] History appended to miokstionHistory array
+- [ ] 19. Implement migration homparing
     - [ ] Tests verify versioning
 
 - [ ] 17. Implement migration hooks
@@ -485,7 +625,7 @@ Implement reconciliation, migration hooks, lifecycle management, and component c
     - [ ] Reconciler checks migration map for ID changes
     - [ ] Mapped ID changes treated as updates
     - [ ] Resource state preserved during refactoring
-    - [ ] Clear error for unmapped ID changes
+    - [ ] Clear error for unmappedycle hookschanges
     - [ ] Tests verify migration hooks
 
 - [ ] 18. Implement provider lifecycle hooks
@@ -521,8 +661,8 @@ Implement reconciliation, migration hooks, lifecycle management, and component c
     - [ ] postDeploy called after materialization
     - [ ] onError called on deployment failure
     - [ ] Deployment halts if hooks fail
-    - [ ] Structured JSON logs emitted
-    - [ ] Tests verify hook behavior
+    - [ ] Structure component lifecycle callbacksd JSON logs emitted
+- [ ] 21. Implement    - [ ] Tests verify hook behavior
 
 - [ ] 19. Implement component lifecycle callbacks
   - Add support for `onDeploy` callback in useInstance props (REQ-11.1)
@@ -566,14 +706,14 @@ $ ts-node examples/lifecycle-example.tsx
 - ✔ Provider lifecycle hooks execute in correct order (preDeploy → materialize → postDeploy)
 - ✔ Component callbacks (onDeploy, onStage, onDestroy) execute at correct stages
 - ✔ Structured JSON logs emitted for lifecycle events
-- ✔ Deployment halts on hook/callback failures
+- ✔ Dese 4: Async Handling & CLI (Tasks 22–28)s
 - _Validates: REQ-05, REQ-08, REQ-09, REQ-11_
 
 ## Phase 4: Async Handling & CLI (Tasks 20–26)
 
 Build async resource handling, CLI commands, and security/logging utilities.
 
-- [ ] 20. Implement async resource handling
+- [ ] 22. Implement async resource handling
   - Add `asyncTimeout` to `CReactConfig` (default 5 minutes) (REQ-10.5)
   - Update deployment to resolve dependencies in order (REQ-10.2)
   - Wait for parent outputs before deploying children (REQ-10.3)
@@ -596,7 +736,7 @@ Build async resource handling, CLI commands, and security/logging utilities.
     - [ ] Timeout information in error messages
     - [ ] Tests verify async handling
 
-- [ ] 21. Implement CLI: build command
+- [ ] 23. Implement CLI: build command
   - Create `cli/build.ts`
   - Parse JSX file path from arguments
   - Instantiate DummyCloudProvider and DummyBackendProvider
@@ -622,7 +762,7 @@ Build async resource handling, CLI commands, and security/logging utilities.
     - [ ] Errors handled with clear messages
     - [ ] Tests verify CLI behavior
 
-- [ ] 22. Implement CLI: validate command
+- [ ] 24. Implement CLI: validate command
   - Create `cli/validate.ts`
   - Parse JSX file path from arguments
   - Instantiate CReact with dummy providers
@@ -646,7 +786,7 @@ Build async resource handling, CLI commands, and security/logging utilities.
     - [ ] Exit codes correct (0=success, 1=error)
     - [ ] Tests verify validation
 
-- [ ] 23. Implement CLI: compare command
+- [ ] 25. Implement CLI: compare command
   - Create `cli/compare.ts`
   - Load previous CloudDOM from `.creact/clouddom.json`
   - Build current CloudDOM from JSX
@@ -673,7 +813,7 @@ Build async resource handling, CLI commands, and security/logging utilities.
     - [ ] Review message shown
     - [ ] Tests verify compare output
 
-- [ ] 24. Implement CLI: deploy command
+- [ ] 26. Implement CLI: deploy command
   - Create `cli/deploy.ts`
   - Load CloudDOM from `.creact/clouddom.json`
   - Call `creact.deploy(cloudDOM)`
@@ -698,7 +838,7 @@ Build async resource handling, CLI commands, and security/logging utilities.
     - [ ] Errors have remediation suggestions
     - [ ] Tests verify deploy behavior
 
-### Milestone 4 Verification (After Task 24)
+### Milestone 4 Verification (After Task 26)
 
 **Verification Run:**
 ```bash
@@ -717,7 +857,8 @@ $ creact deploy
 - ✔ Error messages include file paths and remediation suggestions
 - _Validates: REQ-01, REQ-05, REQ-07, REQ-10, REQ-NF-01, REQ-NF-03_
 
-- [ ] 25. Implement secret redaction
+- [ ] 27. Implement secret redaction
+- [ ] 28. Implement remaining security featurestion
   - Create `SecretRedactor` class
   - Define secret patterns: password, secret, token, key, credential
   - Implement `redact(obj)` method that recursively redacts secrets

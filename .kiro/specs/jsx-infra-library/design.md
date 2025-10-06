@@ -85,7 +85,8 @@
   | **Validator.ts** | REQ-07 (Error handling & validation) |
   | **Reconciler.ts** | REQ-05 (Deployment orchestration), REQ-08 (Migration hooks) |
   | **useState.ts** | REQ-02 (Stack Context - declarative outputs) |
-  | **useStackContext.ts** | REQ-02 (Stack Context - declarative outputs) |
+  | **createContext.ts** | REQ-02 (Stack Context - context creation) |
+  | **useContext.ts** | REQ-02 (Stack Context - context consumption) |
   | **useInstance.ts** | REQ-03 (Resource creation via hooks) |
   | **useEffect.ts** | REQ-12 (useEffect hook - setup/teardown) |
   | **ICloudProvider.ts** | REQ-04 (Providers), REQ-09 (Provider lifecycle hooks), REQ-11 (Component lifecycle callbacks) |
@@ -210,27 +211,248 @@
 
   **Versioning (REQ-08.5):** Migration maps are versioned and stored in backend state for reproducibility.
 
+  ## JSX Support [REQ-03]
+
+  ### Overview
+
+  CReact uses JSX syntax for declaring infrastructure, just like React uses JSX for UI. TypeScript transforms JSX into function calls that create element objects.
+
+  ### JSX Transformation
+
+  **TypeScript Configuration:**
+
+  ```json
+  // tsconfig.json
+  {
+    "compilerOptions": {
+      "jsx": "react",
+      "jsxFactory": "CReact.createElement",
+      "jsxFragmentFactory": "CReact.Fragment"
+    }
+  }
+  ```
+
+  **JSX Syntax:**
+  ```tsx
+  // What you write
+  <Database name="app-db" />
+  
+  // What TypeScript generates
+  CReact.createElement(Database, { name: "app-db" })
+  ```
+
+  **With Children:**
+  ```tsx
+  // What you write
+  <RegistryStack>
+    <Service name="api" />
+  </RegistryStack>
+  
+  // What TypeScript generates
+  CReact.createElement(
+    RegistryStack,
+    null,
+    CReact.createElement(Service, { name: "api" })
+  )
+  ```
+
+  ### createElement Implementation
+
+  ```typescript
+  // src/jsx.ts
+  export namespace CReact {
+    /**
+     * JSX factory function
+     * Called by TypeScript when transforming JSX
+     */
+    export function createElement(
+      type: any,
+      props: Record<string, any> | null,
+      ...children: any[]
+    ): JSXElement {
+      // Normalize props
+      const normalizedProps = props || {};
+      
+      // Add children to props if present
+      if (children.length > 0) {
+        normalizedProps.children = children.length === 1 ? children[0] : children;
+      }
+      
+      // Extract key if present
+      const key = normalizedProps.key;
+      delete normalizedProps.key;
+      
+      return {
+        type,
+        props: normalizedProps,
+        key,
+      };
+    }
+    
+    /**
+     * Fragment support (for <>...</> syntax)
+     */
+    export const Fragment = Symbol('Fragment');
+  }
+  ```
+
+  ### Type Definitions
+
+  ```typescript
+  // src/jsx.d.ts
+  declare namespace JSX {
+    interface Element {
+      type: any;
+      props: any;
+      key?: string;
+    }
+    
+    interface IntrinsicElements {
+      // Empty - we don't support HTML elements
+    }
+    
+    interface ElementChildrenAttribute {
+      children: {};
+    }
+  }
+  ```
+
+  ### Usage Examples
+
+  **Basic Component:**
+  ```tsx
+  function Database() {
+    const db = useInstance(RDSInstance, { key: 'db', name: 'app-db' });
+    return null;
+  }
+  
+  // Use with JSX
+  <Database />
+  ```
+
+  **With Props:**
+  ```tsx
+  function Service({ name }: { name: string }) {
+    const service = useInstance(AppRunnerService, { key: 'service', name });
+    return null;
+  }
+  
+  // Use with JSX
+  <Service name="api" />
+  ```
+
+  **With Children and Context:**
+  ```tsx
+  // Create context
+  const RegistryContext = createContext<{ repositoryUrl?: string }>({});
+  
+  function RegistryStack({ children }: { children: any }) {
+    const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
+    const [repositoryUrl, setRepositoryUrl] = useState<string>();
+    
+    const outputs = { repositoryUrl };
+    return <RegistryContext.Provider value={outputs}>{children}</RegistryContext.Provider>;
+  }
+  
+  // Use with JSX
+  <RegistryStack>
+    <Service name="api" />
+    <Service name="worker" />
+  </RegistryStack>
+  ```
+
+  **Fragments:**
+  ```tsx
+  function MultiService() {
+    return (
+      <>
+        <Service name="api" />
+        <Service name="worker" />
+      </>
+    );
+  }
+  ```
+
+  ### Type Safety
+
+  **Component Props:**
+  ```tsx
+  interface DatabaseProps {
+    name: string;
+    size?: 'small' | 'medium' | 'large';
+    onDeploy?: (outputs: any) => Promise<void>;
+  }
+  
+  function Database({ name, size = 'medium', onDeploy }: DatabaseProps) {
+    const db = useInstance(RDSInstance, { 
+      key: 'db',
+      name,
+      instanceClass: size === 'small' ? 'db.t3.micro' : 'db.t3.medium'
+    });
+    return null;
+  }
+  
+  // TypeScript validates props
+  <Database name="app-db" size="large" />  // ✅ Valid
+  <Database />  // ❌ Error: missing required prop 'name'
+  <Database name="app-db" size="huge" />  // ❌ Error: invalid size value
+  ```
+
+  ### Integration with Renderer
+
+  The Renderer receives JSX elements (created by `createElement`) and transforms them into Fiber nodes:
+
+  ```typescript
+  // JSX element structure
+  const element = {
+    type: Database,
+    props: { name: 'app-db' },
+    key: undefined
+  };
+  
+  // Renderer processes it
+  const fiber = renderer.render(element);
+  ```
+
   ## Hooks
 
   ### useState - Declarative Output Binding [REQ-02]
 
   ```typescript
-  function RegistryStack({ children }) {
-    const repo = useInstance(EcrRepository, { name: 'app' });
-    
-    // Declare initial outputs
-    const [state, setState] = useState({
-      repositoryUrl: repo.repositoryUrl
+  // Create typed context
+  interface CDNOutputs {
+    distributionId?: string;
+    distributionDomain?: string;
+    distributionArn?: string;
+  }
+  const CDNContext = createContext<CDNOutputs>({});
+  
+  function CDNStack({ children }) {
+    // Use key prop for explicit ID (React-like)
+    const distribution = useInstance(CloudFrontDistribution, { 
+      key: 'cdn',
+      ...otherProps 
     });
+    
+    // Multiple useState calls (like React) - use explicit types for empty initial values
+    const [distributionId, setDistributionId] = useState<string>();
+    const [distributionDomain, setDistributionDomain] = useState<string>();
+    const [distributionArn, setDistributionArn] = useState<string>();
     
     // Optional: Enrich outputs after async materialization
     useEffect(async () => {
-      // After deploy, provider may resolve actual URLs/ARNs
-      const queueUrl = await queue.getUrl();
-      setState(prev => ({ ...prev, queueUrl })); // Updates persisted outputs
-    }, [queue]);
+      const actualDomain = await distribution.getDomain();
+      setDistributionDomain(actualDomain);
+    }, [distribution]);
     
-    return <StackContext.Provider value={state}>{children}</StackContext.Provider>;
+    // Aggregate outputs for context
+    const outputs = {
+      distributionId,
+      distributionDomain,
+      distributionArn,
+    };
+    
+    return <CDNContext.Provider value={outputs}>{children}</CDNContext.Provider>;
   }
   ```
 
@@ -238,11 +460,12 @@
   **Implements:** REQ-02 (Stack Context - declarative outputs)
   
   **Semantics:**
-  - `useState(initialOutputs)` - Declares what outputs this component will publish
-  - `setState(updates)` during build - Updates the output map for build-time enrichment
-  - `setState(updates)` during deploy - Updates persisted outputs after provider materialization
+  - `useState(initialValue)` - Declares a single output value (like React)
+  - `setState(value)` during build - Updates the output value for build-time enrichment
+  - `setState(value)` during deploy - Updates persisted output after provider materialization
   - NOT a render trigger - it's a persistent output update mechanism
-  - Acts as a state mutation bridge between deployments
+  - Supports multiple useState calls per component (like React)
+  - Uses hooks array pattern for tracking multiple calls
   
   **Key difference from React:**
   - React: `setState()` causes re-render in memory
@@ -257,12 +480,32 @@
   2. During deploy, async resources (queue URLs, ARNs) can be patched in and persisted via backend provider
   3. On next build, CReact merges persisted outputs into state context
   4. `setState()` acts like a persistent output update mechanism, not a render trigger
+  5. Multiple useState calls are tracked via hooks array (index-based like React)
 
-  ### useStackContext [REQ-02]
+  ### createContext & useContext [REQ-02]
 
   ```typescript
+  // Create a typed context (like React.createContext)
+  interface RegistryOutputs {
+    repositoryUrl?: string;
+    repositoryArn?: string;
+  }
+  
+  const RegistryContext = createContext<RegistryOutputs>({});
+  
+  // Provider component
+  function RegistryStack({ children }) {
+    const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
+    const [repositoryUrl, setRepositoryUrl] = useState<string>();
+    const [repositoryArn, setRepositoryArn] = useState<string>();
+    
+    const outputs = { repositoryUrl, repositoryArn };
+    return <RegistryContext.Provider value={outputs}>{children}</RegistryContext.Provider>;
+  }
+  
+  // Consumer component
   function Service() {
-    const { repositoryUrl } = useStackContext();  // Access parent's state
+    const { repositoryUrl } = useContext(RegistryContext);  // Access parent's state
     
     const service = useInstance(AppRunnerService, {
       image: `${repositoryUrl}:latest`
@@ -272,29 +515,52 @@
   }
   ```
 
-  **Purpose:** Access parent's state (avoid prop drilling)  
-  **Resolution:** Depth-first traversal to nearest Provider (REQ-02.3)
+  **Purpose:** Share outputs between components (avoid prop drilling)  
+  **API:** `createContext<T>(defaultValue?)` creates context, `useContext(MyContext)` consumes it
+  **Resolution:** Depth-first traversal to nearest Provider of that specific context
+  **Type Safety:** Full TypeScript support with typed contexts
   **Implements:** REQ-02 (Stack Context - declarative outputs)
 
   ### useInstance [REQ-03]
 
   ```typescript
   function Registry() {
-    const repo = useInstance(EcrRepository, { name: 'app' });  // Creates CloudDOM node
+    // ID auto-generated from construct type: 'ecrrepository'
+    const repo = useInstance(EcrRepository, { name: 'app' });
+    
+    // Or use explicit key (like React's key prop)
+    const repo = useInstance(EcrRepository, { key: 'repo', name: 'app' });
+    
+    return null;
+  }
+  
+  // Multiple constructs of same type
+  function MultiDatabase() {
+    const primary = useInstance(RDSInstance, { key: 'primary', name: 'db-primary' });
+    const replica = useInstance(RDSInstance, { key: 'replica', name: 'db-replica' });
     return null;
   }
   ```
 
   **Purpose:** Create infrastructure resource  
-  **ID generation:** Uses component hierarchy path (e.g., `['registry', 'service']` → `'registry.service'`)
+  **API:** `useInstance(Construct, props)` - React-like, no manual ID parameter
+  **ID generation:** 
+  - If `key` prop provided: uses `key` value
+  - If no `key`: auto-generates from construct type name (lowercased)
+  - Multiple calls: appends index (`-0`, `-1`, etc.)
+  - Full path: component hierarchy + construct key (e.g., `['registry', 'repo']` → `'registry.repo'`)
   **Implements:** REQ-03 (Resource creation via hooks)
 
   ### useEffect - Setup and Teardown [REQ-12]
 
   ```typescript
-  function QueueStack() {
-    const queue = useInstance(SQSQueue, { name: 'messages' });
-    const [state, setState] = useState({});
+  // Create typed context
+  const QueueContext = createContext<{ queueUrl?: string; queueArn?: string }>({});
+  
+  function QueueStack({ children }) {
+    const queue = useInstance(SQSQueue, { key: 'queue', name: 'messages' });
+    const [queueUrl, setQueueUrl] = useState<string>();
+    const [queueArn, setQueueArn] = useState<string>();
     
     // Setup: runs once at first render
     useEffect(() => {
@@ -302,8 +568,8 @@
       
       // Async enrichment after deployment
       const enrichOutputs = async () => {
-        const queueUrl = await queue.getUrl();
-        setState(prev => ({ ...prev, queueUrl }));
+        const actualUrl = await queue.getUrl();
+        setQueueUrl(actualUrl);
       };
       enrichOutputs();
       
@@ -313,7 +579,8 @@
       };
     });
     
-    return <StackContext.Provider value={state} />;
+    const outputs = { queueUrl, queueArn };
+    return <QueueContext.Provider value={outputs}>{children}</QueueContext.Provider>;
   }
   ```
 
@@ -338,8 +605,11 @@
   ### Custom Hooks [REQ-03]
 
   ```typescript
+  // Assume VPCContext is created elsewhere
+  const VPCContext = createContext<{ vpcId?: string }>({});
+  
   function useDatabase() {
-    const { vpcId } = useStackContext();
+    const { vpcId } = useContext(VPCContext);
     return useInstance(Database, { vpcId });
   }
   ```
@@ -442,10 +712,10 @@
   │   │   └── DummyBackendProvider.ts # POC implementation
   │   ├── hooks/
   │   │   ├── useState.ts
-  │   │   ├── useStackContext.ts
+  │   │   ├── useContext.ts
   │   │   └── useInstance.ts
   │   ├── context/
-  │   │   └── StackContext.ts
+  │   │   └── createContext.ts
   │   └── cli/
   │       ├── build.ts
   │       ├── compare.ts
@@ -663,25 +933,42 @@
   Components can define lifecycle callbacks for custom logic during deployment stages:
 
   ```typescript
-  function Database() {
+  // Lifecycle callbacks are component props, not useInstance props
+  function Database({ onDeploy, onStage, onDestroy }) {
     const db = useInstance(RDSInstance, {
+      key: 'db',
       name: 'app-db',
-      onDeploy: async (outputs) => {  // REQ-11.1
-        console.log(`Database deployed: ${outputs.endpoint}`);
-        await runMigrations(outputs.endpoint);
-      },
-      onStage: async (node) => {  // REQ-11.2
-        console.log(`Staging database: ${node.id}`);
-        await validateSchema();
-      },
-      onDestroy: async (outputs) => {  // REQ-11.3
-        console.log(`Backing up database before destroy`);
-        await backupDatabase(outputs.endpoint);
-      }
     });
+    
     return null;
   }
+
+  // Usage: Pass callbacks as props
+  function Infrastructure() {
+    return (
+      <Database
+        onDeploy={async (outputs) => {  // REQ-11.1
+          console.log(`Database deployed: ${outputs.endpoint}`);
+          await runMigrations(outputs.endpoint);
+        }}
+        onStage={async (node) => {  // REQ-11.2
+          console.log(`Staging database: ${node.id}`);
+          await validateSchema();
+        }}
+        onDestroy={async (outputs) => {  // REQ-11.3
+          console.log(`Backing up database before destroy`);
+          await backupDatabase(outputs.endpoint);
+        }}
+      />
+    );
+  }
   ```
+
+  **How it works:**
+  - Lifecycle callbacks are passed as **component props** (like React event handlers)
+  - CReact automatically links callbacks to the component's CloudDOM node
+  - If a component has a CloudDOM node (via `useInstance`), callbacks are invoked at the appropriate lifecycle stages
+  - If a component has no CloudDOM node (container component), callbacks are ignored
 
   **Lifecycle stages:**
   - `onStage` - Runs during staging phase before deployment (REQ-11.2)

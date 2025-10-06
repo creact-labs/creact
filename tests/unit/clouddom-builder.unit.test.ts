@@ -197,11 +197,11 @@ describe('CloudDOMBuilder - Core Functionality', () => {
       const cloudDOM = await builder.build(fiber);
 
       expect(cloudDOM).toHaveLength(1);
-      expect(cloudDOM[0].id).toBe('level1');
+      expect(cloudDOM[0].id).toBe('level-1');
       expect(cloudDOM[0].children).toHaveLength(1);
-      expect(cloudDOM[0].children[0].id).toBe('level1.level2');
+      expect(cloudDOM[0].children[0].id).toBe('level-1.level-2');
       expect(cloudDOM[0].children[0].children).toHaveLength(1);
-      expect(cloudDOM[0].children[0].children[0].id).toBe('level1.level2.level3');
+      expect(cloudDOM[0].children[0].children[0].id).toBe('level-1.level-2.level-3');
     });
 
     it('should handle multiple root-level resources', async () => {

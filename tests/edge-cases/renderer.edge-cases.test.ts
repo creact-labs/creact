@@ -115,8 +115,8 @@ describe('Renderer - Edge Cases', () => {
       const fiber = renderer.render(jsx);
 
       expect(fiber.children).toHaveLength(2);
-      expect(fiber.children[0].path).toEqual(['parent', 'c1']);
-      expect(fiber.children[1].path).toEqual(['parent', 'c2']);
+      expect(fiber.children[0].path).toEqual(['parent', 'c-1']);
+      expect(fiber.children[1].path).toEqual(['parent', 'c-2']);
     });
 
     it('should handle component returning empty array', () => {
@@ -185,8 +185,8 @@ describe('Renderer - Edge Cases', () => {
 
       // Should filter out non-element types
       expect(fiber.children).toHaveLength(2);
-      expect(fiber.children[0].path).toEqual(['parent', 'child1']);
-      expect(fiber.children[1].path).toEqual(['parent', 'child2']);
+      expect(fiber.children[0].path).toEqual(['parent', 'child-1']);
+      expect(fiber.children[1].path).toEqual(['parent', 'child-2']);
     });
 
     it('should handle children containing Promises', () => {
@@ -519,8 +519,8 @@ describe('Renderer - Edge Cases', () => {
 
       const fiber = renderer.render(jsx as any);
 
-      // Path uses the name prop as-is
-      expect(fiber.path[0]).toBe('../../../etc/passwd');
+      // Path uses the name prop with slashes converted to hyphens
+      expect(fiber.path[0]).toBe('..-..-..-etc-passwd');
     });
   });
 
