@@ -1,6 +1,6 @@
 /**
  * Integration tests for JSX syntax with CReact components
- * 
+ *
  * Tests verify:
  * - JSX syntax works with infrastructure components
  * - TypeScript type checking validates props
@@ -41,7 +41,7 @@ describe('JSX Integration with CReact', () => {
 
       // Using JSX syntax
       const element = <Registry />;
-      
+
       expect(element.type).toBe(Registry);
       expect(element.props).toEqual({});
     });
@@ -53,17 +53,17 @@ describe('JSX Integration with CReact', () => {
       }
 
       function Service({ name, port }: ServiceProps) {
-        const service = useInstance(AppRunnerService, { 
+        const service = useInstance(AppRunnerService, {
           key: 'service',
           name,
-          port: port || 8080
+          port: port || 8080,
         });
         return null;
       }
 
       // Using JSX syntax with props
       const element = <Service name="api" port={3000} />;
-      
+
       expect(element.type).toBe(Service);
       expect(element.props).toEqual({ name: 'api', port: 3000 });
     });
@@ -86,7 +86,7 @@ describe('JSX Integration with CReact', () => {
           <Service name="worker" />
         </RegistryStack>
       );
-      
+
       expect(element.type).toBe(RegistryStack);
       expect(Array.isArray(element.props.children)).toBe(true);
       expect(element.props.children).toHaveLength(2);
@@ -102,7 +102,7 @@ describe('JSX Integration with CReact', () => {
 
       // Using JSX with key prop
       const element = <Database key="primary" name="app-db" />;
-      
+
       expect(element.key).toBe('primary');
       expect(element.props).toEqual({ name: 'app-db' });
       expect(element.props.key).toBeUndefined();
@@ -121,7 +121,7 @@ describe('JSX Integration with CReact', () => {
           <Service name="worker" />
         </>
       );
-      
+
       expect(element.type).toBe(CReact.Fragment);
       expect(Array.isArray(element.props.children)).toBe(true);
       expect(element.props.children).toHaveLength(2);
@@ -137,7 +137,7 @@ describe('JSX Integration with CReact', () => {
 
       const element = <Registry />;
       const fiber = renderer.render(element);
-      
+
       expect(fiber).toBeDefined();
       expect(fiber.type).toBe(Registry);
     });
@@ -159,7 +159,7 @@ describe('JSX Integration with CReact', () => {
 
       const element = <Infrastructure />;
       const fiber = renderer.render(element);
-      
+
       expect(fiber).toBeDefined();
       expect(fiber.type).toBe(Infrastructure);
     });
@@ -193,7 +193,7 @@ describe('JSX Integration with CReact', () => {
       }
 
       const element = <Infrastructure />;
-      
+
       expect(element.type).toBe(Infrastructure);
       expect(element.props).toEqual({});
     });
@@ -215,7 +215,7 @@ describe('JSX Integration with CReact', () => {
 
       const withWorker = <Infrastructure includeWorker={true} />;
       const withoutWorker = <Infrastructure includeWorker={false} />;
-      
+
       expect(withWorker.props.includeWorker).toBe(true);
       expect(withoutWorker.props.includeWorker).toBe(false);
     });
@@ -230,13 +230,15 @@ describe('JSX Integration with CReact', () => {
         const services = ['api', 'worker', 'scheduler'];
         return (
           <>
-            {services.map(name => <Service key={name} name={name} />)}
+            {services.map((name) => (
+              <Service key={name} name={name} />
+            ))}
           </>
         );
       }
 
       const element = <Infrastructure />;
-      
+
       expect(element.type).toBe(Infrastructure);
     });
   });

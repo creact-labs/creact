@@ -34,7 +34,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
   afterEach(() => {
     // Clean up backend state
     backendProvider.clearAll();
-    
+
     // Clean up test-specific directory
     try {
       if (fs.existsSync(testDir)) {
@@ -133,7 +133,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
 
       // Assert: saveState called multiple times (startDeployment, checkpoints, completeDeployment)
       expect(saveStateSpy).toHaveBeenCalled();
-      
+
       // Final call should have DEPLOYED status
       const finalCall = saveStateSpy.mock.calls[saveStateSpy.mock.calls.length - 1];
       expect(finalCall[0]).toBe('test-stack');
@@ -236,9 +236,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
       const onErrorSpy = vi.spyOn(cloudProvider, 'onError');
 
       // Act & Assert
-      await expect(creact.deploy(cloudDOM, 'test-stack')).rejects.toThrow(
-        'Deployment failed'
-      );
+      await expect(creact.deploy(cloudDOM, 'test-stack')).rejects.toThrow('Deployment failed');
 
       // Assert: onError called with error and CloudDOM
       expect(onErrorSpy).toHaveBeenCalledTimes(1);
@@ -282,7 +280,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
       expect(savedState.cloudDOM).toEqual(originalCloudDOM);
       expect(savedState.stackName).toBe('test-stack');
       expect(savedState.timestamp).toBeTypeOf('number');
-      
+
       // Assert: Outputs are in CloudDOM nodes
       const outputs = extractOutputs(savedState.cloudDOM);
       expect(outputs).toEqual({
@@ -315,9 +313,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
       await creact.deploy(cloudDOM, 'test-stack');
 
       // Assert: Deployment skipped (idempotent)
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('No changes detected')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('No changes detected'));
       expect(materializeSpy).not.toHaveBeenCalled();
 
       materializeSpy.mockRestore();
@@ -459,9 +455,7 @@ describe('CReact Orchestrator - Integration Tests', () => {
       });
 
       // Act & Assert: Error is re-thrown
-      await expect(creact.deploy(cloudDOM, 'test-stack')).rejects.toThrow(
-        'Deployment failed'
-      );
+      await expect(creact.deploy(cloudDOM, 'test-stack')).rejects.toThrow('Deployment failed');
     });
   });
 

@@ -10,7 +10,7 @@ import { DummyBackendProvider } from '@/providers/DummyBackendProvider';
 export function createMockCloudProvider() {
   const provider = new DummyCloudProvider();
   const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-  
+
   return {
     provider,
     consoleSpy,
@@ -24,7 +24,7 @@ export function createMockCloudProvider() {
 export function createMockBackendProvider() {
   const provider = new DummyBackendProvider();
   const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-  
+
   return {
     provider,
     consoleSpy,
@@ -41,13 +41,13 @@ export function setupProviderTest() {
   const consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
   const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-  
+
   const cleanup = () => {
     consoleDebugSpy.mockRestore();
     consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   };
-  
+
   return {
     cloudProvider,
     backendProvider,

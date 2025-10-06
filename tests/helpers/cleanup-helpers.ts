@@ -8,11 +8,11 @@ import * as path from 'path';
  */
 export function cleanupCreactDir(): void {
   const creactDir = '.creact';
-  
+
   if (!fs.existsSync(creactDir)) {
     return;
   }
-  
+
   try {
     // Try to remove with force flag
     fs.rmSync(creactDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });

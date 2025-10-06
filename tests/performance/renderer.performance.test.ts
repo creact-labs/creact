@@ -105,11 +105,7 @@ describe('Renderer - Performance', () => {
           createElement(
             Level3,
             {},
-            createElement(
-              Level4,
-              {},
-              createElement(Level5, {}, createElement(Level6, {}))
-            )
+            createElement(Level4, {}, createElement(Level5, {}, createElement(Level6, {})))
           )
         )
       );
@@ -132,9 +128,14 @@ describe('Renderer - Performance', () => {
         'level-4',
         'level-5',
       ]);
-      expect(
-        fiber.children[0].children[0].children[0].children[0].children[0].path
-      ).toEqual(['level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6']);
+      expect(fiber.children[0].children[0].children[0].children[0].children[0].path).toEqual([
+        'level-1',
+        'level-2',
+        'level-3',
+        'level-4',
+        'level-5',
+        'level-6',
+      ]);
     });
 
     it('should detect infinite recursion before stack overflow', () => {

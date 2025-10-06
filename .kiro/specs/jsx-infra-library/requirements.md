@@ -7,6 +7,7 @@
 > **"If React made UI declarative, CReact makes reality declarative."**
 
 **The Problem CReact Solves:**
+
 - ❌ Infrastructure tools don't talk to each other (Terraform, Helm, Docker, Pulumi are silos)
 - ❌ .env files are a security nightmare and drift from reality
 - ❌ Frontend apps can't see backend deployment state
@@ -14,6 +15,7 @@
 - ❌ No type safety between infrastructure outputs and application code
 
 **The CReact Solution:**
+
 - ✅ **Universal interoperability** - Compose Terraform, Helm, Docker, AWS, Kubernetes in one tree
 - ✅ **Type-safe state bridge** - React/Vue/Python apps consume CloudDOM state with full TypeScript types
 - ✅ **Encrypted secrets** - No more .env files, encrypted storage with automatic propagation
@@ -52,11 +54,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Wrap Terraform, Pulumi, Helm, or Docker modules as components. All adapters return deterministic CloudDOM nodes.
 
 **Guarantees:**
+
 - Core integration
 - Deterministic output (content-hash IDs, no timestamps)
 - Human-readable errors
 
 **Acceptance Criteria:**
+
 1. WHEN I use TerraformModule component THEN it SHALL load and execute the module
 2. WHEN adapters execute THEN they SHALL return deterministic CloudDOM nodes
 3. WHEN adapters fail THEN they SHALL provide clear error messages with source context
@@ -70,11 +74,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Expose CloudDOM state to any runtime (React, CLI, Python, etc.). Sync via WebSocket, HTTP, or gRPC.
 
 **Guarantees:**
+
 - Real-time updates
 - Cross-runtime APIs (React, Vue, Python, CLI)
 - 100ms update latency target
 
 **Acceptance Criteria:**
+
 1. WHEN I connect to state sync server THEN I SHALL receive CloudDOM state updates
 2. WHEN CloudDOM state updates THEN subscribed clients SHALL receive updates in real-time
 3. WHEN I subscribe via WebSocket/HTTP/gRPC THEN I SHALL receive JSON-serialized state
@@ -88,11 +94,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** CReact apps can deploy other CReact apps.
 
 **Guarantees:**
+
 - Enables modular stacks
 - Enables self-hosting demos
 - Deterministic, depth-first orchestration
 
 **Acceptance Criteria:**
+
 1. WHEN I use CReactApp component THEN it SHALL deploy the child app
 2. WHEN child apps complete THEN their outputs SHALL be available to parent via context
 3. WHEN I nest multiple levels THEN deployment SHALL proceed depth-first
@@ -106,11 +114,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** One CloudDOM tree to many providers. AWS, Docker, and Kubernetes resources coexist and resolve dependencies automatically.
 
 **Guarantees:**
+
 - Smart routing by type
 - Cross-provider outputs supported
 - **ProviderRouter only handles routing and ordering; execution safety remains in StateMachine**
 
 **Acceptance Criteria:**
+
 1. WHEN I declare AwsLambda and DockerContainer THEN both SHALL coexist in CloudDOM
 2. WHEN CloudDOM builds THEN CReact SHALL route nodes to appropriate providers
 3. WHEN resources depend on cross-provider outputs THEN CReact SHALL resolve dependencies
@@ -127,11 +137,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Identical inputs produce identical CloudDOM. No random IDs, timestamps, or drift.
 
 **Guarantees:**
+
 - Content-hash-based IDs
 - Reproducible builds
 - Audit-safe determinism
 
 **Acceptance Criteria:**
+
 1. WHEN I run creact build twice THEN CloudDOM SHALL be byte-for-byte identical
 2. WHEN adapters generate IDs THEN they SHALL use deterministic algorithms (hash-based)
 3. WHEN adapters use timestamps THEN they SHALL be isolated at deploy level, not build level
@@ -145,11 +157,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Ensure cross-runtime type safety between CloudDOM outputs and consumer applications.
 
 **Guarantees:**
+
 - ✅ TypeScript definitions for all CloudDOM outputs
 - ✅ Static verification in React and Node clients
 - ✅ Type mismatch detection at compile-time
 
 **Acceptance Criteria:**
+
 1. WHEN CloudDOM outputs are defined THEN TypeScript types SHALL be generated automatically
 2. WHEN I consume outputs in React/Node THEN TypeScript SHALL validate types at compile-time
 3. WHEN output types change THEN consumers SHALL get compile-time errors
@@ -167,12 +181,14 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **States:** PENDING to APPLYING to DEPLOYED or FAILED or ROLLED_BACK
 
 **Features:**
+
 - Resume from checkpoints via creact resume
 - Crash-safe
 - Atomic state persistence via BackendProvider
 - Universal transaction manager for all providers
 
 **Acceptance Criteria:**
+
 1. WHEN deployment starts THEN CloudDOM state SHALL transition to APPLYING
 2. WHEN deployment succeeds THEN state SHALL transition to DEPLOYED
 3. WHEN CReact process crashes mid-deploy THEN state SHALL remain in APPLYING
@@ -190,17 +206,20 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Prevent concurrent deploys. Locking is implemented by BackendProvider, making it customizable per backend.
 
 **Mechanisms (BackendProvider-specific):**
+
 - Local file backend: `.creact/.lock` with flock
 - S3 backend: DynamoDB conditional writes
 - Redis backend: SETNX with TTL
 - Custom backends: Implement `IBackendProvider.acquireLock()` and `releaseLock()`
 
 **Guarantees:**
+
 - ✅ Distributed lock safety
 - ✅ Force-unlock + TTL expiry
 - ✅ Lock mechanism is pluggable (part of BackendProvider interface)
 
 **Acceptance Criteria:**
+
 1. WHEN deployment starts THEN CReact SHALL call `backendProvider.acquireLock(stackName)`
 2. WHEN lock is held by another process THEN `acquireLock()` SHALL throw error with lock holder info
 3. WHEN process crashes THEN lock SHALL have TTL and auto-expire (BackendProvider responsibility)
@@ -208,6 +227,7 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 5. WHEN deployment completes THEN CReact SHALL call `backendProvider.releaseLock(stackName)`
 
 **Design Notes:**
+
 - Locking is part of `IBackendProvider` interface, not a separate system
 - Each backend implements locking appropriate to its storage mechanism
 - File backend uses OS-level locks (flock)
@@ -222,11 +242,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Transient provider errors auto-retry (1s to 2s to 4s). Permanent errors fail fast with context.
 
 **Guarantees:**
+
 - Standard error taxonomy (AdapterError, ProviderTimeoutError, ExecutionError)
 - Exponential backoff
 - Structured telemetry
 
 **Acceptance Criteria:**
+
 1. WHEN adapter execution fails with transient error THEN CReact SHALL retry with exponential backoff
 2. WHEN error is permanent THEN CReact SHALL fail immediately
 3. WHEN retry count exceeds max THEN CReact SHALL fail with aggregated error context
@@ -241,10 +263,12 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** creact plan previews all changes before deploy. Colored diff (create = green, update = yellow, delete = red).
 
 **Guarantees:**
+
 - Safety before apply
 - JSON output for CI/CD
 
 **Acceptance Criteria:**
+
 1. WHEN I run creact plan THEN CReact SHALL compute diff without deploying
 2. WHEN plan completes THEN CReact SHALL display colored diff (creates, updates, deletes)
 3. WHEN I run creact plan --json THEN CReact SHALL output machine-readable JSON
@@ -258,11 +282,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Immutable audit log and role-based permissions.
 
 **Guarantees:**
+
 - Append-only, signed entries
 - viewer, editor, admin roles
 - External sinks: CloudWatch, Loki
 
 **Acceptance Criteria:**
+
 1. WHEN deployment starts THEN CReact SHALL log: user, timestamp, stack, action
 2. WHEN I run creact audit list THEN CReact SHALL display audit log entries
 3. WHEN user deploys THEN CReact SHALL check permissions for stack
@@ -278,11 +304,13 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Replace .env files securely.
 
 **Guarantees:**
+
 - ✅ Encrypted secret values in CloudDOM backend
 - ✅ Automatic propagation to adapters (Terraform, Helm)
 - ✅ No plaintext environment files on disk
 
 **Acceptance Criteria:**
+
 1. WHEN secrets are stored THEN they SHALL be encrypted in BackendProvider
 2. WHEN adapters need secrets THEN they SHALL receive them securely at runtime
 3. WHEN I run `creact secrets list` THEN CReact SHALL show secret keys (not values)
@@ -297,6 +325,7 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Goal:** Enable live, incremental deployment updates — bringing React-style hot reload to infrastructure — with both watch mode and manual approval flow.
 
 **Guarantees:**
+
 - ✅ Detects changes to component files and updates only affected CloudDOM subtrees
 - ✅ Reconciles deltas without full rebuild or redeploy
 - ✅ Falls back to safe rollback on failed reloads
@@ -304,6 +333,7 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 - ✅ Supports both automatic watch mode and manual step-through
 
 **Acceptance Criteria:**
+
 1. WHEN I run `creact dev` THEN CReact SHALL watch source files for changes and auto-apply
 2. WHEN I run `creact dev --step` THEN CReact SHALL pause after each change and wait for approval
 3. WHEN I run `creact apply --incremental` THEN CReact SHALL apply one render cycle manually
@@ -314,6 +344,7 @@ CReact is a **universal declarative runtime** that composes infrastructure and a
 **Verification:** T-O07
 
 **CLI Commands:**
+
 ```bash
 # Watch mode (automatic)
 $ creact dev
@@ -343,24 +374,26 @@ $ creact apply --incremental
 
 **Commands:**
 
-| Command | Description |
-|---------|-------------|
-| `creact build` | Compile JSX → CloudDOM |
-| `creact plan` | Show diff preview without apply |
-| `creact deploy` | Apply changes to infrastructure |
-| `creact resume` | Resume interrupted deployment |
-| `creact dev` | Hot reload infrastructure |
-| `creact logs` | Stream CloudDOM event logs |
-| `creact secrets` | Manage encrypted configuration |
-| `creact audit` | View audit log entries |
-| `creact info` | List registered providers, backends, and extensions |
+| Command          | Description                                         |
+| ---------------- | --------------------------------------------------- |
+| `creact build`   | Compile JSX → CloudDOM                              |
+| `creact plan`    | Show diff preview without apply                     |
+| `creact deploy`  | Apply changes to infrastructure                     |
+| `creact resume`  | Resume interrupted deployment                       |
+| `creact dev`     | Hot reload infrastructure                           |
+| `creact logs`    | Stream CloudDOM event logs                          |
+| `creact secrets` | Manage encrypted configuration                      |
+| `creact audit`   | View audit log entries                              |
+| `creact info`    | List registered providers, backends, and extensions |
 
 **Guarantees:**
+
 - ✅ Unified interface across all providers
 - ✅ Consistent UX (help text, JSON output)
 - ✅ All commands return structured exit codes for CI/CD
 
 **Acceptance Criteria:**
+
 1. WHEN I run any command with `--help` THEN CReact SHALL display usage information
 2. WHEN I run any command with `--json` THEN CReact SHALL output machine-readable JSON
 3. WHEN command succeeds THEN exit code SHALL be 0
@@ -376,6 +409,7 @@ $ creact apply --incremental
 **Goal:** Provide unified dependency injection runtime for providers, adapters, and extensions.
 
 **Guarantees:**
+
 - ✅ Dynamic registration of providers, adapters, and extensions at runtime
 - ✅ Contextual resolution between parent and child apps
 - ✅ Lifecycle hooks (`onBuild`, `onDeploy`, `onError`) for extensions
@@ -383,6 +417,7 @@ $ creact apply --incremental
 - ✅ All injected components are deterministic and sandboxed
 
 **Acceptance Criteria:**
+
 1. WHEN I register a provider THEN it SHALL be available for dependency resolution
 2. WHEN I register an extension THEN its lifecycle hooks SHALL execute at appropriate times
 3. WHEN nested apps run THEN they SHALL inherit parent container context
@@ -400,12 +435,14 @@ $ creact apply --incremental
 **Goal:** Enforce strict boundary between orchestration and provider execution.
 
 **Guarantees:**
+
 - ✅ Providers are responsible only for resource materialization (CRUD)
 - ✅ The orchestration layer (Reconciler + StateMachine) handles transaction safety, diffing, and rollback
 - ✅ No provider may implement its own concurrency, retry, or state logic
 - ✅ All providers automatically inherit transactional safety and deterministic behavior
 
 **Acceptance Criteria:**
+
 1. WHEN a provider is implemented THEN it SHALL only implement materialization logic
 2. WHEN orchestration logic is attempted in a provider THEN CReact SHALL reject it
 3. WHEN a provider crashes mid-deploy THEN StateMachine SHALL resume safely
@@ -423,52 +460,52 @@ $ creact apply --incremental
 
 ## 5. Security Baseline
 
-| Layer | Guarantee |
-|-------|-----------|
-| **Adapter Sandbox** | Isolated processes for Terraform/Helm execution |
-| **Auth** | JWT / API key for state sync and deploys |
-| **Audit Log** | Tamper-evident JSONL, per-user actions |
-| **Locking** | Prevents state corruption across sessions |
-| **Secrets** | Encrypted storage, no plaintext .env files |
-| **Hot Reload Sandbox** | Safe delta application with rollback fallback |
+| Layer                  | Guarantee                                       |
+| ---------------------- | ----------------------------------------------- |
+| **Adapter Sandbox**    | Isolated processes for Terraform/Helm execution |
+| **Auth**               | JWT / API key for state sync and deploys        |
+| **Audit Log**          | Tamper-evident JSONL, per-user actions          |
+| **Locking**            | Prevents state corruption across sessions       |
+| **Secrets**            | Encrypted storage, no plaintext .env files      |
+| **Hot Reload Sandbox** | Safe delta application with rollback fallback   |
 
 ---
 
 ## 6. Positioning & Differentiation
 
-| Capability | Analogy |
-|------------|---------|
-| CloudDOM Reconciler | React Fiber for infrastructure |
-| Universal State Bridge | Redux DevTools for your Cloud |
-| Nested Apps | Monorepos that deploy themselves |
-| Deterministic Adapters | Git-like reproducibility |
-| Audit Log | git blame for your cloud state |
+| Capability             | Analogy                          |
+| ---------------------- | -------------------------------- |
+| CloudDOM Reconciler    | React Fiber for infrastructure   |
+| Universal State Bridge | Redux DevTools for your Cloud    |
+| Nested Apps            | Monorepos that deploy themselves |
+| Deterministic Adapters | Git-like reproducibility         |
+| Audit Log              | git blame for your cloud state   |
 
 ---
 
 ## 7. Traceability Matrix
 
-| ID | Title | Test ID |
-|----|-------|---------|
+| ID                   | Title                             | Test ID   |
+| -------------------- | --------------------------------- | --------- |
 | **Interoperability** |
-| I01 | External IaC Adapters | T-I01 |
-| I02 | Universal State Bridge | T-I02 |
-| I03 | Nested App Deployment | T-I03 |
-| I04 | Multi-Provider Routing | T-I04 |
-| I05 | Deterministic Outputs | T-I05 |
-| I06 | Interop Contracts (Type Safety) | T-I06 |
-| **Operational** |
-| O01 | State Machine | T-O01 |
-| O02 | State Locking | T-O02 |
-| O03 | Retry Logic | T-O03 |
-| O04 | Plan Command | T-O04 |
-| O05 | Audit and RBAC | T-O05 |
-| O06 | Config & Secrets Isolation | T-O06 |
-| O07 | Hot Reload | T-O07 |
-| O08 | CLI Surface | T-O08 |
-| O09 | Dependency Injection Runtime | T-O09 |
-| **Architecture** |
-| ARCH-01 | Provider-Orchestration Separation | T-ARCH-01 |
+| I01                  | External IaC Adapters             | T-I01     |
+| I02                  | Universal State Bridge            | T-I02     |
+| I03                  | Nested App Deployment             | T-I03     |
+| I04                  | Multi-Provider Routing            | T-I04     |
+| I05                  | Deterministic Outputs             | T-I05     |
+| I06                  | Interop Contracts (Type Safety)   | T-I06     |
+| **Operational**      |
+| O01                  | State Machine                     | T-O01     |
+| O02                  | State Locking                     | T-O02     |
+| O03                  | Retry Logic                       | T-O03     |
+| O04                  | Plan Command                      | T-O04     |
+| O05                  | Audit and RBAC                    | T-O05     |
+| O06                  | Config & Secrets Isolation        | T-O06     |
+| O07                  | Hot Reload                        | T-O07     |
+| O08                  | CLI Surface                       | T-O08     |
+| O09                  | Dependency Injection Runtime      | T-O09     |
+| **Architecture**     |
+| ARCH-01              | Provider-Orchestration Separation | T-ARCH-01 |
 
 ---
 
@@ -486,6 +523,7 @@ $ creact apply --incremental
 The CloudDOM Reconciler is CReact's equivalent to React's Fiber architecture — the algorithm that diffs CloudDOM state across build/deploy cycles and computes minimal change sets.
 
 **Future Capabilities:**
+
 - Smart diffing (semantic equivalence)
 - Conflict resolution
 - Preview mode
@@ -496,14 +534,13 @@ The CloudDOM Reconciler is CReact's equivalent to React's Fiber architecture —
 
 ## 10. Document History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2025-10-05 | Initial POC baseline |
-| 2.0 | 2025-10-05 | Interoperability milestone |
-| 3.0 | 2025-10-05 | Production-ready: streamlined, focused, investor-demo ready |
-| 3.1 | 2025-10-05 | Added Hot Reload as core developer feature (REQ-O07) |
+| Version | Date       | Changes                                                     |
+| ------- | ---------- | ----------------------------------------------------------- |
+| 1.0     | 2025-10-05 | Initial POC baseline                                        |
+| 2.0     | 2025-10-05 | Interoperability milestone                                  |
+| 3.0     | 2025-10-05 | Production-ready: streamlined, focused, investor-demo ready |
+| 3.1     | 2025-10-05 | Added Hot Reload as core developer feature (REQ-O07)        |
 
 ---
 
 **End of Requirements Specification**
-

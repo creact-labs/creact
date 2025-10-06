@@ -117,9 +117,7 @@ describe('DummyCloudProvider - Core Functionality', () => {
     it('should handle empty CloudDOM array', () => {
       expect(() => provider.materialize([])).not.toThrow();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Materializing CloudDOM')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Materializing CloudDOM'));
     });
   });
 

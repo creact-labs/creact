@@ -78,12 +78,7 @@ describe('Renderer - Core Functionality', () => {
         return null;
       }
 
-      const jsx = createElement(
-        Parent,
-        {},
-        createElement(Child1, {}),
-        createElement(Child2, {})
-      );
+      const jsx = createElement(Parent, {}, createElement(Child1, {}), createElement(Child2, {}));
 
       const fiber = renderer.render(jsx);
 
@@ -167,11 +162,7 @@ describe('Renderer - Core Functionality', () => {
 
       expect(fiber.path).toEqual(['registry']);
       expect(fiber.children[0].path).toEqual(['registry', 'service']);
-      expect(fiber.children[0].children[0].path).toEqual([
-        'registry',
-        'service',
-        'container',
-      ]);
+      expect(fiber.children[0].children[0].path).toEqual(['registry', 'service', 'container']);
     });
 
     it('should differentiate siblings with keys', () => {
@@ -252,14 +243,7 @@ describe('Renderer - Core Functionality', () => {
         return null;
       }
 
-      const jsx = createElement(
-        Parent,
-        {},
-        null,
-        createElement(Child, {}),
-        undefined,
-        false
-      );
+      const jsx = createElement(Parent, {}, null, createElement(Child, {}), undefined, false);
 
       const fiber = renderer.render(jsx);
 

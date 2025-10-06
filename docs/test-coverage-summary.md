@@ -9,6 +9,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 ### Renderer Tests: 48 Total
 
 #### Basic Tests (15)
+
 - Simple component rendering
 - Nested components
 - Key/name prop precedence
@@ -22,6 +23,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - DisplayName support
 
 #### Edge Cases (13)
+
 - Error resilience (component throws)
 - Text nodes (strings/numbers ignored)
 - Reused component names
@@ -32,6 +34,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - Snapshot tests
 
 #### Next-Level Edge Cases (12)
+
 - Recursive component render
 - Error isolation
 - Array of mixed types
@@ -46,6 +49,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - Props with special characters
 
 #### Performance Tests (8)
+
 - 1000 shallow nodes < 500ms
 - Deep nesting (6 levels)
 - Wide trees (many siblings)
@@ -55,6 +59,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 ### Validator Tests: 47 Total
 
 #### Basic Tests (15)
+
 - Simple tree validation
 - Required props validation
 - Missing props detection
@@ -68,6 +73,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - PropTypes support
 
 #### Edge Cases (12)
+
 - Nested required props (3+ levels)
 - Multiple missing props
 - Dynamic required props
@@ -80,6 +86,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - Mixed validation scenarios
 
 #### Next-Level Edge Cases (20)
+
 - Runtime-defined props
 - Corrupted fiber nodes (missing fields)
 - Non-array children
@@ -103,6 +110,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 ### Provider Tests: 83 Total
 
 #### DummyBackendProvider Tests (25)
+
 - Initialization
 - State save/retrieve
 - Non-existent state
@@ -120,6 +128,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - RegExp objects
 
 #### DummyCloudProvider Tests (47)
+
 - Initialization
 - Simple materialization
 - Nested materialization order
@@ -142,6 +151,7 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 - Performance baseline (1000 nodes < 500ms)
 
 #### Integration Tests (11)
+
 - Full render → validate → materialize sequence
 - Provider initialization
 - State persistence
@@ -154,18 +164,19 @@ Comprehensive test suite with **179 tests** covering all edge cases, performance
 
 All performance tests include assertions to prevent regression:
 
-| Test | Threshold | Typical |
-|------|-----------|---------|
-| Renderer: 1000 shallow nodes | < 500ms | ~3ms |
-| Validator: 1000 nodes | < 200ms | ~50ms |
-| Validator: 6-level deep tree | < 100ms | ~1ms |
-| Provider: 1000 nodes | < 500ms | ~10ms |
+| Test                         | Threshold | Typical |
+| ---------------------------- | --------- | ------- |
+| Renderer: 1000 shallow nodes | < 500ms   | ~3ms    |
+| Validator: 1000 nodes        | < 200ms   | ~50ms   |
+| Validator: 6-level deep tree | < 100ms   | ~1ms    |
+| Provider: 1000 nodes         | < 500ms   | ~10ms   |
 
 ---
 
 ## Edge Case Categories Covered
 
 ### 1. **Error Resilience**
+
 - Component throws during render
 - Invalid JSX structures
 - Corrupted fiber nodes
@@ -173,12 +184,14 @@ All performance tests include assertions to prevent regression:
 - Malformed data structures
 
 ### 2. **Circular References**
+
 - Self-referential components
 - Circular CloudDOM children
 - Circular state objects
 - Circular props
 
 ### 3. **Boundary Values**
+
 - Null, undefined, false, 0, empty string
 - Empty arrays and objects
 - Very large objects (1000+ keys)
@@ -186,12 +199,14 @@ All performance tests include assertions to prevent regression:
 - Wide trees (100+ siblings)
 
 ### 4. **Concurrent Operations**
+
 - Multiple initialize calls
 - Concurrent state writes
 - Concurrent reads
 - Race conditions
 
 ### 5. **Non-JSON Values**
+
 - Functions
 - Symbols
 - Date objects
@@ -200,12 +215,14 @@ All performance tests include assertions to prevent regression:
 - Objects with getters
 
 ### 6. **Performance**
+
 - Large tree rendering
 - Large tree validation
 - Large CloudDOM materialization
 - Rapid state updates
 
 ### 7. **Integration**
+
 - Full pipeline (render → validate → materialize)
 - Cross-module data flow
 - Lifecycle hook ordering

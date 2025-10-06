@@ -30,7 +30,7 @@ export interface FiberNode {
   state?: Record<string, any>;
 
   /** Key for stable identity (optional) */
-  key?: string;
+  key?: string | number;
 }
 
 /**
@@ -71,7 +71,7 @@ export interface JSXElement {
 
 /**
  * ChangeSet represents the minimal set of operations to reconcile two CloudDOM states
- * 
+ *
  * REQ-O01: State Machine needs diff to detect changes
  * REQ-O04: Plan Command needs diff to show preview
  */
@@ -100,7 +100,7 @@ export interface ChangeSet {
 
 /**
  * DependencyGraph represents resource dependencies for deployment ordering
- * 
+ *
  * Maps node ID → array of dependency IDs
  */
 export interface DependencyGraph {

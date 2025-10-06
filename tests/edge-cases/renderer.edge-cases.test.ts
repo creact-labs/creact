@@ -91,10 +91,7 @@ describe('Renderer - Edge Cases', () => {
         return null;
       }
 
-      const jsx = createElement(Parent, {}, [
-        createElement(Child1, {}),
-        createElement(Child2, {}),
-      ]);
+      const jsx = createElement(Parent, {}, [createElement(Child1, {}), createElement(Child2, {})]);
 
       const fiber = renderer.render(jsx);
 
@@ -106,8 +103,20 @@ describe('Renderer - Edge Cases', () => {
     it('should handle component that returns array of elements', () => {
       function Parent() {
         return [
-          { type: function Child1() { return null; }, props: {}, key: 'c1' },
-          { type: function Child2() { return null; }, props: {}, key: 'c2' },
+          {
+            type: function Child1() {
+              return null;
+            },
+            props: {},
+            key: 'c1',
+          },
+          {
+            type: function Child2() {
+              return null;
+            },
+            props: {},
+            key: 'c2',
+          },
         ];
       }
 
@@ -198,12 +207,10 @@ describe('Renderer - Edge Cases', () => {
         return null;
       }
 
-      const jsx = createElement(
-        Parent,
-        {},
-        Promise.resolve({ type: Child, props: {} }),
-        { type: Child, props: {} }
-      );
+      const jsx = createElement(Parent, {}, Promise.resolve({ type: Child, props: {} }), {
+        type: Child,
+        props: {},
+      });
 
       const fiber = renderer.render(jsx);
 
@@ -399,12 +406,7 @@ describe('Renderer - Edge Cases', () => {
         return null;
       }
 
-      const jsx = createElement(
-        Parent,
-        {},
-        createElement(Service, {}),
-        createElement(Service, {})
-      );
+      const jsx = createElement(Parent, {}, createElement(Service, {}), createElement(Service, {}));
 
       const fiber = renderer.render(jsx);
 
@@ -476,8 +478,8 @@ describe('Renderer - Edge Cases', () => {
       }
 
       const maliciousProps = {
-        '__proto__': { polluted: true },
-        'constructor': { prototype: { polluted: true } },
+        __proto__: { polluted: true },
+        constructor: { prototype: { polluted: true } },
         normal: 'value',
       };
 

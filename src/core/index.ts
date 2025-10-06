@@ -6,18 +6,18 @@ export * from './Validator';
 export * from './CloudDOMBuilder';
 export * from './CReact';
 export { Reconciler } from './Reconciler';
-export { 
-  ReconciliationError, 
-  DeploymentError, 
+export {
+  ReconciliationError,
+  DeploymentError,
   DeploymentErrorData,
-  ValidationError, 
-  ProviderError 
+  ValidationError,
+  ProviderError,
 } from './errors';
-export { 
-  StateMachine, 
-  DeploymentStatus, 
+export {
+  StateMachine,
+  DeploymentStatus,
   DeploymentState,
   StateMachineEvent,
   StateMachineEventPayload,
-  AuditLogEntry
+  AuditLogEntry,
 } from './StateMachine';

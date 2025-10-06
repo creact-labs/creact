@@ -39,7 +39,9 @@ describe('Naming System', () => {
     });
 
     it('should throw error for null path', () => {
-      expect(() => generateResourceId(null as any)).toThrow('Cannot generate resource ID from empty path');
+      expect(() => generateResourceId(null as any)).toThrow(
+        'Cannot generate resource ID from empty path'
+      );
     });
   });
 
@@ -113,19 +115,12 @@ describe('Naming System', () => {
 
   describe('getNodeName', () => {
     it('should use key prop with highest priority', () => {
-      const name = getNodeName(
-        function MyComponent() {},
-        { name: 'custom-name' },
-        'my-key'
-      );
+      const name = getNodeName(function MyComponent() {}, { name: 'custom-name' }, 'my-key');
       expect(name).toBe('my-key');
     });
 
     it('should use name prop when key is not provided', () => {
-      const name = getNodeName(
-        function MyComponent() {},
-        { name: 'custom-name' }
-      );
+      const name = getNodeName(function MyComponent() {}, { name: 'custom-name' });
       expect(name).toBe('custom-name');
     });
 
@@ -135,7 +130,7 @@ describe('Naming System', () => {
     });
 
     it('should use displayName if available', () => {
-      const Component = function() {};
+      const Component = function () {};
       Component.displayName = 'CustomDisplay';
       const name = getNodeName(Component, {});
       expect(name).toBe('custom-display');
@@ -323,11 +318,7 @@ describe('Naming System', () => {
 
   describe('Integration: Path → ID → Path', () => {
     it('should round-trip simple paths', () => {
-      const paths = [
-        ['registry'],
-        ['registry', 'service'],
-        ['app', 'database', 'table'],
-      ];
+      const paths = [['registry'], ['registry', 'service'], ['app', 'database', 'table']];
 
       for (const path of paths) {
         const id = generateResourceId(path);
@@ -340,7 +331,7 @@ describe('Naming System', () => {
       const path = ['RegistryStack', 'ServiceAPI'];
       const id = generateResourceId(path);
       expect(id).toBe('registry-stack.service-api');
-      
+
       const parsed = parseResourceId(id);
       expect(parsed).toEqual(['registry-stack', 'service-api']);
     });

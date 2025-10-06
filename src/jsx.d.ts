@@ -1,6 +1,6 @@
 /**
  * JSX type definitions for CReact
- * 
+ *
  * This file provides TypeScript with the type information needed
  * to validate JSX syntax and component props.
  */
@@ -13,7 +13,7 @@ declare global {
      * The type returned by JSX expressions
      */
     interface Element extends JSXElement {}
-    
+
     /**
      * Intrinsic elements (HTML-like elements)
      * Empty for CReact - we only support component elements
@@ -21,7 +21,7 @@ declare global {
     interface IntrinsicElements {
       // CReact doesn't support HTML elements, only components
     }
-    
+
     /**
      * Defines which prop contains children
      * This allows TypeScript to understand the children prop
@@ -29,14 +29,14 @@ declare global {
     interface ElementChildrenAttribute {
       children: {};
     }
-    
+
     /**
      * Allows any component to accept a key prop
      */
     interface ElementAttributesProperty {
       props: {};
     }
-    
+
     /**
      * Base attributes available on all elements
      */
@@ -44,19 +44,18 @@ declare global {
       key?: string | number;
     }
   }
-  
 }
 
 /**
  * Type helper for component props with children
  */
-export interface PropsWithChildren<P = {}> {
+export interface PropsWithChildren {
   children?: JSX.Element | JSX.Element[];
 }
 
 /**
  * Type helper for functional components
  */
-export type FC<P = {}> = (props: P & PropsWithChildren<P>) => JSX.Element | null;
+export type FC<P = Record<string, unknown>> = (props: P & PropsWithChildren) => JSX.Element | null;
 
 export {};

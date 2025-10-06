@@ -119,9 +119,7 @@ describe('CloudDOMBuilder - Edge Cases', () => {
       b.children = [c];
       c.children = [a]; // Creates indirect cycle
 
-      expect(() => (builder as any).detectCircularRefs([a])).toThrow(
-        /Circular hierarchy detected/
-      );
+      expect(() => (builder as any).detectCircularRefs([a])).toThrow(/Circular hierarchy detected/);
     });
 
     it('should not throw for valid deep hierarchy without cycles', () => {

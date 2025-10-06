@@ -36,14 +36,23 @@ vi.mock('fs', async () => {
       readFile: vi.fn(async (path: any) => {
         const pathStr = path.toString();
         const content = mockFiles.get(pathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), {
+            code: 'ENOENT',
+          });
         return content;
       }),
       rename: vi.fn(async (oldPath: any, newPath: any) => {
         const oldPathStr = oldPath.toString();
         const newPathStr = newPath.toString();
         const content = mockFiles.get(oldPathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(
+            new Error(
+              `ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`
+            ),
+            { code: 'ENOENT' }
+          );
         mockFiles.set(newPathStr, content);
         mockFiles.delete(oldPathStr);
         return undefined;
@@ -66,10 +75,10 @@ describe('CReact - Performance Tests', () => {
     // Initialize mock filesystem state
     mockFiles = new Map();
     mockDirs = new Set();
-    
+
     cloudProvider = new DummyCloudProvider();
     backendProvider = new DummyBackendProvider();
-    
+
     config = {
       cloudProvider,
       backendProvider,
@@ -84,7 +93,7 @@ describe('CReact - Performance Tests', () => {
     it('should build small stack (<10 resources) in under 2 seconds', async () => {
       // REQ-NF-01.1: Build small stacks in <2s
       const creact = new CReact(config);
-      
+
       // Create CloudDOM with 5 resources
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 5 }, (_, i) => ({
         id: `resource-${i}`,
@@ -95,7 +104,9 @@ describe('CReact - Performance Tests', () => {
       }));
 
       const jsx: JSXElement = {
-        type: function Stack() { return null; },
+        type: function Stack() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -110,9 +121,11 @@ describe('CReact - Performance Tests', () => {
 
     it('should build medium stack (50 resources) efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const jsx: JSXElement = {
-        type: function Stack() { return null; },
+        type: function Stack() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -122,16 +135,18 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete in reasonable time (< 5s for 50 resources)
       expect(duration).toBeLessThan(5000);
     });
 
     it('should build large stack (100 resources) efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const jsx: JSXElement = {
-        type: function Stack() { return null; },
+        type: function Stack() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -141,7 +156,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete in reasonable time (< 10s for 100 resources)
       expect(duration).toBeLessThan(10000);
     });
@@ -150,7 +165,7 @@ describe('CReact - Performance Tests', () => {
   describe('Deploy Performance', () => {
     it('should deploy small stack (<10 resources) efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 5 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -164,14 +179,14 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete quickly (< 1s for dummy provider)
       expect(duration).toBeLessThan(1000);
     });
 
     it('should deploy medium stack (50 resources) efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 50 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -185,14 +200,14 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete in reasonable time (< 3s for dummy provider)
       expect(duration).toBeLessThan(3000);
     });
 
     it('should deploy large stack (100 resources) efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 100 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -206,7 +221,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete in reasonable time (< 5s for dummy provider)
       expect(duration).toBeLessThan(5000);
     });
@@ -216,7 +231,7 @@ describe('CReact - Performance Tests', () => {
     it('should compare CloudDOM trees in under 1 second', async () => {
       // REQ-NF-01.2: Compare operations in <1s
       const creact = new CReact(config);
-      
+
       const previous: CloudDOMNode[] = Array.from({ length: 10 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -243,7 +258,7 @@ describe('CReact - Performance Tests', () => {
 
     it('should compare large CloudDOM trees efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const previous: CloudDOMNode[] = Array.from({ length: 100 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -265,7 +280,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should complete in reasonable time (< 2s for 100 resources)
       expect(duration).toBeLessThan(2000);
     });
@@ -274,7 +289,7 @@ describe('CReact - Performance Tests', () => {
   describe('Idempotency Check Performance', () => {
     it('should quickly detect no changes (idempotent check)', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 10 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -292,7 +307,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Idempotency check should be very fast (< 100ms)
       expect(duration).toBeLessThan(100);
     });
@@ -301,7 +316,7 @@ describe('CReact - Performance Tests', () => {
   describe('Output Extraction Performance', () => {
     it('should extract outputs from large CloudDOM efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 100 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -320,7 +335,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should handle 100 resources with 3 outputs each efficiently
       expect(duration).toBeLessThan(3000);
 
@@ -333,7 +348,7 @@ describe('CReact - Performance Tests', () => {
 
     it('should extract outputs from deeply nested CloudDOM efficiently', async () => {
       const creact = new CReact(config);
-      
+
       // Create deeply nested structure (10 levels)
       let current: CloudDOMNode = {
         id: 'level-10',
@@ -363,7 +378,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // Should handle deep nesting efficiently
       expect(duration).toBeLessThan(1000);
 
@@ -378,9 +393,11 @@ describe('CReact - Performance Tests', () => {
   describe('File I/O Performance', () => {
     it('should persist CloudDOM to disk efficiently', async () => {
       const creact = new CReact(config);
-      
+
       const jsx: JSXElement = {
-        type: function Stack() { return null; },
+        type: function Stack() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -391,14 +408,14 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // File I/O should be fast (< 100ms)
       expect(duration).toBeLessThan(100);
     });
 
     it('should handle large CloudDOM JSON serialization efficiently', async () => {
       const creact = new CReact(config);
-      
+
       // Create large CloudDOM
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 100 }, (_, i) => ({
         id: `resource-${i}`,
@@ -427,7 +444,7 @@ describe('CReact - Performance Tests', () => {
       const endTime = performance.now();
 
       const duration = endTime - startTime;
-      
+
       // JSON serialization should be fast (< 100ms)
       expect(duration).toBeLessThan(100);
       expect(json.length).toBeGreaterThan(0);
@@ -437,9 +454,11 @@ describe('CReact - Performance Tests', () => {
   describe('Memory Efficiency', () => {
     it('should not leak memory with repeated builds', async () => {
       const creact = new CReact(config);
-      
+
       const jsx: JSXElement = {
-        type: function Stack() { return null; },
+        type: function Stack() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -455,7 +474,7 @@ describe('CReact - Performance Tests', () => {
 
     it('should not leak memory with repeated deploys', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 10 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],

@@ -36,14 +36,23 @@ vi.mock('fs', async () => {
       readFile: vi.fn(async (path: any) => {
         const pathStr = path.toString();
         const content = mockFiles.get(pathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), {
+            code: 'ENOENT',
+          });
         return content;
       }),
       rename: vi.fn(async (oldPath: any, newPath: any) => {
         const oldPathStr = oldPath.toString();
         const newPathStr = newPath.toString();
         const content = mockFiles.get(oldPathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(
+            new Error(
+              `ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`
+            ),
+            { code: 'ENOENT' }
+          );
         mockFiles.set(newPathStr, content);
         mockFiles.delete(oldPathStr);
         return undefined;
@@ -66,10 +75,10 @@ describe('CReact - Unit Tests', () => {
     // Initialize mock filesystem state
     mockFiles = new Map();
     mockDirs = new Set();
-    
+
     cloudProvider = new DummyCloudProvider();
     backendProvider = new DummyBackendProvider();
-    
+
     config = {
       cloudProvider,
       backendProvider,
@@ -83,7 +92,7 @@ describe('CReact - Unit Tests', () => {
   describe('Constructor', () => {
     it('should instantiate with valid config', () => {
       const creact = new CReact(config);
-      
+
       expect(creact).toBeDefined();
       expect(creact.getCloudProvider()).toBe(cloudProvider);
       expect(creact.getBackendProvider()).toBe(backendProvider);
@@ -94,7 +103,7 @@ describe('CReact - Unit Tests', () => {
         ...config,
         migrationMap: { 'old.id': 'new.id' },
       };
-      
+
       const creact = new CReact(configWithMigration);
       expect(creact).toBeDefined();
     });
@@ -104,14 +113,14 @@ describe('CReact - Unit Tests', () => {
         ...config,
         asyncTimeout: 300000, // 5 minutes
       };
-      
+
       const creact = new CReact(configWithTimeout);
       expect(creact).toBeDefined();
     });
 
     it('should instantiate internal components (Renderer, Validator, CloudDOMBuilder)', () => {
       const creact = new CReact(config);
-      
+
       // Verify components are instantiated (they're private but we can check the instance exists)
       expect(creact).toBeDefined();
       expect(creact.getCloudProvider()).toBe(cloudProvider);
@@ -123,7 +132,9 @@ describe('CReact - Unit Tests', () => {
     it('should return empty CloudDOM for simple JSX', async () => {
       const creact = new CReact(config);
       const jsx: JSXElement = {
-        type: function Root() { return null; },
+        type: function Root() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -178,10 +189,7 @@ describe('CReact - Unit Tests', () => {
 
       await creact.deploy(cloudDOM, 'custom-stack');
 
-      expect(saveStateSpy).toHaveBeenCalledWith(
-        'custom-stack',
-        expect.any(Object)
-      );
+      expect(saveStateSpy).toHaveBeenCalledWith('custom-stack', expect.any(Object));
 
       saveStateSpy.mockRestore();
     });
@@ -271,7 +279,7 @@ describe('CReact - Unit Tests', () => {
   describe('getCloudProvider() method', () => {
     it('should return injected cloud provider', () => {
       const creact = new CReact(config);
-      
+
       expect(creact.getCloudProvider()).toBe(cloudProvider);
     });
   });
@@ -279,7 +287,7 @@ describe('CReact - Unit Tests', () => {
   describe('getBackendProvider() method', () => {
     it('should return injected backend provider', () => {
       const creact = new CReact(config);
-      
+
       expect(creact.getBackendProvider()).toBe(backendProvider);
     });
   });

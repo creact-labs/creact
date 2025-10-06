@@ -7,6 +7,7 @@
 Modern infrastructure management involves multiple specialized tools. Terraform manages cloud resources, Helm deploys Kubernetes charts, Docker Compose orchestrates containers, and Pulumi provides programmatic infrastructure definitions. Each tool maintains its own state model and execution semantics.
 
 This separation creates integration challenges:
+
 - Outputs from one tool must be manually passed to another
 - Multiple state files require separate management
 - Debugging requires correlating information across different systems
@@ -23,6 +24,7 @@ CReact applies declarative programming concepts from UI frameworks to infrastruc
 **CloudDOM** provides a unified representation model for infrastructure resources. This typed, deterministic structure represents cloud resources, containers, databases, APIs, and other infrastructure components as nodes in a tree. Resources are declared rather than imperatively created.
 
 State reconciliation computes differences between desired and current states, then applies minimal changes. This approach enables:
+
 1. **Deterministic diffing** - Identical inputs produce identical outputs
 2. **Dependency injection** - Providers integrate without tight coupling
 3. **Compositional semantics** - Resources are represented as graph nodes
@@ -78,12 +80,14 @@ CReact's runtime is platform-neutral — it can execute locally, in CI/CD enviro
 ## V. Scope
 
 **CReact provides:**
+
 - A declarative runtime for infrastructure and applications
 - A composition layer for orchestrating existing tools
 - A reconciliation engine for computing minimal changes
 - A state machine with transactional guarantees
 
 **CReact does not:**
+
 - Replace Terraform, Helm, or Pulumi (it integrates with them)
 - Replace React or Next.js (it deploys them)
 - Abstract away cloud-specific details (it orchestrates them declaratively)
@@ -110,9 +114,15 @@ import { DependencyContainer } from './core/DependencyContainer';
 import { ICloudProvider } from './providers/ICloudProvider';
 
 class CustomCloudProvider implements ICloudProvider {
-  async create(node: CloudDOMNode): Promise<void> { /* ... */ }
-  async update(node: CloudDOMNode): Promise<void> { /* ... */ }
-  async delete(node: CloudDOMNode): Promise<void> { /* ... */ }
+  async create(node: CloudDOMNode): Promise<void> {
+    /* ... */
+  }
+  async update(node: CloudDOMNode): Promise<void> {
+    /* ... */
+  }
+  async delete(node: CloudDOMNode): Promise<void> {
+    /* ... */
+  }
 }
 
 // Register provider
@@ -128,6 +138,7 @@ A single CloudDOM tree can include resources from multiple providers (AWS Lambda
 ### State Synchronization API
 
 CloudDOM state can be consumed by external systems through multiple protocols:
+
 - WebSocket for real-time subscriptions
 - HTTP for polling
 - gRPC for CLI tools
@@ -139,6 +150,7 @@ The protocol uses language-agnostic JSON with versioned schemas. This enables fr
 ## VII. Use Cases
 
 ### Monorepo Deployments
+
 ```tsx
 function System() {
   return (
@@ -150,29 +162,36 @@ function System() {
   );
 }
 ```
+
 Multiple applications can be deployed together with automatic output propagation. Backend URLs are automatically available to frontend components, and worker services can reference backend endpoints without manual configuration.
 
 ### Ephemeral Environments
+
 Preview branches can provision complete environments including database, API, frontend, and monitoring. When a pull request is merged, the associated environment is automatically deprovisioned.
 
 ### Integrated Infrastructure Declarations
+
 ```tsx
 function NextApp() {
   const db = useInstance(PostgresDatabase, { key: 'db' });
   const api = useInstance(AwsLambda, { key: 'api', env: { DB_URL: db.url } });
-  
+
   return <NextJsApp env={{ API_URL: api.url }} />;
 }
 ```
+
 Applications can declare their infrastructure dependencies within the same codebase, eliminating the need for separate infrastructure repositories.
 
 ### Multi-Cloud Orchestration
+
 Different resource types (AWS Lambda, Docker containers, Kubernetes jobs, local processes) can be managed within a single declarative tree using consistent semantics and deterministic diffing.
 
 ### Composable Infrastructure
+
 Infrastructure components can be nested and composed. For example, a deployment pipeline can be implemented as a CReact application that deploys other CReact applications to staging and production environments.
 
 ### Programmatic Infrastructure Management
+
 External systems can observe CloudDOM state, detect changes, and propose modifications through the standard API.
 
 ### Applied System Example: Data Processing Pipeline
@@ -184,27 +203,22 @@ function MLPlatform() {
   const ingestion = useInstance(DockerContainer, {
     key: 'ingestion',
     image: 'data-ingestion:latest',
-    ports: [8080]
+    ports: [8080],
   });
-  
+
   const preprocessing = useInstance(KubernetesJob, {
     key: 'preprocessing',
     image: 'preprocessing:latest',
-    env: { INGESTION_URL: ingestion.url }
+    env: { INGESTION_URL: ingestion.url },
   });
-  
+
   const modelApi = useInstance(AwsLambda, {
     key: 'model-api',
     handler: 'index.handler',
-    env: { DATA_BUCKET: preprocessing.outputBucket }
+    env: { DATA_BUCKET: preprocessing.outputBucket },
   });
-  
-  return (
-    <NextJsApp 
-      source="./dashboard"
-      env={{ API_URL: modelApi.url }}
-    />
-  );
+
+  return <NextJsApp source="./dashboard" env={{ API_URL: modelApi.url }} />;
 }
 ```
 
@@ -258,6 +272,7 @@ Incremental updates include change validation to prevent destructive operations 
 ## X. Summary
 
 CReact applies declarative programming patterns to infrastructure management. The system provides:
+
 - Declarative resource definitions
 - Composable infrastructure components
 - Deterministic state reconciliation
@@ -267,4 +282,4 @@ The approach integrates existing tools through a unified composition layer rathe
 
 ---
 
-*Version 1.0 — October 2025*
+_Version 1.0 — October 2025_

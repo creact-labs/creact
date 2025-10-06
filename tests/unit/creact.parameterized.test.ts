@@ -41,7 +41,7 @@ describe('CReact - Parameterized Tests', () => {
     testCases.forEach(({ size, description }) => {
       it(`should deploy ${description} (${size} resources)`, async () => {
         const creact = new CReact(config);
-        
+
         const cloudDOM: CloudDOMNode[] = Array.from({ length: size }, (_, i) => ({
           id: `resource-${i}`,
           path: [`resource-${i}`],
@@ -76,7 +76,7 @@ describe('CReact - Parameterized Tests', () => {
     testCases.forEach(({ depth, description }) => {
       it(`should deploy ${description} (depth ${depth})`, async () => {
         const creact = new CReact(config);
-        
+
         // Create nested structure
         let current: CloudDOMNode = {
           id: `level-${depth}`,
@@ -140,7 +140,7 @@ describe('CReact - Parameterized Tests', () => {
     testCases.forEach(({ outputs: nodeOutputs, description, expectedCount }) => {
       it(`should handle ${description}`, async () => {
         const creact = new CReact(config);
-        
+
         const cloudDOM: CloudDOMNode[] = [
           {
             id: 'resource',
@@ -191,7 +191,7 @@ describe('CReact - Parameterized Tests', () => {
     testCases.forEach(({ props, description }) => {
       it(`should handle ${description}`, async () => {
         const creact = new CReact(config);
-        
+
         const cloudDOM: CloudDOMNode[] = [
           {
             id: 'resource',
@@ -224,7 +224,7 @@ describe('CReact - Parameterized Tests', () => {
     testCases.forEach(({ stackName, description }) => {
       it(`should deploy to ${description} (${stackName})`, async () => {
         const creact = new CReact(config);
-        
+
         const cloudDOM: CloudDOMNode[] = [
           {
             id: 'resource',
@@ -247,7 +247,7 @@ describe('CReact - Parameterized Tests', () => {
   describe('Idempotency with various change scenarios', () => {
     it('should skip deployment when CloudDOM is identical', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = [
         {
           id: 'resource',
@@ -266,16 +266,14 @@ describe('CReact - Parameterized Tests', () => {
       await creact.deploy(cloudDOM, 'test-stack');
 
       // Should show no changes (idempotent)
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('No changes detected')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('No changes detected'));
 
       consoleSpy.mockRestore();
     });
 
     it('should detect when new resources are added', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM1: CloudDOMNode[] = [
         {
           id: 'resource1',
@@ -305,16 +303,14 @@ describe('CReact - Parameterized Tests', () => {
       await creact.deploy(cloudDOM2, 'test-stack');
 
       // Should show 1 create
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('1 creates')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('1 creates'));
 
       consoleSpy.mockRestore();
     });
 
     it('should detect when resources are removed', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM1: CloudDOMNode[] = [
         {
           id: 'resource1',
@@ -342,9 +338,7 @@ describe('CReact - Parameterized Tests', () => {
       await creact.deploy(cloudDOM2, 'test-stack');
 
       // Should show 1 delete
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('1 deletes')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('1 deletes'));
 
       consoleSpy.mockRestore();
     });
@@ -384,7 +378,7 @@ describe('CReact - Parameterized Tests', () => {
       it(`should work with ${description}`, async () => {
         const testConfig = configFn(config);
         const creact = new CReact(testConfig);
-        
+
         const cloudDOM: CloudDOMNode[] = [
           {
             id: 'resource',

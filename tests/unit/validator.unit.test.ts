@@ -57,10 +57,7 @@ describe('Validator - Core Functionality', () => {
         path: ['service'],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop 'image'/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop 'image'/);
     });
 
     it('should fail when required prop is undefined', () => {
@@ -75,10 +72,7 @@ describe('Validator - Core Functionality', () => {
         path: ['service'],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop 'name'/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop 'name'/);
     });
 
     it('should include component stack trace in error', () => {
@@ -242,10 +236,7 @@ describe('Validator - Core Functionality', () => {
         children: [childNode],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Circular dependency detected/
-      );
+      expectValidationError(() => validator.validate(fiber), /Circular dependency detected/);
     });
 
     it('should allow same subpath in different sibling branches', () => {
@@ -438,10 +429,7 @@ describe('Validator - Core Functionality', () => {
       });
 
       // Should fail on first error
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop 'name'/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop 'name'/);
     });
   });
 
@@ -464,10 +452,7 @@ describe('Validator - Core Functionality', () => {
         path: ['service'],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop 'image'/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop 'image'/);
     });
 
     it('should handle PropTypes with conditional requirements', () => {

@@ -51,10 +51,7 @@ describe('Validator - Edge Cases', () => {
         ],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop 'password'/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop 'password'/);
     });
 
     it('should report first missing prop when multiple are missing', () => {
@@ -71,10 +68,7 @@ describe('Validator - Edge Cases', () => {
       });
 
       // Should fail on first missing prop
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Missing required prop/
-      );
+      expectValidationError(() => validator.validate(fiber), /Missing required prop/);
     });
   });
 
@@ -158,10 +152,7 @@ describe('Validator - Edge Cases', () => {
       });
 
       // Should detect duplicate ID
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Duplicate resource ID/
-      );
+      expectValidationError(() => validator.validate(fiber), /Duplicate resource ID/);
     });
   });
 
@@ -181,10 +172,7 @@ describe('Validator - Edge Cases', () => {
         children: [selfRefNode],
       });
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Circular dependency detected/
-      );
+      expectValidationError(() => validator.validate(fiber), /Circular dependency detected/);
     });
 
     it('should detect circular dependency through cloudDOMNode references', () => {
@@ -463,10 +451,7 @@ describe('Validator - Edge Cases', () => {
       });
 
       // In Node.js, these are treated as the same string (duplicate detected)
-      expectValidationError(
-        () => validator.validate(fiber),
-        /Duplicate resource ID/
-      );
+      expectValidationError(() => validator.validate(fiber), /Duplicate resource ID/);
     });
 
     it('should handle resource ID exceeding 256 characters', () => {

@@ -122,7 +122,7 @@ describe('useInstance Hook - React-like API', () => {
       function MultiDatabase() {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
-        
+
         expect(db1.id).toBe('multi-database.rdsinstance');
         expect(db2.id).toBe('multi-database.rdsinstance-1');
         return null;
@@ -137,7 +137,7 @@ describe('useInstance Hook - React-like API', () => {
         const svc1 = useInstance(AppRunnerService, { name: 'api' });
         const svc2 = useInstance(AppRunnerService, { name: 'worker' });
         const svc3 = useInstance(AppRunnerService, { name: 'scheduler' });
-        
+
         expect(svc1.id).toBe('multi-service.app-runner-service');
         expect(svc2.id).toBe('multi-service.app-runner-service-1');
         expect(svc3.id).toBe('multi-service.app-runner-service-2');
@@ -152,7 +152,7 @@ describe('useInstance Hook - React-like API', () => {
       function MultiDatabase() {
         const primary = useInstance(RDSInstance, { key: 'primary', name: 'db-primary' });
         const replica = useInstance(RDSInstance, { key: 'replica', name: 'db-replica' });
-        
+
         expect(primary.id).toBe('multi-database.primary');
         expect(replica.id).toBe('multi-database.replica');
         return null;
@@ -167,7 +167,7 @@ describe('useInstance Hook - React-like API', () => {
         const primary = useInstance(RDSInstance, { key: 'primary', name: 'db-primary' });
         const auto1 = useInstance(RDSInstance, { name: 'db-auto-1' });
         const auto2 = useInstance(RDSInstance, { name: 'db-auto-2' });
-        
+
         expect(primary.id).toBe('mixed-database.primary');
         expect(auto1.id).toBe('mixed-database.rdsinstance');
         expect(auto2.id).toBe('mixed-database.rdsinstance-1');
@@ -183,7 +183,7 @@ describe('useInstance Hook - React-like API', () => {
     it('should create node with correct structure', () => {
       function Registry() {
         const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
-        
+
         expect(repo).toMatchObject({
           id: 'registry.repo',
           path: ['registry', 'repo'],
@@ -215,7 +215,7 @@ describe('useInstance Hook - React-like API', () => {
       function Registry() {
         const originalProps = { key: 'repo', name: 'my-app', tags: { env: 'prod' } };
         const repo = useInstance(EcrRepository, originalProps);
-        
+
         expect(repo.props).toEqual({ name: 'my-app', tags: { env: 'prod' } });
         expect(repo.props.key).toBeUndefined();
         return null;
@@ -251,7 +251,7 @@ describe('useInstance Hook - React-like API', () => {
             allowedMethods: ['GET', 'POST'],
           },
         });
-        
+
         expect(bucket.props.lifecycle).toBeDefined();
         expect(bucket.props.cors).toBeDefined();
         return null;
@@ -312,10 +312,10 @@ describe('useInstance Hook - React-like API', () => {
 
       const element = <Registry />;
       const fiber = renderer.render(element);
-      
+
       expect(fiber.cloudDOMNodes).toBeDefined();
-      expect(fiber.cloudDOMNodes.length).toBe(1);
-      expect(fiber.cloudDOMNodes[0].id).toBe('registry.repo');
+      expect(fiber.cloudDOMNodes?.length).toBe(1);
+      expect(fiber.cloudDOMNodes?.[0].id).toBe('registry.repo');
     });
 
     it('should attach multiple nodes to same Fiber', () => {
@@ -328,8 +328,8 @@ describe('useInstance Hook - React-like API', () => {
 
       const element = <Infrastructure />;
       const fiber = renderer.render(element);
-      
-      expect(fiber.cloudDOMNodes.length).toBe(3);
+
+      expect(fiber.cloudDOMNodes?.length).toBe(3);
     });
   });
 
@@ -344,7 +344,7 @@ describe('useInstance Hook - React-like API', () => {
             BUCKET_NAME: bucket.id,
           },
         });
-        
+
         expect(service.props.environment.BUCKET_NAME).toBe('infrastructure.assets');
         return null;
       }
@@ -375,7 +375,7 @@ describe('useInstance Hook - React-like API', () => {
         const bucket = useInstance(S3Bucket, { key: 'assets', name: 'assets' });
         const db = useInstance(RDSInstance, { key: 'db', name: 'app-db' });
         const service = useInstance(AppRunnerService, { key: 'api', name: 'api' });
-        
+
         expect(repo.construct).toBe(EcrRepository);
         expect(bucket.construct).toBe(S3Bucket);
         expect(db.construct).toBe(RDSInstance);
@@ -393,7 +393,7 @@ describe('useInstance Hook - React-like API', () => {
       function Component1() {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
-        
+
         expect(db1.id).toBe('app.anonymous.component-1.rdsinstance');
         expect(db2.id).toBe('app.anonymous.component-1.rdsinstance-1');
         return null;
@@ -402,7 +402,7 @@ describe('useInstance Hook - React-like API', () => {
       function Component2() {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
-        
+
         // Counts should reset for new component
         expect(db1.id).toBe('app.anonymous.component-2.rdsinstance');
         expect(db2.id).toBe('app.anonymous.component-2.rdsinstance-1');

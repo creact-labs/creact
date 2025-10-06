@@ -6,15 +6,15 @@ import { ICloudProvider, CloudDOMNode } from './ICloudProvider';
 /**
  * DummyCloudProvider is a POC implementation that logs CloudDOM structure
  * instead of deploying actual infrastructure.
- * 
+ *
  * Use cases:
  * - POC demonstrations
  * - Testing without cloud credentials
  * - Development and debugging
  * - CI/CD validation
- * 
+ *
  * This is a standalone implementation, NOT a base class.
- * 
+ *
  * @example
  * ```typescript
  * const provider = new DummyCloudProvider();
@@ -45,14 +45,13 @@ export class DummyCloudProvider implements ICloudProvider {
   /**
    * Materialize CloudDOM by logging structure with indentation
    * REQ-04: Core provider interface implementation
-   * 
+   *
    * @param cloudDOM - Array of CloudDOM nodes to materialize
-   * @param scope - Optional provider-specific scope (unused in dummy)
    */
-  materialize(cloudDOM: CloudDOMNode[], scope?: any): void {
+  materialize(cloudDOM: CloudDOMNode[]): void {
     console.debug('\n=== DummyCloudProvider: Materializing CloudDOM ===\n');
 
-    cloudDOM.forEach(node => {
+    cloudDOM.forEach((node) => {
       this.logNode(node, 0);
     });
 
@@ -99,7 +98,7 @@ export class DummyCloudProvider implements ICloudProvider {
 
     // Log children recursively
     if (node.children && node.children.length > 0) {
-      node.children.forEach(child => {
+      node.children.forEach((child) => {
         this.logNode(child, depth + 1, visited);
       });
     }
@@ -111,7 +110,7 @@ export class DummyCloudProvider implements ICloudProvider {
   private safeStringify(obj: any, indent?: number): string {
     try {
       return JSON.stringify(obj, this.getCircularReplacer(), indent);
-    } catch (error) {
+    } catch {
       return '[Unable to stringify: contains circular references or non-JSON values]';
     }
   }

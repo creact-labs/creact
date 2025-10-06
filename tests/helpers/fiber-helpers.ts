@@ -57,7 +57,10 @@ export function createDeepFiberTree(depth: number, basePath: string[] = ['root']
 /**
  * Create a Fiber tree with many siblings
  */
-export function createWideFiberTree(siblingCount: number, basePath: string[] = ['parent']): FiberNode {
+export function createWideFiberTree(
+  siblingCount: number,
+  basePath: string[] = ['parent']
+): FiberNode {
   const children = Array.from({ length: siblingCount }, (_, i) =>
     createMockFiber({
       type: function Child() {},

@@ -6,10 +6,7 @@ import { ValidationError } from '@/core/Validator';
 /**
  * Assert that a function throws a ValidationError with expected message
  */
-export function expectValidationError(
-  fn: () => void,
-  expectedMessage?: string | RegExp
-) {
+export function expectValidationError(fn: () => void, expectedMessage?: string | RegExp) {
   try {
     fn();
     expect.fail('Expected ValidationError to be thrown');
@@ -64,21 +61,14 @@ export async function expectAsyncNoThrow(fn: () => Promise<void>) {
 /**
  * Assert that a ValidationError has expected component stack
  */
-export function expectComponentStack(
-  error: ValidationError,
-  expectedComponents: string[]
-) {
+export function expectComponentStack(error: ValidationError, expectedComponents: string[]) {
   expect(error.componentStack).toEqual(expectedComponents);
 }
 
 /**
  * Assert that a ValidationError has expected file info
  */
-export function expectFileInfo(
-  error: ValidationError,
-  fileName: string,
-  lineNumber?: number
-) {
+export function expectFileInfo(error: ValidationError, fileName: string, lineNumber?: number) {
   expect(error.filePath).toBe(fileName);
   if (lineNumber !== undefined) {
     expect(error.lineNumber).toBe(lineNumber);

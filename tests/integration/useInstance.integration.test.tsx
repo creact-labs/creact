@@ -105,8 +105,8 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM).toHaveLength(2);
-      expect(cloudDOM.find(n => n.id === 'my-stack.bucket')).toBeDefined();
-      expect(cloudDOM.find(n => n.id === 'my-stack.function')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.bucket')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.function')).toBeDefined();
     });
 
     it('should work with multiple resources of same type using auto-IDs', async () => {
@@ -154,8 +154,8 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM).toHaveLength(2);
-      expect(cloudDOM.find(n => n.id === 'my-stack.anonymous.storage.bucket')).toBeDefined();
-      expect(cloudDOM.find(n => n.id === 'my-stack.anonymous.compute.function')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.anonymous.storage.bucket')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.anonymous.compute.function')).toBeDefined();
     });
 
     it('should work with deeply nested components', async () => {
@@ -209,7 +209,7 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const element = <MyStack />;
       const cloudDOM = await creact.build(element);
 
-      const lambda = cloudDOM.find(n => n.id === 'my-stack.function');
+      const lambda = cloudDOM.find((n) => n.id === 'my-stack.function');
       expect(lambda).toBeDefined();
       expect(lambda!.props.environment.BUCKET_ID).toBe('my-stack.bucket');
     });
@@ -248,7 +248,7 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const element = <MyStack />;
       const cloudDOM = await creact.build(element);
 
-      const lambda = cloudDOM.find(n => n.id.includes('function'));
+      const lambda = cloudDOM.find((n) => n.id.includes('function'));
       expect(lambda).toBeDefined();
       expect(lambda!.props.environment.BUCKET_ID).toContain('bucket');
     });
@@ -355,8 +355,8 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM).toHaveLength(2);
-      expect(cloudDOM.find(n => n.id === 'app.website.static')).toBeDefined();
-      expect(cloudDOM.find(n => n.id === 'app.website.assets')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'app.website.static')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'app.website.assets')).toBeDefined();
     });
 
     it('should work with conditional rendering', async () => {
@@ -384,14 +384,14 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOMWithDb = await creact.build(withDb);
 
       expect(cloudDOMWithDb).toHaveLength(2);
-      expect(cloudDOMWithDb.find(n => n.id === 'my-stack.bucket')).toBeDefined();
-      expect(cloudDOMWithDb.find(n => n.id === 'my-stack.db')).toBeDefined();
+      expect(cloudDOMWithDb.find((n) => n.id === 'my-stack.bucket')).toBeDefined();
+      expect(cloudDOMWithDb.find((n) => n.id === 'my-stack.db')).toBeDefined();
     });
 
     it('should work with array mapping', async () => {
       function MyStack() {
         const services = ['api', 'worker', 'scheduler'];
-        services.forEach(name => {
+        services.forEach((name) => {
           useInstance(LambdaFunction, {
             key: name,
             functionName: `${name}-function`,
@@ -404,9 +404,9 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM).toHaveLength(3);
-      expect(cloudDOM.find(n => n.id === 'my-stack.api')).toBeDefined();
-      expect(cloudDOM.find(n => n.id === 'my-stack.worker')).toBeDefined();
-      expect(cloudDOM.find(n => n.id === 'my-stack.scheduler')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.api')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.worker')).toBeDefined();
+      expect(cloudDOM.find((n) => n.id === 'my-stack.scheduler')).toBeDefined();
     });
   });
 
@@ -454,10 +454,10 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM.length).toBeGreaterThanOrEqual(4);
-      expect(cloudDOM.find(n => n.id.includes('static'))).toBeDefined();
-      expect(cloudDOM.find(n => n.id.includes('assets'))).toBeDefined();
-      expect(cloudDOM.find(n => n.id.includes('handler'))).toBeDefined();
-      expect(cloudDOM.find(n => n.id.includes('primary'))).toBeDefined();
+      expect(cloudDOM.find((n) => n.id.includes('static'))).toBeDefined();
+      expect(cloudDOM.find((n) => n.id.includes('assets'))).toBeDefined();
+      expect(cloudDOM.find((n) => n.id.includes('handler'))).toBeDefined();
+      expect(cloudDOM.find((n) => n.id.includes('primary'))).toBeDefined();
     });
 
     it('should handle microservices architecture', async () => {
@@ -491,8 +491,8 @@ describe('useInstance Hook - Integration Tests (React-like API)', () => {
       const cloudDOM = await creact.build(element);
 
       expect(cloudDOM.length).toBeGreaterThanOrEqual(6);
-      expect(cloudDOM.filter(n => n.construct === EcrRepository)).toHaveLength(3);
-      expect(cloudDOM.filter(n => n.construct === LambdaFunction)).toHaveLength(3);
+      expect(cloudDOM.filter((n) => n.construct === EcrRepository)).toHaveLength(3);
+      expect(cloudDOM.filter((n) => n.construct === LambdaFunction)).toHaveLength(3);
     });
   });
 });

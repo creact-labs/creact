@@ -7,7 +7,7 @@ import {
   DeploymentState,
   DeploymentStatus,
   StateMachineEvent,
-  AuditLogEntry
+  AuditLogEntry,
 } from '../../src/core/StateMachine';
 import { DeploymentError } from '../../src/core/errors';
 import { ChangeSet, CloudDOMNode } from '../../src/core/types';
@@ -22,7 +22,7 @@ class MockBackendProvider implements IBackendProvider<DeploymentState> {
   private auditLogs = new Map<string, AuditLogEntry[]>();
   private snapshots = new Map<string, DeploymentState[]>();
 
-  async initialize(): Promise<void> { }
+  async initialize(): Promise<void> {}
 
   async getState(stackName: string): Promise<DeploymentState | undefined> {
     return this.states.get(stackName);
@@ -38,9 +38,7 @@ class MockBackendProvider implements IBackendProvider<DeploymentState> {
     if (existingLock) {
       const now = Date.now();
       if (now - existingLock.acquiredAt < existingLock.ttl * 1000) {
-        throw new Error(
-          `Stack "${stackName}" is locked by ${existingLock.holder}`
-        );
+        throw new Error(`Stack "${stackName}" is locked by ${existingLock.holder}`);
       }
     }
 
@@ -51,7 +49,9 @@ class MockBackendProvider implements IBackendProvider<DeploymentState> {
     this.locks.delete(stackName);
   }
 
-  async checkLock(stackName: string): Promise<{ holder: string; acquiredAt: number; ttl: number } | null> {
+  async checkLock(
+    stackName: string
+  ): Promise<{ holder: string; acquiredAt: number; ttl: number } | null> {
     return this.locks.get(stackName) || null;
   }
 
@@ -243,9 +243,7 @@ describe('StateMachine', () => {
     it('should fail if state is not APPLYING', async () => {
       await stateMachine.completeDeployment(stackName);
 
-      await expect(
-        stateMachine.updateCheckpoint(stackName, 1)
-      ).rejects.toThrow(DeploymentError);
+      await expect(stateMachine.updateCheckpoint(stackName, 1)).rejects.toThrow(DeploymentError);
     });
 
     it('should append audit log entry', async () => {
@@ -301,9 +299,7 @@ describe('StateMachine', () => {
     it('should fail if state is not APPLYING', async () => {
       await stateMachine.completeDeployment(stackName);
 
-      await expect(
-        stateMachine.completeDeployment(stackName)
-      ).rejects.toThrow(DeploymentError);
+      await expect(stateMachine.completeDeployment(stackName)).rejects.toThrow(DeploymentError);
     });
   });
 
@@ -350,7 +346,7 @@ describe('StateMachine', () => {
       await stateMachine.failDeployment(stackName, error);
 
       const auditLogs = backendProvider.getAuditLogs(stackName);
-      const failLog = auditLogs.find(log => log.action === 'fail');
+      const failLog = auditLogs.find((log) => log.action === 'fail');
       expect(failLog).toBeDefined();
       expect(failLog!.status).toBe('failed');
       expect(failLog!.error).toBe('Test error');
@@ -382,9 +378,7 @@ describe('StateMachine', () => {
       await stateMachine.startDeployment(stackName, changeSet, cloudDOM, user);
       await stateMachine.completeDeployment(stackName);
 
-      await expect(
-        stateMachine.resumeDeployment(stackName)
-      ).rejects.toThrow(DeploymentError);
+      await expect(stateMachine.resumeDeployment(stackName)).rejects.toThrow(DeploymentError);
     });
 
     it('should return -1 checkpoint if no checkpoint set', async () => {
@@ -602,9 +596,9 @@ describe('StateMachine', () => {
       const changeSet = createMockChangeSet();
       const cloudDOM = createMockCloudDOM();
 
-      await expect(
-        sm.startDeployment(stackName, changeSet, cloudDOM, user)
-      ).rejects.toThrow(DeploymentError);
+      await expect(sm.startDeployment(stackName, changeSet, cloudDOM, user)).rejects.toThrow(
+        DeploymentError
+      );
     });
   });
 

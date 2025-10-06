@@ -227,7 +227,7 @@ describe('useState Hook - Unit Tests', () => {
       expect(() => {
         setState('updated');
       }).not.toThrow();
-      
+
       // Verify the state was updated in the fiber
       expect(mockFiber.hooks[0]).toBe('updated');
     });

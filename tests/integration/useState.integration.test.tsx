@@ -286,11 +286,7 @@ describe('useState Hook - Integration Tests', () => {
 
         const [rules, setRules] = useState<string[]>([]);
 
-        setRules([
-          'allow-http-80',
-          'allow-https-443',
-          'allow-ssh-22',
-        ]);
+        setRules(['allow-http-80', 'allow-https-443', 'allow-ssh-22']);
 
         return null;
       }

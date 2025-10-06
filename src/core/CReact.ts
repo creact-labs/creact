@@ -19,27 +19,27 @@ import { DeploymentError } from './errors';
 export interface CReactConfig {
   /** Cloud provider for materialization (injected) */
   cloudProvider: ICloudProvider;
-  
+
   /** Backend provider for state management (injected) */
   backendProvider: IBackendProvider;
-  
+
   /** Optional migration map for refactoring (REQ-08) */
   migrationMap?: Record<string, string>;
-  
+
   /** Async timeout in milliseconds (default: 5 minutes) (REQ-10.5) */
   asyncTimeout?: number;
 }
 
 /**
  * CReact orchestrator - main class
- * 
+ *
  * Orchestrates the entire infrastructure-as-code pipeline:
  * 1. Render JSX → Fiber tree
  * 2. Validate Fiber tree
  * 3. Build CloudDOM from Fiber
  * 4. Compare CloudDOM trees (diff via Reconciler)
  * 5. Deploy CloudDOM via StateMachine
- * 
+ *
  * REQ-01: JSX → CloudDOM rendering
  * REQ-04: Dependency injection pattern
  * REQ-05: Deployment orchestration via StateMachine
@@ -53,33 +53,33 @@ export class CReact {
   private cloudDOMBuilder: CloudDOMBuilder;
   private reconciler: Reconciler;
   private stateMachine: StateMachine;
-  
+
   /**
    * Constructor receives all dependencies via config (dependency injection)
-   * 
+   *
    * REQ-04: Providers are injected, not inherited
-   * 
+   *
    * @param config - Configuration with injected providers
    */
   constructor(private config: CReactConfig) {
     // Instantiate core components
     this.renderer = new Renderer();
     this.validator = new Validator();
-    
+
     // Inject cloud provider into CloudDOMBuilder (REQ-04)
     this.cloudDOMBuilder = new CloudDOMBuilder(config.cloudProvider);
-    
+
     // Instantiate Reconciler for diff computation
     this.reconciler = new Reconciler();
-    
+
     // Instantiate StateMachine for deployment orchestration (REQ-O01)
     this.stateMachine = new StateMachine(config.backendProvider);
   }
-  
+
   /**
    * Debug logging helper
    * Logs messages when CREACT_DEBUG environment variable is set
-   * 
+   *
    * @param message - Message to log
    */
   private log(message: string): void {
@@ -87,60 +87,60 @@ export class CReact {
       console.debug(`[CReact] ${message}`);
     }
   }
-  
+
   /**
    * Build CloudDOM from JSX
-   * 
+   *
    * Pipeline: render → validate → build → restore outputs
-   * 
+   *
    * REQ-01: JSX → CloudDOM rendering
    * REQ-07: Validate before commit
-   * 
+   *
    * @param jsx - JSX element to render
    * @param stackName - Stack name for state restoration (default: 'default')
    * @returns Promise resolving to CloudDOM tree
    */
   async build(jsx: JSXElement, stackName: string = 'default'): Promise<CloudDOMNode[]> {
     this.log('Starting build pipeline');
-    
+
     // Step 1: Load previous state to get outputs (via StateMachine)
     this.log('Loading previous state');
     const previousState = await this.stateMachine.getState(stackName);
-    
+
     // Step 2: If we have previous state, inject outputs into useInstance hook
     if (previousState?.cloudDOM) {
       this.log('Injecting previous outputs into useInstance hook');
       setPreviousOutputs(this.buildOutputsMap(previousState.cloudDOM));
     }
-    
+
     // Step 3: Render JSX → Fiber (with outputs available)
     this.log('Rendering JSX to Fiber tree');
     const fiber = this.renderer.render(jsx);
-    
+
     // Step 4: Clear previous outputs from useInstance hook
     setPreviousOutputs(null);
-    
+
     // Step 5: Validate Fiber (REQ-07)
     this.log('Validating Fiber tree');
     this.validator.validate(fiber);
-    
+
     // Step 6: Build CloudDOM from Fiber (commit phase)
     this.log('Building CloudDOM from Fiber');
     const cloudDOM = await this.cloudDOMBuilder.build(fiber);
-    
+
     this.log('Build pipeline complete');
     return cloudDOM;
   }
-  
+
   /**
    * Build a map of node ID → outputs from previous CloudDOM
-   * 
+   *
    * @param previousCloudDOM - Previous CloudDOM state
    * @returns Map of node ID → outputs
    */
   private buildOutputsMap(previousCloudDOM: CloudDOMNode[]): Map<string, Record<string, any>> {
     const outputsMap = new Map<string, Record<string, any>>();
-    
+
     const walk = (nodes: CloudDOMNode[]) => {
       for (const node of nodes) {
         if (node.outputs && Object.keys(node.outputs).length > 0) {
@@ -151,17 +151,17 @@ export class CReact {
         }
       }
     };
-    
+
     walk(previousCloudDOM);
     return outputsMap;
   }
-  
+
   /**
    * Build CloudDOM with error handling for CLI/CI environments
-   * 
+   *
    * Provides a safer entrypoint that handles errors gracefully without
    * crashing the entire process. Useful for CI/CD pipelines.
-   * 
+   *
    * @param jsx - JSX element to render
    * @returns Promise resolving to CloudDOM tree, or empty array on error
    */
@@ -173,13 +173,13 @@ export class CReact {
       return [];
     }
   }
-  
+
   /**
    * Compare two CloudDOM trees and return diff
-   * 
+   *
    * REQ-05: Reconciliation and diff
    * REQ-07.6: Validate before comparing
-   * 
+   *
    * @param previous - Previous CloudDOM tree
    * @param current - Current CloudDOM tree
    * @returns ChangeSet with creates, updates, deletes, and deployment order
@@ -190,29 +190,29 @@ export class CReact {
     if (currentFiber) {
       this.validator.validate(currentFiber);
     }
-    
+
     // Use Reconciler to compute diff
     this.log('Computing diff between previous and current CloudDOM');
     return this.reconciler.reconcile(previous, current);
   }
-  
+
   /**
    * Deploy CloudDOM to cloud provider using StateMachine
-   * 
+   *
    * Pipeline: validate → compute diff → start deployment → materialize → checkpoint → complete
-   * 
+   *
    * REQ-05: Deployment orchestration via StateMachine
    * REQ-05.4: Idempotent deployment (via Reconciler diff)
    * REQ-07.6: Validate before deploying
    * REQ-09: Provider lifecycle hooks
    * REQ-O01: StateMachine handles all state management
-   * 
+   *
    * @param cloudDOM - CloudDOM tree to deploy
    * @param stackName - Stack name for state management (default: 'default')
    * @param user - User initiating deployment (default: 'system')
    */
   async deploy(
-    cloudDOM: CloudDOMNode[], 
+    cloudDOM: CloudDOMNode[],
     stackName: string = 'default',
     user: string = 'system'
   ): Promise<void> {
@@ -221,46 +221,49 @@ export class CReact {
     if (currentFiber) {
       this.validator.validate(currentFiber);
     }
-    
+
     // REQ-05.4: Compute diff for idempotent deployment
     this.log('Computing diff for idempotent deployment');
     const previousState = await this.stateMachine.getState(stackName);
     const previousCloudDOM = previousState?.cloudDOM || [];
-    
+
     const changeSet = this.reconciler.reconcile(previousCloudDOM, cloudDOM);
-    
+
     // Check if there are any changes (creates, updates, deletes, or replacements)
-    const hasChanges = changeSet.creates.length > 0 || 
-                      changeSet.updates.length > 0 || 
-                      changeSet.deletes.length > 0 ||
-                      changeSet.replacements.length > 0;
-    
+    const hasChanges =
+      changeSet.creates.length > 0 ||
+      changeSet.updates.length > 0 ||
+      changeSet.deletes.length > 0 ||
+      changeSet.replacements.length > 0;
+
     if (!hasChanges) {
       console.log('[CReact] No changes detected. Deployment skipped.');
       this.log('No resources to deploy');
       return;
     }
-    
-    console.log(`[CReact] Changes detected: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes`);
+
+    console.log(
+      `[CReact] Changes detected: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes`
+    );
     this.log(`Deployment order: ${changeSet.deploymentOrder.length} resources`);
-    
+
     try {
       // Start deployment via StateMachine
       this.log('Starting deployment via StateMachine');
       await this.stateMachine.startDeployment(stackName, changeSet, cloudDOM, user);
-      
+
       // REQ-09.1: Lifecycle hook - preDeploy
       if (this.config.cloudProvider.preDeploy) {
         this.log('Calling preDeploy lifecycle hook');
         await this.config.cloudProvider.preDeploy(cloudDOM);
       }
-      
+
       // Deploy resources in order with checkpoints
       this.log('Deploying resources with checkpoints');
       for (let i = 0; i < changeSet.deploymentOrder.length; i++) {
         const resourceId = changeSet.deploymentOrder[i];
         this.log(`Deploying resource ${i + 1}/${changeSet.deploymentOrder.length}: ${resourceId}`);
-        
+
         // Find the resource node
         const resourceNode = this.findNodeById(cloudDOM, resourceId);
         if (!resourceNode) {
@@ -270,59 +273,59 @@ export class CReact {
             details: { resourceId, stackName },
           });
         }
-        
+
         // Materialize single resource
         this.config.cloudProvider.materialize([resourceNode], null);
-        
+
         // Update checkpoint after successful deployment
         await this.stateMachine.updateCheckpoint(stackName, i);
       }
-      
+
       // Collect outputs from materialization (REQ-02, REQ-06)
       this.log('Extracting outputs from CloudDOM');
       const outputs = this.extractOutputs(cloudDOM);
-      
+
       // REQ-09.2: Lifecycle hook - postDeploy
       if (this.config.cloudProvider.postDeploy) {
         this.log('Calling postDeploy lifecycle hook');
         await this.config.cloudProvider.postDeploy(cloudDOM, outputs);
       }
-      
+
       // Complete deployment via StateMachine
       this.log('Completing deployment via StateMachine');
       await this.stateMachine.completeDeployment(stackName);
-      
+
       console.log('[CReact] Deployment complete');
-      
     } catch (error) {
       console.error('[CReact] Deployment failed:', error);
-      
+
       // REQ-09.3: Lifecycle hook - onError
       if (this.config.cloudProvider.onError) {
         this.log('Calling onError lifecycle hook');
         await this.config.cloudProvider.onError(error as Error, cloudDOM);
       }
-      
+
       // Mark deployment as failed via StateMachine
       this.log('Marking deployment as failed via StateMachine');
-      const deploymentError = error instanceof DeploymentError 
-        ? error 
-        : new DeploymentError((error as Error).message, {
-            message: (error as Error).message,
-            code: 'DEPLOYMENT_FAILED',
-            stack: (error as Error).stack,
-          });
-      
+      const deploymentError =
+        error instanceof DeploymentError
+          ? error
+          : new DeploymentError((error as Error).message, {
+              message: (error as Error).message,
+              code: 'DEPLOYMENT_FAILED',
+              stack: (error as Error).stack,
+            });
+
       await this.stateMachine.failDeployment(stackName, deploymentError);
-      
+
       // Re-throw error to halt deployment (REQ-09.4)
       throw error;
     }
   }
-  
+
   /**
    * Find a CloudDOM node by ID
-   * 
+   *
    * @param nodes - CloudDOM tree to search
    * @param id - Node ID to find
    * @returns CloudDOM node or undefined if not found
@@ -341,45 +344,45 @@ export class CReact {
     }
     return undefined;
   }
-  
 
-  
   /**
    * Extract outputs from CloudDOM nodes
-   * 
+   *
    * Walks the CloudDOM tree and collects all outputs from nodes.
    * Outputs are formatted as nodeId.outputKey (e.g., 'registry.state0').
-   * 
+   *
    * REQ-02: Extract outputs from useState calls
    * REQ-06: Universal output access
-   * 
+   *
    * @param cloudDOM - CloudDOM tree
    * @returns Outputs object with keys in format nodeId.outputKey
    */
   private extractOutputs(cloudDOM: CloudDOMNode[]): Record<string, any> {
     const outputs: Record<string, any> = {};
-    
+
     // Safety check
     if (!Array.isArray(cloudDOM)) {
       this.log('Warning: cloudDOM is not an array, returning empty outputs');
       return outputs;
     }
-    
+
     const walk = (nodes: CloudDOMNode[]) => {
       if (!nodes) {
         return;
       }
-      
+
       if (!Array.isArray(nodes)) {
-        this.log(`Warning: nodes is not an array: ${typeof nodes}, value: ${JSON.stringify(nodes)}`);
+        this.log(
+          `Warning: nodes is not an array: ${typeof nodes}, value: ${JSON.stringify(nodes)}`
+        );
         return;
       }
-      
+
       for (const node of nodes) {
         if (!node) {
           continue;
         }
-        
+
         // Extract outputs from node
         if (node.outputs && typeof node.outputs === 'object') {
           for (const [key, value] of Object.entries(node.outputs)) {
@@ -388,7 +391,7 @@ export class CReact {
             outputs[outputName] = value;
           }
         }
-        
+
         // Recursively walk children
         if (node.children) {
           if (Array.isArray(node.children) && node.children.length > 0) {
@@ -397,32 +400,32 @@ export class CReact {
         }
       }
     };
-    
+
     walk(cloudDOM);
     return outputs;
   }
-  
+
   /**
    * Get the cloud provider (for testing/debugging)
-   * 
+   *
    * @returns The injected cloud provider
    */
   getCloudProvider(): ICloudProvider {
     return this.config.cloudProvider;
   }
-  
+
   /**
    * Get the backend provider (for testing/debugging)
-   * 
+   *
    * @returns The injected backend provider
    */
   getBackendProvider(): IBackendProvider {
     return this.config.backendProvider;
   }
-  
+
   /**
    * Get the state machine (for testing/debugging)
-   * 
+   *
    * @returns The state machine instance
    */
   getStateMachine(): StateMachine {

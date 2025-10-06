@@ -36,14 +36,23 @@ vi.mock('fs', async () => {
       readFile: vi.fn(async (path: any) => {
         const pathStr = path.toString();
         const content = mockFiles.get(pathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(new Error(`ENOENT: no such file or directory, open '${pathStr}'`), {
+            code: 'ENOENT',
+          });
         return content;
       }),
       rename: vi.fn(async (oldPath: any, newPath: any) => {
         const oldPathStr = oldPath.toString();
         const newPathStr = newPath.toString();
         const content = mockFiles.get(oldPathStr);
-        if (!content) throw Object.assign(new Error(`ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`), { code: 'ENOENT' });
+        if (!content)
+          throw Object.assign(
+            new Error(
+              `ENOENT: no such file or directory, rename '${oldPathStr}' -> '${newPathStr}'`
+            ),
+            { code: 'ENOENT' }
+          );
         mockFiles.set(newPathStr, content);
         mockFiles.delete(oldPathStr);
         return undefined;
@@ -66,7 +75,7 @@ describe('CReact - Edge Cases', () => {
     // Initialize mock filesystem state
     mockFiles = new Map();
     mockDirs = new Set();
-    
+
     cloudProvider = new DummyCloudProvider();
     backendProvider = new DummyBackendProvider();
     config = {
@@ -90,7 +99,9 @@ describe('CReact - Edge Cases', () => {
     it('should handle empty JSX in build', async () => {
       const creact = new CReact(config);
       const jsx: JSXElement = {
-        type: function Empty() { return null; },
+        type: function Empty() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -135,11 +146,22 @@ describe('CReact - Edge Cases', () => {
   describe('Large CloudDOM Trees', () => {
     it('should handle deeply nested CloudDOM (10 levels)', async () => {
       const creact = new CReact(config);
-      
+
       // Create deeply nested structure
       let current: CloudDOMNode = {
         id: 'level-10',
-        path: ['level-1', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6', 'level-7', 'level-8', 'level-9', 'level-10'],
+        path: [
+          'level-1',
+          'level-2',
+          'level-3',
+          'level-4',
+          'level-5',
+          'level-6',
+          'level-7',
+          'level-8',
+          'level-9',
+          'level-10',
+        ],
         construct: class Level10 {},
         props: {},
         children: [],
@@ -163,7 +185,7 @@ describe('CReact - Edge Cases', () => {
 
     it('should handle wide CloudDOM (100 siblings)', async () => {
       const creact = new CReact(config);
-      
+
       const cloudDOM: CloudDOMNode[] = Array.from({ length: 100 }, (_, i) => ({
         id: `resource-${i}`,
         path: [`resource-${i}`],
@@ -342,7 +364,9 @@ describe('CReact - Edge Cases', () => {
     it('should handle multiple builds in sequence', async () => {
       const creact = new CReact(config);
       const jsx: JSXElement = {
-        type: function Root() { return null; },
+        type: function Root() {
+          return null;
+        },
         props: {},
         key: undefined,
       };
@@ -462,8 +486,8 @@ describe('CReact - Edge Cases', () => {
           children: [],
           outputs: {
             'key-with-dash': 'value1',
-            'key_with_underscore': 'value2',
-            'keyWithCamelCase': 'value3',
+            key_with_underscore: 'value2',
+            keyWithCamelCase: 'value3',
           },
         },
       ];

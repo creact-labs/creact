@@ -22,7 +22,9 @@ __tests__/
 ## Test Categories
 
 ### Unit Tests (`unit/`)
+
 Core functionality tests for individual components. These tests focus on:
+
 - Single component behavior
 - Public API contracts
 - Basic error handling
@@ -33,7 +35,9 @@ Core functionality tests for individual components. These tests focus on:
 **Example:** `renderer.unit.test.ts`, `validator.unit.test.ts`
 
 ### Integration Tests (`integration/`)
+
 Full workflow scenarios that test multiple components working together:
+
 - Complete pipelines (Render → Validate → Build → Deploy)
 - Cross-component interactions
 - State consistency across operations
@@ -44,7 +48,9 @@ Full workflow scenarios that test multiple components working together:
 **Example:** `pipeline.integration.test.ts`
 
 ### Edge Case Tests (`edge-cases/`)
+
 Production-critical edge cases and error scenarios:
+
 - Security vulnerabilities
 - Data integrity issues
 - Circular references
@@ -57,7 +63,9 @@ Production-critical edge cases and error scenarios:
 **Example:** `renderer.edge-cases.test.ts`
 
 ### Performance Tests (`performance/`)
+
 Performance benchmarks and stress tests:
+
 - Large tree rendering (1000+ nodes)
 - Deep nesting (100+ levels)
 - Concurrent operations
@@ -71,7 +79,9 @@ Performance benchmarks and stress tests:
 **Note:** Run separately from unit tests to avoid slowing down regular test runs.
 
 ### Contract Tests (`contracts/`)
+
 Interface and contract validation:
+
 - Provider interface compliance
 - Type safety verification
 - API stability checks
@@ -108,13 +118,10 @@ const fiber = createMockFiber({
 });
 
 // Create a Fiber tree with children
-const tree = createFiberTree(
-  { type: Parent, path: ['parent'] },
-  [
-    { type: Child1, path: ['parent', 'child1'] },
-    { type: Child2, path: ['parent', 'child2'] },
-  ]
-);
+const tree = createFiberTree({ type: Parent, path: ['parent'] }, [
+  { type: Child1, path: ['parent', 'child1'] },
+  { type: Child2, path: ['parent', 'child2'] },
+]);
 
 // Create a deep tree for testing recursion
 const deepTree = createDeepFiberTree(10); // 10 levels deep
@@ -135,13 +142,10 @@ const cloudDOM = createMockCloudDOM({
 });
 
 // Create a CloudDOM tree with children
-const tree = createCloudDOMTree(
-  { id: 'parent', construct: Parent },
-  [
-    { id: 'parent.child1', construct: Child1 },
-    { id: 'parent.child2', construct: Child2 },
-  ]
-);
+const tree = createCloudDOMTree({ id: 'parent', construct: Parent }, [
+  { id: 'parent.child1', construct: Child1 },
+  { id: 'parent.child2', construct: Child2 },
+]);
 ```
 
 ### Provider Helpers
@@ -157,22 +161,14 @@ provider.materialize(cloudDOM);
 cleanup();
 
 // Or setup complete test environment
-const {
-  cloudProvider,
-  backendProvider,
-  consoleDebugSpy,
-  cleanup,
-} = setupProviderTest();
+const { cloudProvider, backendProvider, consoleDebugSpy, cleanup } = setupProviderTest();
 ```
 
 ### Assertion Helpers
 
 ```typescript
 // Assert validation error
-expectValidationError(
-  () => validator.validate(invalidFiber),
-  'Missing required prop'
-);
+expectValidationError(() => validator.validate(invalidFiber), 'Missing required prop');
 
 // Assert no error
 expectNoThrow(() => validator.validate(validFiber));
@@ -237,7 +233,7 @@ describe('Validator', () => {
         type: function Component() {},
         props: { name: 'test', value: 42 },
       });
-      
+
       Component.requiredProps = ['name', 'value'];
 
       expectNoThrow(() => validator.validate(fiber));
@@ -248,13 +244,10 @@ describe('Validator', () => {
         type: function Component() {},
         props: { name: 'test' },
       });
-      
+
       Component.requiredProps = ['name', 'value'];
 
-      expectValidationError(
-        () => validator.validate(fiber),
-        "Missing required prop 'value'"
-      );
+      expectValidationError(() => validator.validate(fiber), "Missing required prop 'value'");
     });
   });
 });
@@ -297,6 +290,7 @@ describe('Falsy Values', () => {
 ## Migration Notes
 
 This test structure was reorganized from the original flat structure to improve:
+
 - **Maintainability:** Smaller, focused files easier to navigate
 - **Reusability:** Shared helpers reduce duplication by 50%+
 - **Performance:** Separate performance tests don't slow regular runs
@@ -308,6 +302,7 @@ For the old test structure, see git history before the reorganization commit.
 ## Contributing
 
 When adding new tests:
+
 1. Choose the appropriate directory based on test purpose
 2. Use existing helpers or create new ones if needed
 3. Follow naming conventions
