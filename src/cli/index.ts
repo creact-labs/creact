@@ -23,9 +23,33 @@ type CommandHandler = (ctx: CommandContext) => Promise<number>;
  */
 const commands: Record<string, CommandHandler> = {
   build: async (ctx) => {
-    console.log('creact build - Not yet implemented');
-    console.log('This command will compile JSX → CloudDOM');
-    return 1;
+    const { loadConfigFromContext, logVerbose, outputJson, formatError } = await import('./utils.js');
+    
+    try {
+      // Load configuration
+      const config = await loadConfigFromContext(ctx);
+      logVerbose('Configuration loaded successfully', config);
+      logVerbose(`Stack: ${config.stackName}`, config);
+      logVerbose(`Entry: ${config.entry}`, config);
+      
+      // TODO: Implement build logic
+      // 1. Load entry file
+      // 2. Render JSX to CloudDOM
+      // 3. Validate CloudDOM
+      // 4. Save to backend
+      
+      console.log('creact build - Not yet implemented');
+      console.log('This command will compile JSX → CloudDOM');
+      
+      if (outputJson({ status: 'not_implemented' }, ctx)) {
+        return 1;
+      }
+      
+      return 1;
+    } catch (error) {
+      console.error(formatError(error as Error, ctx.flags.verbose as boolean));
+      return 1;
+    }
   },
 
   plan: async (ctx) => {
@@ -145,13 +169,12 @@ USAGE:
 
 OPTIONS:
   --config <path>    Path to creact.config.ts (default: ./creact.config.ts)
-  --output <path>    Output path for CloudDOM (default: .creact/clouddom.json)
   --json             Output machine-readable JSON
   --verbose          Enable verbose logging
 
 DESCRIPTION:
   Compiles JSX infrastructure definitions to CloudDOM representation.
-  Validates the CloudDOM tree and saves it to the backend.
+  Validates the CloudDOM tree and saves it to the backend provider.
 `,
 
     plan: `

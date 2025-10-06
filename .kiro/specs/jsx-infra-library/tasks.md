@@ -57,13 +57,13 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 
 ### Phase 2: CLI & Developer Workflow (HIGH PRIORITY)
 
-**Status:** Not Started
+**Status:** 25% Complete
 
 **What to Build:**
 
 #### CLI Foundation
-- [ ] Entry point with command routing (`src/cli/index.ts`)
-- [ ] Configuration loader (`creact.config.ts` support)
+- [X] Entry point with command routing (`src/cli/index.ts`)
+- [X] Configuration loader (`creact.config.ts` support)
 - [ ] Colored output, spinners, progress indicators
 - [ ] Build and packaging setup (bin entry in package.json)
 
@@ -192,7 +192,7 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 |-------|--------|----------|------------|
 | Milestone 1: Core Foundation | ✅ Complete | - | 100% |
 | Phase 1: State Machine | 🟡 In Progress | HIGH | 95% |
-| Phase 2: CLI & Workflow | ⚪ Not Started | HIGH | 0% |
+| Phase 2: CLI & Workflow | 🟡 In Progress | HIGH | 25% |
 | Phase 3: External Tools | ⚪ Not Started | MEDIUM | 0% |
 | Phase 4: State Bridge | ⚪ Not Started | MEDIUM | 0% |
 | Phase 5: Advanced Features | ⚪ Not Started | LOW | 0% |
@@ -233,7 +233,7 @@ CReact is a React-inspired infrastructure-as-code library that renders JSX to Cl
 | REQ-O05 | Audit log & RBAC | ⚪ Todo | Phase 6 |
 | REQ-O06 | Secrets management | ⚪ Todo | Phase 6 |
 | REQ-O07 | Hot reload | ⚪ Todo | Phase 5 |
-| REQ-O08 | CLI surface | ⚪ Todo | Phase 2 |
+| REQ-O08 | CLI surface | 🟡 In Progress | Phase 2 |
 | REQ-O09 | Dependency injection | ✅ Done | Milestone 1 |
 | REQ-I01 | External IaC adapters | ⚪ Todo | Phase 3 |
 | REQ-I02 | State bridge | ⚪ Todo | Phase 4 |
