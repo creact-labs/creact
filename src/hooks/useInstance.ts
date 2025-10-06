@@ -10,6 +10,7 @@ import { generateResourceId, toKebabCase } from '../utils/naming';
  */
 let currentFiber: any = null;
 let currentPath: string[] = [];
+let previousOutputsMap: Map<string, Record<string, any>> | null = null;
 
 /**
  * Set the current rendering context
@@ -31,6 +32,16 @@ export function setRenderContext(fiber: any, path: string[]): void {
 export function clearRenderContext(): void {
   currentFiber = null;
   currentPath = [];
+}
+
+/**
+ * Set previous outputs map for restoration during render
+ * Called by CReact before rendering
+ * 
+ * @internal
+ */
+export function setPreviousOutputs(outputsMap: Map<string, Record<string, any>> | null): void {
+  previousOutputsMap = outputsMap;
 }
 
 /**
@@ -135,6 +146,12 @@ export function useInstance<T = any>(
     children: [],
     outputs: {}, // Will be populated during materialization
   };
+  
+  // Restore outputs from previous state if available
+  if (previousOutputsMap && previousOutputsMap.has(resourceId)) {
+    node.outputs = { ...previousOutputsMap.get(resourceId)! };
+    console.log(`[useInstance] ✓ Restored outputs for: ${resourceId}`, node.outputs);
+  }
   
   // Attach node to current Fiber
   // The Fiber stores all CloudDOM nodes created during its execution

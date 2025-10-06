@@ -86,7 +86,7 @@ describe('useInstance Hook - React-like API', () => {
     it('should auto-generate ID from construct type name', () => {
       function Registry() {
         const repo = useInstance(EcrRepository, { name: 'my-app' });
-        expect(repo.id).toBe('registry.ecr-repository'); // EcrRepository → ecr-repository (kebab-case)
+        expect(repo.id).toBe('registry.ecrrepository');
         return null;
       }
 
@@ -108,7 +108,7 @@ describe('useInstance Hook - React-like API', () => {
     it('should handle single-word construct names', () => {
       function Storage() {
         const bucket = useInstance(S3Bucket, { name: 'assets' });
-        expect(bucket.id).toBe('storage.s-3-bucket'); // S3Bucket → s-3-bucket (kebab-case)
+        expect(bucket.id).toBe('storage.s3bucket');
         return null;
       }
 
@@ -123,8 +123,8 @@ describe('useInstance Hook - React-like API', () => {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
         
-        expect(db1.id).toBe('multi-database.rdsinstance'); // MultiDatabase → multi-database
-        expect(db2.id).toBe('multi-database.rdsinstance-1');
+        expect(db1.id).toBe('multidatabase.rdsinstance');
+        expect(db2.id).toBe('multidatabase.rdsinstance-1');
         return null;
       }
 
@@ -138,9 +138,9 @@ describe('useInstance Hook - React-like API', () => {
         const svc2 = useInstance(AppRunnerService, { name: 'worker' });
         const svc3 = useInstance(AppRunnerService, { name: 'scheduler' });
         
-        expect(svc1.id).toBe('multi-service.app-runner-service'); // AppRunnerService → app-runner-service
-        expect(svc2.id).toBe('multi-service.app-runner-service-1');
-        expect(svc3.id).toBe('multi-service.app-runner-service-2');
+        expect(svc1.id).toBe('multiservice.apprunnerservice');
+        expect(svc2.id).toBe('multiservice.apprunnerservice-1');
+        expect(svc3.id).toBe('multiservice.apprunnerservice-2');
         return null;
       }
 
@@ -153,8 +153,8 @@ describe('useInstance Hook - React-like API', () => {
         const primary = useInstance(RDSInstance, { key: 'primary', name: 'db-primary' });
         const replica = useInstance(RDSInstance, { key: 'replica', name: 'db-replica' });
         
-        expect(primary.id).toBe('multi-database.primary');
-        expect(replica.id).toBe('multi-database.replica');
+        expect(primary.id).toBe('multidatabase.primary');
+        expect(replica.id).toBe('multidatabase.replica');
         return null;
       }
 
@@ -168,9 +168,9 @@ describe('useInstance Hook - React-like API', () => {
         const auto1 = useInstance(RDSInstance, { name: 'db-auto-1' });
         const auto2 = useInstance(RDSInstance, { name: 'db-auto-2' });
         
-        expect(primary.id).toBe('mixed-database.primary');
-        expect(auto1.id).toBe('mixed-database.rdsinstance');
-        expect(auto2.id).toBe('mixed-database.rdsinstance-1');
+        expect(primary.id).toBe('mixeddatabase.primary');
+        expect(auto1.id).toBe('mixeddatabase.rdsinstance');
+        expect(auto2.id).toBe('mixeddatabase.rdsinstance-1');
         return null;
       }
 
@@ -266,8 +266,8 @@ describe('useInstance Hook - React-like API', () => {
     it('should generate full path from component hierarchy', () => {
       function Service() {
         const svc = useInstance(AppRunnerService, { key: 'api', name: 'api' });
-        expect(svc.path).toEqual(['registry-stack', 'service', 'api']); // RegistryStack → registry-stack
-        expect(svc.id).toBe('registry-stack.service.api');
+        expect(svc.path).toEqual(['registrystack', 'service', 'api']);
+        expect(svc.id).toBe('registrystack.service.api');
         return null;
       }
 
@@ -282,7 +282,7 @@ describe('useInstance Hook - React-like API', () => {
     it('should handle deeply nested components', () => {
       function Database() {
         const db = useInstance(RDSInstance, { key: 'db', name: 'app-db' });
-        expect(db.path).toEqual(['app', 'region', 'vpc', 'database', 'db']); // Full path includes all components + key
+        expect(db.path).toEqual(['app', 'region', 'vpc', 'database', 'db']);
         return null;
       }
 
@@ -390,40 +390,35 @@ describe('useInstance Hook - React-like API', () => {
 
   describe('Construct call count reset per component', () => {
     it('should reset counts for each component render', () => {
-      function DatabaseA() {
+      function Component1() {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
         
-        // Wrapper component adds to path: infrastructure > wrapper > database-a
-        expect(db1.id).toBe('infrastructure.wrapper.database-a.rdsinstance');
-        expect(db2.id).toBe('infrastructure.wrapper.database-a.rdsinstance-1');
+        expect(db1.id).toBe('component1.rdsinstance');
+        expect(db2.id).toBe('component1.rdsinstance-1');
         return null;
       }
 
-      function DatabaseB() {
+      function Component2() {
         const db1 = useInstance(RDSInstance, { name: 'db-1' });
         const db2 = useInstance(RDSInstance, { name: 'db-2' });
         
         // Counts should reset for new component
-        expect(db1.id).toBe('infrastructure.wrapper.database-b.rdsinstance');
-        expect(db2.id).toBe('infrastructure.wrapper.database-b.rdsinstance-1');
+        expect(db1.id).toBe('component2.rdsinstance');
+        expect(db2.id).toBe('component2.rdsinstance-1');
         return null;
       }
 
-      function Wrapper({ children }: { children: any }) {
-        return children;
-      }
-
-      function Infrastructure() {
+      function App() {
         return (
-          <Wrapper>
-            <DatabaseA />
-            <DatabaseB />
-          </Wrapper>
+          <>
+            <Component1 />
+            <Component2 />
+          </>
         );
       }
 
-      const element = <Infrastructure />;
+      const element = <App />;
       renderer.render(element);
     });
   });

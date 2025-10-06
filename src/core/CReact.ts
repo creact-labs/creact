@@ -7,6 +7,7 @@ import { CloudDOMBuilder } from './CloudDOMBuilder';
 import { ICloudProvider } from '../providers/ICloudProvider';
 import { IBackendProvider } from '../providers/IBackendProvider';
 import { CloudDOMNode, JSXElement } from './types';
+import { setPreviousOutputs } from '../hooks/useInstance';
 import * as fs from 'fs';
 import * as path from 'path';
 import crypto from 'crypto';
@@ -89,36 +90,77 @@ export class CReact {
   /**
    * Build CloudDOM from JSX
    * 
-   * Pipeline: render → validate → build → persist
+   * Pipeline: render → validate → build → restore outputs → persist
    * 
    * REQ-01: JSX → CloudDOM rendering
    * REQ-01.6: Persist CloudDOM to disk
    * REQ-07: Validate before commit
    * 
    * @param jsx - JSX element to render
+   * @param stackName - Stack name for state restoration (default: 'default')
    * @returns Promise resolving to CloudDOM tree
    */
-  async build(jsx: JSXElement): Promise<CloudDOMNode[]> {
+  async build(jsx: JSXElement, stackName: string = 'default'): Promise<CloudDOMNode[]> {
     this.log('Starting build pipeline');
     
-    // Step 1: Render JSX → Fiber
+    // Step 1: Load previous state to get outputs
+    this.log('Loading previous state');
+    const previousState = await this.config.backendProvider.getState(stackName);
+    
+    // Step 2: If we have previous state, inject outputs into useInstance hook
+    if (previousState?.cloudDOM) {
+      this.log('Injecting previous outputs into useInstance hook');
+      setPreviousOutputs(this.buildOutputsMap(previousState.cloudDOM));
+    }
+    
+    // Step 3: Render JSX → Fiber (with outputs available)
     this.log('Rendering JSX to Fiber tree');
     const fiber = this.renderer.render(jsx);
     
-    // Step 2: Validate Fiber (REQ-07)
+    // Step 4: Clear previous outputs from useInstance hook
+    setPreviousOutputs(null);
+    
+    // Step 5: Validate Fiber (REQ-07)
     this.log('Validating Fiber tree');
     this.validator.validate(fiber);
     
-    // Step 3: Build CloudDOM from Fiber (commit phase)
+    // Step 6: Build CloudDOM from Fiber (commit phase)
     this.log('Building CloudDOM from Fiber');
     const cloudDOM = await this.cloudDOMBuilder.build(fiber);
     
-    // Step 4: Persist CloudDOM to disk (REQ-01.6)
+    // Note: Outputs are already restored during render via useInstance hook
+    // No need to restore again here
+    
+    // Step 7: Persist CloudDOM to disk (REQ-01.6)
     this.log('Persisting CloudDOM to disk');
     await this.persistCloudDOM(cloudDOM);
     
     this.log('Build pipeline complete');
     return cloudDOM;
+  }
+  
+  /**
+   * Build a map of node ID → outputs from previous CloudDOM
+   * 
+   * @param previousCloudDOM - Previous CloudDOM state
+   * @returns Map of node ID → outputs
+   */
+  private buildOutputsMap(previousCloudDOM: CloudDOMNode[]): Map<string, Record<string, any>> {
+    const outputsMap = new Map<string, Record<string, any>>();
+    
+    const walk = (nodes: CloudDOMNode[]) => {
+      for (const node of nodes) {
+        if (node.outputs && Object.keys(node.outputs).length > 0) {
+          outputsMap.set(node.id, node.outputs);
+        }
+        if (node.children && node.children.length > 0) {
+          walk(node.children);
+        }
+      }
+    };
+    
+    walk(previousCloudDOM);
+    return outputsMap;
   }
   
   /**

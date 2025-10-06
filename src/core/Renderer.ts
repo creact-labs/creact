@@ -74,6 +74,7 @@ export class Renderer {
       cloudDOMNodes: [], // Will be populated by useInstance
     };
     
+
     // Check if this is a Context Provider and push value onto stack
     const isProvider = typeof type === 'function' && (type as any)._isContextProvider;
     if (isProvider) {
