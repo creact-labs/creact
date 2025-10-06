@@ -7,6 +7,7 @@
 
 import { loadConfig, ConfigLoadError, type ResolvedCReactConfig } from './config';
 import type { CommandContext } from './index';
+import { colors, printError } from './output';
 
 /**
  * Load configuration from file with CLI-friendly error handling
@@ -46,14 +47,14 @@ export async function loadConfigFromContext(
     return config;
   } catch (error) {
     if (error instanceof ConfigLoadError) {
-      console.error('Configuration Error:', error.message);
+      printError(`Configuration Error: ${error.message}`);
       if (error.cause) {
-        console.error('Caused by:', error.cause.message);
+        console.error(colors.dim(`Caused by: ${error.cause.message}`));
       }
-      console.error('\nCreate a creact.config.ts file in your project root.');
-      console.error('See examples/creact.config.example.ts for reference.');
+      console.error(colors.dim('\nCreate a creact.config.ts file in your project root.'));
+      console.error(colors.dim('See examples/creact.config.example.ts for reference.'));
     } else {
-      console.error('Unexpected error loading configuration:', error);
+      printError(`Unexpected error loading configuration: ${error}`);
     }
     
     if (throwOnError) {
@@ -72,7 +73,7 @@ export async function loadConfigFromContext(
  */
 export function logVerbose(message: string, config?: ResolvedCReactConfig): void {
   if (config?.verbose || process.env.CREACT_VERBOSE === 'true') {
-    console.log(`[verbose] ${message}`);
+    console.log(colors.dim(`[verbose] ${message}`));
   }
 }
 
@@ -84,7 +85,7 @@ export function logVerbose(message: string, config?: ResolvedCReactConfig): void
  */
 export function logDebug(message: string, config?: ResolvedCReactConfig): void {
   if (config?.debug || process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[debug] ${message}`);
+    console.debug(colors.dim(`[debug] ${message}`));
   }
 }
 
@@ -96,10 +97,10 @@ export function logDebug(message: string, config?: ResolvedCReactConfig): void {
  * @returns Formatted error message
  */
 export function formatError(error: Error, verbose: boolean = false): string {
-  let message = `Error: ${error.message}`;
+  let message = colors.error(`Error: ${error.message}`);
 
   if (verbose && error.stack) {
-    message += `\n\nStack trace:\n${error.stack}`;
+    message += `\n\n${colors.dim('Stack trace:')}\n${colors.dim(error.stack)}`;
   }
 
   return message;

@@ -24,10 +24,16 @@ type CommandHandler = (ctx: CommandContext) => Promise<number>;
 const commands: Record<string, CommandHandler> = {
   build: async (ctx) => {
     const { loadConfigFromContext, logVerbose, outputJson, formatError } = await import('./utils.js');
+    const { Spinner, printSuccess, printWarning, colors } = await import('./output.js');
     
     try {
+      const spinner = new Spinner(!!ctx.flags.json);
+      
       // Load configuration
+      spinner.start('Loading configuration...');
       const config = await loadConfigFromContext(ctx);
+      spinner.succeed('Configuration loaded');
+      
       logVerbose('Configuration loaded successfully', config);
       logVerbose(`Stack: ${config.stackName}`, config);
       logVerbose(`Entry: ${config.entry}`, config);
@@ -38,8 +44,13 @@ const commands: Record<string, CommandHandler> = {
       // 3. Validate CloudDOM
       // 4. Save to backend
       
-      console.log('creact build - Not yet implemented');
-      console.log('This command will compile JSX → CloudDOM');
+      spinner.start('Building CloudDOM...');
+      // Simulate work
+      await new Promise(resolve => setTimeout(resolve, 500));
+      spinner.warn('Build not yet implemented');
+      
+      printWarning('This command will compile JSX → CloudDOM');
+      console.log(colors.dim('Implementation coming soon...'));
       
       if (outputJson({ status: 'not_implemented' }, ctx)) {
         return 1;
@@ -53,14 +64,64 @@ const commands: Record<string, CommandHandler> = {
   },
 
   plan: async (ctx) => {
-    console.log('creact plan - Not yet implemented');
-    console.log('This command will show diff preview without apply');
+    const { Spinner, formatDiff, printWarning, colors } = await import('./output.js');
+    
+    const spinner = new Spinner(!!ctx.flags.json);
+    
+    spinner.start('Computing diff...');
+    // Simulate work
+    await new Promise(resolve => setTimeout(resolve, 500));
+    spinner.succeed('Diff computed');
+    
+    // Example diff output (will be replaced with actual reconciler output)
+    const exampleDiff = {
+      creates: [
+        { id: 'api', construct: { name: 'AwsLambda' } },
+        { id: 'db', construct: { name: 'DockerContainer' } },
+      ],
+      updates: [
+        { id: 'vpc', construct: { name: 'TerraformModule' } },
+      ],
+      deletes: [
+        { id: 'old-service', construct: { name: 'AwsLambda' } },
+      ],
+      moves: [
+        { from: 'frontend.old', to: 'frontend.new' },
+      ],
+    };
+    
+    console.log(formatDiff(exampleDiff));
+    printWarning('Plan command not fully implemented yet');
+    console.log(colors.dim('This is example output. Real diff will come from Reconciler.'));
+    
     return 1;
   },
 
   deploy: async (ctx) => {
-    console.log('creact deploy - Not yet implemented');
-    console.log('This command will apply changes to infrastructure');
+    const { Spinner, ProgressBar, printSuccess, printWarning, colors } = await import('./output.js');
+    
+    const spinner = new Spinner(!!ctx.flags.json);
+    
+    spinner.start('Preparing deployment...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    spinner.succeed('Deployment prepared');
+    
+    // Example progress bar
+    const progress = new ProgressBar(!!ctx.flags.json);
+    progress.start(5, 0, 'Deploying resources');
+    
+    // Simulate deployment
+    for (let i = 1; i <= 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      progress.update(i, `Resource ${i}/5`);
+    }
+    
+    progress.stop();
+    
+    printSuccess('Deployment completed (example)');
+    printWarning('Deploy command not fully implemented yet');
+    console.log(colors.dim('This is example output. Real deployment will use StateMachine.'));
+    
     return 1;
   },
 
@@ -95,8 +156,32 @@ const commands: Record<string, CommandHandler> = {
   },
 
   info: async (ctx) => {
-    console.log('creact info - Not yet implemented');
-    console.log('This command will list registered providers, backends, and extensions');
+    const { printHeader, printTable, printWarning, colors } = await import('./output.js');
+    
+    printHeader('CReact System Information');
+    
+    console.log('\n' + colors.highlight('Registered Providers:'));
+    printTable(
+      ['Name', 'Type', 'Version', 'Status'],
+      [
+        ['DummyCloudProvider', 'Cloud', '0.1.0', colors.success('Active')],
+        ['DummyBackendProvider', 'Backend', '0.1.0', colors.success('Active')],
+      ]
+    );
+    
+    console.log('\n' + colors.highlight('Registered Adapters:'));
+    printTable(
+      ['Name', 'Type', 'Version', 'Status'],
+      [
+        ['TerraformAdapter', 'IaC', 'N/A', colors.dim('Not Loaded')],
+        ['HelmAdapter', 'IaC', 'N/A', colors.dim('Not Loaded')],
+      ]
+    );
+    
+    console.log('');
+    printWarning('Info command not fully implemented yet');
+    console.log(colors.dim('This is example output. Real info will query DI container.'));
+    
     return 1;
   },
 
