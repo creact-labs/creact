@@ -1,1130 +1,862 @@
-# CReact Implementation Tasks
+# CReact Implementation Plan — Milestone 2: Interoperability
 
-## Goal: Working POC
+**Vision:** Transform CReact from a working prototype into a production-ready universal declarative runtime.
 
-Build a minimal proof-of-concept that demonstrates: **JSX → CloudDOM → Deployment**
+**Current State (Milestone 1 ✅):**
+- Core rendering: JSX → Fiber → CloudDOM
+- Hooks: useInstance, useState, useContext, createContext
+- Providers: ICloudProvider, IBackendProvider (with DummyBackendProvider)
+- Validation: Circular dependency detection, schema validation
+- Persistence: CloudDOM saved to disk with atomic writes
 
-**IMPORTANT:** Do NOT run any commands automatically. Pass commands to the user to run manually.
+**Target State (Milestone 2):**
+- Reconciler: Diff algorithm for incremental updates
+- State Machine: Crash recovery and transactional deployments
+- Adapters: Wrap Terraform, Helm, Pulumi as CReact components
+- Provider Router: Mix AWS, Docker, Kubernetes in one tree
+- State Sync: Real-time CloudDOM updates to React/Vue/Python apps
+- Nested Apps: Apps deploying apps recursively
+- CLI: Developer-friendly commands (build, plan, deploy, dev)
+- Hot Reload: React Fast Refresh for infrastructure
+- Security: Locking, secrets, audit logs
 
-## Core Design Pattern: Dependency Injection
+---
 
-All provider implementations are INJECTED into core classes via constructor. No inheritance.
+## Implementation Strategy
 
-```typescript
-// ✅ CORRECT
-const creact = new CReact({ cloudProvider, backendProvider });
+**Build Order:**
+1. **Foundation** - Reconciler + State Machine (enables everything else)
+2. **Operational** - CLI + Plan + Deploy (developer workflow)
+3. **Interop Core** - Adapters + Provider Router (external tool integration)
+4. **State Bridge** - State Sync + React Hook (app integration)
+5. **Advanced** - Nested Apps + Hot Reload (recursive composition)
+6. **Production** - Locking + Secrets + Audit (security & reliability)
 
-// ❌ WRONG
-class MyCReact extends CReact {}
-```
+---
 
-## Requirement Traceability
+## Phase 1: Foundation (Tasks 1-2)
 
-Each task references the corresponding requirement (REQ-XX) from the CReact Design Specification. This ensures full traceability between design and implementation. Add `// REQ-XX` comments in code for cross-reference.
+Build the core diff and state management infrastructure.
 
-## Phase 1: Core Architecture (Tasks 1–6)
+### Task 1: Implement CloudDOM Reconciler
 
-Foundation: Provider interfaces, dummy implementations, and core pipeline components.
+**Goal:** Create diff algorithm that compares CloudDOM trees and computes minimal change sets.
 
-- [x] 1. Setup package structure
-  - Create root directory structure with `src/` subdirectories
-  - Initialize package.json with TypeScript and JSX support
-  - Configure tsconfig.json for JSX transformation
-  - Install dependencies: React types only (no CDKTF for POC)
-  - _Requirements: All_
-  - **Note:** Project is now in root directory (standalone repository), not `lib/creact/`
-  - **Deliverables:**
-    - `package.json` with TypeScript, Vitest, and React types
-    - `tsconfig.json` configured for JSX
-    - Directory structure: `src/`, `tests/`, `examples/`
-  - **Testing Strategy:**
-    - Verify TypeScript compilation works
-    - Verify JSX transformation is enabled
-    - Check all directories exist
-  - **QA Checklist:**
-    - [ ] `npm install` runs without errors
-    - [ ] `tsc --noEmit` compiles successfully
-    - [ ] Directory structure matches design
-    - [ ] All required dependencies installed
+**Why First:** Everything else depends on diffing - plan command, hot reload, incremental deploys.
 
-- [x] 2. Implement provider interfaces (dependency injection foundation)
-  - Create `ICloudProvider` interface with `materialize()` method
-  - Create `IBackendProvider` interface with `getState()` and `saveState()` methods
-  - Add optional `initialize()` method to both interfaces (REQ-04.4)
-  - Add optional lifecycle hooks to `ICloudProvider`: `preDeploy`, `postDeploy`, `onError` (REQ-09)
-  - Export all from `providers/index.ts`
-  - _Requirements: REQ-04, REQ-09_
-  - **Key:** These are interfaces only, NOT implementations yet
-  - **Deliverables:**
-    - `src/providers/ICloudProvider.ts` - Cloud provider interface
-    - `src/providers/IBackendProvider.ts` - Backend provider interface
-    - `src/providers/index.ts` - Barrel export
-  - **Testing Strategy:**
-    - TypeScript compilation validates interface structure
-    - No runtime tests needed (interfaces only)
-  - **QA Checklist:**
-    - [ ] ICloudProvider has materialize() method
-    - [ ] ICloudProvider has optional initialize(), preDeploy(), postDeploy(), onError()
-    - [ ] IBackendProvider has getState() and saveState() methods
-    - [ ] IBackendProvider has optional initialize()
-    - [ ] All interfaces exported from index.ts
-    - [ ] TypeScript compiles without errors
+- [ ] 1.1 Create Reconciler class with diff algorithm
+  - Create `src/core/Reconciler.ts`
+  - Implement `reconcile(previous: CloudDOMNode[], current: CloudDOMNode[]): ChangeSet`
+  - Build ID maps for O(n) lookup: `Map<string, CloudDOMNode>`
+  - Detect creates: nodes in current but not in previous
+  - Detect updates: nodes in both with different props (use deep equality)
+  - Detect deletes: nodes in previous but not in current
+  - Return ChangeSet with creates, updates, deletes arrays
+  - _Requirements: REQ-O01, REQ-O04_
 
-- [x] 3. Implement Dummy providers (POC implementations)
-  - Create `DummyCloudProvider` that implements `ICloudProvider`
-  - Implement `materialize()` to log CloudDOM structure with indentation
-  - Log outputs in format: `nodeId.outputKey = value`
-  - Create `DummyBackendProvider` that implements `IBackendProvider`
-  - Implement in-memory Map storage for state
-  - Add helper methods: `clearAll()`, `getAllState()`
-  - _Requirements: REQ-04_
-  - **Key:** These are standalone implementations, NOT base classes
-  - **Deliverables:**
-    - `src/providers/DummyCloudProvider.ts` - Logging cloud provider
-    - `src/providers/DummyBackendProvider.ts` - In-memory backend provider
-  - **Testing Strategy:**
-    - Unit tests verify materialize() logs CloudDOM correctly
-    - Unit tests verify state storage/retrieval works
-    - Unit tests verify clearAll() and getAllState() helpers
-  - **QA Checklist:**
-    - [ ] DummyCloudProvider implements ICloudProvider
-    - [ ] materialize() logs CloudDOM with indentation
-    - [ ] Outputs logged in format: nodeId.outputKey = value
-    - [ ] DummyBackendProvider implements IBackendProvider
-    - [ ] In-memory Map storage works correctly
-    - [ ] clearAll() and getAllState() helpers work
-    - [ ] No inheritance - standalone implementations
+- [ ] 1.2 Build dependency graph from CloudDOM
+  - Scan node props for references to other node IDs
+  - Build adjacency list: `Map<string, string[]>` (node ID → dependency IDs)
+  - Detect circular dependencies using DFS
+  - Throw ValidationError if cycles found
+  - _Requirements: REQ-O01_
 
-- [x] 4. Implement Renderer (JSX → Fiber)
-  - Create `Renderer` class (no dependencies injected)
-  - Implement `render(jsx)` method that executes JSX components
-  - Build Fiber nodes with: `type`, `props`, `children`, `path`
-  - Generate hierarchy paths for each node (e.g., `['registry', 'service']`)
-  - Execute component functions recursively to resolve children
-  - Store current Fiber tree for validation
-  - _Requirements: REQ-01_
-  - **Deliverables:**
-    - `src/core/Renderer.ts` - JSX to Fiber renderer
-    - Fiber node structure with type, props, children, path
-  - **Testing Strategy:**
-    - Unit tests verify JSX → Fiber transformation
-    - Unit tests verify hierarchy path generation
-    - Unit tests verify recursive component execution
-  - **QA Checklist:**
-    - [ ] Renderer class created with no dependencies
-    - [ ] render() method executes JSX components
-    - [ ] Fiber nodes have correct structure
-    - [ ] Hierarchy paths generated correctly
-    - [ ] Recursive execution works for nested components
-    - [ ] Current Fiber tree stored for validation
+- [ ] 1.3 Implement topological sort for deployment order
+  - Use Kahn's algorithm on dependency graph
+  - Return array of node IDs in deployment order
+  - Sort nodes with same depth by ID for determinism
+  - _Requirements: REQ-O01_
 
-- [x] 5. Implement Validator (Fiber validation)
-  - Create `Validator` class (no dependencies injected)
-  - Implement `validate(fiber)` method
-  - Check: required props are present
-  - Check: context is available when `useStackContext` is called
-  - Check: resource IDs are unique
-  - Check: no circular dependencies
-  - Generate clear error messages with component stack trace (REQ-NF-03.1)
-  - Include file paths and line numbers in errors
-  - _Requirements: REQ-07_
-  - **Deliverables:**
-    - `src/core/Validator.ts` - Fiber validation logic
-    - Clear error messages with stack traces
-  - **Testing Strategy:**
-    - Unit tests verify required props validation
-    - Unit tests verify context availability checks
-    - Unit tests verify unique ID enforcement
-    - Unit tests verify circular dependency detection
-    - Unit tests verify error message quality
-  - **QA Checklist:**
-    - [ ] Validator class created with no dependencies
-    - [ ] validate() checks required props
-    - [ ] validate() checks context availability
-    - [ ] validate() checks resource ID uniqueness
-    - [ ] validate() detects circular dependencies
-    - [ ] Error messages include component stack trace
-    - [ ] Error messages include file paths and line numbers
+- [ ] 1.4 Compute parallel deployment batches
+  - Group nodes by depth in dependency graph
+  - Nodes at same depth can deploy in parallel
+  - Return `string[][]` (array of batches)
+  - _Requirements: REQ-O01_
 
-- [x] 6. Implement CloudDOMBuilder (Fiber → CloudDOM)
-  - Create `CloudDOMBuilder` class that receives `ICloudProvider` via constructor
-  - Implement `build(fiber)` method that traverses Fiber tree
-  - Collect nodes with `useInstance` calls
-  - Build CloudDOM tree with parent-child relationships
-  - Filter out container components (no `useInstance`)
-  - Generate CloudDOM nodes with: `id`, `path`, `construct`, `props`, `children`, `outputs`
-  - _Requirements: REQ-01_
-  - **Key:** CloudDOMBuilder RECEIVES cloudProvider via constructor
-  - **Deliverables:**
-    - `src/core/CloudDOMBuilder.ts` - Fiber to CloudDOM builder
-    - CloudDOM node structure with id, path, construct, props, children, outputs
-  - **Testing Strategy:**
-    - Unit tests verify Fiber → CloudDOM transformation
-    - Unit tests verify useInstance node collection
-    - Unit tests verify parent-child relationships
-    - Unit tests verify container filtering
-  - **QA Checklist:**
-    - [ ] CloudDOMBuilder receives ICloudProvider via constructor
-    - [ ] build() traverses Fiber tree correctly
-    - [ ] Collects nodes with useInstance calls
-    - [ ] Builds parent-child relationships
-    - [ ] Filters out container components
-    - [ ] CloudDOM nodes have correct structure
-    - [ ] Dependency injection pattern followed
+- [ ] 1.5 Add ChangeSet interface to types
+  - Update `src/core/types.ts`
+  - Add ChangeSet, DependencyGraph interfaces
+  - Export from `src/core/index.ts`
+  - _Requirements: REQ-O01_
 
-## Phase 0.5: Test Reorganization (Before Milestone 1)
+**Deliverables:**
+- `src/core/Reconciler.ts`
+- Updated `src/core/types.ts` with ChangeSet interface
 
-**See detailed tasks in:** `.kiro/specs/test-reorganization/tasks.md`
+---
 
-Foundation: Reorganize and optimize existing tests before continuing with new features. This phase reduces test code by 43% (6,600 → 3,800 lines), eliminates 50%+ duplication through shared helpers, and improves test execution time by 20%+.
+### Task 2: Implement State Machine
 
-**Quick Summary:**
-- Create shared test helpers to eliminate duplication
-- Reorganize tests into domain-based structure (unit/integration/edge-cases/performance/contracts)
-- Split oversized files (some are 1,593 lines!) into focused files (<300 lines each)
-- Use parameterized tests to reduce redundancy
-- Separate performance tests from regular test runs
+**Goal:** Track deployment lifecycle with crash recovery and transactional guarantees.
 
-**Expected Outcomes:**
-- 20 focused test files (vs 10 large files)
-- ~3,800 lines (vs ~6,600 lines)
-- Max file size: 300 lines (vs 1,593 lines)
-- Same or better code coverage
-- 20%+ faster test execution
+**Why Second:** Enables safe deployments with resume/rollback capabilities.
 
-### Milestone 0.5 Verification (After Test Reorganization)
+**Architectural Note:** The StateMachine is the universal transaction manager for all providers. It checkpoints after each resource materialization and delegates no control to adapters.
 
-**Verification Run:**
-```bash
-$ npm run test:unit
-$ npm run test:integration
-$ npm run test:performance
-```
+- [ ] 2.1 Create StateMachine class
+  - Create `src/core/StateMachine.ts`
+  - Define DeploymentState interface (status, cloudDOM, changeSet, checkpoint, error, timestamp, user)
+  - Implement state transitions: PENDING → APPLYING → DEPLOYED/FAILED/ROLLED_BACK
+  - Store state in BackendProvider
+  - _Requirements: REQ-O01_
 
-✅ **Expect:**
-- ✔ All tests pass with same or better coverage
-- ✔ No test file exceeds 500 lines
-- ✔ Test execution time improved by 20%+
-- ✔ Clear separation of concerns
-- ✔ Shared helpers reduce duplication by 50%+
-- _Validates: Test Reorganization Requirements_
+- [ ] 2.2 Implement deployment transaction methods
+  - `startDeployment(stackName, changeSet)` - Set status to APPLYING
+  - `updateCheckpoint(stackName, checkpoint)` - Save progress after each resource
+  - `completeDeployment(stackName)` - Set status to DEPLOYED
+  - `failDeployment(stackName, error)` - Set status to FAILED
+  - All methods save state to BackendProvider
+  - _Requirements: REQ-O01_
 
-### Milestone 1 Verification (After Task 6)
+- [ ] 2.3 Implement crash recovery
+  - `resumeDeployment(stackName)` - Continue from last checkpoint
+  - `rollback(stackName)` - Apply reverse change set
+  - Detect incomplete deployments on startup (status = APPLYING)
+  - Offer resume or rollback options
+  - _Requirements: REQ-O01_
 
-**Verification Run:**
-```bash
-$ ts-node examples/poc.tsx --dry-run
-```
+- [ ] 2.4 Integrate StateMachine with CReact
+  - Update `src/core/CReact.ts` to use StateMachine
+  - Wrap deploy() with state machine transitions
+  - Save checkpoints after each resource materializes
+  - Handle errors and update state accordingly
+  - _Requirements: REQ-O01_
 
-✅ **Expect:**
-- ✔ No errors
-- ✔ Logs show `build()` and `deploy()` paths invoked manually
-- ✔ Providers injected successfully (no direct instantiation inside CReact)
-- ✔ CloudDOM structure logged correctly
-- _Validates: REQ-04 (DI pattern)_
+**Deliverables:**
+- `src/core/StateMachine.ts`
+- Updated `src/core/CReact.ts` with state machine integration
+- Updated `src/core/types.ts` with DeploymentState interface
 
-## Phase 2: Orchestrator & Hooks (Tasks 7–13)
+---
 
-Build the main orchestrator and implement hooks for resource creation and state management.
+## Phase 2: Operational (Tasks 3-5)
 
-- [x] 7. Implement CReact orchestrator (main class)
-  - Create `CReactConfig` interface with: `cloudProvider`, `backendProvider`, `migrationMap?`, `asyncTimeout?`
-  - Create `CReact` class that receives `CReactConfig` via constructor
-  - Instantiate `Renderer`, `Validator`, `CloudDOMBuilder` (inject cloudProvider), `Reconciler` (inject migrationMap)
-  - Implement `build(jsx)` method: render → validate → commit → persist (REQ-01.6)
-  - Implement `compare(previous, current)` method: validate → diff
-  - Implement `deploy(cloudDOM)` method: validate → check idempotency (REQ-05.4) → lifecycle hooks → materialize → save state
-  - _Requirements: REQ-01, REQ-04, REQ-05, REQ-07, REQ-09_
-  - **Key:** CReact RECEIVES providers, does NOT create them
-  - **Deliverables:**
-    - `src/core/CReact.ts` - Main orchestrator class
-    - `CReactConfig` interface for dependency injection
-    - build(), compare(), deploy() methods
-  - **Testing Strategy:**
-    - Integration tests verify full pipeline (render → validate → build → deploy)
-    - Unit tests verify idempotent deployment
-    - Unit tests verify lifecycle hook invocation
-    - Unit tests verify provider injection
-  - **QA Checklist:**
-    - [ ] CReactConfig interface created
-    - [ ] CReact receives config via constructor
-    - [ ] Renderer, Validator, CloudDOMBuilder instantiated
-    - [ ] build() method: render → validate → commit → persist
-    - [ ] compare() method: validate → diff
-    - [ ] deploy() method: validate → idempotency → hooks → materialize → save
-    - [ ] Providers injected, not created
-    - [ ] All tests passing
+Build CLI and developer workflow commands.
 
-- [x] 8. Implement CloudDOM persistence (REQ-01.6)
-  - Create `.creact/` directory if it doesn't exist
-  - Save CloudDOM to `.creact/clouddom.json` after build
-  - Format JSON with indentation for readability
-  - Log file path after saving
-  - _Requirements: REQ-01.6_
-  - **Deliverables:**
-    - CloudDOM persistence logic in CReact.ts
-    - `.creact/clouddom.json` file with formatted JSON
-  - **Testing Strategy:**
-    - Unit tests verify directory creation
-    - Unit tests verify JSON formatting
-    - Unit tests verify file persistence
-    - Integration tests verify persistence after build
-  - **QA Checklist:**
-    - [x] .creact/ directory created if missing
-    - [x] CloudDOM saved to .creact/clouddom.json
-    - [x] JSON formatted with indentation
-    - [x] File path logged after saving
-    - [x] Tests verify persistence works
+### Task 3: Create CLI Structure
 
-- [x] 8.5. Implement JSX support (createElement factory)
-  - Create `src/jsx.ts` with `CReact.createElement` factory function
-  - Implement createElement to return JSXElement objects with `type`, `props`, `key`
-  - Handle children normalization (single child vs array)
-  - Extract `key` from props and store separately
-  - Create `CReact.Fragment` symbol for fragment support
-  - Create `src/jsx.d.ts` with JSX type definitions
-  - Update `tsconfig.json` with `jsxFactory: "CReact.createElement"`
-  - _Requirements: REQ-03_
-  - **Key:** This enables actual JSX syntax instead of manual object building
-  - **Deliverables:**
-    - `src/jsx.ts` - createElement factory and Fragment
-    - `src/jsx.d.ts` - JSX type definitions
-    - Updated `tsconfig.json` with JSX configuration
-  - **Testing Strategy:**
-    - Unit tests verify createElement transforms JSX correctly
-    - Unit tests verify children normalization
-    - Unit tests verify key extraction
-    - Integration tests verify JSX syntax works in components
-    - TypeScript compilation tests verify type checking
-  - **QA Checklist:**
-    - [x] createElement factory function created
-    - [x] Returns JSXElement with type, props, key
-    - [x] Children normalized correctly
-    - [x] Key extracted from props
-    - [x] Fragment symbol created
-    - [x] JSX type definitions created
-    - [x] tsconfig.json configured for JSX
-    - [x] Tests verify JSX transformation
-    - [x] TypeScript validates props correctly
+**Goal:** Set up CLI framework with command routing and configuration loading.
 
-- [x] 9. Implement useInstance hook (React-like API with key prop)
-  - Create `useInstance(construct, props)` hook (no separate ID parameter)
-  - Extract `key` from props if provided, otherwise auto-generate from construct type
-  - Support multiple calls with same construct type via index appending
-  - Generate full resource ID from component hierarchy path + construct key
-  - Create CloudDOM node and attach to Fiber
-  - Store construct type and props
-  - Return reference to resource
-  -nts: REQ-04_
-  - **Key:** React-like API - ID comes from `key` prop, not separate parameter
-  - **Deliverables:**
-    - `src/hooks/useInstance.ts` - Resource creation hook
-    - CloudDOM node creation logic with key-based ID generation
-  - **Testing Strategy:**
-    - Unit tests verify key prop extraction
-    - Unit tests verify auto-generated IDs from construct type
-    - Unit tests verify multiple calls with same type (index appending)
-    - Unit tests verify CloudDOM node creation
-    - Unit tests verify node attachment to Fiber
-    - Integration tests verify hook usage in components
-  - **QA Checklist:**
-    - [x] useInstance hook created with (construct, props) signature
-    - [x] Key extracted from props if provided
-    - [x] Auto-generates ID from construct type if no key
-    - [x] Multiple calls with same type append index
-    - [x] Full resource ID generated from path + key
-    - [x] CloudDOM node created and attached
-    - [x] Construct type and props stored
-    - [x] Reference to resource returned
-    - [x] Tests verify key-based ID generation
-    eration fallback
+**Why Third:** Enables developer workflow (build, plan, deploy).
 
-- [x] 10. Implement naming system
-  - Generate resource IDs from Fiber paths (e.g., `['registry', 'service']` → `'registry.service'`)
-  - Use kebab-case for multi-word names (e.g., `'registry-service'`)
-  - Support custom keys via `key` prop
-  - Ensure IDs are unique within scope
-  - _Requirements: REQ-01_
-  - **Deliverables:**
-    - Naming utility functions
-    - ID generation logic
-  - **Testing Strategy:**
-    - Unit tests verify path → ID conversion
-    - Unit tests verify kebab-case formatting
-    - Unit tests verify custom key support
-    - Unit tests verify ID uniqueness enforcement
-  - **QA Checklist:**
-    - [x] IDs generated from Fiber paths
-    - [x] Kebab-case used for multi-word names
-    - [x] Custom keys supported via key prop
-    - [x] IDs unique within scope
-    - [x] Tests verify naming logic
+- [ ] 3.1 Create CLI entry point
+  - Create `src/cli/index.ts`
+  - Use commander or yargs for command parsing
+  - Add global options: --stack, --json, --help
+  - Route to command handlers
+  - _Requirements: REQ-O08_
 
-- [x] 11. Implement useState hook (declarative output binding)
-  - Create `useState(initialValue)` hook that accepts a single value (like React)
-  - Store outputs in Fiber node's hooks array (index-based tracking)
-  - Return `[state, setState]` tuple
-  - Implement `setState(value)` to update output value (NOT a render trigger)
-  - Support multiple useState calls per component using hook index
-  - Reset hook index at start of each component render
-  - During build: `setState()` collects values known at build-time
-  - During deploy: `setState()` patches in async resources (queue URLs, ARNs)
-  - Outputs become persisted state for the component
-  - _Requirements: REQ-02_
-  - **Key:** `setState()` is a persistent output update mechanism, not a reactive updater
-  - **Key:** Mimics React's hooks array pattern for multiple useState calls
-  - **Deliverables:**
-    - `src/hooks/useState.ts` - Declarative output hook with hooks array
-    - Output storage in Fiber nodes (hooks array)
-  - **Testing Strategy:**
-    - Unit tests verify single output declaration
-    - Unit tests verify multiple useState calls tracked independently
-    - Unit tests verify setState updates output value
-    - Unit tests verify hook index resets per component
-    - Integration tests verify build-time vs deploy-time behavior
-    - Integration tests verify output persistence
-  - **QA Checklist:**
-    - [x] useState hook created with single value parameter
-    - [x] Outputs stored in Fiber node's hooks array
-    - [x] [state, setState] tuple returned
-    - [x] setState updates output value (not render trigger)
+- [ ] 3.2 Create configuration loader
+  - Create `src/cli/config.ts`
+  - Load CReact config from `creact.config.ts` or `creact.config.js`
+  - Support provider configuration (cloudProvider, backendProvider)
+  - Support CLI options override config file
+  - _Requirements: REQ-O08_
 
-- [x] 12. Migrate useInstance to React-like API (remove ID parameter)
-  - Update `useInstance` signature from `useInstance(id, Construct, props)` to `useInstance(Construct, props)`
-  - Extract `key` from props if provided (like React's key prop)
-  - Auto-generate ID from construct type name if no key provided (e.g., `RDSInstance` → `'rdsinstance'`)
-  - Support multiple calls with same construct type by appending index (`-0`, `-1`, etc.)
-  - Track construct call count per component using hooks array pattern
-  - Update all existing tests to use new API
-  - _Requirements: REQ-04_
-  - **Key:** Makes API more React-like by removing manual ID parameter
-  - **Deliverables:**
-    - Updated `src/hooks/useInstance.ts` with new signature
-    - Auto-ID generation logic
-    - Migrated tests
-  - **Testing Strategy:**
-    - Unit tests verify key extraction from props
-    - Unit tests verify auto-ID generation from construct type
-    - Unit tests verify multiple calls with same type get unique IDs
-    - Integration tests verify backward compatibility
-  - **QA Checklist:**
-    - [x] useInstance signature updated to (Construct, props)
-    - [x] key extracted from props
-    - [x] Auto-ID generation works
-    - [x] Multiple calls get unique IDs
-    - [x] All tests migrated and passing
+- [ ] 3.3 Add CLI utilities
+  - Create `src/cli/utils.ts`
+  - Add colored output helpers (chalk)
+  - Add spinner/progress indicators
+  - Add error formatting
+  - _Requirements: REQ-O08_
 
-- [x] 13. Refactor useState to follow new design specification
-  - Update `useState` implementation to follow React-like hooks array pattern
-  - Change signature from `useState(key, initialValue)` to `useState(initialValue)` (single parameter like React)
-  - Implement hooks array tracking in Fiber nodes for multiple useState calls
-  - Add hook index counter that resets at component render start
-  - Return `[state, setState]` tuple (React-like API)
-  - Update `setState` to update output value in hooks array by index
-  - Ensure setState is NOT a render trigger - it's a persistent output update mechanism
-  - Support multiple useState calls per component using index-based tracking
-  - Update output extraction logic to read from hooks array
-  - Migrate all useState tests to use new single-parameter API
-  - Update integration tests to use JSX syntax with pragma comments
-  - _Requirements: REQ-02_
-  - **Key:** This aligns useState with React's API - single parameter, hooks array tracking
-  - **Deliverables:**
-    - Updated `src/hooks/useState.ts` with new signature and hooks array
-    - Hook index tracking in Fiber nodes
-    - Migrated tests using new API and JSX syntax
-  - **Testing Strategy:**
-    - Unit tests verify single parameter API
-    - Unit tests verify hooks array tracking
-    - Unit tests verify multiple useState calls get unique indices
-    - Unit tests verify hook index resets per component
-    - Unit tests verify setState updates correct hook by index
-    - Integration tests verify output extraction from hooks array
-    - Integration tests verify JSX syntax works with useState
-  - **QA Checklist:**
-    - [x] useState signature changed to (initialValue) only
-    - [x] Hooks array implemented in Fiber nodes
-    - [x] Hook index counter resets at component start
-    - [x] [state, setState] tuple returned
-    - [x] setState updates output by hook index
-    - [x] Multiple useState calls tracked independently
-    - [x] Output extraction reads from hooks array
-    - [x] All tests migrated to new API
-    - [x] Tests migrated to JSX syntax
-    - [x] All tests passing
+- [ ] 3.4 Set up CLI build and packaging
+  - Add bin entry in package.json: `"creact": "./dist/cli/index.js"`
+  - Configure TypeScript to compile CLI
+  - Add shebang to CLI entry point
+  - Test CLI installation: `npm link`
+  - _Requirements: REQ-O08_
 
-- [x] 14. Implement createContext and useContext (React-like context API)
-  - Create `createContext<T>(defaultValue?)` function that returns context object with Provider and Consumer
-  - Implement `useContext(MyContext)` hook that retrieves value from nearest Provider
-  - Store context instances in Fiber nodes during rendering
-  - Implement depth-first traversal to find nearest Provider of specific context
-  - Support multiple independent contexts (each with own Provider/Consumer)
-  - Support default values when no Provider exists
-  - Throw error when useContext called without Provider and no default value
-  - Update Renderer to track context providers during component execution
-  - Create context registry to map context objects to their values
-  - _Requirements: REQ-02_
-  - **Key:** This replaces the global StackContext with React's createContext pattern
-  - **Deliverables:**
-    - `src/context/createContext.ts` - Context creation function
-    - `src/hooks/useContext.ts` - Context consumption hook
-    - Context tracking in Renderer
-    - Provider/Consumer components
-  - **Testing Strategy:**
-    - Unit tests verify createContext returns context object with Provider/Consumer
-    - Unit tests verify useContext retrieves value from nearest Provider
-    - Unit tests verify multiple contexts work independently
-    - Unit tests verify default value fallback
-    - Unit tests verify error when no Provider and no default
-    - Integration tests verify context propagation in component trees
-    - Integration tests verify nested providers of same context
-  - **QA Checklist:**
-    - [x] createContext<T>(defaultValue?) function created
-    - [x] Returns context object with Provider and Consumer
-    - [x] useContext(MyContext) hook implemented
-    - [x] Depth-first traversal to nearest Provider
-    - [x] Multiple independent contexts supported
-    - [x] Default values work correctly
-    - [x] Error thrown when no Provider and no default
-    - [x] Context tracking in Renderer
-    - [x] All tests passing
-    - [x] Type-safe with TypeScript generics
+**Deliverables:**
+- `src/cli/index.ts` - CLI entry point
+- `src/cli/config.ts` - Configuration loader
+- `src/cli/utils.ts` - CLI utilities
+- Updated `package.json` with bin entry
 
-- [ ] 15. Migrate tests from manual objects to JSX
-  - Update all test files to use JSX syntax instead of manual object creation
-  - Replace `{ type: Component, props: {} }` with `<Component />`
-  - Update integration tests to use JSX
-  - Verify all tests still pass with JSX
-  - _Requirements: REQ-03_
-  - **Deliverables:**
-    - Migrated test files using JSX
-  - **Testing Strategy:**
-    - Run all tests to verify JSX works correctly
-    - Verify test readability improved
-  - **QA Checklist:**
-    - [ ] All tests migrated to JSX
-    - [ ] Tests more readable
-    - [ ] All tests passing
-    - [ ] No manual object creation remaining
-    - [x] Multiple useState calls supported via hook index
-    - [x] Hook index resets at component render start
-    - [x] Build-time collection works
-    - [x] Deploy-time patching works
-    - [x] Tests verify declarative semantics
-    - [x] Tests verify multiple useState calls
+---
 
-- [ ] 13. Implement output system (persistent state snapshots)
-  - Extract outputs from `useState` calls in Fiber nodes
-  - Store outputs in CloudDOM nodes
-  - Generate output names: `nodeId.stateKey` (e.g., `'registry.repositoryUrl'`)
-  - Persist outputs to backend provider after deploy (REQ-02.7)
-  - On next build, merge persisted outputs into state context
-  - DummyCloudProvider logs outputs during materialization
-  - _Requirements: REQ-02, REQ-06_
-  - **Key:** Outputs are persisted to backend for reconciliation on next build
-  - **Deliverables:**
-    - Output extraction logic in CReact.ts
-    - Output persistence to backend
-    - Output merging on next build
-  - **Testing Strategy:**
-    - Unit tests verify output extraction from Fiber
-    - Unit tests verify output name generation
-    - Integration tests verify persistence to backend
-    - Integration tests verify merging on next build
-  - **QA Checklist:**
-    - [ ] Outputs extracted from useState calls
-    - [ ] Outputs stored in CloudDOM nodes
-    - [ ] Output names follow nodeId.stateKey pattern
-    - [ ] Outputs persisted to backend after deploy
-    - [ ] Outputs merged into context on next build
-    - [ ] DummyCloudProvider lAf or Task 16)
-### Milestone 2 Verification (After Task 14)
+### Task 4: Implement Build and Plan Commands
 
-**Verification Run:**
-```bash
-$ ts-node examples/poc.tsx
-```
+**Goal:** Enable developers to build CloudDOM and preview changes.
 
-✅ **Expect:**
-- ✔ Hooks work correctly (`useInstance`, `useState`, `useStackContext`, `useEffect`)
-- ✔ `useState()` declares outputs (NOT reactive state)
-- ✔ `setState()` updates output map (NOT a render trigger)
-- ✔ `useEffect()` runs once at mount, cleanup runs at unmount
-- ✔ CloudDOM nodes have correct IDs and outputs
-- ✔ Stack Context resolves depth-first to nearest Provider
-- ✔ Outputs logged in format: `nodeId.outputKey = value`
-- ✔ Outputs persisted to backend provider
-- ✔ On next build, persisted outputs merged into state context
-- _Validates: REQ-01, REQ-02, REQ-03, REQ-12_
+**Why Fourth:** Core developer workflow - see what will change before deploying.
 
-## Phase 3: Diff & Lifecycle (Tasks 15–19)
+- [ ] 4.1 Implement creact build command
+  - Create `src/cli/build.ts`
+  - Load app from entry file (default: `infrastructure.tsx`)
+  - Call `creact.build(app)`
+  - Save CloudDOM to backend
+  - Output summary: resource count, validation status
+  - Support --json flag for CI/CD
+  - _Requirements: REQ-O08_
 
-Implement reconciliation, migration hooks, lifecycle management, and component callbacks.
-- [ ] 17. Implement Reconciler (diff logic)
-- [ ] 15. Implement Reconciler (diff logic)
-  - Create `Reconciler` class that receives optional `migrationMap` via constructor
-  - Implement `diff(previous, current)` method
-  - Compare CloudDOM trees by ID
-  - Detect: creates (ID in current only)
-  - Detect: deletes (ID in previous only)
-  - Detect: updates (ID in both, props changed)
-  - Detect: moves (same resource, different ID)
-  - _Requirements: REQ-05, REQ-08_
-  - **Deliverables:**
-    - `src/core/Reconciler.ts` - Diff logic implementation
-    - Diff result with creates, updates, deletes, moves
-  - **Testing Strategy:**
-    - Unit tests verify create detection
-    - Unit tests verify delete detection
-    - Unit tests verify update detection
-    - Unit tests verify move detection
-    - Integration tests verify full diff scenarios
-  - **QA Checklist:**
-    - [ ] Reconciler receives migrationMap via constructor
-    - [ ] diff() compares CloudDOM trees by ID
-    - [ ] Creates detected (ID in current only)
-    - [ ] Deletes detected (ID in previous only)
-    - [ ] Updates detected (ID in both, ningprops changed)
-  [ ] 18. Implement migration map versiosource, different ID)
--   - [ ] Tests verify diff logic
+- [ ] 4.2 Implement creact plan command
+  - Create `src/cli/plan.ts`
+  - Load previous CloudDOM from backend
+  - Build current CloudDOM
+  - Use Reconciler to compute diff
+  - Display colored diff (green=create, yellow=update, red=delete)
+  - Show deployment order
+  - Support --json flag for CI/CD
+  - _Requirements: REQ-O04_
 
-- [ ] 16. Implement migration map versioning
-  - Store migration maps in backend state with version and timestamp
-  - Create `MigrationMapVersion` interface
-  - Append to `migrationHistory` array in state
-  - Load migration history when comparing
-  - _Requirements: REQ-08.5_
-  - **Deliverables:**
-    - `MigrationMapVersion` interface
-    - Migration history storage in backend
-  - **Testing Strategy:**
-    - Unit tests verify version storage
-    - Unit tests verify history appending
-    - Integration tests verify history loading
-  - **QA Checklist:**
-    - [ ] Migration maps stored with version and timestamp
-    - [ ] MigrationMapVersion interface created
-    - [ ] History appended to miokstionHistory array
-- [ ] 19. Implement migration homparing
-    - [ ] Tests verify versioning
+- [ ] 4.3 Add colored diff output
+  - Create `src/cli/diff.ts`
+  - Format creates in green with + prefix
+  - Format updates in yellow with ~ prefix
+  - Format deletes in red with - prefix
+  - Show resource type and ID for each change
+  - Group by change type
+  - _Requirements: REQ-O04_
 
-- [ ] 17. Implement migration hooks
-  - Update `Reconciler` to check migration map for ID changes (REQ-08.2)
-  - Treat mapped ID changes as updates (REQ-08.1)
-  - Preserve resource state during refactoring (REQ-08.3)
-  - Fail with clear error for unmapped ID changes (REQ-08.4)
-  - _Requirements: REQ-08_
-  - **Deliverables:**
-    - Migration map checking logic in Reconciler
-    - Error handling for unmapped ID changes
-  - **Testing Strategy:**
-    - Unit tests verify migration map checking
-    - Unit tests verify mapped changes treated as updates
-    - Unit tests verify state preservation
-    - Unit tests verify error on unmapped changes
-  - **QA Checklist:**
-    - [ ] Reconciler checks migration map for ID changes
-    - [ ] Mapped ID changes treated as updates
-    - [ ] Resource state preserved during refactoring
-    - [ ] Clear error for unmappedycle hookschanges
-    - [ ] Tests verify migration hooks
+**Deliverables:**
+- `src/cli/build.ts` - Build command
+- `src/cli/plan.ts` - Plan command
+- `src/cli/diff.ts` - Diff formatting utilities
 
-- [ ] 18. Implement provider lifecycle hooks
-  - Update `CReact.deploy()` to call lifecycle hooks
-  - Call `preDeploy(cloudDOM)` before materialization (REQ-09.1)
-  - Call `postDeploy(cloudDOM, outputs)` after materialization (REQ-09.2)
-  - Call `onError(error, cloudDOM)` on deployment failure (REQ-09.3)
-  - Halt deployment if lifecycle hooks fail (REQ-09.4)
-  - Emit structured JSON logs for lifecycle events (REQ-09.5)
-  - Log format for lifecycle hooks:
-    ```json
-    {
-      "timestamp": "2025-10-04T12:00:00Z",
-      "event": "preDeploy",
-      "stack": "registry",
-      "status": "success"
-    }
-    ```
-  - _Requirements: REQ-09_
-  - **Deliverables:**
-    - Lifecycle hook invocation in CReact.deploy()
-    - Structured JSON logging
-  - **Testing Strategy:**
-    - Integration tests verify hook invocation order
-    - Unit tests verify preDeploy called before materialization
-    - Unit tests verify postDeploy called after materialization
-    - Unit tests verify onError called on failure
-    - Unit tests verify deployment halts on hook failure
-    - Unit tests verify JSON log structure
-  - **QA Checklist:**
-    - [ ] CReact.deploy() calls lifecycle hooks
-    - [ ] preDeploy called before materialization
-    - [ ] postDeploy called after materialization
-    - [ ] onError called on deployment failure
-    - [ ] Deployment halts if hooks fail
-    - [ ] Structure component lifecycle callbacksd JSON logs emitted
-- [ ] 21. Implement    - [ ] Tests verify hook behavior
+---
 
-- [ ] 19. Implement component lifecycle callbacks
-  - Add support for `onDeploy` callback in useInstance props (REQ-11.1)
-  - Add support for `onStage` callback in useInstance props (REQ-11.2)
-  - Add support for `onDestroy` callback in useInstance props (REQ-11.3)
-  - Invoke callbacks at appropriate lifecycle stages
-  - Pass outputs and CloudDOM node to callbacks (REQ-11.5)
-  - Support async callbacks (REQ-11.6)
-  - Halt deployment on callback failure (REQ-11.4)
-  - _Requirements: REQ-11_
-  - **Deliverables:**
-    - Component callback support in useInstance
-    - Callback invocation logic
-  - **Testing Strategy:**
-    - Unit tests verify onDeploy callback invocation
-    - Unit tests verify onStage callback invocation
-    - Unit tests verify onDestroy callback invocation
-    - Unit tests verify outputs passed to callbacks
-    - Unit tests verify async callback support
-    - Unit tests verify deployment halts on failure
-  - **QA Checklist:**
-    - [ ] onDeploy callback supported in useInstance
-    - [ ] onStage callback supported in useInstance
-    - [ ] onDestroy callback supported in useInstance
-    - [ ] Callbacks invoked at correct stages
-    - [ ] Outputs and CloudDOM node passed to callbacks
-    - [ ] Async callbacks supported
-    - [ ] Deployment halts on callback failure
-    - [ ] Tests verify callback behavior
+### Task 5: Implement Deploy and Resume Commands
 
-### Milestone 3 Verification (After Task 19)
+**Goal:** Enable safe deployments with crash recovery.
 
-**Verification Run:**
-```bash
-$ ts-node examples/lifecycle-example.tsx
-```
+**Why Fifth:** Complete the core workflow (build → plan → deploy).
 
-✅ **Expect:**
-- ✔ Reconciler correctly diffs CloudDOM trees
-- ✔ Migration maps preserve resource identity during refactoring
-- ✔ Provider lifecycle hooks execute in correct order (preDeploy → materialize → postDeploy)
-- ✔ Component callbacks (onDeploy, onStage, onDestroy) execute at correct stages
-- ✔ Structured JSON logs emitted for lifecycle events
-- ✔ Dese 4: Async Handling & CLI (Tasks 22–28)s
-- _Validates: REQ-05, REQ-08, REQ-09, REQ-11_
-
-## Phase 4: Async Handling & CLI (Tasks 20–26)
-
-Build async resource handling, CLI commands, and security/logging utilities.
-
-- [ ] 22. Implement async resource handling
-  - Add `asyncTimeout` to `CReactConfig` (default 5 minutes) (REQ-10.5)
-  - Update deployment to resolve dependencies in order (REQ-10.2)
-  - Wait for parent outputs before deploying children (REQ-10.3)
-  - Handle async resolution errors with clear messages (REQ-10.4)
-  - Include timeout information in error messages
-  - _Requirements: REQ-10_
-  - **Deliverables:**
-    - Async timeout configuration in CReactConfig
-    - Dependency resolution logic in deploy()
-  - **Testing Strategy:**
-    - Unit tests verify timeout configuration
-    - Integration tests verify dependency order resolution
-    - Integration tests verify parent-before-child deployment
-    - Unit tests verify timeout error handling
-  - **QA Checklist:**
-    - [ ] asyncTimeout added to CReactConfig (default 5 min)
-    - [ ] Deployment resolves dependencies in order
-    - [ ] Waits for parent outputs before children
-    - [ ] Async errors have clear messages
-    - [ ] Timeout information in error messages
-    - [ ] Tests verify async handling
-
-- [ ] 23. Implement CLI: build command
-  - Create `cli/build.ts`
-  - Parse JSX file path from arguments
-  - Instantiate DummyCloudProvider and DummyBackendProvider
-  - Inject providers into CReact
-  - Call `creact.build(jsx)`
-  - Log success message with CloudDOM path
-  - Handle errors with clear messages
-  - _Requirements: REQ-05_
-  - **Key:** CLI is where providers are instantiated and injected
-  - **Deliverables:**
-    - `src/cli/build.ts` - Build command implementation
-  - **Testing Strategy:**
-    - E2E tests verify CLI execution
-    - Unit tests verify argument parsing
-    - Unit tests verify provider instantiation
-    - Unit tests verify error handling
-  - **QA Checklist:**
-    - [ ] cli/build.ts created
-    - [ ] JSX file path parsed from arguments
-    - [ ] Providers instantiated and injected
-    - [ ] creact.build(jsx) called
-    - [ ] Success message logged with path
-    - [ ] Errors handled with clear messages
-    - [ ] Tests verify CLI behavior
-
-- [ ] 24. Implement CLI: validate command
-  - Create `cli/validate.ts`
-  - Parse JSX file path from arguments
-  - Instantiate CReact with dummy providers
-  - Render JSX to Fiber
-  - Run validator only (no commit)
-  - Log validation success or errors
-  - Exit with appropriate code (0 = success, 1 = error)
-  - _Requirements: REQ-07_
-  - **Deliverables:**
-    - `src/cli/validate.ts` - Validate command implementation
-  - **Testing Strategy:**
-    - E2E tests verify CLI execution
-    - Unit tests verify validation-only behavior
-    - Unit tests verify exit codes
-  - **QA Checklist:**
-    - [ ] cli/validate.ts created
-    - [ ] JSX file path parsed
-    - [ ] CReact instantiated with providers
-    - [ ] Validator runs without commit
-    - [ ] Success/errors logged
-    - [ ] Exit codes correct (0=success, 1=error)
-    - [ ] Tests verify validation
-
-- [ ] 25. Implement CLI: compare command
-  - Create `cli/compare.ts`
-  - Load previous CloudDOM from `.creact/clouddom.json`
-  - Build current CloudDOM from JSX
-  - Call `creact.compare(previous, current)`
-  - Display diff in readable format:
-    - `+` for creates (green)
-    - `-` for deletes (red)
-    - `Δ` for updates (yellow)
-  - Show "Review diff before deploying" message
-  - _Requirements: REQ-05_
-  - **Deliverables:**
-    - `src/cli/compare.ts` - Compare command implementation
-    - Colored diff output
-  - **Testing Strategy:**
-    - E2E tests verify CLI execution
-    - Unit tests verify diff display formatting
-    - Unit tests verify color coding
-  - **QA Checklist:**
-    - [ ] cli/compare.ts created
-    - [ ] Previous CloudDOM loaded
-    - [ ] Current CloudDOM built
-    - [ ] creact.compare() called
-    - [ ] Diff displayed with colors
-    - [ ] Review message shown
-    - [ ] Tests verify compare output
-
-- [ ] 26. Implement CLI: deploy command
-  - Create `cli/deploy.ts`
-  - Load CloudDOM from `.creact/clouddom.json`
+- [ ] 5.1 Implement creact deploy command
+  - Create `src/cli/deploy.ts`
+  - Run plan first (show diff)
+  - Prompt for confirmation unless --auto-approve
+  - Use StateMachine to track deployment
   - Call `creact.deploy(cloudDOM)`
-  - Show progress indicator during deployment (REQ-NF-03.2)
-  - Log deployment time on completion
-  - Handle errors with remediation suggestions (REQ-NF-03.3)
-  - _Requirements: REQ-05_
-  - **Deliverables:**
-    - `src/cli/deploy.ts` - Deploy command implementation
-    - Progress indicators
-  - **Testing Strategy:**
-    - E2E tests verify CLI execution
-    - Unit tests verify progress indicators
-    - Unit tests verify timing logs
-    - Unit tests verify error remediation
-  - **QA Checklist:**
-    - [ ] cli/deploy.ts created
-    - [ ] CloudDOM loaded from file
-    - [ ] creact.deploy() called
-    - [ ] Progress indicator shown
-    - [ ] Deployment time logged
-    - [ ] Errors have remediation suggestions
-    - [ ] Tests verify deploy behavior
+  - Show progress for each resource
+  - Handle errors and offer rollback
+  - _Requirements: REQ-O08, REQ-O01_
 
-### Milestone 4 Verification (After Task 26)
+- [ ] 5.2 Implement creact resume command
+  - Create `src/cli/resume.ts`
+  - Check for incomplete deployments (status = APPLYING)
+  - Show checkpoint info (X of Y resources deployed)
+  - Prompt for resume or rollback
+  - Continue deployment from checkpoint
+  - _Requirements: REQ-O01_
 
-**Verification Run:**
+- [ ] 5.3 Add deployment progress indicators
+  - Show spinner during resource materialization
+  - Show progress bar: [====>    ] 5/10 resources
+  - Show elapsed time
+  - Show resource name being deployed
+  - _Requirements: REQ-O08_
+
+- [ ] 5.4 Implement configurable retry behavior
+  - Add CLI flags: --max-retries, --retry-delay
+  - Pass retry configuration through to StateMachine
+  - Support per-provider retry overrides from config
+  - _Requirements: REQ-O03_
+
+**Deliverables:**
+- `src/cli/deploy.ts` - Deploy command
+- `src/cli/resume.ts` - Resume command
+- Progress indicators in CLI utils
+- Retry configuration support
+
+---
+
+## Phase 3: Interop Core (Tasks 6-8)
+
+Enable external IaC tool integration and multi-provider support.
+
+### Task 6: Implement IaC Adapter System
+
+**Goal:** Create adapter interface and deterministic ID utilities.
+
+**Why Sixth:** Foundation for wrapping Terraform, Helm, Pulumi.
+
+- [ ] 6.1 Create IIaCAdapter interface
+  - Create `src/adapters/IIaCAdapter.ts`
+  - Extend ICloudProvider
+  - Add metadata field (name, version, supportedFormats)
+  - Add `describeCapabilities()` method
+  - Add `load(source, options)` method
+  - Add `mapOutputs(externalOutputs)` method
+  - _Requirements: REQ-I01_
+
+- [ ] 6.2 Implement deterministic ID utilities
+  - Create `src/utils/deterministic.ts`
+  - Implement `generateDeterministicId(source, config)` using SHA-256
+  - Implement `normalizeConfig(config)` - sort keys recursively
+  - Ensure no timestamps, random values, or UUIDs
+  - _Requirements: REQ-I05_
+
+- [ ] 6.3 Create adapter base class
+  - Create `src/adapters/BaseAdapter.ts`
+  - Implement common adapter logic (ID generation, config normalization)
+  - Provide template methods for subclasses
+  - Handle adapter errors with AdapterError class
+  - **Adapters must implement pure materialization logic only**
+  - **Orchestration (ordering, rollback, retries) is handled by CReact core**
+  - **BaseAdapter must explicitly prevent adapters from overriding orchestration behavior**
+  - _Requirements: REQ-I01, REQ-ARCH-01_
+
+- [ ] 6.4 Implement Unified Dependency Injection Container
+  - Create `src/core/DependencyContainer.ts`
+  - Maintain Maps for providers, backends, adapters, extensions
+  - Implement `registerProvider(provider)` method
+  - Implement `registerBackend(backend)` method
+  - Implement `registerExtension(extension)` method
+  - Expose `resolve(type)` for dependency lookup
+  - _Requirements: REQ-O09_
+
+- [ ] 6.5 Add lifecycle hook system
+  - Support `onBuild`, `onDeploy`, `onError` hooks in extensions
+  - Execute hooks with shared runtime context
+  - Define ICReactExtension interface
+  - _Requirements: REQ-O09_
+
+- [ ] 6.6 Integrate with CReact core
+  - Inject container into CReact constructor
+  - Providers auto-resolve from container
+  - Remove static imports of provider classes where possible
+  - Initialize container before building CloudDOM
+  - _Requirements: REQ-O09_
+
+- [ ] 6.7 Create example extension
+  - Create `examples/extensions/telemetry-extension.ts`
+  - Add logging for deploy lifecycle
+  - Demonstrate `registerExtension()`
+  - Show custom hooks usage
+  - _Requirements: REQ-O09_
+
+- [ ] 6.8 Add creact info command
+  - Create `src/cli/info.ts`
+  - List registered providers
+  - List registered backends
+  - List registered extensions
+  - Show capabilities for each
+  - _Requirements: REQ-O08, REQ-O09_
+
+- [ ] 6.9 Implement mock provider and fake backend for testing
+  - Create `src/testing/MockCloudProvider.ts`
+  - Create `src/testing/FakeBackendProvider.ts`
+  - Implement deterministic resource simulation
+  - Enable snapshot-based testing
+  - _Requirements: REQ-O09_
+
+**Deliverables:**
+- `src/adapters/IIaCAdapter.ts` - Adapter interface
+- `src/utils/deterministic.ts` - Deterministic utilities
+- `src/adapters/BaseAdapter.ts` - Base adapter class
+- `src/core/DependencyContainer.ts` - DI container
+- `src/core/types.ts` - ICReactExtension interface
+- `examples/extensions/telemetry-extension.ts` - Example extension
+- `src/cli/info.ts` - Info command
+- `src/testing/MockCloudProvider.ts` - Mock provider for testing
+- `src/testing/FakeBackendProvider.ts` - Fake backend for testing
+
+---
+
+### Task 7: Implement Terraform and Helm Adapters
+
+**Goal:** Create working adapters for Terraform and Helm.
+
+**Why Seventh:** Prove adapter system works with real tools.
+
+- [ ] 7.1 Implement TerraformCloudProvider
+  - Create `src/adapters/TerraformCloudProvider.ts`
+  - Extend BaseAdapter
+  - Implement `load()` - parse Terraform HCL/JSON
+  - Implement `materialize()` - run `terraform apply`
+  - Implement `mapOutputs()` - convert Terraform outputs
+  - Use deterministic ID generation
+  - Run Terraform in isolated child process
+  - _Requirements: REQ-I01, REQ-I05_
+
+- [ ] 7.2 Implement HelmCloudProvider
+  - Create `src/adapters/HelmCloudProvider.ts`
+  - Extend BaseAdapter
+  - Implement `load()` - parse Helm chart
+  - Implement `materialize()` - run `helm install`
+  - Implement `mapOutputs()` - convert Helm outputs
+  - Use deterministic ID generation
+  - Run Helm in isolated child process
+  - _Requirements: REQ-I01, REQ-I05_
+
+- [ ] 7.3 Create adapter usage examples
+  - Create `examples/terraform-vpc.tsx` - Wrap Terraform VPC module
+  - Create `examples/helm-nginx.tsx` - Wrap Helm nginx chart
+  - Show how to use adapted resources with native CReact resources
+  - _Requirements: REQ-I01_
+
+**Deliverables:**
+- `src/adapters/TerraformCloudProvider.ts`
+- `src/adapters/HelmCloudProvider.ts`
+- `examples/terraform-vpc.tsx`
+- `examples/helm-nginx.tsx`
+
+---
+
+### Task 8: Implement Provider Router
+
+**Goal:** Enable mixing resources from multiple providers in one tree.
+
+**Why Eighth:** Enables real-world multi-cloud scenarios.
+
+**Architectural Note:** ProviderRouter interacts only with the StateMachine and Reconciler. It does not perform retries, rollbacks, or state persistence.
+
+- [ ] 8.1 Create ProviderRouter class
+  - Create `src/core/ProviderRouter.ts`
+  - Implement ICloudProvider interface
+  - Add `register(pattern: RegExp, provider: ICloudProvider)` method
+  - Store providers in Map<RegExp, ICloudProvider>
+  - **ProviderRouter only handles routing, not orchestration**
+  - _Requirements: REQ-I04, REQ-ARCH-01_
+
+- [ ] 8.2 Implement routing logic
+  - Implement `materialize(cloudDOM)` method
+  - Group nodes by provider using construct name pattern matching
+  - Route each group to appropriate provider
+  - Throw error for unmatched constructs
+  - **Do not implement retry or rollback logic (handled by StateMachine)**
+  - _Requirements: REQ-I04, REQ-ARCH-01_
+
+- [ ] 8.3 Handle cross-provider dependencies
+  - Materialize providers in dependency order
+  - Wait for provider outputs before starting dependent providers
+  - Aggregate outputs from all providers
+  - _Requirements: REQ-I04_
+
+- [ ] 8.4 Create multi-provider example
+  - Create `examples/multi-provider.tsx`
+  - Mix AwsLambda, DockerContainer, KubernetesDeployment, TerraformModule
+  - Show cross-provider dependencies (Lambda uses Docker image URL)
+  - _Requirements: REQ-I04_
+
+**Deliverables:**
+- `src/core/ProviderRouter.ts`
+- `examples/multi-provider.tsx`
+
+---
+
+## Phase 4: State Bridge (Tasks 9-10)
+
+Enable React/Vue/Python apps to consume CloudDOM state.
+
+### Task 9: Implement State Sync Server
+
+**Goal:** Build WebSocket server that publishes CloudDOM state updates.
+
+**Why Ninth:** Foundation for React-to-infra bridge.
+
+- [ ] 9.1 Create StateSyncServer class
+  - Create `src/interop/StateSyncServer.ts`
+  - Initialize WebSocket server (ws library)
+  - Handle client connections
+  - Maintain map of stackName → WebSocket[]
+  - _Requirements: REQ-I02_
+
+- [ ] 9.2 Implement subscription protocol
+  - Handle 'subscribe' messages from clients
+  - Add client to subscription list for stack
+  - Handle 'unsubscribe' messages
+  - Handle client disconnections
+  - Define StateSyncMessage types (subscribe, unsubscribe, state_update, error)
+  - _Requirements: REQ-I02_
+
+- [ ] 9.3 Implement state publishing
+  - Add `publish(stackName, state)` method
+  - Serialize CloudDOM state to JSON
+  - Send to all subscribed clients
+  - Include deployment status, resources, outputs
+  - Add schema version for compatibility
+  - _Requirements: REQ-I02_
+
+- [ ] 9.4 Integrate with CReact
+  - Start StateSyncServer when CReact initializes
+  - Publish state after build()
+  - Publish state after deploy()
+  - Add config option to enable/disable state sync
+  - _Requirements: REQ-I02_
+
+**Deliverables:**
+- `src/interop/StateSyncServer.ts`
+- Updated `src/core/CReact.ts` with state sync integration
+- Updated `src/core/types.ts` with StateSyncMessage types
+
+---
+
+### Task 10: Create React Interop Package
+
+**Goal:** Build React hook that subscribes to CloudDOM state.
+
+**Why Tenth:** Enable React apps to display infrastructure state.
+
+- [ ] 10.1 Create creact-react-interop package
+  - Create `packages/creact-react-interop/` directory
+  - Initialize package.json with React peer dependency
+  - Configure TypeScript for React
+  - Add ws dependency for WebSocket client
+  - _Requirements: REQ-I02_
+
+- [ ] 10.2 Implement useCReactContext hook
+  - Create `packages/creact-react-interop/src/useCReactContext.ts`
+  - Connect to StateSyncServer via WebSocket
+  - Subscribe to stack updates
+  - Update React state on messages
+  - Handle reconnection with exponential backoff
+  - Return CloudDOMState with typed outputs
+  - _Requirements: REQ-I02, REQ-I06_
+
+- [ ] 10.3 Add TypeScript types
+  - Create `packages/creact-react-interop/src/types.ts`
+  - Export CloudDOMState interface
+  - Export StateSyncMessage types
+  - Enable generic type parameter for outputs: `useCReactContext<T>()`
+  - _Requirements: REQ-I06_
+
+- [ ] 10.4 Create React example app
+  - Create `examples/react-dashboard/`
+  - Initialize React app with Vite
+  - Use useCReactContext hook
+  - Display deployment status, resources, outputs
+  - Show loading and error states
+  - _Requirements: REQ-I02_
+
+**Deliverables:**
+- `packages/creact-react-interop/` - React package
+- `packages/creact-react-interop/src/useCReactContext.ts`
+- `packages/creact-react-interop/src/types.ts`
+- `examples/react-dashboard/` - React example
+
+---
+
+## Phase 5: Advanced (Tasks 11-12)
+
+Enable recursive app composition and hot reload.
+
+### Task 11: Implement Nested App Deployment
+
+**Goal:** Enable CReact apps to deploy other CReact apps recursively.
+
+**Why Eleventh:** Enables monorepos and modular infrastructure.
+
+- [ ] 11.1 Create CReactApp construct
+  - Create `src/constructs/CReactApp.ts`
+  - Define props: source, context, onDeploy, onSignal
+  - Add manifest support (optional)
+  - _Requirements: REQ-I03_
+
+- [ ] 11.2 Create CReactAppProvider
+  - Create `src/providers/CReactAppProvider.ts`
+  - Implement ICloudProvider interface
+  - Detect CReactApp nodes in materialize()
+  - Load child app from source path
+  - Create nested CReact instance
+  - _Requirements: REQ-I03_
+
+- [ ] 11.3 Implement context propagation
+  - Inject parent context into child app
+  - Support parent → child context flow
+  - Support child → parent signals via onSignal callback
+  - Extract child outputs and propagate to parent
+  - _Requirements: REQ-I03_
+
+- [ ] 11.4 Create monorepo example
+  - Create `examples/monorepo/`
+  - Create root app that deploys backend, frontend, worker
+  - Show output propagation (backend URL → frontend)
+  - Show conditional deployment
+  - _Requirements: REQ-I03_
+
+**Deliverables:**
+- `src/constructs/CReactApp.ts`
+- `src/providers/CReactAppProvider.ts`
+- `examples/monorepo/` - Monorepo example
+
+---
+
+### Task 12: Implement Hot Reload
+
+**Goal:** Enable incremental infrastructure updates without full redeploys.
+
+**Why Twelfth:** Dramatically improves developer experience.
+
+- [ ] 12.1 Implement creact dev command
+  - Create `src/cli/dev.ts`
+  - Use chokidar to watch source files
+  - Rebuild on file changes
+  - Compute diff with Reconciler
+  - Apply incremental updates
+  - _Requirements: REQ-O07_
+
+- [ ] 12.2 Implement change safety validation
+  - Create `src/core/ChangeSetSafety.ts`
+  - Define IChangeSetSafety interface
+  - Implement safety checks (creates/deletes = unsafe, updates = check type)
+  - Database changes = unsafe (data loss risk)
+  - VPC/networking changes = unsafe (connectivity risk)
+  - Lambda memory/timeout = safe
+  - **Ensure all safety checks occur before provider invocation**
+  - **Providers cannot veto or override safety classifications**
+  - _Requirements: REQ-O07, REQ-ARCH-01_
+
+- [ ] 12.3 Implement incremental deployment
+  - Add `deployChangeSet(changeSet)` method to CReact
+  - Apply only changed resources
+  - Skip unchanged resources
+  - Update CloudDOM incrementally
+  - _Requirements: REQ-O07_
+
+- [ ] 12.4 Add rollback on failure
+  - Catch errors during hot reload
+  - Rollback to previous CloudDOM
+  - Show error message
+  - Keep watching for next change
+  - _Requirements: REQ-O07_
+
+- [ ] 12.5 Add step mode
+  - Support --step flag for manual approval
+  - Show diff and prompt before applying
+  - Allow skip or apply
+  - _Requirements: REQ-O07_
+
+**Deliverables:**
+- `src/cli/dev.ts` - Hot reload command
+- `src/core/ChangeSetSafety.ts` - Safety validation
+- Updated `src/core/CReact.ts` with incremental deployment
+
+---
+
+## Phase 6: Production (Tasks 13-15)
+
+Add security and reliability features for production use.
+
+### Task 13: Extend IBackendProvider with Locking
+
+**Goal:** Prevent concurrent deployments with distributed locking.
+
+**Why Thirteenth:** Critical for team environments and CI/CD.
+
+- [ ] 13.1 Extend IBackendProvider interface
+  - Update `src/providers/IBackendProvider.ts`
+  - Add `acquireLock(stackName, holder, ttl)` method
+  - Add `releaseLock(stackName)` method
+  - Add `checkLock(stackName)` method
+  - Add LockInfo interface
+  - _Requirements: REQ-O02_
+
+- [ ] 13.2 Implement locking in FileBackendProvider
+  - Update `src/providers/DummyBackendProvider.ts` (rename to FileBackendProvider)
+  - Use file-based locking (.lock files)
+  - Implement TTL expiry
+  - Handle stale locks
+  - _Requirements: REQ-O02_
+
+- [ ] 13.3 Integrate locking with deployment
+  - Update `src/core/CReact.ts` deploy() method
+  - Acquire lock before deployment
+  - Release lock after deployment (success or failure)
+  - Show lock holder info if locked
+  - Add --force-unlock flag to CLI
+  - _Requirements: REQ-O02_
+
+**Deliverables:**
+- Updated `src/providers/IBackendProvider.ts` with locking methods
+- Updated `src/providers/DummyBackendProvider.ts` with locking implementation
+- Updated `src/core/CReact.ts` with lock integration
+
+---
+
+### Task 14: Implement Secrets Management
+
+**Goal:** Replace .env files with encrypted secret storage.
+
+**Why Fourteenth:** Security best practice for production.
+
+- [ ] 14.1 Extend IBackendProvider with secrets
+  - Add `getSecret(key)` method
+  - Add `setSecret(key, value)` method
+  - Add `listSecrets()` method
+  - _Requirements: REQ-O06_
+
+- [ ] 14.2 Implement encryption in FileBackendProvider
+  - Use AES-256-GCM encryption
+  - Store encrypted secrets in secrets.enc.json
+  - Get encryption key from CREACT_ENCRYPTION_KEY env var
+  - Implement encrypt() and decrypt() helpers
+  - _Requirements: REQ-O06_
+
+- [ ] 14.3 Create creact secrets CLI commands
+  - Create `src/cli/secrets.ts`
+  - Implement `creact secrets set <key> <value>`
+  - Implement `creact secrets get <key>`
+  - Implement `creact secrets list`
+  - Implement `creact secrets delete <key>`
+  - _Requirements: REQ-O06_
+
+- [ ] 14.4 Integrate secrets with adapters
+  - Pass secrets to adapters securely at runtime
+  - Support secret references in props: `{ apiKey: { $secret: 'API_KEY' } }`
+  - Resolve secret references before materialization
+  - _Requirements: REQ-O06_
+
+**Deliverables:**
+- Updated `src/providers/IBackendProvider.ts` with secrets methods
+- Updated `src/providers/DummyBackendProvider.ts` with encryption
+- `src/cli/secrets.ts` - Secrets CLI commands
+
+---
+
+### Task 15: Implement Audit Logging
+
+**Goal:** Track all deployment actions for compliance and debugging.
+
+**Why Fifteenth:** Required for production compliance (SOC2, HIPAA).
+
+- [ ] 15.1 Create AuditLogger class
+  - Create `src/core/AuditLogger.ts`
+  - Define AuditLogEntry interface (timestamp, user, action, stackName, changeSet, status, error)
+  - Implement append-only log storage
+  - Persist entries as JSONL (newline-delimited JSON) per stack
+  - Allow backend override for alternative storage
+  - Store logs in backend provider
+  - _Requirements: REQ-O05_
+
+- [ ] 15.2 Integrate audit logging with CReact
+  - Log deployment start
+  - Log deployment complete
+  - Log deployment failure
+  - Log rollback
+  - Log secret access
+  - Include user info (from env or config)
+  - _Requirements: REQ-O05_
+
+- [ ] 15.3 Create creact audit CLI commands
+  - Create `src/cli/audit.ts`
+  - Implement `creact audit list` - Show recent entries
+  - Implement `creact audit show <id>` - Show entry details
+  - Support filtering by user, action, date range
+  - Support --json output
+  - _Requirements: REQ-O05_
+
+- [ ] 15.4 Add HMAC signatures for tamper detection
+  - Sign each audit entry with HMAC-SHA256
+  - Use secret key from config
+  - Verify signatures when reading logs
+  - Detect tampered entries
+  - _Requirements: REQ-O05_
+
+**Deliverables:**
+- `src/core/AuditLogger.ts`
+- Updated `src/core/CReact.ts` with audit logging
+- `src/cli/audit.ts` - Audit CLI commands
+
+---
+
+### Task 16: Provider-Orchestration Contract Validation (Optional)
+
+**Goal:** Enforce architectural boundary with runtime assertions.
+
+**Why Sixteenth:** Prevents providers from violating orchestration separation.
+
+- [ ] 16.1 Add runtime assertions to BaseAdapter
+  - Check that adapters don't override orchestration methods
+  - Throw error if adapter implements retry logic
+  - Throw error if adapter implements state management
+  - Throw error if adapter implements rollback logic
+  - _Requirements: REQ-ARCH-01_
+
+- [ ] 16.2 Create "rogue provider" test
+  - Create test adapter that tries to manage its own retries
+  - Create test adapter that tries to manage its own state
+  - Verify CReact rejects these adapters at runtime
+  - _Requirements: REQ-ARCH-01_
+
+- [ ] 16.3 Add contract validation to DependencyContainer
+  - Validate providers on registration
+  - Check for forbidden methods/properties
+  - Provide clear error messages for violations
+  - _Requirements: REQ-ARCH-01, REQ-O09_
+
+**Deliverables:**
+- Updated `src/adapters/BaseAdapter.ts` with assertions
+- `tests/integration/provider-contract.test.ts` - Contract validation tests
+- Updated `src/core/DependencyContainer.ts` with validation
+
+---
+
+## Verification
+
+After completing all tasks, verify the implementation:
+
 ```bash
-$ creact validate examples/poc.tsx
-$ creact build examples/poc.tsx
-$ creact compare examples/poc.tsx
+# 1. Build and Plan
+$ creact build
+$ creact plan
+# ✅ Shows colored diff
+
+# 2. Deploy with State Machine
 $ creact deploy
-```
+# ✅ Deploys with progress tracking
 
-✅ **Expect:**
-- ✔ All CLI commands execute successfully
-- ✔ Async resources resolve with proper timeout handling
-- ✔ Build completes in <2s for <10 resources
-- ✔ Compare completes in <1s
-- ✔ Progress indicators show during long operations
-- ✔ Error messages include file paths and remediation suggestions
-- _Validates: REQ-01, REQ-05, REQ-07, REQ-10, REQ-NF-01, REQ-NF-03_
+# 3. Adapters
+$ ts-node examples/terraform-vpc.tsx
+# ✅ Terraform module wrapped and deployed
 
-- [ ] 27. Implement secret redaction
-- [ ] 28. Implement remaining security featurestion
-  - Create `SecretRedactor` class
-  - Define secret patterns: password, secret, token, key, credential
-  - Implement `redact(obj)` method that recursively redacts secrets
-  - Replace secret values with `***REDACTED***`
-  - Use in CLI output and logs
-  - _Requirements: REQ-NF-02.1_
-  - **Deliverables:**
-    - `src/utils/SecretRedactor.ts` - Secret redaction utility
-  - **Testing Strategy:**
-    - Unit tests verify pattern matching
-    - Unit tests verify recursive redaction
-    - Unit tests verify replacement format
-    - Integration tests verify CLI usage
-  - **QA Checklist:**
-    - [ ] SecretRedactor class created
-    - [ ] Secret patterns defined (password, secret, token, key, credential)
-    - [ ] redact() recursively redacts secrets
-    - [ ] Secrets replaced with ***REDACTED***
-    - [ ] Used in CLI output and logs
-    - [ ] Tests verify redaction
+# 4. Multi-Provider
+$ ts-node examples/multi-provider.tsx
+# ✅ AWS, Docker, Kubernetes resources coexist
 
-- [ ] 26. Implement structured logging
-  - Add log levels: info, warn, error
-  - Emit JSON logs for lifecycle hooks
-  - Include timestamps and request IDs
-  - Ensure logs redact secrets (use SecretRedactor)
-  - _Requirements: REQ-09.5, REQ-NF-02_
-  - **Deliverables:**
-    - `src/utils/Logger.ts` - Structured logging utility
-    - JSON log format
-  - **Testing Strategy:**
-    - Unit tests verify log levels
-    - Unit tests verify JSON format
-    - Unit tests verify timestamp inclusion
-    - Unit tests verify secret redaction
-  - **QA Checklist:**
-    - [ ] Log levels added (info, warn, error)
-    - [ ] JSON logs emitted for lifecycle hooks
-    - [ ] Timestamps included
-    - [ ] Request IDs included
-    - [ ] Secrets redacted in logs
-    - [ ] Tests verify logging
+# 5. State Sync
+$ creact dev &
+$ cd examples/react-dashboard && npm start
+# ✅ React app shows real-time CloudDOM state
 
-## Phase 5: Examples & Final Validation (Tasks 27–29)
+# 6. Nested Apps
+$ ts-node examples/monorepo/infrastructure.tsx
+# ✅ Backend, frontend, worker deployed in order
 
-Create comprehensive examples and perform final POC validation.
+# 7. Hot Reload
+$ creact dev
+# Edit file, see incremental update in <5s
+# ✅ Hot reload works
 
-- [ ] 27. Create POC example with dependency injection
-  - Create `examples/poc.tsx`
-  - Define dummy constructs: `DummyRegistry`, `DummyService`
-  - Create `RegistryStack` component with `useInstance`, `useState`, and `useEffect`
-  - Create `Service` component with `useStackContext`
-  - Show dependency injection pattern:
-    ```typescript
-    const cloudProvider = new DummyCloudProvider();
-    const backendProvider = new DummyBackendProvider();
-    const creact = new CReact({ cloudProvider, backendProvider });
-    await creact.build(<RegistryStack><Service /></RegistryStack>);
-    await creact.deploy(cloudDOM);
-    ```
-  - _Requirements: All_
-  - **Key:** Example demonstrates dependency injection
-  - **Deliverables:**
-    - `examples/poc.tsx` - Complete POC example
-    - Dummy constructs
-    - Component examples
-  - **Testing Strategy:**
-    - Manual execution verifies example works
-    - Example serves as integration test
-  - **QA Checklist:**
-    - [ ] examples/poc.tsx created
-    - [ ] Dummy constructs defined
-    - [ ] RegistryStack uses useInstance, useState, useEffect
-    - [ ] Service uses useStackContext
-    - [ ] Dependency injection pattern demonstrated
-    - [ ] Example runs successfully
-
-- [ ] 28. Create custom hook examples
-  - Create `examples/custom-hooks.tsx`
-  - Implement `useVpc()` hook with sensible defaults
-  - Implement `useDatabase()` hook with best practices
-  - Show composition of `useInstance`, `useStackContext`, and `useEffect`
-  - Document how to create domain-specific hooks
-  - _Requirements: REQ-03_
-  - **Deliverables:**
-    - `examples/custom-hooks.tsx` - Custom hook examples
-    - Documentation for hook creation
-  - **Testing Strategy:**
-    - Manual execution verifies examples work
-    - Examples demonstrate best practices
-  - **QA Checklist:**
-    - [ ] examples/custom-hooks.tsx created
-    - [ ] useVpc() hook with sensible defaults
-    - [ ] useDatabase() hook with best practices
-    - [ ] Hook composition demonstrated
-    - [ ] Documentation included
-    - [ ] Examples run successfully
-
-- [ ] 29. Verification Run (Final POC Validation)
-  - Run full CLI flow manually: `build`, `validate`, `compare`, `deploy`
-  - Confirm expected output logs match POC Success Criteria
-  - Measure build time (<2s for <10 resources) (REQ-NF-01.1)
-  - Measure compare time (<1s) (REQ-NF-01.2)
-  - Validate no secrets appear in output (REQ-NF-02.1)
-  - Test useEffect setup/teardown behavior
-  - Test component lifecycle callbacks (onDeploy, onStage, onDestroy)
-  - Document results in README
-  - _Requirements: REQ-NF-01, REQ-NF-02, REQ-NF-03, REQ-11, REQ-12_
-  - **Deliverables:**
-    - Verification results documented in README
-    - Performance measurements
-    - Security validation results
-  - **Testing Strategy:**
-    - Manual CLI execution
-    - Performance benchmarking
-    - Security audit
-    - Feature validation
-  - **QA Checklist:**
-    - [ ] Full CLI flow executed (build, validate, compare, deploy)
-    - [ ] Output logs match POC Success Criteria
-    - [ ] Build time <2s for <10 resources
-    - [ ] Compare time <1s
-    - [ ] No secrets in output
-    - [ ] useEffect behavior verified
-    - [ ] Component callbacks verified
-    - [ ] Results documented in README
-    - [ ] All requirements validated
-
-### Milestone 5 Verification (Final POC Complete)
-
-**Verification Run:**
-```bash
-$ npm run test:all
-$ creact validate examples/poc.tsx
-$ creact build examples/poc.tsx
-$ creact compare examples/poc.tsx
+# 8. Locking
+$ creact deploy &
 $ creact deploy
+# ✅ Second deploy blocked by lock
+
+# 9. Secrets
+$ creact secrets set API_KEY abc123
+$ creact secrets list
+# ✅ Secrets encrypted and stored
+
+# 10. Audit
+$ creact audit list
+# ✅ All actions logged in JSONL format
+
+# 11. Testing
+$ npm run test:e2e
+# ✅ Uses MockCloudProvider and FakeBackendProvider for deterministic tests
+
+# 12. Dependency Injection
+$ creact info
+# ✅ Lists registered providers, backends, and extensions
+# ✅ Dependency injection runtime loads all components dynamically
+
+# 13. Provider-Orchestration Boundary (Optional Task 16)
+$ npm test -- provider-contract
+# ✅ Rogue providers rejected at runtime
+# ✅ Orchestration separation enforced
 ```
 
-✅ **Expect:**
-- ✔ All tests pass (unit, integration, edge-cases, performance)
-- ✔ Full CLI workflow executes successfully
-- ✔ All hooks work correctly (useState, useStackContext, useInstance, useEffect)
-- ✔ Component lifecycle callbacks execute at correct stages
-- ✔ Provider lifecycle hooks execute in correct order
-- ✔ Secrets redacted in all output
-- ✔ Performance targets met (<2s build, <1s compare)
-- ✔ CloudDOM persisted correctly
-- ✔ State persisted to backend
-- ✔ Migration maps preserve resource identity
-- ✔ Idempotent deployments work correctly
-- _Validates: ALL REQUIREMENTS (REQ-01 through REQ-12, REQ-NF-01 through REQ-NF-03)_
-
-## POC Success Criteria
-
-**Minimal working example:**
-```tsx
-// Dummy constructs
-class DummyRegistry {}
-class DummyService {}
-
-function RegistryStack({ children }) {
-  const repo = useInstance(DummyRegistry, { name: 'app' });
-  const [state] = useState({ repositoryUrl: 'registry-url' });
-  return <StackContext.Provider value={state}>{children}</StackContext.Provider>;
-}
-
-function Service() {
-  const { repositoryUrl } = useStackContext();
-  useInstance(DummyService, { name: 'api', image: `${repositoryUrl}:latest` });
-  return null;
-}
-
-// DEPENDENCY INJECTION
-const cloudProvider = new DummyCloudProvider();
-const backendProvider = new DummyBackendProvider();
-const creact = new CReact({ cloudProvider, backendProvider });
-
-const cloudDOM = await creact.build(
-  <RegistryStack>
-    <Service />
-  </RegistryStack>
-);
-
-await creact.deploy(cloudDOM);
-```
-
-**Expected output:**
-```
-=== DummyCloudProvider: Materializing CloudDOM ===
-
-Deploying: registry (DummyRegistry)
-  Props: {"name":"app"}
-  Outputs:
-    registry.repositoryUrl = "registry-url"
-  Deploying: registry.service (DummyService)
-    Props: {"name":"api","image":"registry-url:latest"}
-
-=== Materialization Complete ===
-```
-
-**Verification checklist (maps to requirements):**
-- ✅ CloudDOM has 2 nodes: `registry`, `registry.service` (REQ-01)
-- ✅ Deployment order: registry → service (parent before child) (REQ-05.3)
-- ✅ Service receives state from Registry via context (REQ-02.3)
-- ✅ Outputs generated from `useState` (REQ-02.1)
-- ✅ Output names follow pattern: `nodeId.stateKey` (REQ-06)
-- ✅ DummyCloudProvider logs show correct structure (REQ-04)
-- ✅ Naming is consistent and deterministic (REQ-01.5)
-- ✅ Providers are injected, not inherited (REQ-04.2, REQ-04.3)
-- ✅ CloudDOM persisted to `.creact/clouddom.json` (REQ-01.6)
-- ✅ Validation runs automatically (REQ-07.6)
-- ✅ Idempotent deployment (REQ-05.4)
-
-**CLI commands work:**
-```bash
-$ creact build examples/poc.tsx
-✔ Built CloudDOM (2 resources)
-
-$ creact validate examples/poc.tsx
-✔ Validation passed
-
-$ creact compare examples/poc.tsx
-+ registry added
-+ registry.service added
-Review diff before deploying.
-
-$ creact deploy
-✔ Deployment complete (0m 2s)
-```
-
-## Key Design Principles
-
-1. **Dependency Injection** - All providers injected via constructor
-2. **Interface Implementation** - Providers implement interfaces, not extend classes
-3. **Composition** - Core classes compose providers, not inherit
-4. **Swappable** - Easy to swap DummyProvider for CDKTFProvider
-5. **Testable** - Easy to inject mock providers
-6. **Validation First** - Validate before commit, compare, and deploy
-7. **Idempotent** - Re-running deploy with no changes has no side effects
-8. **Traceable** - Every component references REQ-XX in code comments
-
-## Deliverables Summary
-
-| Deliverable | Description | Location |
-|-------------|-------------|----------|
-| **Core library** | CReact core classes (Renderer, Validator, CloudDOMBuilder, Reconciler, CReact) | `src/core/` |
-| **Dummy providers** | Logging + in-memory POC providers | `src/providers/` |
-| **CLI commands** | Build / Validate / Compare / Deploy | `src/cli/` |
-| **Hooks** | useInstance / useState / useStackContext | `src/hooks/` |
-| **Context** | StackContext Provider/Consumer | `src/context/` |
-| **Examples** | POC & custom hooks | `examples/` |
-| **Tests** | Unit, integration, edge-cases, performance | `tests/` |
-| **Output** | CloudDOM JSON (persisted) | `.creact/clouddom.json` |
-| **Logs** | Structured JSON logs | Console output |
+---
 
 ## Notes
 
-- Use DummyCloudProvider (logs CloudDOM) for POC
-- Use DummyBackendProvider (in-memory) for POC
-- Use dummy constructs (empty classes) for POC
-- Focus on proving the architecture works
-- CDKTF integration comes later (DI makes this easy)
-- Skip remote state, S3 backend for POC
-- **Do NOT run commands automatically - always pass to user**
-- Validation happens automatically in build, compare, and deploy
-- CloudDOM is persisted to disk for debugging and determinism
-- Add `// REQ-XX` comments in code for traceability
-- Phase labels help align workstreams for parallel implementation
+- **Build order matters** - Foundation → Operational → Interop → Advanced → Production
+- **Optional tasks (marked *)** are testing tasks that can be skipped for MVP
+- **Determinism is critical** - All adapters must produce reproducible CloudDOM
+- **Security by default** - Locking, secrets, audit logging are core features, not add-ons
+
+---
+
+**End of Implementation Plan**

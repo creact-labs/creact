@@ -1,1074 +1,1905 @@
-  # CReact Design (POC)
+# CReact Design Document
 
-  ## Core Analogy
+**Version:** 2.0 (Interoperability Milestone)  
+**Date:** 2025-10-05  
+**Status:** Active Development
 
-  CReact is React for infrastructure. Same concepts, different semantics.
+> **"If React made UI declarative, CReact makes reality declarative."**
 
-  | Concept | React | CReact | Purpose |
-  |---------|-------|--------|---------|
-  | JSX | JSX → DOM | JSX → CloudDOM | Declarative definition |
-  | `useState()` | Initialize local state | Declare initial outputs | State vs Output declaration |
-  | `setState()` | Triggers re-render | Updates output map persisted after build/deploy | Reactivity vs Persistence |
-  | `useContext()` | Share state | `useStackContext()` - Share outputs | Context sharing |
-  | Runtime model | Continuous loop | One-shot render (build, diff, deploy) | Execution model |
-  | Persistence | In memory | To backend (S3, DynamoDB, etc.) | State storage |
-  | `ReactDOM.render()` | Render to DOM | `creact build` | Build phase |
-  | Reconciler diff | Virtual DOM diff | `creact compare` | Show changes |
-  | Auto-apply | Immediate | `creact deploy` (manual) | User approval required |
+---
 
-  **Key differences:**
-  - Infrastructure changes are high-risk, require approval
-  - `useState()` does NOT mean "update state at runtime" - it means "declare the outputs this component will publish to the next render cycle"
-  - `setState()` is NOT a reactive updater like React - it's a declarative binder that tells CReact what to persist in the state snapshot
-  - State is persisted to backend for reproducibility, not kept in memory
+## 1. Overview
 
-  ## Design Principles
+CReact is a universal declarative runtime that bridges infrastructure tools (Terraform, Helm, Docker) and application frameworks (React, Vue, Python). This design focuses on implementing the interoperability and operational features needed for production readiness.
 
-  ### 1. Dependency Injection (CORE PATTERN)
+**What is a CReact App?**
 
-  **All provider implementations are injected, not inherited.**
+A CReact app is any JSX-based declarative program that builds and deploys a CloudDOM tree — similar to how a React app builds a Virtual DOM tree.
 
-  ```typescript
-  // ✅ CORRECT: Dependency injection
-  const cloudProvider = new DummyCloudProvider();
-  const creact = new CReact({ cloudProvider, backendProvider });
+**CloudDOM: Reality as a Graph**
 
-  // ❌ WRONG: Inheritance
-  class MyCReact extends CReact {}
-  ```
+CloudDOM generalizes beyond infrastructure — any system that can reconcile state belongs in this graph. Infrastructure, applications, AI agents, data pipelines, and even nested CReact apps are all nodes in a unified reactive system. If it has state and can be declared, it belongs in CloudDOM.
 
-  **Why?**
-  - Swappable implementations (dummy for testing, real for production)
-  - No tight coupling
-  - Testable (inject mocks)
-  - Follows SOLID principles
+**Hello World Example:**
 
-  ### 2. Interface-Based Design
+```tsx
+function Infrastructure() {
+  return (
+    <>
+      <AwsLambda key="api" handler="index.handler" />
+      <DockerContainer key="db" image="postgres:14" />
+    </>
+  );
+}
 
-  ```typescript
-  interface ICloudProvider {
-    materialize(cloudDOM: CloudDOMNode[], scope: any): void;
-  }
+// Build and deploy
+$ creact build
+$ creact deploy
+```
 
-  // Multiple implementations
-  class DummyCloudProvider implements ICloudProvider { /* logs CloudDOM */ }
-  class CDKTFProvider implements ICloudProvider { /* generates Terraform */ }
-  ```
+### What's Already Built (Milestone 1 ✅)
 
-  ### 3. Composition Over Inheritance
+The foundation is complete and production-ready:
+- JSX → Fiber → CloudDOM rendering pipeline
+- Hooks: useInstance, useState, useContext
+- Provider interfaces: ICloudProvider, IBackendProvider
+- Validation and error handling
+- CloudDOM persistence
 
-  ```typescript
-  class CReact {
-    constructor(private config: {
-      cloudProvider: ICloudProvider;
-      backendProvider: IBackendProvider;
-    }) {}
-  }
-  ```
+### What We're Building (Milestone 2 & 3)
 
-  ## Core Components Overview
+This design covers:
+1. **Reconciler** - Diff algorithm for incremental updates
+2. **State Machine** - Transactional deployment with crash recovery
+3. **External IaC Adapters** - Wrap Terraform, Helm, Pulumi
+4. **State Bridge** - Sync CloudDOM to React/Vue/Python apps
+5. **Provider Router** - Multi-provider support in one tree
+6. **Nested Apps** - Apps deploying apps (recursive composition)
+7. **CLI** - Developer-friendly commands
+8. **Hot Reload** - React Fast Refresh for infrastructure
+9. **Security** - Locking, secrets, audit logs
 
-  | Component | Responsibility | Input | Output | Implements |
-  |-----------|---------------|-------|--------|------------|
-  | **Renderer** | Build Fiber tree | JSX | Fiber | REQ-01 |
-  | **Validator** | Enforce schema & uniqueness | Fiber | Valid Fiber | REQ-07 |
-  | **CloudDOMBuilder** | Build deployment tree | Fiber | CloudDOM | REQ-01, REQ-05 |
-  | **Reconciler** | Diff state changes | Prev + New CloudDOM | Diff | REQ-05, REQ-08 |
-  | **CReact** | Orchestrates pipeline | Config + JSX | Deploys infra | REQ-01 → REQ-10 |
+### Developer Experience Goals
 
-  ## Component ↔ Requirement Mapping
+**"If you know React, you know CReact."**
 
-  | Design Component | Implements / Supports |
-  |------------------|----------------------|
-  | **Renderer.ts** | REQ-01 (JSX → CloudDOM rendering) |
-  | **CloudDOMBuilder.ts** | REQ-01 (CloudDOM building), REQ-05 (Deployment orchestration) |
-  | **Validator.ts** | REQ-07 (Error handling & validation) |
-  | **Reconciler.ts** | REQ-05 (Deployment orchestration), REQ-08 (Migration hooks) |
-  | **useState.ts** | REQ-02 (Stack Context - declarative outputs) |
-  | **createContext.ts** | REQ-02 (Stack Context - context creation) |
-  | **useContext.ts** | REQ-02 (Stack Context - context consumption) |
-  | **useInstance.ts** | REQ-03 (Resource creation via hooks) |
-  | **useEffect.ts** | REQ-12 (useEffect hook - setup/teardown) |
-  | **ICloudProvider.ts** | REQ-04 (Providers), REQ-09 (Provider lifecycle hooks), REQ-11 (Component lifecycle callbacks) |
-  | **IBackendProvider.ts** | REQ-04 (Providers), REQ-05 (Deployment), REQ-06 (Universal output access) |
-  | **CReact.ts** | REQ-01 → REQ-12 (orchestrates all functional requirements) |
-  | **DummyCloudProvider.ts** | REQ-04 (Providers - test impl), REQ-09 (Lifecycle hooks - test impl) |
-  | **DummyBackendProvider.ts** | REQ-04 (Providers - test impl), REQ-06 (Output access - test impl) |
-  | **CLI (build, compare, deploy)** | REQ-01 (Build), REQ-05 (Deploy), REQ-07 (Validation), REQ-NF-03 (Usability) |
-  | **SecretRedactor.ts** | REQ-NF-02 (Security - secret redaction) |
-  | **Logging subsystem** | REQ-09 (Structured JSON logging), REQ-NF-03 (Usability) |
-  | **Component callbacks** | REQ-11 (onDeploy, onStage, onDestroy callbacks) |
+CReact isn't just infrastructure-as-code — it's infrastructure-as-React. The developer experience should feel familiar to any React developer.
 
-  ## Architecture
+**CReact reduces infrastructure deploy feedback from minutes to seconds — the same order-of-magnitude leap React gave UI development.**
 
-  ```mermaid
-  graph TD
-      JSX[JSX Components] -->|creact build| Render[Render Phase]
-      Render --> ValidateCommit[Validate & Commit]
-      ValidateCommit --> CloudDOM[CloudDOM Tree]
-      CloudDOM -->|creact compare| Reconcile[Reconciliation]
-      Reconcile --> Diff[Diff]
-      Diff -->|User Reviews| Approve{Approve?}
-      Approve -->|Yes - creact deploy| Deploy[Deploy to Cloud]
-      Approve -->|No| Stop[Stop]
-  ```
+- **Hooks everywhere** - useState for outputs, useContext for sharing, useEffect for side effects
+- **Live context** - Changes propagate through the tree like React context
+- **Hot reload** - Edit code, see changes in seconds (not minutes)
+- **Component composition** - Build infrastructure from reusable components
+- **Declarative** - Describe what you want, not how to build it
+- **Type-safe** - Full TypeScript support with inference
 
-  ## CReact Lifecycle
+**Not like Terraform or AWS CDK:**
+- No imperative scripts
+- No manual state management
+- No waiting 10 minutes for deployments
+- No context switching between tools
 
-  ### Phase 1 — Render (JSX → Fiber) [REQ-01]
+**Like React:**
+- Familiar hooks API
+- Component-based architecture
+- Fast feedback loops
+- Predictable state updates
 
-  **Input:** JSX components  
-  **Output:** Fiber tree (includes ALL components)
+---
 
-  ```typescript
-  // Fiber Node structure
-  {
-    type: RegistryStack,
-    props: { children: [...] },
-    path: ['registry'],
-    children: [
-      {
-        type: Service,
-        props: { name: 'api' },
-        path: ['registry', 'service'],
-        children: []
-      }
-    ]
-  }
-  ```
+## 2. Architecture
 
-  **Key:** Fiber includes containers + resources
+### Current Architecture (Milestone 1)
+```
+JSX → Renderer → Validator → CloudDOMBuilder → CloudDOM → Provider
+                                                              ↓
+                                                        BackendProvider
+```
 
-  ### Phase 2 — Commit (Fiber → CloudDOM) [REQ-01]
+### Target Architecture (Milestone 2 & 3)
+```
+JSX → Renderer → Validator → CloudDOMBuilder → CloudDOM
+                                                    ↓
+                                                Reconciler (diff)
+                                                    ↓
+                                              StateMachine (track state)
+                                                    ↓
+                                              ProviderRouter
+                                                    ↓
+                        ┌───────────────────────────┼───────────────────────────┐
+                        ↓                           ↓                           ↓
+                  CloudProvider                 Adapter1                    Adapter2
+                  (AWS/Docker)              (Terraform)                    (Helm)
+                        ↓                           ↓                           ↓
+                        └───────────────────────────┴───────────────────────────┘
+                                                    ↓
+                                          BackendProvider
+                                    (with locking + secrets)
+                                                    ↓
+                                            StateSyncServer
+                                                    ↓
+                                      React/Vue/Python Apps
+```
 
-  **Input:** Fiber tree  
-  **Output:** CloudDOM tree (only `useInstance` calls)
+### Nested App Architecture
 
-  ```typescript
-  // CloudDOM Node structure
-  {
-    id: 'registry.service',
-    path: ['registry', 'service'],
-    construct: AppRunnerService,
-    props: { name: 'api', image: '...' },
-    children: [],
-    outputs: { endpoint: '...' }
-  }
-  ```
+CReact apps can deploy other CReact apps recursively. This enables **apps deploying apps** — a killer differentiator:
+- Monorepos that deploy themselves
+- Self-hosting demos
+- Modular infrastructure stacks
+- Apps creating their own infrastructure
 
-  **Key:** Container components (no `useInstance`) are filtered out
+```
+Root CReact App
+  ├─ Backend Infrastructure (CReact App)
+  │   ├─ Database
+  │   ├─ API Gateway
+  │   └─ Lambda Functions
+  ├─ Frontend Infrastructure (CReact App)
+  │   ├─ S3 Bucket
+  │   ├─ CloudFront
+  │   └─ Deploy Script (another CReact App!)
+  └─ Monitoring (CReact App)
+      ├─ CloudWatch
+      └─ Grafana
+```
 
-  **Validation (REQ-07):** Before commit, validate:
-  - Required props present
-  - Context available when `useStackContext` called
-  - Resource IDs unique
-  - No circular dependencies
+Each nested app is a CloudDOM node that runs its own CReact instance, with outputs flowing back to the parent. This recursive capability means every deployed system can declare and manage its own dependencies — completing the vision of apps that deploy apps.
 
-  ### Phase 3 — Reconciliation (Diff CloudDOM) [REQ-05, REQ-08]
+---
 
-  **Input:** Previous + Current CloudDOM  
-  **Output:** Diff (creates, updates, deletes)
+## 3. Dependency Injection and Extensions
 
-  ```mermaid
-  graph TD
-      Compare[Compare by ID] --> NewID{ID in current only?}
-      NewID -->|Yes| Create[CREATE]
-      Compare --> OldID{ID in previous only?}
-      OldID -->|Yes| Delete[DELETE]
-      Compare --> BothID{ID in both?}
-      BothID -->|Props changed| Update[UPDATE]
-      BothID -->|Props same| NoChange[No Change]
-      Compare --> MovedID{Same resource, different ID?}
-      MovedID -->|Yes| CheckMigration{Migration map?}
-      CheckMigration -->|Yes| Update
-      CheckMigration -->|No| Error[ERROR]
-  ```
+CReact's runtime acts as a dependency injection (DI) container. All providers, adapters, and extensions are registered through this container at runtime.
 
-  **Scenarios:**
-  - Add child: CREATE
-  - Remove child: DELETE
-  - Update props: UPDATE
-  - Move child (no migration map): ERROR
-  - Move child (with migration map): UPDATE
+### Goals
+- **Unified extensibility** – No separate plugin system; everything is a dependency-injected provider
+- **Composable** – Contexts and providers can be nested or replaced dynamically
+- **Declarative** – Extensions can declare lifecycle hooks and contexts
+- **Isolated** – Providers operate in their own execution context, ensuring deterministic builds
 
-  ## Migration Hooks (REQ-08)
+### Key Types
+- `ICloudProvider` – Manages resource creation and state reconciliation
+- `IBackendProvider` – Manages state, locks, and secrets
+- `IIaCAdapter` – Bridges external tools (Terraform, Helm, Pulumi)
+- `ICReactExtension` – Optional lifecycle hooks and custom hooks/components
 
-  **Problem:** Refactoring changes resource IDs → recreation
+### Example
+```typescript
+const runtime = new CReactRuntime();
 
-  **Solution:** Migration map
+runtime.registerProvider(new TerraformCloudProvider());
+runtime.registerBackend(new FileBackendProvider());
 
-  ```typescript
-  const migrationMap = {
-    'storage.service': 'registry.service'  // Old ID → New ID
+runtime.registerExtension({
+  name: "Telemetry",
+  hooks: [useTelemetry],
+  onDeploy: (ctx) => console.log("Deploying:", ctx.stack),
+});
+
+const app = <Infrastructure />;
+await runtime.build(app);
+await runtime.deploy();
+```
+
+**Note:** Providers are injected into the runtime at startup through the unified dependency container (REQ-O09). CReact initializes a dependency container before building the CloudDOM, resolving all registered providers and extensions.
+
+---
+
+## 4. Core Components
+
+This section defines the core components needed for Milestone 2: the Reconciler (diff engine for incremental updates), State Machine (crash recovery), Adapters (external IaC integration), Provider Router (multi-provider support), State Sync (React/app integration), Nested Apps (recursive composition), and extended Backend Provider (locking + secrets).
+
+### 4.1 Reconciler: Incremental CloudDOM Diff Engine
+
+**Purpose:** Compute minimal change sets between CloudDOM states (like React Fiber's diff algorithm).
+
+The Reconciler is CReact's Fiber — it computes the minimal, dependency-aware set of operations to bring infrastructure reality in sync with declarative intent. **The Reconciler acts as the single source of truth for provider execution order, removing orchestration responsibility from providers.**
+
+**Location:** `src/core/Reconciler.ts`
+
+**Interface:**
+```typescript
+interface ChangeSet {
+  creates: CloudDOMNode[];
+  updates: CloudDOMNode[];
+  deletes: CloudDOMNode[];
+  moves: Array<{ from: string; to: string }>;
+  deploymentOrder: string[];
+  parallelBatches: string[][];
+}
+
+class Reconciler {
+  /**
+   * Compute diff between previous and current CloudDOM
+   * Returns minimal change set with dependency-aware ordering
+   */
+  reconcile(previous: CloudDOMNode[], current: CloudDOMNode[]): ChangeSet;
+  
+  /**
+   * Build dependency graph from CloudDOM nodes
+   */
+  private buildDependencyGraph(nodes: CloudDOMNode[]): DependencyGraph;
+  
+  /**
+   * Compute parallel deployment batches
+   * Resources in same batch have no dependencies (safe to parallelize)
+   */
+  private computeParallelBatches(order: string[], graph: DependencyGraph): string[][];
+}
+```
+
+**Algorithm:**
+1. Build maps of previous and current nodes by ID
+2. Detect creates (in current, not in previous)
+3. Detect updates (in both, but props changed)
+4. Detect deletes (in previous, not in current)
+5. Build dependency graph from current nodes
+6. Compute topological sort for deployment order
+7. Group independent resources into parallel batches
+
+**Key Design Decision:** Use content-based IDs (hashes) for deterministic diffing. Same input always produces same CloudDOM structure.
+
+---
+
+### 4.2 State Machine
+
+**Purpose:** Track deployment lifecycle with crash recovery and transactional guarantees.
+
+**Location:** `src/core/StateMachine.ts`
+
+**States:**
+- `PENDING` - Initial state, not yet deployed
+- `APPLYING` - Deployment in progress
+- `DEPLOYED` - Successfully deployed
+- `FAILED` - Deployment failed
+- `ROLLED_BACK` - Rolled back to previous state
+
+**Interface:**
+```typescript
+interface DeploymentState {
+  status: 'PENDING' | 'APPLYING' | 'DEPLOYED' | 'FAILED' | 'ROLLED_BACK';
+  cloudDOM: CloudDOMNode[];
+  changeSet?: ChangeSet;
+  checkpoint?: number; // Index of last successfully deployed resource
+  error?: Error;
+  timestamp: number;
+  user: string;
+}
+
+class StateMachine {
+  /**
+   * Start deployment transaction
+   */
+  async startDeployment(stackName: string, changeSet: ChangeSet): Promise<void>;
+  
+  /**
+   * Update checkpoint after each resource deploys
+   */
+  async updateCheckpoint(stackName: string, checkpoint: number): Promise<void>;
+  
+  /**
+   * Mark deployment as complete
+   */
+  async completeDeployment(stackName: string): Promise<void>;
+  
+  /**
+   * Mark deployment as failed
+   */
+  async failDeployment(stackName: string, error: Error): Promise<void>;
+  
+  /**
+   * Resume interrupted deployment from checkpoint
+   */
+  async resumeDeployment(stackName: string): Promise<ChangeSet>;
+  
+  /**
+   * Rollback to previous state
+   */
+  async rollback(stackName: string): Promise<void>;
+}
+```
+
+**Crash Recovery Flow:**
+1. On startup, check for APPLYING state
+2. If found, offer to resume or rollback
+3. Resume: Continue from last checkpoint
+4. Rollback: Apply reverse change set (deletes → creates, creates → deletes)
+
+---
+
+### 4.3 Provider-Orchestration Boundary
+
+**Core Architectural Insight:** In CReact, safety and determinism are not the responsibility of providers. Providers (AWS, Terraform, Helm, etc.) are **pure executors**: they translate a resource spec into physical infrastructure.
+
+The CReact orchestration layer—composed of the CloudDOM Reconciler, StateMachine, and ProviderRouter—handles all global logic:
+
+- **Diffing** - Computes minimal, deterministic change sets
+- **Transaction control** - Checkpoints, crash recovery, rollback
+- **Safety validation** - Ensures no unsafe mutations (e.g., destructive updates)
+- **Scheduling** - Orders and parallelizes execution across providers
+
+This separation guarantees that all providers automatically inherit transactional safety, deterministic behavior, and reproducibility—without needing custom logic.
+
+**Control Flow:**
+```
+JSX → CloudDOM → Reconciler → StateMachine → ProviderRouter → Providers
+                               ↑
+                               | Safety + Rollback
+```
+
+**Key Principle:** Each provider receives a fully ordered, validated ChangeSet from the StateMachine and executes it atomically within its namespace. Providers never implement their own concurrency, retry, or state logic.
+
+---
+
+### 4.4 External IaC Adapters
+
+**Purpose:** Wrap Terraform, Helm, Pulumi modules as CReact components with deterministic output.
+
+**Location:** `src/adapters/`
+
+**Design Pattern:** Adapters are **ICloudProvider implementations** injected via dependency injection, following the existing CReact pattern.
+
+**Base Interface:**
+```typescript
+interface ProviderCapabilities {
+  constructs: string[];        // Supported construct names
+  features: string[];          // Supported features (e.g., 'hot-reload', 'parallel-deploy')
+  version: string;             // Provider version
+  apiVersion: string;          // CReact API version compatibility
+}
+
+interface IIaCAdapter extends ICloudProvider {
+  readonly metadata: {
+    name: string;           // 'terraform', 'helm', 'pulumi'
+    version: string;
+    supportedFormats: string[];
   };
+  
+  /**
+   * Describe provider capabilities for discovery
+   */
+  describeCapabilities(): ProviderCapabilities;
+  
+  /**
+   * Load external definition and convert to CloudDOM
+   * MUST be deterministic - same inputs produce same CloudDOM
+   */
+  load(source: string, options?: Record<string, any>): Promise<CloudDOMNode[]>;
+  
+  /**
+   * Map external outputs to node.outputs
+   */
+  mapOutputs(externalOutputs: any): Record<string, any>;
+}
+```
 
-  const creact = new CReact({
-    cloudProvider,
-    backendProvider,
-    migrationMap  // Treats ID change as UPDATE, not DELETE+CREATE
-  });
-  ```
+**Determinism Requirements (REQ-I05):**
+- Use content-based hashing for IDs, not UUIDs or timestamps
+- Sort object keys for consistent serialization
+- Defer randomness to deploy phase, not build phase
+- No timestamps in CloudDOM (only in materialization)
 
-  **Versioning (REQ-08.5):** Migration maps are versioned and stored in backend state for reproducibility.
-
-  ## JSX Support [REQ-03]
-
-  ### Overview
-
-  CReact uses JSX syntax for declaring infrastructure, just like React uses JSX for UI. TypeScript transforms JSX into function calls that create element objects.
-
-  ### JSX Transformation
-
-  **TypeScript Configuration:**
-
-  ```json
-  // tsconfig.json
-  {
-    "compilerOptions": {
-      "jsx": "react",
-      "jsxFactory": "CReact.createElement",
-      "jsxFragmentFactory": "CReact.Fragment"
-    }
+**Example: Terraform Adapter as ICloudProvider**
+```typescript
+class TerraformCloudProvider implements IIaCAdapter {
+  readonly metadata = {
+    name: 'terraform',
+    version: '1.0.0',
+    supportedFormats: ['hcl', 'json']
+  };
+  
+  async initialize(): Promise<void> {
+    // Initialize Terraform CLI
   }
-  ```
-
-  **JSX Syntax:**
-  ```tsx
-  // What you write
-  <Database name="app-db" />
   
-  // What TypeScript generates
-  CReact.createElement(Database, { name: "app-db" })
-  ```
-
-  **With Children:**
-  ```tsx
-  // What you write
-  <RegistryStack>
-    <Service name="api" />
-  </RegistryStack>
-  
-  // What TypeScript generates
-  CReact.createElement(
-    RegistryStack,
-    null,
-    CReact.createElement(Service, { name: "api" })
-  )
-  ```
-
-  ### createElement Implementation
-
-  ```typescript
-  // src/jsx.ts
-  export namespace CReact {
-    /**
-     * JSX factory function
-     * Called by TypeScript when transforming JSX
-     */
-    export function createElement(
-      type: any,
-      props: Record<string, any> | null,
-      ...children: any[]
-    ): JSXElement {
-      // Normalize props
-      const normalizedProps = props || {};
-      
-      // Add children to props if present
-      if (children.length > 0) {
-        normalizedProps.children = children.length === 1 ? children[0] : children;
+  materialize(cloudDOM: CloudDOMNode[]): void {
+    // For each TerraformModule node, run terraform apply
+    for (const node of cloudDOM) {
+      if (node.construct.name === 'TerraformModule') {
+        const result = this.runTerraform('apply', node);
+        // Populate node.outputs with Terraform outputs
+        node.outputs = this.mapOutputs(result.outputs);
       }
-      
-      // Extract key if present
-      const key = normalizedProps.key;
-      delete normalizedProps.key;
-      
+    }
+  }
+  
+  async load(source: string, options?: { inputs?: Record<string, any> }) {
+    // Parse Terraform module and convert to CloudDOM nodes
+    const module = await this.parseTerraformModule(source);
+    
+    const nodes: CloudDOMNode[] = module.resources.map(resource => {
+      const id = this.generateDeterministicId(source, resource);
       return {
-        type,
-        props: normalizedProps,
-        key,
+        id,
+        path: [source, resource.name],
+        construct: TerraformModule,
+        props: {
+          type: resource.type,
+          config: this.normalizeConfig(resource.config),
+          inputs: options?.inputs
+        },
+        children: [],
+        outputs: {}
       };
-    }
+    });
     
-    /**
-     * Fragment support (for <>...</> syntax)
-     */
-    export const Fragment = Symbol('Fragment');
-  }
-  ```
-
-  ### Type Definitions
-
-  ```typescript
-  // src/jsx.d.ts
-  declare namespace JSX {
-    interface Element {
-      type: any;
-      props: any;
-      key?: string;
-    }
-    
-    interface IntrinsicElements {
-      // Empty - we don't support HTML elements
-    }
-    
-    interface ElementChildrenAttribute {
-      children: {};
-    }
-  }
-  ```
-
-  ### Usage Examples
-
-  **Basic Component:**
-  ```tsx
-  function Database() {
-    const db = useInstance(RDSInstance, { key: 'db', name: 'app-db' });
-    return null;
+    return nodes;
   }
   
-  // Use with JSX
-  <Database />
-  ```
-
-  **With Props:**
-  ```tsx
-  function Service({ name }: { name: string }) {
-    const service = useInstance(AppRunnerService, { key: 'service', name });
-    return null;
+  mapOutputs(externalOutputs: any): Record<string, any> {
+    return Object.entries(externalOutputs).reduce((acc, [key, value]) => {
+      acc[key] = (value as any).value;
+      return acc;
+    }, {} as Record<string, any>);
   }
   
-  // Use with JSX
-  <Service name="api" />
-  ```
-
-  **With Children and Context:**
-  ```tsx
-  // Create context
-  const RegistryContext = createContext<{ repositoryUrl?: string }>({});
-  
-  function RegistryStack({ children }: { children: any }) {
-    const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
-    const [repositoryUrl, setRepositoryUrl] = useState<string>();
-    
-    const outputs = { repositoryUrl };
-    return <RegistryContext.Provider value={outputs}>{children}</RegistryContext.Provider>;
+  private generateDeterministicId(source: string, resource: any): string {
+    const content = JSON.stringify({ source, resource: resource.name });
+    return crypto.createHash('sha256').update(content).digest('hex').substring(0, 16);
   }
   
-  // Use with JSX
-  <RegistryStack>
-    <Service name="api" />
-    <Service name="worker" />
-  </RegistryStack>
-  ```
+  private normalizeConfig(config: any): any {
+    // Sort keys for determinism
+    if (typeof config !== 'object' || config === null) return config;
+    const sorted: any = {};
+    Object.keys(config).sort().forEach(key => {
+      sorted[key] = this.normalizeConfig(config[key]);
+    });
+    return sorted;
+  }
+}
+```
 
-  **Fragments:**
-  ```tsx
-  function MultiService() {
-    return (
-      <>
-        <Service name="api" />
-        <Service name="worker" />
-      </>
+**Usage with Dependency Injection:**
+```tsx
+// Construct for Terraform modules
+class TerraformModule {
+  constructor(public props: {
+    source: string;
+    version: string;
+    inputs: Record<string, any>;
+  }) {}
+}
+
+// Component using Terraform
+function Infrastructure() {
+  const vpc = useInstance(TerraformModule, {
+    key: 'vpc',
+    source: 'terraform-aws-modules/vpc/aws',
+    version: '5.0.0',
+    inputs: {
+      cidr: '10.0.0.0/16',
+      azs: ['us-east-1a', 'us-east-1b']
+    }
+  });
+  
+  const [vpcId, setVpcId] = useState<string>();
+  
+  // Capture outputs from deployment
+  if (vpc.outputs?.vpcId && !vpcId) {
+    setVpcId(vpc.outputs.vpcId as string);
+  }
+  
+  return <InfraContext.Provider value={{ vpcId }} />;
+}
+
+// Inject Terraform provider
+const creact = new CReact({
+  cloudProvider: new TerraformCloudProvider(),
+  backendProvider: new DummyBackendProvider()
+});
+
+const cloudDOM = await creact.build(<Infrastructure />);
+await creact.deploy(cloudDOM);
+```
+
+---
+
+### 4.5 Provider Router
+
+**Purpose:** Route CloudDOM nodes to multiple providers based on construct type (enables mixing AWS, Docker, Kubernetes in one tree).
+
+**Location:** `src/core/ProviderRouter.ts`
+
+**Design Pattern:** ProviderRouter implements ICloudProvider and delegates to registered providers. **ProviderRouter only handles routing and ordering; execution safety remains in StateMachine.**
+
+**Interface:**
+```typescript
+class ProviderRouter implements ICloudProvider {
+  private providers: Map<RegExp, ICloudProvider> = new Map();
+  
+  /**
+   * Register provider for specific construct patterns
+   */
+  register(pattern: RegExp, provider: ICloudProvider): void {
+    this.providers.set(pattern, provider);
+  }
+  
+  async initialize(): Promise<void> {
+    // Initialize all registered providers
+    await Promise.all(
+      Array.from(this.providers.values()).map(p => p.initialize?.())
     );
   }
-  ```
-
-  ### Type Safety
-
-  **Component Props:**
-  ```tsx
-  interface DatabaseProps {
-    name: string;
-    size?: 'small' | 'medium' | 'large';
-    onDeploy?: (outputs: any) => Promise<void>;
+  
+  materialize(cloudDOM: CloudDOMNode[]): void {
+    // Group nodes by provider
+    const nodesByProvider = this.groupByProvider(cloudDOM);
+    
+    // Materialize each group
+    for (const [provider, nodes] of nodesByProvider) {
+      provider.materialize(nodes);
+    }
   }
   
-  function Database({ name, size = 'medium', onDeploy }: DatabaseProps) {
-    const db = useInstance(RDSInstance, { 
-      key: 'db',
-      name,
-      instanceClass: size === 'small' ? 'db.t3.micro' : 'db.t3.medium'
+  private groupByProvider(nodes: CloudDOMNode[]): Map<ICloudProvider, CloudDOMNode[]> {
+    const groups = new Map<ICloudProvider, CloudDOMNode[]>();
+    
+    for (const node of nodes) {
+      const provider = this.findProvider(node);
+      if (!groups.has(provider)) {
+        groups.set(provider, []);
+      }
+      groups.get(provider)!.push(node);
+    }
+    
+    return groups;
+  }
+  
+  private findProvider(node: CloudDOMNode): ICloudProvider {
+    const constructName = node.construct.name;
+    
+    for (const [pattern, provider] of this.providers) {
+      if (pattern.test(constructName)) {
+        return provider;
+      }
+    }
+    
+    throw new Error(`No provider registered for construct: ${constructName}`);
+  }
+}
+```
+
+**Usage:**
+```tsx
+// Register multiple providers
+const router = new ProviderRouter();
+router.register(/^Aws.*/, new AwsCloudProvider());
+router.register(/^Docker.*/, new DockerCloudProvider());
+router.register(/^Kubernetes.*/, new K8sCloudProvider());
+router.register(/^Terraform.*/, new TerraformCloudProvider());
+
+// Inject router as cloud provider
+const creact = new CReact({
+  cloudProvider: router,
+  backendProvider: new S3BackendProvider()
+});
+
+// Now mix resources from different providers
+function Infrastructure() {
+  return (
+    <>
+      <AwsLambda key="api" handler="index.handler" />
+      <DockerContainer key="worker" image="worker:latest" />
+      <KubernetesDeployment key="frontend" replicas={3} />
+      <TerraformModule key="vpc" source="terraform-aws-modules/vpc/aws" />
+    </>
+  );
+}
+```
+
+---
+
+### 4.6 State Sync Server
+
+**Purpose:** Expose CloudDOM state to React/Vue/Python apps via WebSocket/HTTP.
+
+**Location:** `src/interop/StateSyncServer.ts`
+
+**Interop Schema (JSON Protocol):**
+
+The State Sync protocol uses a minimal JSON schema for cross-runtime compatibility:
+
+```typescript
+// Message types for WebSocket/HTTP communication
+type StateSyncMessage =
+  | { type: 'subscribe'; stackName: string }
+  | { type: 'unsubscribe'; stackName: string }
+  | { type: 'state_update'; stackName: string; state: CloudDOMState; timestamp: number }
+  | { type: 'error'; error: string; code: string };
+
+// CloudDOM state shape (language-agnostic)
+interface CloudDOMState {
+  resources: Record<string, any>;  // Resource ID → resource data
+  outputs: Record<string, any>;    // Output key → output value
+  deploymentStatus: 'pending' | 'deploying' | 'deployed' | 'failed';
+  version: string;                 // CloudDOM schema version
+}
+```
+
+This schema enables SDKs in any language (Python, Rust, Go) to consume CloudDOM state.
+
+**Interface:**
+```typescript
+class StateSyncServer {
+  private wss: WebSocketServer;
+  private clients: Map<string, WebSocket[]> = new Map();
+  
+  constructor(port: number = 3001) {
+    this.wss = new WebSocketServer({ port });
+    this.wss.on('connection', this.handleConnection.bind(this));
+  }
+  
+  /**
+   * Publish CloudDOM state update to subscribed clients
+   */
+  publish(stackName: string, state: CloudDOMState): void {
+    const clients = this.clients.get(stackName) || [];
+    const message = JSON.stringify({
+      type: 'state_update',
+      stackName,
+      state,
+      timestamp: Date.now()
     });
-    return null;
-  }
-  
-  // TypeScript validates props
-  <Database name="app-db" size="large" />  // ✅ Valid
-  <Database />  // ❌ Error: missing required prop 'name'
-  <Database name="app-db" size="huge" />  // ❌ Error: invalid size value
-  ```
-
-  ### Integration with Renderer
-
-  The Renderer receives JSX elements (created by `createElement`) and transforms them into Fiber nodes:
-
-  ```typescript
-  // JSX element structure
-  const element = {
-    type: Database,
-    props: { name: 'app-db' },
-    key: undefined
-  };
-  
-  // Renderer processes it
-  const fiber = renderer.render(element);
-  ```
-
-  ## Hooks
-
-  ### useState - Declarative Output Binding [REQ-02]
-
-  ```typescript
-  // Create typed context
-  interface CDNOutputs {
-    distributionId?: string;
-    distributionDomain?: string;
-    distributionArn?: string;
-  }
-  const CDNContext = createContext<CDNOutputs>({});
-  
-  function CDNStack({ children }) {
-    // Use key prop for explicit ID (React-like)
-    const distribution = useInstance(CloudFrontDistribution, { 
-      key: 'cdn',
-      ...otherProps 
+    
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
     });
+  }
+  
+  private handleConnection(ws: WebSocket): void {
+    ws.on('message', (data) => {
+      const { type, stackName } = JSON.parse(data.toString());
+      if (type === 'subscribe') {
+        if (!this.clients.has(stackName)) {
+          this.clients.set(stackName, []);
+        }
+        this.clients.get(stackName)!.push(ws);
+      }
+    });
+  }
+}
+```
+
+**React Hook (creact-react-interop package):**
+```typescript
+interface CloudDOMState {
+  resources: Record<string, any>;
+  outputs: Record<string, any>;
+  deploymentStatus: 'pending' | 'deploying' | 'deployed' | 'failed';
+}
+
+export function useCReactContext<T = Record<string, any>>(
+  stackName: string = 'default'
+): CloudDOMState & { outputs: T } {
+  const [state, setState] = useState<CloudDOMState & { outputs: T }>({
+    resources: {},
+    outputs: {} as T,
+    deploymentStatus: 'pending'
+  });
+  
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:3001');
     
-    // Multiple useState calls (like React) - use explicit types for empty initial values
-    const [distributionId, setDistributionId] = useState<string>();
-    const [distributionDomain, setDistributionDomain] = useState<string>();
-    const [distributionArn, setDistributionArn] = useState<string>();
-    
-    // Optional: Enrich outputs after async materialization
-    useEffect(async () => {
-      const actualDomain = await distribution.getDomain();
-      setDistributionDomain(actualDomain);
-    }, [distribution]);
-    
-    // Aggregate outputs for context
-    const outputs = {
-      distributionId,
-      distributionDomain,
-      distributionArn,
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'subscribe', stackName }));
     };
     
-    return <CDNContext.Provider value={outputs}>{children}</CDNContext.Provider>;
-  }
-  ```
-
-  **Purpose:** Declare component outputs (NOT reactive state)
-  **Implements:** REQ-02 (Stack Context - declarative outputs)
-  
-  **Semantics:**
-  - `useState(initialValue)` - Declares a single output value (like React)
-  - `setState(value)` during build - Updates the output value for build-time enrichment
-  - `setState(value)` during deploy - Updates persisted output after provider materialization
-  - NOT a render trigger - it's a persistent output update mechanism
-  - Supports multiple useState calls per component (like React)
-  - Uses hooks array pattern for tracking multiple calls
-  
-  **Key difference from React:**
-  - React: `setState()` causes re-render in memory
-  - CReact: `setState()` updates persisted outputs
-  - React: Data flow = Parent → Child reactivity
-  - CReact: Data flow = Stack → Provider → State snapshot
-  - React: Goal = sync UI with user interaction
-  - CReact: Goal = sync declared infra with real world
-  
-  **What actually happens:**
-  1. During build, `setState()` collects values known at build-time
-  2. During deploy, async resources (queue URLs, ARNs) can be patched in and persisted via backend provider
-  3. On next build, CReact merges persisted outputs into state context
-  4. `setState()` acts like a persistent output update mechanism, not a render trigger
-  5. Multiple useState calls are tracked via hooks array (index-based like React)
-
-  ### createContext & useContext [REQ-02]
-
-  ```typescript
-  // Create a typed context (like React.createContext)
-  interface RegistryOutputs {
-    repositoryUrl?: string;
-    repositoryArn?: string;
-  }
-  
-  const RegistryContext = createContext<RegistryOutputs>({});
-  
-  // Provider component
-  function RegistryStack({ children }) {
-    const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
-    const [repositoryUrl, setRepositoryUrl] = useState<string>();
-    const [repositoryArn, setRepositoryArn] = useState<string>();
+    ws.onmessage = (event) => {
+      const { type, state: newState } = JSON.parse(event.data);
+      if (type === 'state_update') {
+        setState(newState);
+      }
+    };
     
-    const outputs = { repositoryUrl, repositoryArn };
-    return <RegistryContext.Provider value={outputs}>{children}</RegistryContext.Provider>;
+    return () => ws.close();
+  }, [stackName]);
+  
+  return state;
+}
+```
+
+**Usage in React App:**
+```tsx
+import { useCReactContext } from 'creact-react-interop';
+
+function Dashboard() {
+  const { outputs, deploymentStatus } = useCReactContext('production');
+  
+  if (deploymentStatus === 'deploying') {
+    return <Spinner>Deploying infrastructure...</Spinner>;
   }
   
-  // Consumer component
-  function Service() {
-    const { repositoryUrl } = useContext(RegistryContext);  // Access parent's state
+  return (
+    <div>
+      <h1>Production Dashboard</h1>
+      <p>API URL: {outputs.apiUrl}</p>
+      <p>Database: {outputs.databaseUrl}</p>
+      <p>Status: {deploymentStatus}</p>
+    </div>
+  );
+}
+```
+
+---
+
+### 4.7 Nested App Deployment
+
+**Purpose:** Enable CReact apps to deploy other CReact apps recursively.
+
+**Location:** `src/core/CReactAppNode.ts`
+
+**Design Pattern:** CReactAppNode is a special construct that runs a nested CReact instance.
+
+**App Manifest (Optional):**
+
+Nested apps can include a manifest for dependency declaration and versioning:
+
+```typescript
+interface CReactAppManifest {
+  name: string;
+  version: string;
+  apiVersion: string;          // CReact API version required
+  dependencies?: {
+    [key: string]: string;     // Dependency name → version
+  };
+  exports?: string[];          // Output keys this app exports
+  requires?: string[];         // Context keys this app requires
+}
+```
+
+**Interface:**
+```typescript
+class CReactApp {
+  constructor(public props: {
+    source: string;           // Path to child app
+    context?: Record<string, any>; // Inherited context (parent → child)
+    onDeploy?: (outputs: Record<string, any>) => void;
+    onSignal?: (signal: string, data: any) => void; // Bidirectional: child → parent signals
+  }) {}
+}
+
+class CReactAppProvider implements ICloudProvider {
+  async initialize(): Promise<void> {}
+  
+  materialize(cloudDOM: CloudDOMNode[]): void {
+    for (const node of cloudDOM) {
+      if (node.construct.name === 'CReactApp') {
+        this.deployNestedApp(node);
+      }
+    }
+  }
+  
+  private async deployNestedApp(node: CloudDOMNode): Promise<void> {
+    const { source, context, onDeploy } = node.props;
     
-    const service = useInstance(AppRunnerService, {
-      image: `${repositoryUrl}:latest`
+    // 1. Load child app from source
+    const childApp = await this.loadApp(source);
+    
+    // 2. Create nested CReact instance
+    const childCReact = new CReact({
+      cloudProvider: this.cloudProvider,
+      backendProvider: this.backendProvider
     });
     
-    return null;
+    // 3. Inject parent context
+    const childContext = {
+      ...context,
+      parent: this.getCurrentContext()
+    };
+    
+    // 4. Build and deploy child app
+    const childCloudDOM = await childCReact.build(childApp, childContext);
+    await childCReact.deploy(childCloudDOM, source);
+    
+    // 5. Extract outputs and propagate to parent
+    const outputs = this.extractOutputs(childCloudDOM);
+    node.outputs = outputs;
+    onDeploy?.(outputs);
+    
+    // 6. Set up bidirectional signal channel (child → parent)
+    if (node.props.onSignal) {
+      childCReact.onSignal((signal, data) => {
+        node.props.onSignal?.(signal, data);
+      });
+    }
   }
-  ```
+}
+```
 
-  **Purpose:** Share outputs between components (avoid prop drilling)  
-  **API:** `createContext<T>(defaultValue?)` creates context, `useContext(MyContext)` consumes it
-  **Resolution:** Depth-first traversal to nearest Provider of that specific context
-  **Type Safety:** Full TypeScript support with typed contexts
-  **Implements:** REQ-02 (Stack Context - declarative outputs)
+**Usage:**
+```tsx
+function MonorepoRoot() {
+  const [backendUrl, setBackendUrl] = useState<string>();
+  
+  return (
+    <>
+      {/* Deploy backend first */}
+      <CReactApp 
+        key="backend"
+        source="./apps/backend"
+        onDeploy={(outputs) => setBackendUrl(outputs.apiUrl)}
+      />
+      
+      {/* Deploy frontend with backend URL */}
+      <CReactApp 
+        key="frontend"
+        source="./apps/frontend"
+        context={{ backendUrl }}
+      />
+      
+      {/* Deploy worker */}
+      <CReactApp 
+        key="worker"
+        source="./apps/worker"
+      />
+    </>
+  );
+}
+```
 
-  ### useInstance [REQ-03]
+**Recursive Composition Example:**
+```tsx
+// Root app deploys infrastructure
+function RootApp() {
+  return (
+    <>
+      <CReactApp source="./infra/database" />
+      <CReactApp source="./infra/api" />
+      {/* This app itself deploys another app! */}
+      <CReactApp source="./infra/deployment-pipeline" />
+    </>
+  );
+}
 
-  ```typescript
-  function Registry() {
-    // ID auto-generated from construct type: 'ecrrepository'
-    const repo = useInstance(EcrRepository, { name: 'app' });
+// deployment-pipeline/app.tsx
+function DeploymentPipeline() {
+  return (
+    <>
+      <CReactApp source="./staging" />
+      <CReactApp source="./production" />
+    </>
+  );
+}
+```
+
+---
+
+### 4.8 Extended IBackendProvider
+
+**Purpose:** Add locking and secrets management to existing IBackendProvider interface.
+
+**Location:** `src/providers/IBackendProvider.ts`
+
+**Extended Interface:**
+```typescript
+interface LockInfo {
+  holder: string;      // Process/user holding the lock
+  acquiredAt: number;  // Timestamp
+  ttl: number;         // Time-to-live in seconds
+}
+
+interface IBackendProvider<TState = any> {
+  // Existing methods
+  initialize?(): Promise<void>;
+  getState(stackName: string): Promise<TState | undefined>;
+  saveState(stackName: string, state: TState): Promise<void>;
+  
+  // NEW: State locking (REQ-O02)
+  acquireLock(stackName: string, holder: string, ttl: number): Promise<void>;
+  releaseLock(stackName: string): Promise<void>;
+  checkLock(stackName: string): Promise<LockInfo | null>;
+  
+  // NEW: Secrets management (REQ-O06)
+  getSecret(key: string): Promise<string | undefined>;
+  setSecret(key: string, value: string): Promise<void>;
+  listSecrets(): Promise<string[]>;
+}
+```
+
+**Implementation Example: File Backend with Locking**
+```typescript
+class FileBackendProvider implements IBackendProvider {
+  private lockFile: string;
+  
+  async acquireLock(stackName: string, holder: string, ttl: number): Promise<void> {
+    this.lockFile = path.join(this.persistDir, `${stackName}.lock`);
     
-    // Or use explicit key (like React's key prop)
-    const repo = useInstance(EcrRepository, { key: 'repo', name: 'app' });
+    // Check if lock exists
+    if (fs.existsSync(this.lockFile)) {
+      const lockInfo: LockInfo = JSON.parse(fs.readFileSync(this.lockFile, 'utf-8'));
+      
+      // Check if lock expired
+      const now = Date.now();
+      if (now - lockInfo.acquiredAt < lockInfo.ttl * 1000) {
+        throw new Error(
+          `Stack "${stackName}" is locked by ${lockInfo.holder} ` +
+          `(acquired ${new Date(lockInfo.acquiredAt).toISOString()})`
+        );
+      }
+    }
     
-    return null;
+    // Acquire lock
+    const lockInfo: LockInfo = {
+      holder,
+      acquiredAt: Date.now(),
+      ttl
+    };
+    fs.writeFileSync(this.lockFile, JSON.stringify(lockInfo, null, 2));
   }
   
-  // Multiple constructs of same type
-  function MultiDatabase() {
-    const primary = useInstance(RDSInstance, { key: 'primary', name: 'db-primary' });
-    const replica = useInstance(RDSInstance, { key: 'replica', name: 'db-replica' });
-    return null;
+  async releaseLock(stackName: string): Promise<void> {
+    const lockFile = path.join(this.persistDir, `${stackName}.lock`);
+    if (fs.existsSync(lockFile)) {
+      fs.unlinkSync(lockFile);
+    }
   }
-  ```
-
-  **Purpose:** Create infrastructure resource  
-  **API:** `useInstance(Construct, props)` - React-like, no manual ID parameter
-  **ID generation:** 
-  - If `key` prop provided: uses `key` value
-  - If no `key`: auto-generates from construct type name (lowercased)
-  - Multiple calls: appends index (`-0`, `-1`, etc.)
-  - Full path: component hierarchy + construct key (e.g., `['registry', 'repo']` → `'registry.repo'`)
-  **Implements:** REQ-03 (Resource creation via hooks)
-
-  ### useEffect - Setup and Teardown [REQ-12]
-
-  ```typescript
-  // Create typed context
-  const QueueContext = createContext<{ queueUrl?: string; queueArn?: string }>({});
   
-  function QueueStack({ children }) {
-    const queue = useInstance(SQSQueue, { key: 'queue', name: 'messages' });
-    const [queueUrl, setQueueUrl] = useState<string>();
-    const [queueArn, setQueueArn] = useState<string>();
+  async checkLock(stackName: string): Promise<LockInfo | null> {
+    const lockFile = path.join(this.persistDir, `${stackName}.lock`);
+    if (!fs.existsSync(lockFile)) {
+      return null;
+    }
+    return JSON.parse(fs.readFileSync(lockFile, 'utf-8'));
+  }
+  
+  async getSecret(key: string): Promise<string | undefined> {
+    const secretsFile = path.join(this.persistDir, 'secrets.enc.json');
+    if (!fs.existsSync(secretsFile)) {
+      return undefined;
+    }
     
-    // Setup: runs once at first render
-    useEffect(() => {
-      console.log('Component mounted, setting up...');
-      
-      // Async enrichment after deployment
-      const enrichOutputs = async () => {
-        const actualUrl = await queue.getUrl();
-        setQueueUrl(actualUrl);
-      };
-      enrichOutputs();
-      
-      // Cleanup: runs when component unmounts
-      return () => {
-        console.log('Component unmounting, cleaning up...');
-      };
+    const encrypted = fs.readFileSync(secretsFile, 'utf-8');
+    const secrets = this.decrypt(encrypted);
+    return secrets[key];
+  }
+  
+  async setSecret(key: string, value: string): Promise<void> {
+    const secretsFile = path.join(this.persistDir, 'secrets.enc.json');
+    
+    let secrets: Record<string, string> = {};
+    if (fs.existsSync(secretsFile)) {
+      const encrypted = fs.readFileSync(secretsFile, 'utf-8');
+      secrets = this.decrypt(encrypted);
+    }
+    
+    secrets[key] = value;
+    const encrypted = this.encrypt(secrets);
+    fs.writeFileSync(secretsFile, encrypted);
+  }
+  
+  async listSecrets(): Promise<string[]> {
+    const secretsFile = path.join(this.persistDir, 'secrets.enc.json');
+    if (!fs.existsSync(secretsFile)) {
+      return [];
+    }
+    
+    const encrypted = fs.readFileSync(secretsFile, 'utf-8');
+    const secrets = this.decrypt(encrypted);
+    return Object.keys(secrets);
+  }
+  
+  private encrypt(data: any): string {
+    // Use AES-256-GCM encryption
+    const key = this.getEncryptionKey();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    
+    let encrypted = cipher.update(JSON.stringify(data), 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag();
+    
+    return JSON.stringify({
+      iv: iv.toString('hex'),
+      authTag: authTag.toString('hex'),
+      data: encrypted
     });
+  }
+  
+  private decrypt(encrypted: string): any {
+    const { iv, authTag, data } = JSON.parse(encrypted);
+    const key = this.getEncryptionKey();
     
-    const outputs = { queueUrl, queueArn };
-    return <QueueContext.Provider value={outputs}>{children}</QueueContext.Provider>;
-  }
-  ```
-
-  **Purpose:** Run setup logic at mount, cleanup at unmount
-  **Implements:** REQ-12 (useEffect hook)
-  
-  **Semantics:**
-  - Effect function runs once at first render (component mount)
-  - Cleanup function (if returned) runs when component unmounts
-  - Useful for async output enrichment after deployment
-  - Useful for resource cleanup before destruction
-  - NOT reactive like React - runs once per lifecycle, not on every render
-  
-  **Key difference from React:**
-  - React: Effects run after every render (unless deps array prevents it)
-  - CReact: Effects run once at mount, cleanup once at unmount
-  - React: Multiple re-renders trigger multiple effect runs
-  - CReact: One-shot render = one effect execution
-  - React: Dependency array controls re-execution
-  - CReact: No re-renders, so dependency array is optional (future enhancement)
-
-  ### Custom Hooks [REQ-03]
-
-  ```typescript
-  // Assume VPCContext is created elsewhere
-  const VPCContext = createContext<{ vpcId?: string }>({});
-  
-  function useDatabase() {
-    const { vpcId } = useContext(VPCContext);
-    return useInstance(Database, { vpcId });
-  }
-  ```
-
-  **Purpose:** Reusable infrastructure logic with best practices
-  **Implements:** REQ-03.3 (Custom hooks composition)
-
-  ## Deployment Order [REQ-05]
-
-  **Rule:** Parents deploy before children (REQ-05.3)
-
-  ```
-  Registry
-  ├── ServiceA
-  └── ServiceB
-
-  Deployment Order:
-  1. Registry (no parent)
-  2. ServiceA (parent: Registry)
-  3. ServiceB (parent: Registry)
-  ```
-
-  ## Providers (Dependency Injection) [REQ-04, REQ-09]
-
-  ### ICloudProvider [REQ-04, REQ-09]
-
-  ```typescript
-  interface ICloudProvider {
-    initialize?(): Promise<void>;  // Optional async init (REQ-04.4)
-    materialize(cloudDOM: CloudDOMNode[], scope: any): void;
+    const decipher = crypto.createDecipheriv(
+      'aes-256-gcm',
+      key,
+      Buffer.from(iv, 'hex')
+    );
+    decipher.setAuthTag(Buffer.from(authTag, 'hex'));
     
-    // Lifecycle hooks (optional) (REQ-09)
-    preDeploy?(cloudDOM: CloudDOMNode[]): Promise<void>;  // REQ-09.1
-    postDeploy?(cloudDOM: CloudDOMNode[], outputs: any): Promise<void>;  // REQ-09.2
-    onError?(error: Error, cloudDOM: CloudDOMNode[]): Promise<void>;  // REQ-09.3
+    let decrypted = decipher.update(data, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    
+    return JSON.parse(decrypted);
   }
-  ```
-
-  **Implementations:**
-  - `DummyCloudProvider` - Logs CloudDOM (POC/testing) [REQ-04]
-  - `CDKTFProvider` - Generates Terraform (production) [REQ-04]
   
-  **Implements:** REQ-04 (Providers), REQ-09 (Provider lifecycle hooks)
-
-  ### IBackendProvider [REQ-04, REQ-06]
-
-  ```typescript
-  interface IBackendProvider {
-    initialize?(): Promise<void>;  // Optional async init (REQ-04.4)
-    getState(stackName: string): Promise<any>;  // REQ-06
-    saveState(stackName: string, state: any): Promise<void>;  // REQ-02, REQ-06
+  private getEncryptionKey(): Buffer {
+    // Get key from environment or generate
+    const keyHex = process.env.CREACT_ENCRYPTION_KEY;
+    if (!keyHex) {
+      throw new Error('CREACT_ENCRYPTION_KEY environment variable not set');
+    }
+    return Buffer.from(keyHex, 'hex');
   }
-  ```
+}
+```
 
-  **Implementations:**
-  - `DummyBackendProvider` - In-memory storage (POC/testing) [REQ-04]
-  - `S3BackendProvider` - S3 + DynamoDB (production) [REQ-04, REQ-NF-02]
+---
+
+## 5. Data Models
+
+### 5.1 DeploymentState
+
+```typescript
+interface DeploymentState {
+  status: 'PENDING' | 'APPLYING' | 'DEPLOYED' | 'FAILED' | 'ROLLED_BACK';
+  cloudDOM: CloudDOMNode[];
+  changeSet?: ChangeSet;
+  checkpoint?: number;
+  error?: Error;
+  timestamp: number;
+  user: string;
+  stackName: string;
+}
+```
+
+### 5.2 ChangeSet
+
+```typescript
+interface ChangeSet {
+  creates: CloudDOMNode[];
+  updates: CloudDOMNode[];
+  deletes: CloudDOMNode[];
+  moves: Array<{ from: string; to: string }>;
+  deploymentOrder: string[];
+  parallelBatches: string[][];
+}
+```
+
+### 5.3 AuditLogEntry
+
+```typescript
+interface AuditLogEntry {
+  timestamp: number;
+  user: string;
+  action: 'build' | 'deploy' | 'rollback' | 'resume';
+  stackName: string;
+  changeSet?: ChangeSet;
+  status: 'started' | 'completed' | 'failed';
+  error?: string;
+  signature?: string; // HMAC signature for tamper detection
+}
+```
+
+### 5.4 LockInfo
+
+```typescript
+interface LockInfo {
+  holder: string;      // Process/user holding the lock
+  acquiredAt: number;  // Timestamp
+  ttl: number;         // Time-to-live in seconds
+}
+```
+
+---
+
+## 6. Error Handling
+
+### 6.1 Error Taxonomy
+
+```typescript
+class CReactError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public context?: Record<string, any>
+  ) {
+    super(message);
+    this.name = 'CReactError';
+  }
+}
+
+class AdapterError extends CReactError {
+  constructor(message: string, public adapter: string, context?: Record<string, any>) {
+    super(message, 'ADAPTER_ERROR', { adapter, ...context });
+    this.name = 'AdapterError';
+  }
+}
+
+class ProviderTimeoutError extends CReactError {
+  constructor(message: string, public provider: string, context?: Record<string, any>) {
+    super(message, 'PROVIDER_TIMEOUT', { provider, ...context });
+    this.name = 'ProviderTimeoutError';
+  }
+}
+
+class LockError extends CReactError {
+  constructor(message: string, public lockInfo: LockInfo) {
+    super(message, 'LOCK_ERROR', { lockInfo });
+    this.name = 'LockError';
+  }
+}
+
+class ValidationError extends CReactError {
+  constructor(message: string, public node: CloudDOMNode) {
+    super(message, 'VALIDATION_ERROR', { nodeId: node.id });
+    this.name = 'ValidationError';
+  }
+}
+```
+
+### 6.2 Retry Logic
+
+```typescript
+interface RetryConfig {
+  maxAttempts: number;
+  initialDelay: number;  // milliseconds
+  maxDelay: number;
+  backoffMultiplier: number;
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  config: RetryConfig,
+  isTransient: (error: Error) => boolean
+): Promise<T> {
+  let lastError: Error;
+  let delay = config.initialDelay;
   
-  **Implements:** REQ-04 (Providers), REQ-06 (Universal output access)
+  for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      
+      // Don't retry permanent errors
+      if (!isTransient(lastError)) {
+        throw lastError;
+      }
+      
+      // Don't retry on last attempt
+      if (attempt === config.maxAttempts) {
+        break;
+      }
+      
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay = Math.min(delay * config.backoffMultiplier, config.maxDelay);
+    }
+  }
+  
+  throw new CReactError(
+    `Operation failed after ${config.maxAttempts} attempts`,
+    'MAX_RETRIES_EXCEEDED',
+    { lastError: lastError.message }
+  );
+}
 
-  ### Injection Flow [REQ-04]
+// Determine if error is transient
+function isTransientError(error: Error): boolean {
+  const transientPatterns = [
+    /timeout/i,
+    /ECONNREFUSED/,
+    /ETIMEDOUT/,
+    /rate limit/i,
+    /throttl/i,
+    /503/,
+    /502/
+  ];
+  
+  return transientPatterns.some(pattern => pattern.test(error.message));
+}
+```
 
-  ```typescript
-  // Step 1: Instantiate providers
-  const cloudProvider = new DummyCloudProvider();  // REQ-04.2
-  const backendProvider = new DummyBackendProvider();  // REQ-04.3
+### 6.3 Retry Policy Configuration
 
-  // Step 2: Initialize if needed (async)
-  await cloudProvider.initialize?.();  // REQ-04.4
-  await backendProvider.initialize?.();  // REQ-04.4
+Each provider can define a retry policy via configuration or CLI overrides.
 
-  // Step 3: Inject into CReact (Dependency Injection)
-  const creact = new CReact({
-    cloudProvider,  // REQ-04.2
-    backendProvider  // REQ-04.3
+**Example:**
+
+```typescript
+// creact.config.ts
+export default {
+  retryPolicy: {
+    defaultBackoff: "exponential",
+    maxRetries: 5,
+    providerOverrides: {
+      AwsCloudProvider: { maxRetries: 10, baseDelayMs: 500 },
+      DockerCloudProvider: { maxRetries: 3 }
+    }
+  }
+};
+```
+
+At runtime, the CReact StateMachine integrates with these settings during deployment operations.
+
+---
+
+## 7. Testing Strategy
+
+### 7.1 Unit Tests
+
+**Focus:** Individual components in isolation
+
+**Coverage:**
+- Reconciler diff algorithm
+- State machine transitions
+- Deterministic ID generation
+- Error handling and retry logic
+- Provider router routing logic
+
+**Example:**
+```typescript
+describe('Reconciler', () => {
+  it('should detect creates', () => {
+    const prev: CloudDOMNode[] = [];
+    const curr: CloudDOMNode[] = [{ id: 'node1', ... }];
+    
+    const changeSet = reconciler.reconcile(prev, curr);
+    
+    expect(changeSet.creates).toHaveLength(1);
+    expect(changeSet.creates[0].id).toBe('node1');
   });
-
-  // Step 4: Use orchestrator
-  await creact.build(<App />);  // REQ-01
-  await creact.deploy(cloudDOM);  // REQ-05
-  ```
   
-  **Implements:** REQ-04 (Providers with dependency injection)
+  it('should detect updates', () => {
+    const prev: CloudDOMNode[] = [{ id: 'node1', props: { a: 1 } }];
+    const curr: CloudDOMNode[] = [{ id: 'node1', props: { a: 2 } }];
+    
+    const changeSet = reconciler.reconcile(prev, curr);
+    
+    expect(changeSet.updates).toHaveLength(1);
+  });
+});
+```
 
-  ## Package Structure
+### 7.2 Integration Tests
 
-  ```
-  creact/                        # Root directory (standalone repository)
-  ├── src/
-  │   ├── core/
-  │   │   ├── Renderer.ts           # JSX → Fiber
-  │   │   ├── Validator.ts          # Validate Fiber (REQ-07)
-  │   │   ├── CloudDOMBuilder.ts    # Fiber → CloudDOM (receives ICloudProvider)
-  │   │   ├── Reconciler.ts         # Diff CloudDOM
-  │   │   └── CReact.ts             # Main orchestrator (receives providers)
-  │   ├── providers/
-  │   │   ├── ICloudProvider.ts     # Interface
-  │   │   ├── IBackendProvider.ts   # Interface
-  │   │   ├── DummyCloudProvider.ts # POC implementation
-  │   │   └── DummyBackendProvider.ts # POC implementation
-  │   ├── hooks/
-  │   │   ├── useState.ts
-  │   │   ├── useContext.ts
-  │   │   └── useInstance.ts
-  │   ├── context/
-  │   │   └── createContext.ts
-  │   └── cli/
-  │       ├── build.ts
-  │       ├── compare.ts
-  │       └── deploy.ts
-  ├── tests/                        # Test suite (organized by type)
-  │   ├── unit/
-  │   ├── integration/
-  │   ├── edge-cases/
-  │   ├── performance/
-  │   └── helpers/
-  ├── examples/
-  │   ├── poc.tsx                   # POC verification script
-  │   └── custom-hooks.tsx          # Custom hook examples
-  ├── package.json
-  ├── tsconfig.json
-  └── vitest.config.ts
-  ```
+**Focus:** Component interactions
 
-  ## CReact Orchestrator [REQ-01, REQ-04, REQ-05, REQ-07, REQ-08, REQ-09, REQ-10]
+**Coverage:**
+- CReact orchestrator with Reconciler and StateMachine
+- Provider router with multiple providers
+- State sync server with WebSocket clients
+- Adapter integration with external tools (mocked)
 
-  ```typescript
-  interface CReactConfig {
-    cloudProvider: ICloudProvider;  // REQ-04
-    backendProvider: IBackendProvider;  // REQ-04
-    migrationMap?: Record<string, string>;  // Optional (REQ-08)
-    asyncTimeout?: number;  // Default 5 minutes (REQ-10.5)
+**Example:**
+```typescript
+describe('CReact with StateMachine', () => {
+  it('should resume deployment after crash', async () => {
+    const creact = new CReact({ cloudProvider, backendProvider });
+    
+    // Start deployment
+    const cloudDOM = await creact.build(<App />);
+    await creact.deploy(cloudDOM);
+    
+    // Simulate crash by creating new instance
+    const creact2 = new CReact({ cloudProvider, backendProvider });
+    
+    // Should detect incomplete deployment
+    const state = await backendProvider.getState('default');
+    expect(state.status).toBe('APPLYING');
+    
+    // Resume
+    await creact2.resume('default');
+    
+    // Should complete
+    const finalState = await backendProvider.getState('default');
+    expect(finalState.status).toBe('DEPLOYED');
+  });
+});
+```
+
+### 7.3 Mock Providers and Fake Backend
+
+A MockCloudProvider and FakeBackendProvider will be implemented for deterministic end-to-end testing. These simulate resource creation and persistence locally without cloud dependencies.
+
+- Used in CI and integration tests
+- Enables snapshot-based verification of CloudDOM diffs
+- Ensures deterministic behavior for regression testing
+
+**Example:**
+```typescript
+class MockCloudProvider implements ICloudProvider {
+  private resources: Map<string, any> = new Map();
+  
+  async initialize(): Promise<void> {}
+  
+  materialize(cloudDOM: CloudDOMNode[]): void {
+    for (const node of cloudDOM) {
+      this.resources.set(node.id, node.props);
+      node.outputs = { mockOutput: `mock-${node.id}` };
+    }
   }
+}
 
-  class CReact {
-    private renderer: Renderer;
-    private validator: Validator;
-    private cloudDOMBuilder: CloudDOMBuilder;
-    private reconciler: Reconciler;
+class FakeBackendProvider implements IBackendProvider {
+  private state: Map<string, any> = new Map();
+  
+  async getState(stackName: string): Promise<any> {
+    return this.state.get(stackName);
+  }
+  
+  async saveState(stackName: string, state: any): Promise<void> {
+    this.state.set(stackName, state);
+  }
+}
+```
+
+### 7.4 End-to-End Tests
+
+**Focus:** Full workflows
+
+**Coverage:**
+- Build → Plan → Deploy workflow
+- Hot reload with file watching
+- Multi-provider deployment
+- State sync to React app
+- Crash recovery
+
+**Example:**
+```typescript
+describe('E2E: Hot Reload', () => {
+  it('should apply incremental updates', async () => {
+    // Start dev mode
+    const devServer = await startDevMode('./infra');
     
-    constructor(private config: CReactConfig) {
-      this.renderer = new Renderer();
-      this.validator = new Validator();
-      this.cloudDOMBuilder = new CloudDOMBuilder(config.cloudProvider);
-      this.reconciler = new Reconciler(config.migrationMap);
-    }
+    // Initial deployment
+    await waitForDeployment();
     
-    async build(jsx: JSX.Element): Promise<CloudDOMNode[]> {
-      // 1. Render JSX → Fiber
-      const fiber = this.renderer.render(jsx);
-      
-      // 2. Validate Fiber (REQ-07)
-      this.validator.validate(fiber);
-      
-      // 3. Commit Fiber → CloudDOM
-      const cloudDOM = this.cloudDOMBuilder.build(fiber);
-      
-      // 4. Persist CloudDOM (REQ-01.6)
-      await this.persistCloudDOM(cloudDOM);
-      
-      return cloudDOM;
-    }
+    // Modify file
+    fs.writeFileSync('./infra/app.tsx', updatedCode);
     
-    async compare(previous: CloudDOMNode[], current: CloudDOMNode[]) {
-      // Validate before comparing (REQ-07.6)
-      this.validator.validate(this.renderer.getCurrentFiber());
-      
-      return this.reconciler.diff(previous, current);
-    }
+    // Wait for hot reload
+    await waitForHotReload();
     
-    async deploy(cloudDOM: CloudDOMNode[]) {
-      // Validate before deploying (REQ-07.6)
-      this.validator.validate(this.renderer.getCurrentFiber());
+    // Verify only changed resources were updated
+    const logs = devServer.getLogs();
+    expect(logs).toContain('Δ 1 resource changed');
+    expect(logs).toContain('✅ Hot reload applied');
+  });
+});
+```
+
+### 7.5 Interop Conformance Tests
+
+**Focus:** Cross-runtime compatibility
+
+**Coverage:**
+- State sync protocol conformance (WebSocket/HTTP)
+- Provider capability discovery
+- Bidirectional context propagation
+- Multi-language SDK compatibility (React, Python, Rust)
+
+**Example:**
+```typescript
+describe('Interop: State Sync Protocol', () => {
+  it('should conform to JSON schema', async () => {
+    const server = new StateSyncServer();
+    const client = new WebSocket('ws://localhost:3001');
+    
+    // Subscribe
+    client.send(JSON.stringify({
+      type: 'subscribe',
+      stackName: 'test'
+    }));
+    
+    // Publish state update
+    server.publish('test', {
+      resources: {},
+      outputs: { apiUrl: 'https://api.example.com' },
+      deploymentStatus: 'deployed',
+      version: '1.0.0'
+    });
+    
+    // Verify message conforms to schema
+    const message = await waitForMessage(client);
+    expect(message).toMatchSchema(StateSyncMessageSchema);
+    expect(message.type).toBe('state_update');
+    expect(message.state.outputs.apiUrl).toBe('https://api.example.com');
+  });
+  
+  it('should support Python SDK', async () => {
+    // Test Python SDK can consume CloudDOM state
+    const pythonClient = await spawnPythonProcess(`
+      from creact_python import useCReactContext
       
-      // Check for changes (idempotent) (REQ-05.4)
-      const previousState = await this.config.backendProvider.getState('stack');
-      const diff = this.reconciler.diff(previousState?.cloudDOM || [], cloudDOM);
+      state = useCReactContext('test')
+      print(state['outputs']['apiUrl'])
+    `);
+    
+    const output = await pythonClient.waitForOutput();
+    expect(output).toBe('https://api.example.com');
+  });
+});
+
+describe('Interop: Provider Capabilities', () => {
+  it('should discover provider capabilities', () => {
+    const provider = new TerraformCloudProvider();
+    const capabilities = provider.describeCapabilities();
+    
+    expect(capabilities.constructs).toContain('TerraformModule');
+    expect(capabilities.features).toContain('deterministic-ids');
+    expect(capabilities.apiVersion).toBe('1.0.0');
+  });
+});
+```
+
+---
+
+## 8. CLI Design
+
+The CLI is designed to mirror Git or Terraform — short, composable commands with human-readable output and CI/CD automation hooks.
+
+### 8.1 Command Structure
+
+```bash
+creact <command> [options]
+
+Commands:
+  build       Compile JSX to CloudDOM
+  plan        Show diff preview without applying
+  deploy      Apply changes to infrastructure
+  resume      Resume interrupted deployment
+  dev         Hot reload infrastructure (watch mode)
+  logs        Stream CloudDOM event logs
+  secrets     Manage encrypted configuration
+  audit       View audit log entries
+
+Options:
+  --stack <name>    Stack name (default: "default")
+  --json            Output JSON for CI/CD
+  --help            Show help
+```
+
+**CLI Terminology Alignment:**
+
+CReact CLI terminology mirrors Terraform's convention:
+- `creact plan` → "Shows execution plan"
+- `creact apply` (alias of `creact deploy`) → "Applies infrastructure changes"
+- `creact destroy` → "Deletes resources"
+
+This ensures developer familiarity and a gentle onboarding curve for teams already using IaC tools.
+
+### 8.2 Command Implementations
+
+**Location:** `src/cli/`
+
+**Structure:**
+```
+src/cli/
+  ├── index.ts          # CLI entry point
+  ├── build.ts          # creact build
+  ├── plan.ts           # creact plan
+  ├── deploy.ts         # creact deploy
+  ├── resume.ts         # creact resume
+  ├── dev.ts            # creact dev
+  ├── logs.ts           # creact logs
+  ├── secrets.ts        # creact secrets
+  └── audit.ts          # creact audit
+```
+
+**Example: creact plan**
+```typescript
+// src/cli/plan.ts
+export async function planCommand(options: {
+  stack: string;
+  json: boolean;
+}) {
+  const creact = new CReact({
+    cloudProvider: loadCloudProvider(),
+    backendProvider: loadBackendProvider()
+  });
+  
+  // Build current CloudDOM
+  const current = await creact.build(loadApp());
+  
+  // Get previous CloudDOM from backend
+  const previous = await creact.backendProvider.getState(options.stack);
+  
+  // Compute diff
+  const reconciler = new Reconciler();
+  const changeSet = reconciler.reconcile(
+    previous?.cloudDOM || [],
+    current
+  );
+  
+  // Output
+  if (options.json) {
+    console.log(JSON.stringify(changeSet, null, 2));
+  } else {
+    printColoredDiff(changeSet);
+  }
+}
+
+function printColoredDiff(changeSet: ChangeSet) {
+  console.log('\n📋 Plan:');
+  
+  if (changeSet.creates.length > 0) {
+    console.log(chalk.green(`\n+ Creates (${changeSet.creates.length}):`));
+    changeSet.creates.forEach(node => {
+      console.log(chalk.green(`  + ${node.construct.name}: ${node.id}`));
+    });
+  }
+  
+  if (changeSet.updates.length > 0) {
+    console.log(chalk.yellow(`\n~ Updates (${changeSet.updates.length}):`));
+    changeSet.updates.forEach(node => {
+      console.log(chalk.yellow(`  ~ ${node.construct.name}: ${node.id}`));
+    });
+  }
+  
+  if (changeSet.deletes.length > 0) {
+    console.log(chalk.red(`\n- Deletes (${changeSet.deletes.length}):`));
+    changeSet.deletes.forEach(node => {
+      console.log(chalk.red(`  - ${node.construct.name}: ${node.id}`));
+    });
+  }
+}
+```
+
+---
+
+## 9. Hot Reload Design
+
+### 9.1 Architecture
+
+```
+File Watcher → Detect Changes → Incremental Build → Reconcile → Apply Delta
+                                                                      ↓
+                                                              Rollback on Failure
+```
+
+### 9.2 Implementation
+
+**Location:** `src/cli/dev.ts`
+
+```typescript
+export async function devCommand(options: {
+  stack: string;
+  step: boolean;  // Manual approval mode
+}) {
+  const creact = new CReact({
+    cloudProvider: loadCloudProvider(),
+    backendProvider: loadBackendProvider()
+  });
+  
+  const reconciler = new Reconciler();
+  let previousCloudDOM: CloudDOMNode[] = [];
+  
+  // Initial build and deploy
+  console.log('🚀 Starting dev mode...');
+  previousCloudDOM = await creact.build(loadApp());
+  await creact.deploy(previousCloudDOM);
+  console.log('✅ Initial deployment complete');
+  
+  // Watch for file changes
+  const watcher = chokidar.watch('./infra', {
+    ignored: /node_modules/,
+    persistent: true
+  });
+  
+  watcher.on('change', async (path) => {
+    console.log(`\n📝 File changed: ${path}`);
+    
+    try {
+      // Rebuild
+      const currentCloudDOM = await creact.build(loadApp());
       
-      if (diff.creates.length === 0 && diff.updates.length === 0 && diff.deletes.length === 0) {
-        console.log('No changes detected. Deployment skipped.');
+      // Compute diff
+      const changeSet = reconciler.reconcile(previousCloudDOM, currentCloudDOM);
+      
+      // Check if there are changes
+      const totalChanges = 
+        changeSet.creates.length + 
+        changeSet.updates.length + 
+        changeSet.deletes.length;
+      
+      if (totalChanges === 0) {
+        console.log('ℹ️  No changes detected');
         return;
       }
       
-      // Lifecycle: preDeploy (REQ-09.1)
-      if (this.config.cloudProvider.preDeploy) {
-        await this.config.cloudProvider.preDeploy(cloudDOM);
+      console.log(`Δ ${totalChanges} resource(s) changed`);
+      
+      // Step mode: wait for approval
+      if (options.step) {
+        const answer = await prompt('Apply changes? [y/N] ');
+        if (answer.toLowerCase() !== 'y') {
+          console.log('⏭️  Skipped');
+          return;
+        }
       }
       
-      // Materialize
-      this.config.cloudProvider.materialize(cloudDOM);
+      // Apply changes
+      const startTime = Date.now();
+      await creact.deployChangeSet(changeSet);
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       
-      // Collect outputs from materialization
-      const outputs = {};  // TODO: collect from provider materialization
+      console.log(`✅ Hot reload applied in ${duration}s`);
       
-      // Save state
-      await this.config.backendProvider.saveState('stack', { cloudDOM });
+      // Update previous state
+      previousCloudDOM = currentCloudDOM;
       
-      // Lifecycle: postDeploy (REQ-09.2)
-      if (this.config.cloudProvider.postDeploy) {
-        await this.config.cloudProvider.postDeploy(cloudDOM, outputs);
-      }
+    } catch (error) {
+      console.error('❌ Hot reload failed:', error);
+      console.log('🔄 Rolling back...');
+      
+      // Rollback to previous state
+      await creact.deploy(previousCloudDOM);
+      console.log('✅ Rolled back to previous state');
+    }
+  });
+  
+  console.log('\n👀 Watching for changes... (Press Ctrl+C to stop)');
+}
+```
+
+### 9.3 Safety Checks
+
+Not all changes are safe to hot reload. The system should detect unsafe changes and fall back to full deployment.
+
+```typescript
+interface ChangeSetSafety {
+  safe: boolean;
+  reason?: string;
+  requiresFullDeploy?: boolean;
+}
+
+function validateChangeSetSafety(changeSet: ChangeSet): ChangeSetSafety {
+  // Creates and deletes always require full deployment
+  if (changeSet.creates.length > 0 || changeSet.deletes.length > 0) {
+    return {
+      safe: false,
+      reason: 'Creates/deletes require full deployment',
+      requiresFullDeploy: true
+    };
+  }
+  
+  // Check if updates are safe
+  for (const node of changeSet.updates) {
+    const constructName = node.construct.name;
+    
+    // Database changes are never safe (data loss risk)
+    if (constructName.includes('Database') || constructName.includes('RDS')) {
+      return {
+        safe: false,
+        reason: 'Database changes require full deployment',
+        requiresFullDeploy: true
+      };
+    }
+    
+    // VPC/networking changes are never safe
+    if (constructName.includes('Vpc') || constructName.includes('Subnet')) {
+      return {
+        safe: false,
+        reason: 'Networking changes require full deployment',
+        requiresFullDeploy: true
+      };
     }
   }
-  ```
+  
+  return { safe: true };
+}
+```
 
-  ## Async Resource Handling (REQ-10)
+---
 
-  **Problem:** Infrastructure provisioning is async
+## 10. Key Design Decisions
 
-  **Solution:**
-  - Build phase: Synchronous (JSX → CloudDOM)
-  - Deploy phase: Async (CloudDOM → Infrastructure)
-  - Parent outputs resolved before children deploy (REQ-10.3)
-  - Configurable timeout per resource (default 5 minutes) (REQ-10.5)
+### 10.1 Why Dependency Injection?
 
-  ```typescript
-  // Timeout configuration
-  const creact = new CReact({
-    cloudProvider,
-    backendProvider,
-    asyncTimeout: 300000  // 5 minutes
+**Decision:** Use dependency injection for providers instead of class inheritance.
+
+**Rationale:**
+- Follows existing CReact pattern (see smoke-test.tsx)
+- Enables runtime provider swapping
+- Simplifies testing with mock providers
+- Avoids tight coupling
+
+### 10.2 Why Content-Based IDs?
+
+**Decision:** Use content hashing for CloudDOM node IDs instead of UUIDs.
+
+**Rationale:**
+- Enables deterministic builds (same input = same output)
+- Simplifies diffing (IDs stable across builds)
+- Enables reproducible deployments
+- Critical for CI/CD pipelines
+
+### 10.3 Why WebSocket for State Sync?
+
+**Decision:** Use WebSocket instead of polling or SSE.
+
+**Rationale:**
+- Bidirectional communication (React can send commands)
+- Low latency (<100ms)
+- Efficient for real-time updates
+- Standard protocol with good library support
+
+### 10.4 Why Provider Router?
+
+**Decision:** Route CloudDOM nodes to multiple providers instead of single provider.
+
+**Rationale:**
+- Real-world systems use multiple tools (AWS + Docker + Kubernetes)
+- Enables gradual migration between providers
+- Each provider optimizes for its domain
+- Avoids "one size fits all" complexity
+
+### 10.5 Why State Machine?
+
+**Decision:** Track deployment lifecycle with explicit state machine.
+
+**Rationale:**
+- Enables crash recovery (resume from checkpoint)
+- Provides transactional guarantees
+- Simplifies error handling
+- Enables audit logging
+
+---
+
+## 11. Implementation Phases
+
+### Phase 1: Reconciler & State Machine (Foundation)
+- Implement Reconciler with diff algorithm
+- Extend IBackendProvider with locking
+- Implement StateMachine
+- Update CReact to use Reconciler
+
+### Phase 2: CLI & Plan Command
+- Create CLI structure
+- Implement `creact plan`
+- Implement `creact deploy` with approval
+- Implement `creact build`
+
+### Phase 3: Adapters & Provider Router
+- Create IIaCAdapter interface
+- Implement TerraformCloudProvider
+- Implement ProviderRouter
+- Add deterministic ID utilities
+
+### Phase 4: State Bridge & Hot Reload
+- Implement StateSyncServer
+- Create creact-react-interop package
+- Implement `creact dev` with hot reload
+- Add file watcher
+
+### Phase 5: Security & Observability
+- Extend IBackendProvider with secrets
+- Implement audit logging
+- Add retry logic with exponential backoff
+- Implement telemetry
+
+---
+
+## 12. Appendix A: The Next Layer of Reality (Vision Roadmap)
+
+### 12.1 AI-Generated Infrastructure
+
+**Vision:** CloudDOM nodes generated by AI agents based on natural language requirements.
+
+```tsx
+function AIGeneratedInfra() {
+  const infra = useAI({
+    prompt: "Create a scalable API with PostgreSQL database and Redis cache",
+    constraints: {
+      budget: 100, // USD per month
+      region: 'us-east-1',
+      compliance: ['SOC2', 'HIPAA']
+    }
   });
-  ```
+  
+  return <>{infra.nodes}</>;
+}
+```
 
-  ## CLI Workflow [REQ-01, REQ-05, REQ-07, REQ-NF-03]
+**How it works:**
+1. AI agent analyzes requirements
+2. Generates CloudDOM nodes
+3. CReact validates and deploys
+4. AI monitors and optimizes based on metrics
 
-  ### Commands
+### 12.2 Self-Healing CloudDOM
 
-  ```bash
-  creact validate  # Validate JSX → Fiber tree without committing [REQ-07]
-  creact build     # Render JSX → CloudDOM (with validation) [REQ-01, REQ-07]
-  creact compare   # Diff CloudDOM and show changes [REQ-05, REQ-08]
-  creact deploy    # Deploy infrastructure (requires approval) [REQ-05, REQ-09, REQ-10]
-  ```
+**Vision:** CloudDOM that detects and repairs drift automatically.
 
-  ### Sequence Diagram
-
-  ```mermaid
-  sequenceDiagram
-      participant User
-      participant CLI
-      participant CReact
-      participant Provider
-      
-      User->>CLI: creact build
-      CLI->>CReact: build(jsx)
-      CReact->>CReact: render → validate → commit
-      CReact-->>CLI: CloudDOM
-      CLI-->>User: CloudDOM saved
-      
-      User->>CLI: creact compare
-      CLI->>CReact: compare(previous, current)
-      CReact-->>CLI: Diff
-      CLI-->>User: Show diff for review
-      
-      User->>CLI: creact deploy
-      CLI->>Provider: preDeploy(cloudDOM)
-      CLI->>Provider: materialize(cloudDOM)
-      CLI->>Provider: postDeploy(cloudDOM, outputs)
-      CLI-->>User: Deployment complete
-  ```
-
-  ### Example Run
-
-  ```bash
-  $ creact build
-  ✔ Built CloudDOM (3 resources)
-
-  $ creact compare
-  Δ Service.api updated
-  + Service.worker added
-  Review diff before deploying.
-
-  $ creact deploy
-  ✔ Deployment complete (2m 14s)
-  ```
-
-  ## Error Handling & Validation [REQ-07, REQ-NF-03]
-
-  **Validation checks (REQ-07):**
-  - Required props present (REQ-07.2)
-  - Context available when `useStackContext` called (REQ-07.3)
-  - Resource IDs unique (REQ-07.4)
-  - No circular dependencies (REQ-07.1)
-
-  **Example error (REQ-NF-03.1):**
-  ```
-  ValidationError: Missing required prop 'name' in Service component
-    at infrastructure.tsx:15
-    in Service
-    in Registry
-
-  Suggestion: Add the 'name' prop to the Service component
-  ```
-
-  ## Non-Functional Goals (POC)
-
-  ### Performance [REQ-NF-01]
-  - Build small stacks (<10 resources) in <2s (REQ-NF-01.1)
-  - Compare operations in <1s (REQ-NF-01.2)
-
-  ### Security [REQ-NF-02]
-  - Redact secrets in CLI output (REQ-NF-02.1)
-  - Encrypt state at rest using KMS (REQ-NF-02.2)
-  - Use HTTPS/TLS for remote connections (REQ-NF-02.3)
-  - Enforce environment isolation (REQ-NF-02.4)
-  - Integrate with secret management services (REQ-NF-02.5)
-
-  ### Usability [REQ-NF-03]
-  - Show file paths and line numbers in errors (REQ-NF-03.1)
-  - Provide progress indicators for long operations (REQ-NF-03.2)
-  - Suggest remediation steps on failure (REQ-NF-03.3)
-
-  ### Logging [REQ-09, REQ-NF-03]
-  - CLI and providers SHALL emit timestamped logs with levels (info/warn/error)
-  - Structured JSON logging for lifecycle hooks (REQ-09.5)
-  - Logs help debugging during POC demos
-
-  ## Component Lifecycle Callbacks [REQ-11]
-
-  Components can define lifecycle callbacks for custom logic during deployment stages:
-
-  ```typescript
-  // Lifecycle callbacks are component props, not useInstance props
-  function Database({ onDeploy, onStage, onDestroy }) {
-    const db = useInstance(RDSInstance, {
-      key: 'db',
-      name: 'app-db',
+```tsx
+function SelfHealingInfra() {
+  useEffect(() => {
+    // Watch for drift
+    const unsubscribe = watchDrift((drift) => {
+      if (drift.severity === 'critical') {
+        // Auto-repair
+        reconcile(drift);
+      }
     });
     
-    return null;
-  }
+    return unsubscribe;
+  });
+  
+  return <Database replicas={3} />;
+}
+```
 
-  // Usage: Pass callbacks as props
-  function Infrastructure() {
-    return (
-      <Database
-        onDeploy={async (outputs) => {  // REQ-11.1
-          console.log(`Database deployed: ${outputs.endpoint}`);
-          await runMigrations(outputs.endpoint);
-        }}
-        onStage={async (node) => {  // REQ-11.2
-          console.log(`Staging database: ${node.id}`);
-          await validateSchema();
-        }}
-        onDestroy={async (outputs) => {  // REQ-11.3
-          console.log(`Backing up database before destroy`);
-          await backupDatabase(outputs.endpoint);
-        }}
-      />
-    );
-  }
-  ```
+**Capabilities:**
+- Detect configuration drift
+- Auto-repair based on policies
+- Rollback on anomalies
+- Learn from incidents
 
-  **How it works:**
-  - Lifecycle callbacks are passed as **component props** (like React event handlers)
-  - CReact automatically links callbacks to the component's CloudDOM node
-  - If a component has a CloudDOM node (via `useInstance`), callbacks are invoked at the appropriate lifecycle stages
-  - If a component has no CloudDOM node (container component), callbacks are ignored
+### 12.3 Universal CloudDOM (Beyond Infrastructure)
 
-  **Lifecycle stages:**
-  - `onStage` - Runs during staging phase before deployment (REQ-11.2)
-  - `onDeploy` - Runs after resource is deployed with outputs (REQ-11.1)
-  - `onDestroy` - Runs before resource is destroyed (REQ-11.3)
+**Vision:** CloudDOM as a universal state graph for any system.
 
-  **Error handling:** Callbacks that fail will halt deployment (REQ-11.4)
+**Examples:**
+- **Data Pipelines** - ETL jobs as CloudDOM nodes
+- **AI Agents** - LLM workflows as reactive components
+- **IoT Devices** - Physical devices in CloudDOM
+- **Business Processes** - Workflows as declarative graphs
 
-  ## Key Insights
+```tsx
+function UniversalSystem() {
+  return (
+    <>
+      {/* Infrastructure */}
+      <AwsLambda key="api" />
+      
+      {/* Data Pipeline */}
+      <DataPipeline key="etl" source="s3://data" />
+      
+      {/* AI Agent */}
+      <AIAgent key="support" model="gpt-4" />
+      
+      {/* IoT Device */}
+      <IoTDevice key="sensor" type="temperature" />
+      
+      {/* Business Process */}
+      <Workflow key="onboarding" steps={[...]} />
+    </>
+  );
+}
+```
 
-  - 🌳 **Composition [REQ-01, REQ-03]:** Infrastructure mirrors UI patterns (parent-child, state sharing, reusable components)
-  - ⚙️ **Stack Context [REQ-02]:** Enables cross-stack sharing, avoids prop drilling
-  - 📦 **useState for outputs [REQ-02]:** Component state = infrastructure outputs
-  - 🔐 **Approval [REQ-05]:** Infrastructure diffs require manual confirmation (high-risk changes)
-  - 🔑 **Immutable IDs [REQ-01, REQ-08]:** Path-based identity tracking with migration hooks for safe refactoring
-  - 💉 **Dependency Injection [REQ-04]:** Swappable providers, testable, no tight coupling
-  - 📋 **Declarative Reconciliation [REQ-05, REQ-08]:** Like Terraform plan/apply or GitOps model
-  - 🔄 **Lifecycle Hooks [REQ-09, REQ-11, REQ-12]:** Provider hooks, component callbacks, and useEffect for observability
+### 12.4 Collaborative CloudDOM
 
-  ## POC Implementation Plan
+**Vision:** Multiple developers editing CloudDOM in real-time (like Figma for infrastructure).
 
-  | Phase | Deliverable | Status |
-  |-------|-------------|--------|
-  | 1. Renderer | JSX → Fiber | 🚧 |
-  | 2. Validator | Fiber validation | 🚧 |
-  | 3. CloudDOM Builder | Fiber → CloudDOM | 🚧 |
-  | 4. Hooks | useState, useInstance, useStackContext | 🚧 |
-  | 5. Stack Context | Provider + Consumer | 🚧 |
-  | 6. Reconciler | Diff logic with migration hooks | 🚧 |
-  | 7. Providers | Dummy implementations for POC | 🚧 |
-  | 8. CLI | build, validate, compare, deploy commands | 🚧 |
+**Features:**
+- Live cursors showing who's editing what
+- Conflict resolution with CRDTs
+- Branch previews (deploy to ephemeral environments)
+- Comments and annotations on nodes
 
-  ## Next Steps Beyond POC
+### 12.5 Time-Travel Debugging
 
-  Once the POC demonstrates core value, these enhancements will make CReact production-ready:
+**Vision:** Replay CloudDOM state changes like Redux DevTools.
 
-  1. **Production Providers**
-     - Replace Dummy providers with CDKTFProvider and S3BackendProvider
-     - Add support for multiple cloud platforms (AWS, Azure, GCP)
+```bash
+$ creact time-travel --to 2025-10-01T10:00:00Z
+# Replay all state changes from that point
+# See exactly what changed and why
+```
 
-  2. **CLI UX Polish**
-     - Add progress bars and colors
-     - Interactive diff review with approval prompts
-     - Better error formatting with syntax highlighting
+**Capabilities:**
+- Replay deployments
+- Inspect state at any point in time
+- Debug production issues
+- Audit compliance
 
-  3. **Security & Compliance**
-     - State encryption with KMS
-     - Policy enforcement (cost limits, security rules)
-     - Audit logging for compliance
+---
 
-  4. **CI/CD Integration**
-     - Exit codes for automation
-     - JSON output mode for parsing
-     - Webhook notifications
+## 13. Document History
 
-  5. **Performance Optimization**
-     - Benchmark large-stack performance (100+ resources)
-     - Parallel resource deployment where possible
-     - Caching and incremental builds
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2025-10-05 | CReact Team | Initial design based on requirements |
+| 2.0 | 2025-10-05 | CReact Team | Streamlined design following dependency injection pattern |
+| 2.1 | 2025-10-05 | CReact Team | Added recursive composition, DevEx goals, universal CloudDOM vision, and future appendix |
 
-  6. **Developer Experience**
-     - VS Code extension with IntelliSense
-     - Type-safe output access
-     - Component library for common patterns
+---
 
-  ## Glossary
-
-  | Term | Definition |
-  |------|------------|
-  | **Fiber** | Intermediate representation of JSX tree before deployment |
-  | **CloudDOM** | Immutable tree describing actual cloud resources |
-  | **Migration Map** | Maps old → new resource IDs to preserve identity during refactoring |
-  | **Stack Context** | React-like context for sharing outputs between components |
-  | **useInstance** | Hook that creates a CloudDOM node (infrastructure resource) |
-
-  ---
-
-  ## Verification Approach
-
-  | Testing Level | Focus | Example Scenario |
-  |---------------|-------|------------------|
-  | **Unit Tests** | Renderer, Validator, Hooks | `useInstance` → CloudDOM node creation, prop validation |
-  | **Integration Tests** | Provider orchestration, context propagation | Multi-stack JSX tree with StackContext sharing |
-  | **E2E Tests (CLI)** | Build → Compare → Deploy lifecycle | Simulate full workflow with Dummy providers |
-  | **Performance Tests** | Build speed, diff latency | Measure CLI timing for <10 resources |
-  | **Security Tests** | Log redaction, encrypted state | Verify secrets masked in logs, JSON state encrypted |
-  | **Usability Tests** | CLI UX and errors | Validate rich error messages and CLI outputs |
-  | **Mock Provider Tests** | Lifecycle hooks, async init | Assert correct sequence: preDeploy → materialize → postDeploy |
-
-  ## Implementation Recommendations
-
-  1. **Version the REQ list** — Tag as v0.9 for POC baseline
-  2. **Add traceability IDs in code** — Use comments like `// REQ-07` for cross-reference
-  3. **Automate REQ coverage** — Script that scans code comments for REQ tags
-  4. **Keep Dummy Providers** — Allow CI validation without cloud account
-  5. **Code review checklist** — Verify each PR references relevant REQ-XX
-
-  ---
-
-  **Author:** CReact POC Team  
-  **Date:** October 2025  
-  **Status:** Draft / POC in progress  
-  **Version:** v0.9 (POC Baseline)
+**End of Design Document**
