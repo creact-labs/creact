@@ -11,7 +11,30 @@ import {
   getContextRenderContext,
   getContextValue,
   clearContextStacks as clearContextStacksInternal,
+  incrementHookIndex,
 } from './context';
+
+// Global context dependency tracker instance
+let contextDependencyTracker: any = null;
+
+/**
+ * Set the context dependency tracker instance
+ * Called by CReact during initialization
+ * 
+ * @internal
+ */
+export function setContextDependencyTracker(tracker: any): void {
+  contextDependencyTracker = tracker;
+}
+
+/**
+ * Get the context dependency tracker instance
+ * 
+ * @internal
+ */
+export function getContextDependencyTracker(): any {
+  return contextDependencyTracker;
+}
 
 /**
  * Set the current rendering context for useContext
@@ -69,7 +92,13 @@ export function clearContextStacks(): void {
  * This hook retrieves the value from the nearest Provider in the component tree.
  * The Renderer maintains a stack of context values as it traverses the tree.
  *
+ * Enhanced with reactive capabilities:
+ * - Tracks context dependencies for selective re-rendering
+ * - Only triggers re-renders when context values are bound to provider outputs
+ * - Integrates with ContextDependencyTracker for change detection
+ *
  * REQ-02: Stack Context (declarative outputs)
+ * REQ-3.1, 3.2, 3.3, 3.4, 3.5: Context reactivity system
  *
  * @param context - Context object created by createContext
  * @returns Value from nearest Provider, or default value if no Provider found
@@ -86,7 +115,7 @@ export function clearContextStacks(): void {
  *     image: `${repositoryUrl}:latest`
  *   });
  *
- *   return null;
+ *   return <></>;
  * }
  * ```
  */
@@ -102,22 +131,41 @@ export function useContext<T>(context: Context<T>): T {
     );
   }
 
+  // Get hook index for dependency tracking
+  const hookIndex = incrementHookIndex();
+
+  // Track context dependency for reactive updates
+  if (contextDependencyTracker) {
+    contextDependencyTracker.trackContextConsumption(
+      context._contextId,
+      currentFiber,
+      hookIndex
+    );
+  }
+
   // Look up the context value from the stack
   const result = getContextValue(context._contextId);
 
+  let contextValue: T;
+
   // If Provider found, return the value (even if it's undefined)
   if (result.hasValue) {
-    return result.value as T;
+    contextValue = result.value as T;
+  } else if (context.defaultValue !== undefined) {
+    // If no Provider found, use default value
+    contextValue = context.defaultValue;
+  } else {
+    // No Provider and no default value - throw error
+    throw new Error(
+      `useContext called without a Provider for this context and no default value was provided. ` +
+        `Make sure to wrap your component tree with <Context.Provider value={...}>.`
+    );
   }
 
-  // If no Provider found, use default value
-  if (context.defaultValue !== undefined) {
-    return context.defaultValue;
+  // Store the context value in the dependency tracker for change detection
+  if (contextDependencyTracker) {
+    contextDependencyTracker.setInitialContextValue(context._contextId, contextValue);
   }
 
-  // No Provider and no default value - throw error
-  throw new Error(
-    `useContext called without a Provider for this context and no default value was provided. ` +
-      `Make sure to wrap your component tree with <Context.Provider value={...}>.`
-  );
+  return contextValue;
 }

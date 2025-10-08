@@ -5,6 +5,7 @@ export * from './Renderer';
 export * from './Validator';
 export * from './CloudDOMBuilder';
 export * from './CReact';
+export { CloudDOMEventBus } from './EventBus';
 export { Reconciler } from './Reconciler';
 export {
   ReconciliationError,

@@ -43,8 +43,8 @@ export interface Context<T> {
  * // Provider component
  * function RegistryStack({ children }) {
  *   const repo = useInstance(EcrRepository, { key: 'repo', name: 'my-app' });
- *   const [repositoryUrl, setRepositoryUrl] = useState<string>();
- *   const [repositoryArn, setRepositoryArn] = useState<string>();
+ *   const [repositoryUrl, setRepositoryUrl] = useState();
+ *   const [repositoryArn, setRepositoryArn] = useState();
  *
  *   const outputs = { repositoryUrl, repositoryArn };
  *   return <RegistryContext.Provider value={outputs}>{children}</RegistryContext.Provider>;
@@ -56,7 +56,7 @@ export interface Context<T> {
  *   const service = useInstance(AppRunnerService, {
  *     image: `${repositoryUrl}:latest`
  *   });
- *   return null;
+ *   return <></>;
  * }
  * ```
  */

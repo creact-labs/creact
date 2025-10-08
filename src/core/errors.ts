@@ -129,3 +129,83 @@ export class ProviderError extends CReactError {
     this.name = 'ProviderError';
   }
 }
+
+/**
+ * Reactive system error - thrown when reactive operations fail
+ *
+ * Used for:
+ * - Re-render failures
+ * - Circular dependency detection
+ * - State update failures
+ * - Context propagation failures
+ */
+export class ReactiveError extends CReactError {
+  constructor(
+    message: string,
+    public readonly details?: Record<string, any>
+  ) {
+    super(message, 'REACTIVE_ERROR');
+    this.name = 'ReactiveError';
+  }
+}
+
+/**
+ * Circular dependency error - thrown when circular dependencies are detected
+ */
+export class CircularDependencyError extends ReactiveError {
+  constructor(
+    message: string,
+    public readonly cyclePath: string[],
+    public readonly details?: Record<string, any>
+  ) {
+    super(message, { ...details, cyclePath });
+    this.name = 'CircularDependencyError';
+  }
+}
+
+/**
+ * Re-render error - thrown when component re-rendering fails
+ */
+export class ReRenderError extends ReactiveError {
+  constructor(
+    message: string,
+    public readonly fiberPath: string[],
+    public readonly cause?: Error,
+    public readonly details?: Record<string, any>
+  ) {
+    super(message, { ...details, fiberPath, cause: cause?.message });
+    this.name = 'ReRenderError';
+  }
+}
+
+/**
+ * State update error - thrown when state updates fail
+ */
+export class StateUpdateError extends ReactiveError {
+  constructor(
+    message: string,
+    public readonly fiberPath: string[],
+    public readonly hookIndex: number,
+    public readonly cause?: Error,
+    public readonly details?: Record<string, any>
+  ) {
+    super(message, { ...details, fiberPath, hookIndex, cause: cause?.message });
+    this.name = 'StateUpdateError';
+  }
+}
+
+/**
+ * Context propagation error - thrown when context updates fail
+ */
+export class ContextPropagationError extends ReactiveError {
+  constructor(
+    message: string,
+    public readonly contextId: symbol,
+    public readonly affectedFibers: string[][],
+    public readonly cause?: Error,
+    public readonly details?: Record<string, any>
+  ) {
+    super(message, { ...details, contextId: contextId.toString(), affectedFibers, cause: cause?.message });
+    this.name = 'ContextPropagationError';
+  }
+}

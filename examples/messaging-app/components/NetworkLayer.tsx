@@ -24,9 +24,9 @@ export function NetworkLayer({ children }: NetworkLayerProps) {
   const config = useContext(InfraConfigContext);
   
   // State for network endpoints (populated after deployment)
-  const [loadBalancerUrl, setLoadBalancerUrl] = useState<string>('');
-  const [apiGatewayUrl, setApiGatewayUrl] = useState<string>('');
-  const [cdnUrl, setCdnUrl] = useState<string>('');
+  const [loadBalancerUrl, setLoadBalancerUrl] = useState<string>();
+  const [apiGatewayUrl, setApiGatewayUrl] = useState<string>();
+  const [cdnUrl, setCdnUrl] = useState<string>();
   
   // Application Load Balancer for HTTP traffic
   const appLoadBalancer = useInstance(LoadBalancer, {

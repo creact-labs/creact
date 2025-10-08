@@ -21,8 +21,8 @@ export function MonitoringLayer() {
   const messaging = useContext(MessagingContext);
   
   // State for monitoring endpoints (populated after deployment)
-  const [prometheusUrl, setPrometheusUrl] = useState<string>('');
-  const [grafanaUrl, setGrafanaUrl] = useState<string>('');
+  const [prometheusUrl, setPrometheusUrl] = useState('');
+  const [grafanaUrl, setGrafanaUrl] = useState('');
   
   // Only deploy monitoring in environments where it's enabled
   if (!config.enableMonitoring) {

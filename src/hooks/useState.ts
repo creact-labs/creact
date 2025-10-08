@@ -9,6 +9,38 @@ import {
   hasStateContext as hasStateContextInternal,
   getCurrentState as getCurrentStateInternal,
 } from './context';
+import { StateBindingManager } from '../core/StateBindingManager';
+import { generateBindingKey } from '../utils/naming';
+
+// Global StateBindingManager instance
+let stateBindingManager: StateBindingManager | null = null;
+
+/**
+ * Get or create the global StateBindingManager instance
+ * @internal
+ */
+function getStateBindingManager(): StateBindingManager {
+  if (!stateBindingManager) {
+    stateBindingManager = new StateBindingManager();
+  }
+  return stateBindingManager;
+}
+
+/**
+ * Set the StateBindingManager instance (for testing/injection)
+ * @internal
+ */
+export function setStateBindingManager(manager: StateBindingManager): void {
+  stateBindingManager = manager;
+}
+
+/**
+ * Get the StateBindingManager instance (for external access)
+ * @internal
+ */
+export function getStateBindingManagerInstance(): StateBindingManager {
+  return getStateBindingManager();
+}
 
 /**
  * Set the current rendering context for useState
@@ -60,9 +92,9 @@ export function clearStateRenderContext(): void {
  *   const distribution = useInstance('cdn', CloudFrontDistribution, { ... });
  *
  *   // Multiple useState calls (like React)
- *   const [distributionId, setDistributionId] = useState('');
- *   const [distributionDomain, setDistributionDomain] = useState('');
- *   const [distributionArn, setDistributionArn] = useState('');
+ *   const [distributionId, setDistributionId] = useState<string>();
+ *   const [distributionDomain, setDistributionDomain] = useState<string>();
+ *   const [distributionArn, setDistributionArn] = useState<string>();
  *
  *   // Optional: Enrich outputs after async materialization
  *   useEffect(async () => {
@@ -114,10 +146,13 @@ export function useState<T = undefined>(
   const hookIdx = currentHookIndex;
 
   /**
-   * setState function - Updates the output value (NOT a render trigger)
+   * setState function - Updates the output value with reactive capabilities
    *
    * This function updates the persisted output in the Fiber node's hooks array.
-   * It does NOT trigger a re-render like React's setState.
+   * It now includes:
+   * - Change detection to avoid unnecessary updates
+   * - Automatic binding detection for provider outputs
+   * - Integration with StateBindingManager for reactive updates
    *
    * During build: Collects values known at build-time
    * During deploy: Patches in async resources (queue URLs, ARNs)
@@ -129,13 +164,58 @@ export function useState<T = undefined>(
     const newValue =
       typeof value === 'function' ? (value as (prev: T) => T)(fiber.hooks[hookIdx]) : value;
 
+    const oldValue = fiber.hooks[hookIdx];
+
+    // Only proceed if value actually changed
+    if (oldValue === newValue) {
+      return; // No change, skip update
+    }
+
     // Debug logging
     if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[useState] setState called: hookIdx=${hookIdx}, value=${JSON.stringify(newValue)}, fiber.id=${fiber.path?.join('.')}`);
+      console.debug(`[useState] setState called: hookIdx=${hookIdx}, oldValue=${JSON.stringify(oldValue)}, newValue=${JSON.stringify(newValue)}, fiber.id=${fiber.path?.join('.')}`);
     }
 
     // Update this hook's state
     fiber.hooks[hookIdx] = newValue;
+
+    // Check if the new value is a provider output and create automatic binding
+    const bindingManager = getStateBindingManager();
+    const outputInfo = bindingManager.isProviderOutput(newValue);
+    
+    if (outputInfo) {
+      // Prevent infinite binding loops during reactivity
+      // Only bind if this state is not already bound to this output
+      if (!bindingManager.isStateBoundToOutput(fiber, hookIdx)) {
+        // Automatically bind this state to the provider output
+        bindingManager.bindStateToOutput(
+          fiber,
+          hookIdx,
+          outputInfo.nodeId,
+          outputInfo.outputKey,
+          newValue
+        );
+
+        if (process.env.CREACT_DEBUG === 'true') {
+          const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
+          console.debug(`[useState] Auto-bound state to output: ${bindingKey}`);
+        }
+      } else {
+        if (process.env.CREACT_DEBUG === 'true') {
+          const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
+          console.debug(`[useState] Skipped re-binding already bound state: ${bindingKey}`);
+        }
+      }
+    }
+
+    // TODO: Optional re-render scheduling for manual state changes
+    // This would be used for deployment scripts or manual updates
+    // Currently not needed since provider-driven changes handle re-renders automatically
+    //
+    // if (!outputInfo && oldValue !== newValue) {
+    //   const creact = getCReactInstance();
+    //   creact.scheduleReRender(fiber, 'manual');
+    // }
   };
 
   // Get current state for this hook - read it fresh each time

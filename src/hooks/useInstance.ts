@@ -1,8 +1,9 @@
 // REQ-01, REQ-03: useInstance hook for resource creation
 // This hook registers infrastructure resources in the CloudDOM during rendering
 
-import { CloudDOMNode } from '../core/types';
+import { CloudDOMNode, CloudDOMEventCallbacks } from '../core/types';
 import { generateResourceId, toKebabCase } from '../utils/naming';
+import { ProviderOutputTracker } from '../core/ProviderOutputTracker';
 import {
   setInstanceRenderContext,
   clearInstanceRenderContext,
@@ -11,6 +12,71 @@ import {
   getCurrentPath as getCurrentPathInternal,
   isRendering as isRenderingInternal,
 } from './context';
+
+// Global ProviderOutputTracker instance
+let providerOutputTracker: ProviderOutputTracker | null = null;
+
+/**
+ * Get or create the global ProviderOutputTracker instance
+ * @internal
+ */
+function getProviderOutputTracker(): ProviderOutputTracker {
+  if (!providerOutputTracker) {
+    providerOutputTracker = new ProviderOutputTracker();
+  }
+  return providerOutputTracker;
+}
+
+/**
+ * Set the ProviderOutputTracker instance (for testing/injection)
+ * @internal
+ */
+export function setProviderOutputTracker(tracker: ProviderOutputTracker): void {
+  providerOutputTracker = tracker;
+}
+
+/**
+ * Get the ProviderOutputTracker instance (for external access)
+ * @internal
+ */
+export function getProviderOutputTrackerInstance(): ProviderOutputTracker {
+  return getProviderOutputTracker();
+}
+
+/**
+ * Create an enhanced CloudDOM node with output reference capabilities
+ * This allows automatic binding when outputs are used in useState
+ * @internal
+ */
+function createEnhancedNode(node: CloudDOMNode, outputReferences: Record<string, any>): CloudDOMNode {
+  // Create a proxy that intercepts property access to provide output references
+  return new Proxy(node, {
+    get(target, prop, receiver) {
+      // If accessing an output property, return the output reference for automatic binding
+      if (typeof prop === 'string' && outputReferences[prop]) {
+        return outputReferences[prop];
+      }
+      
+      // For all other properties, return the original value
+      return Reflect.get(target, prop, receiver);
+    },
+    
+    has(target, prop) {
+      // Include output references in property checks
+      if (typeof prop === 'string' && outputReferences[prop]) {
+        return true;
+      }
+      return Reflect.has(target, prop);
+    },
+    
+    ownKeys(target) {
+      // Include output reference keys
+      const originalKeys = Reflect.ownKeys(target);
+      const outputKeys = Object.keys(outputReferences);
+      return [...originalKeys, ...outputKeys.filter(key => !originalKeys.includes(key))];
+    }
+  });
+}
 
 /**
  * Set the current rendering context
@@ -53,40 +119,42 @@ const constructCallCounts = new WeakMap<any, Map<any, number>>();
  *
  * This hook creates a CloudDOM node and attaches it to the current Fiber.
  * It must be called during component rendering (inside a component function).
+ * 
+ * Automatically extracts event callbacks (onDeploy, onError, onDestroy) from
+ * component props and attaches them to the CloudDOM node for lifecycle events.
  *
  * REQ-01: JSX → CloudDOM rendering
  * REQ-04: Resource creation via hooks (React-like API)
+ * REQ-2.3: CloudDOM event callbacks for deployment lifecycle
  *
  * @param construct - Constructor/class for the infrastructure resource
- * @param props - Properties/configuration for the resource (may include `key`)
+ * @param props - Properties/configuration for the resource (may include `key` and event callbacks)
  * @returns Reference to the created CloudDOM node
  *
  * @example
  * ```tsx
- * // With explicit key (like React)
- * function MyBucket() {
- *   const bucket = useInstance(S3Bucket, {
- *     key: 'assets',
- *     bucketName: 'my-assets',
- *     publicReadAccess: true
+ * // With event callbacks (extracted from component props)
+ * function MyDatabase({ onDeploy, onError }) {
+ *   const db = useInstance(Database, {
+ *     name: 'my-db',
+ *     size: '100GB'
  *   });
- *   return null;
+ *   // onDeploy and onError are automatically extracted from component props
+ *   return <></>;
  * }
  *
- * // Without key (auto-generated from construct type)
+ * // Usage with event callbacks
+ * <MyDatabase 
+ *   onDeploy={(ctx) => console.log('Database deployed:', ctx.resourceId)}
+ *   onError={(ctx, err) => console.error('Database failed:', err)}
+ * />
+ *
+ * // Without event callbacks (normal usage)
  * function MyBucket() {
  *   const bucket = useInstance(S3Bucket, {
  *     bucketName: 'my-assets'
  *   });
- *   // ID will be auto-generated as 's3bucket'
- *   return null;
- * }
- *
- * // Multiple calls with same type (auto-indexed)
- * function MultiDatabase() {
- *   const db1 = useInstance(RDSInstance, { name: 'db-1' }); // 'rdsinstance-0'
- *   const db2 = useInstance(RDSInstance, { name: 'db-2' }); // 'rdsinstance-1'
- *   return null;
+ *   return <></>;
  * }
  * ```
  */
@@ -107,6 +175,25 @@ export function useInstance<T = any>(
 
   // Extract key from props (React-like)
   const { key, ...restProps } = props;
+
+  // Extract event callbacks from current component's props (not useInstance props)
+  const componentProps = currentFiber.props || {};
+  const eventCallbacks: CloudDOMEventCallbacks = {};
+  
+  // Extract onDeploy callback
+  if (typeof componentProps.onDeploy === 'function') {
+    eventCallbacks.onDeploy = componentProps.onDeploy;
+  }
+  
+  // Extract onError callback
+  if (typeof componentProps.onError === 'function') {
+    eventCallbacks.onError = componentProps.onError;
+  }
+  
+  // Extract onDestroy callback
+  if (typeof componentProps.onDestroy === 'function') {
+    eventCallbacks.onDestroy = componentProps.onDestroy;
+  }
 
   // Generate ID from key or construct type
   let id: string;
@@ -146,6 +233,7 @@ export function useInstance<T = any>(
     props: { ...restProps }, // Clone props (without key) to avoid mutations
     children: [],
     outputs: {}, // Will be populated during materialization
+    eventCallbacks: Object.keys(eventCallbacks).length > 0 ? eventCallbacks : undefined,
   };
 
   // Restore outputs from previous state if available
@@ -161,9 +249,24 @@ export function useInstance<T = any>(
   }
   currentFiber.cloudDOMNodes.push(node);
 
-  // Return reference to the node
-  // This allows components to reference the resource (e.g., for outputs)
-  return node;
+  // Track this instance with ProviderOutputTracker for output change detection
+  const outputTracker = getProviderOutputTracker();
+  outputTracker.trackInstance(node, currentFiber);
+
+  // Create output references for automatic state binding
+  const outputReferences = outputTracker.extractOutputReferences(node);
+  
+  // Enhance the node with output reference methods
+  const enhancedNode = createEnhancedNode(node, outputReferences);
+
+  // Debug logging
+  if (process.env.CREACT_DEBUG === 'true') {
+    console.debug(`[useInstance] Created and tracked instance: ${resourceId}, outputs: ${Object.keys(outputReferences).length}`);
+  }
+
+  // Return reference to the enhanced node
+  // This allows components to reference the resource and its outputs
+  return enhancedNode;
 }
 
 /**
@@ -194,4 +297,38 @@ export function getCurrentPath(): string[] {
  */
 export function isRendering(): boolean {
   return isRenderingInternal();
+}
+
+/**
+ * Update outputs for a CloudDOM node and notify bound components
+ * This is called after deployment when provider outputs are available
+ * @internal
+ */
+export function updateNodeOutputs(nodeId: string, newOutputs: Record<string, any>): void {
+  const outputTracker = getProviderOutputTracker();
+  const changes = outputTracker.updateNodeOutputs(nodeId, newOutputs);
+  
+  if (changes.length > 0) {
+    // Process the changes and get affected fibers
+    const affectedFibers = outputTracker.processOutputChanges(changes);
+    
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[useInstance] Output changes detected for ${nodeId}:`, {
+        changes: changes.length,
+        affectedFibers: affectedFibers.size
+      });
+    }
+    
+    // Note: The actual re-rendering will be handled by the RenderScheduler
+    // when it's integrated with the CReact main orchestrator
+  }
+}
+
+/**
+ * Get current outputs for a CloudDOM node
+ * @internal
+ */
+export function getNodeOutputs(nodeId: string): Record<string, any> {
+  const outputTracker = getProviderOutputTracker();
+  return outputTracker.getNodeOutputs(nodeId);
 }

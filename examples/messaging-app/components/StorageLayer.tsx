@@ -19,10 +19,10 @@ export function StorageLayer() {
   const config = useContext(InfraConfigContext);
   
   // State for storage endpoints (populated after deployment)
-  const [mediaBucketUrl, setMediaBucketUrl] = useState<string>('');
-  const [staticBucketUrl, setStaticBucketUrl] = useState<string>('');
-  const [backupBucketUrl, setBackupBucketUrl] = useState<string>('');
-  const [efsEndpoint, setEfsEndpoint] = useState<string>('');
+  const [mediaBucketUrl, setMediaBucketUrl] = useState<string>();
+  const [staticBucketUrl, setStaticBucketUrl] = useState<string>();
+  const [backupBucketUrl, setBackupBucketUrl] = useState<string>();
+  const [efsEndpoint, setEfsEndpoint] = useState<string>();
   
   // S3 bucket for user-uploaded media (images, videos, files)
   const mediaBucket = useInstance(S3Bucket, {

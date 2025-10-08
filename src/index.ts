@@ -6,7 +6,10 @@ export { CReact, JSXElement } from './jsx';
 export type { FC, PropsWithChildren } from './jsx.d';
 
 // Core classes
+import { CReact as CReactClass } from './core/CReact';
 export { CReact as CReactCore, CReactConfig } from './core/CReact';
+
+export const renderCloudDOM = CReactClass.renderCloudDOM;
 export { Renderer } from './core/Renderer';
 export { Validator } from './core/Validator';
 export { CloudDOMBuilder } from './core/CloudDOMBuilder';
@@ -17,10 +20,6 @@ export { FiberNode, CloudDOMNode } from './core/types';
 // Provider interfaces
 export { ICloudProvider } from './providers/ICloudProvider';
 export { IBackendProvider } from './providers/IBackendProvider';
-
-// Dummy providers (for testing/POC)
-export { DummyCloudProvider } from './providers/DummyCloudProvider';
-export { DummyBackendProvider } from './providers/DummyBackendProvider';
 
 // Hooks
 export { useInstance } from './hooks/useInstance';

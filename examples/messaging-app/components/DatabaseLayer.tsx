@@ -52,9 +52,9 @@ export function DatabaseLayer({ children }: DatabaseLayerProps) {
   });
   
   // State for database URLs (will be populated by useEffect after deployment)
-  const [postgresUrl, setPostgresUrl] = useState<string>('');
-  const [redisUrl, setRedisUrl] = useState<string>('');
-  const [elasticsearchUrl, setElasticsearchUrl] = useState<string>('');
+  const [postgresUrl, setPostgresUrl] = useState<string>();
+  const [redisUrl, setRedisUrl] = useState<string>();
+  const [elasticsearchUrl, setElasticsearchUrl] = useState<string>();
   
   // useEffect runs after deployment when real resource outputs are available
   useEffect(() => {

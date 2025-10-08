@@ -1,17 +1,8 @@
 // REQ-04: Provider interfaces for dependency injection
 // REQ-09: Lifecycle hooks for observability and error handling
 
-/**
- * CloudDOM node structure representing a cloud resource
- */
-export interface CloudDOMNode {
-  id: string;
-  path: string[];
-  construct: any;
-  props: Record<string, any>;
-  children: CloudDOMNode[];
-  outputs?: Record<string, any>;
-}
+// Import CloudDOMNode from core types to avoid duplication
+import { CloudDOMNode } from '../core/types';
 
 /**
  * ICloudProvider defines the interface for cloud infrastructure providers.

@@ -12,8 +12,8 @@
 import { CReact } from '../../src/jsx'; // Import JSX factory for createElement
 import { CReact as CReactCore } from '../../src/core/CReact';
 import { MessagingApp } from './components/MessagingApp';
-import { DummyCloudProvider } from '../../src/providers/DummyCloudProvider';
-import { DummyBackendProvider } from '../../src/providers/DummyBackendProvider';
+import { DummyCloudProvider } from '../providers/DummyCloudProvider';
+import { DummyBackendProvider } from '../providers/DummyBackendProvider';
 
 // Configure CReact providers (singleton pattern, like ReactDOM)
 CReactCore.cloudProvider = new DummyCloudProvider();

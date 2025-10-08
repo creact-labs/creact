@@ -23,9 +23,9 @@ export function SecurityLayer({ children }: SecurityLayerProps) {
   const config = useContext(InfraConfigContext);
   
   // State for security endpoints (populated after deployment)
-  const [vaultUrl, setVaultUrl] = useState<string>('');
-  const [certificateArn, setCertificateArn] = useState<string>('');
-  const [encryptionKey, setEncryptionKey] = useState<string>('');
+  const [vaultUrl, setVaultUrl] = useState('');
+  const [certificateArn, setCertificateArn] = useState('');
+  const [encryptionKey, setEncryptionKey] = useState('');
   
   // Vault cluster for secrets management
   const vault = useInstance(VaultCluster, {

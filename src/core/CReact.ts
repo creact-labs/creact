@@ -8,10 +8,16 @@ import { StateMachine } from './StateMachine';
 import { Reconciler } from './Reconciler';
 import { ICloudProvider } from '../providers/ICloudProvider';
 import { IBackendProvider } from '../providers/IBackendProvider';
-import { CloudDOMNode, JSXElement, ChangeSet } from './types';
+import { CloudDOMNode, JSXElement, ChangeSet, FiberNode, ReRenderReason, CReactEvents } from './types';
+import { CloudDOMEventBus } from './EventBus';
 import { setPreviousOutputs } from '../hooks/useInstance';
 import { DeploymentError } from './errors';
 import { CReact as JSXCReact } from '../jsx';
+import { RenderScheduler } from './RenderScheduler';
+import { StateBindingManager } from './StateBindingManager';
+import { ProviderOutputTracker } from './ProviderOutputTracker';
+import { ContextDependencyTracker } from './ContextDependencyTracker';
+import { ErrorRecoveryManager } from './ErrorRecoveryManager';
 
 /**
  * Configuration for CReact orchestrator
@@ -29,6 +35,9 @@ export interface CReactConfig {
 
   /** Async timeout in milliseconds (default: 5 minutes) (REQ-10.5) */
   asyncTimeout?: number;
+
+  /** Optional event hooks for reactive system integration */
+  eventHooks?: CReactEvents;
 }
 
 /**
@@ -78,6 +87,13 @@ export class CReact {
   private stateMachine: StateMachine;
   private lastFiberTree: any = null; // Store the last rendered Fiber tree for effects
 
+  // Reactive system components
+  private renderScheduler: RenderScheduler;
+  private stateBindingManager: StateBindingManager;
+  private providerOutputTracker: ProviderOutputTracker;
+  private contextDependencyTracker: ContextDependencyTracker;
+  private errorRecoveryManager: ErrorRecoveryManager;
+
   /**
    * Constructor receives all dependencies via config (dependency injection)
    *
@@ -98,6 +114,23 @@ export class CReact {
 
     // Instantiate StateMachine for deployment orchestration (REQ-O01)
     this.stateMachine = new StateMachine(config.backendProvider);
+
+    // Initialize reactive system components
+    this.renderScheduler = new RenderScheduler(config.eventHooks);
+    this.stateBindingManager = new StateBindingManager();
+    this.providerOutputTracker = new ProviderOutputTracker(config.eventHooks);
+    this.contextDependencyTracker = new ContextDependencyTracker(config.eventHooks);
+    this.errorRecoveryManager = new ErrorRecoveryManager(config.eventHooks);
+
+    // Wire up reactive components
+    this.renderer.setRenderScheduler(this.renderScheduler);
+    this.renderer.setContextDependencyTracker(this.contextDependencyTracker);
+    this.cloudDOMBuilder.setReactiveComponents(this.stateBindingManager, this.providerOutputTracker);
+    this.contextDependencyTracker.setStateBindingManager(this.stateBindingManager);
+    
+    // Set the context dependency tracker in useContext hook
+    const { setContextDependencyTracker } = require('../hooks/useContext');
+    setContextDependencyTracker(this.contextDependencyTracker);
   }
 
   /**
@@ -109,6 +142,119 @@ export class CReact {
   private log(message: string): void {
     if (process.env.CREACT_DEBUG === 'true') {
       console.debug(`[CReact] ${message}`);
+    }
+  }
+
+  /**
+   * Schedule a component for re-rendering
+   * This is called by hooks when reactive state changes
+   * 
+   * @param fiber - Fiber node to re-render
+   * @param reason - Reason for the re-render
+   */
+  scheduleReRender(fiber: FiberNode, reason: ReRenderReason): void {
+    this.log(`Scheduling re-render for ${fiber.path.join('.')} (reason: ${reason})`);
+    this.renderScheduler.schedule(fiber, reason);
+  }
+
+  /**
+   * Handle context value changes and trigger selective re-renders
+   * This is called when a context provider value changes
+   * 
+   * @param contextId - Context identifier
+   * @param newValue - New context value
+   * @returns Promise resolving to affected fibers that were re-rendered
+   */
+  async handleContextChange(contextId: symbol, newValue: any): Promise<FiberNode[]> {
+    this.log(`Context change detected for context: ${contextId.toString()}`);
+
+    try {
+      // Update context value and get affected fibers
+      const affectedFibers = this.contextDependencyTracker.updateContextValue(contextId, newValue);
+
+      if (affectedFibers.length === 0) {
+        this.log('No components affected by context change');
+        return [];
+      }
+
+      this.log(`Context change affects ${affectedFibers.length} components`);
+
+      // Schedule re-renders for affected components
+      affectedFibers.forEach(fiber => {
+        this.scheduleReRender(fiber, 'context-change');
+      });
+
+      // Execute the scheduled re-renders
+      const updatedFiber = this.renderer.reRenderComponents(affectedFibers, 'context-change');
+      
+      // Update the last fiber tree
+      this.lastFiberTree = updatedFiber;
+
+      return affectedFibers;
+
+    } catch (error) {
+      this.log(`Context change handling failed: ${(error as Error).message}`);
+      
+      // Attempt rollback
+      const rollbackSuccess = this.contextDependencyTracker.rollbackContextValue(contextId);
+      if (rollbackSuccess) {
+        this.log('Context value rolled back successfully');
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Manual re-render trigger for CLI/testing
+   * Re-renders the entire stack or specific components
+   * 
+   * @param stackName - Stack name to re-render (default: 'default')
+   * @param targetComponents - Optional specific components to re-render
+   * @returns Promise resolving to updated CloudDOM
+   */
+  async rerender(stackName: string = 'default', targetComponents?: FiberNode[]): Promise<CloudDOMNode[]> {
+    this.log(`Manual re-render triggered for stack: ${stackName}`);
+
+    try {
+      // Get current state
+      const currentState = await this.stateMachine.getState(stackName);
+      if (!currentState?.cloudDOM) {
+        throw new Error(`No existing state found for stack: ${stackName}`);
+      }
+
+      // If no target components specified, re-render from last fiber tree
+      if (!targetComponents && this.lastFiberTree) {
+        this.log('Re-rendering entire stack from last fiber tree');
+
+        // Re-render the entire fiber tree
+        const updatedFiber = this.renderer.reRenderComponents([this.lastFiberTree], 'manual');
+        this.lastFiberTree = updatedFiber;
+
+        // Build updated CloudDOM
+        const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
+
+        // Sync outputs and trigger any additional re-renders
+        await this.cloudDOMBuilder.syncOutputsAndReRender(updatedFiber, updatedCloudDOM, currentState.cloudDOM);
+
+        return updatedCloudDOM;
+      }
+
+      // Re-render specific components
+      if (targetComponents && targetComponents.length > 0) {
+        this.log(`Re-rendering ${targetComponents.length} specific components`);
+
+        const updatedFiber = this.renderer.reRenderComponents(targetComponents, 'manual');
+        const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
+
+        return updatedCloudDOM;
+      }
+
+      throw new Error('No components available for re-rendering');
+
+    } catch (error) {
+      this.log(`Re-render failed: ${(error as Error).message}`);
+      throw error;
     }
   }
 
@@ -285,6 +431,21 @@ export class CReact {
         await this.config.cloudProvider.preDeploy(cloudDOM);
       }
 
+      // Process deletes first (before creates/updates to avoid conflicts)
+      if (changeSet.deletes.length > 0) {
+        this.log(`Processing ${changeSet.deletes.length} deletes`);
+        for (const deleteNode of changeSet.deletes) {
+          this.log(`Deleting resource: ${deleteNode.id}`);
+
+          // Trigger onDestroy event callback for this resource
+          await CloudDOMEventBus.triggerEventCallbacks(deleteNode, 'destroy');
+
+          // Note: Actual deletion would be handled by the cloud provider
+          // For now, we just trigger the callback
+          // TODO: Add actual deletion logic when provider supports it
+        }
+      }
+
       // Deploy resources in order with checkpoints
       this.log('Deploying resources with checkpoints');
       for (let i = 0; i < changeSet.deploymentOrder.length; i++) {
@@ -304,6 +465,9 @@ export class CReact {
         // Materialize single resource
         this.config.cloudProvider.materialize([resourceNode], null);
 
+        // Trigger onDeploy event callback for this resource
+        await CloudDOMEventBus.triggerEventCallbacks(resourceNode, 'deploy');
+
         // Update checkpoint after successful deployment
         await this.stateMachine.updateCheckpoint(stackName, i);
       }
@@ -322,21 +486,42 @@ export class CReact {
       this.log('Completing deployment via StateMachine');
       await this.stateMachine.completeDeployment(stackName);
 
-      // Execute post-deployment effects (useEffect callbacks)
-      this.log('Executing post-deployment effects');
+      // Execute post-deployment effects with reactive output synchronization
+      this.log('Executing post-deployment effects with reactive sync');
       if (this.lastFiberTree) {
         console.log('[CReact] Executing post-deployment effects...');
-        await this.cloudDOMBuilder.executePostDeploymentEffects(this.lastFiberTree);
-        
-        // Sync updated Fiber state back to CloudDOM outputs
-        console.log('[CReact] Syncing Fiber state to CloudDOM outputs...');
-        this.cloudDOMBuilder.syncFiberStateToCloudDOM(this.lastFiberTree, cloudDOM);
-        
+
+        // Integrate with post-deployment effects and output sync
+        const affectedFibers = await this.cloudDOMBuilder.integrateWithPostDeploymentEffects(
+          this.lastFiberTree,
+          cloudDOM,
+          previousCloudDOM
+        );
+
+        // If there are affected fibers, trigger re-renders
+        if (affectedFibers.length > 0) {
+          console.log(`[CReact] Triggering re-renders for ${affectedFibers.length} affected components`);
+
+          // Schedule re-renders for affected components
+          affectedFibers.forEach(fiber => {
+            this.scheduleReRender(fiber, 'output-update');
+          });
+
+          // Execute the scheduled re-renders
+          const updatedFiber = this.renderer.reRenderComponents(affectedFibers, 'output-update');
+
+          // Build updated CloudDOM from re-rendered components
+          const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
+
+          // Update the stored CloudDOM with reactive changes
+          cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
+        }
+
         // Save the updated CloudDOM state with new outputs
         console.log('[CReact] Saving updated state with new outputs...');
         await this.stateMachine.updateCloudDOM(stackName, cloudDOM);
-        
-        console.log('[CReact] Post-deployment effects completed');
+
+        console.log('[CReact] Post-deployment effects and reactive sync completed');
       } else {
         console.log('[CReact] No fiber tree found for effects execution');
       }
@@ -344,6 +529,9 @@ export class CReact {
       console.log('[CReact] Deployment complete');
     } catch (error) {
       console.error('[CReact] Deployment failed:', error);
+
+      // Trigger onError event callbacks for all resources
+      await CloudDOMEventBus.triggerEventCallbacksRecursive(cloudDOM, 'error', error as Error);
 
       // REQ-09.3: Lifecycle hook - onError
       if (this.config.cloudProvider.onError) {
@@ -357,10 +545,10 @@ export class CReact {
         error instanceof DeploymentError
           ? error
           : new DeploymentError((error as Error).message, {
-              message: (error as Error).message,
-              code: 'DEPLOYMENT_FAILED',
-              stack: (error as Error).stack,
-            });
+            message: (error as Error).message,
+            code: 'DEPLOYMENT_FAILED',
+            stack: (error as Error).stack,
+          });
 
       await this.stateMachine.failDeployment(stackName, deploymentError);
 
@@ -395,7 +583,7 @@ export class CReact {
    * Extract outputs from CloudDOM nodes
    *
    * Walks the CloudDOM tree and collects all outputs from nodes.
-   * Outputs are formatted as nodeId.outputKey (e.g., 'registry.state0').
+   * Outputs are formatted as nodeId.outputKey (e.g., 'registry.state-0').
    *
    * REQ-02: Extract outputs from useState calls
    * REQ-06: Universal output access
@@ -503,25 +691,13 @@ export class CReact {
     // Validate that providers are configured
     if (!CReact.cloudProvider) {
       throw new Error(
-        'CReact.cloudProvider must be set before calling renderCloudDOM.\n\n' +
-          'Example:\n' +
-          '  import { CReact } from \'@escambo/creact\';\n' +
-          '  import { AwsCloudProvider } from \'@escambo/creact/providers\';\n\n' +
-          '  CReact.cloudProvider = new AwsCloudProvider();\n' +
-          '  CReact.backendProvider = new S3BackendProvider();\n\n' +
-          '  export default CReact.renderCloudDOM(<App />, \'my-stack\');'
+        'CReact.cloudProvider must be set before calling renderCloudDOM.\n\n'
       );
     }
 
     if (!CReact.backendProvider) {
       throw new Error(
-        'CReact.backendProvider must be set before calling renderCloudDOM.\n\n' +
-          'Example:\n' +
-          '  import { CReact } from \'@escambo/creact\';\n' +
-          '  import { S3BackendProvider } from \'@escambo/creact/providers\';\n\n' +
-          '  CReact.cloudProvider = new AwsCloudProvider();\n' +
-          '  CReact.backendProvider = new S3BackendProvider();\n\n' +
-          '  export default CReact.renderCloudDOM(<App />, \'my-stack\');'
+        'CReact.backendProvider must be set before calling renderCloudDOM.\n\n'
       );
     }
 

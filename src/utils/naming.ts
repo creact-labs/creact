@@ -206,3 +206,57 @@ export function parseResourceId(id: string): string[] {
 
   return id.split('.').filter((segment) => segment.length > 0);
 }
+
+/**
+ * Generate a binding key for state-output binding tracking
+ *
+ * Creates a consistent key format for tracking bindings between
+ * component state and provider outputs.
+ *
+ * Examples:
+ * - ('registry.service', 'url') → 'registry.service.url'
+ * - ('app.database', 'connectionString') → 'app.database.connection-string'
+ *
+ * @param nodeId - CloudDOM node ID
+ * @param outputKey - Output key name
+ * @returns Binding key
+ */
+export function generateBindingKey(nodeId: string, outputKey: string): string {
+  if (!nodeId || !outputKey) {
+    throw new Error('Cannot generate binding key from empty nodeId or outputKey');
+  }
+
+  // Normalize the output key to kebab-case for consistency
+  const normalizedOutputKey = toKebabCase(outputKey);
+  
+  return `${nodeId}.${normalizedOutputKey}`;
+}
+
+/**
+ * Parse a binding key back into nodeId and outputKey
+ *
+ * Inverse of generateBindingKey.
+ *
+ * Examples:
+ * - 'registry.service.url' → { nodeId: 'registry.service', outputKey: 'url' }
+ * - 'app.database.connection-string' → { nodeId: 'app.database', outputKey: 'connection-string' }
+ *
+ * @param bindingKey - Binding key
+ * @returns Object with nodeId and outputKey
+ */
+export function parseBindingKey(bindingKey: string): { nodeId: string; outputKey: string } {
+  if (!bindingKey || typeof bindingKey !== 'string') {
+    throw new Error('Cannot parse empty binding key');
+  }
+
+  const parts = bindingKey.split('.');
+  if (parts.length < 2) {
+    throw new Error(`Invalid binding key format: ${bindingKey}`);
+  }
+
+  // The last part is the output key, everything else is the node ID
+  const outputKey = parts.pop()!;
+  const nodeId = parts.join('.');
+
+  return { nodeId, outputKey };
+}

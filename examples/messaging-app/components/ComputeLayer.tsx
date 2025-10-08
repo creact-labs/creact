@@ -24,12 +24,12 @@ export function ComputeLayer() {
   const config = useContext(InfraConfigContext);
   const database = useContext(DatabaseContext);
   const messaging = useContext(MessagingContext);
-  
+
   // State for service endpoints (populated after deployment)
-  const [apiServiceUrl, setApiServiceUrl] = useState<string>('');
-  const [websocketServiceUrl, setWebsocketServiceUrl] = useState<string>('');
-  const [workerServiceUrl, setWorkerServiceUrl] = useState<string>('');
-  
+  const [apiServiceUrl, setApiServiceUrl] = useState<string>();
+  const [websocketServiceUrl, setWebsocketServiceUrl] = useState<string>();
+  const [workerServiceUrl, setWorkerServiceUrl] = useState<string>();
+
   // Build environment variables from context
   const baseEnv = {
     ENVIRONMENT: config.environment,
@@ -41,7 +41,7 @@ export function ComputeLayer() {
     SQS_QUEUE_URL: messaging.sqsQueueUrl || '',
     SNS_TOPIC_ARN: messaging.snsTopicArn || '',
   };
-  
+
   // API Service - REST API for messaging
   const apiService = useInstance(KubernetesDeployment, {
     key: 'api-service',
@@ -59,7 +59,7 @@ export function ComputeLayer() {
       memory: config.environment === 'prod' ? '4Gi' : '1Gi',
     },
   });
-  
+
   // WebSocket Service - Real-time messaging
   const websocketService = useInstance(KubernetesDeployment, {
     key: 'websocket-service',
@@ -78,7 +78,7 @@ export function ComputeLayer() {
       memory: config.environment === 'prod' ? '3Gi' : '1Gi',
     },
   });
-  
+
   // Message Worker Service - Background message processing
   const messageWorker = useInstance(KubernetesDeployment, {
     key: 'message-worker',
@@ -97,7 +97,7 @@ export function ComputeLayer() {
       memory: config.environment === 'prod' ? '4Gi' : '1Gi',
     },
   });
-  
+
   // Media Processing Lambda - Process images/videos
   const mediaProcessor = useInstance(AwsLambda, {
     key: 'media-processor',
@@ -113,7 +113,7 @@ export function ComputeLayer() {
       MAX_VIDEO_SIZE: '104857600', // 100MB
     },
   });
-  
+
   // Notification Lambda - Send push notifications
   const notificationSender = useInstance(AwsLambda, {
     key: 'notification-sender',
@@ -128,7 +128,7 @@ export function ComputeLayer() {
       APNS_CERT: 'encrypted:apns-cert',
     },
   });
-  
+
   // Analytics Lambda - Process analytics events
   const analyticsProcessor = useInstance(AwsLambda, {
     key: 'analytics-processor',
@@ -143,32 +143,32 @@ export function ComputeLayer() {
       ANALYTICS_FLUSH_INTERVAL: '60',
     },
   });
-  
+
   // useEffect runs after deployment to populate state with service endpoints
   useEffect(() => {
     if (apiService.outputs?.serviceUrl) {
       setApiServiceUrl(apiService.outputs.serviceUrl as string);
     }
   }, [apiService.outputs?.serviceUrl]);
-  
+
   useEffect(() => {
     if (websocketService.outputs?.serviceUrl) {
       setWebsocketServiceUrl(websocketService.outputs.serviceUrl as string);
     }
   }, [websocketService.outputs?.serviceUrl]);
-  
+
   useEffect(() => {
     if (messageWorker.outputs?.serviceUrl) {
       setWorkerServiceUrl(messageWorker.outputs.serviceUrl as string);
     }
   }, [messageWorker.outputs?.serviceUrl]);
-  
+
   // Cleanup effect example - runs before stack destruction
   useEffect(() => {
     return () => {
       console.log('Cleaning up compute resources...');
     };
   }, []);
-  
+
   return <></>;
 }

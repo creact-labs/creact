@@ -19,12 +19,12 @@ function MyComponent() {
   // count is still 0 here - setState doesn't affect current render
   console.log(count); // 0
   
-  return null;
+  return <></>;
 }
 
 // ✅ CORRECT Mental Model (CReact thinking)
 function MyComponent() {
-  const [dbUrl, setDbUrl] = useState(''); // Declares persistent output
+  const [dbUrl, setDbUrl] = useState<string>(); // Declares persistent output
   
   const db = useInstance(Database, { name: 'my-db' });
   
@@ -34,7 +34,7 @@ function MyComponent() {
   // dbUrl is still '' in this render - setState updates persisted state
   console.log(dbUrl); // ''
   
-  return null;
+  return <></>;
 }
 ```
 
@@ -58,7 +58,7 @@ function ChildComponent() {
   // No subscription, no re-render on context changes
   const resource = useInstance(SomeResource, { config });
   
-  return null;
+  return <></>;
 }
 ```
 
@@ -98,8 +98,8 @@ function ChildComponent() {
 ```tsx
 function InfrastructureStack() {
   // ✅ Use useState for persistent outputs
-  const [apiUrl, setApiUrl] = useState('');
-  const [dbConnectionString, setDbConnectionString] = useState('');
+  const [apiUrl, setApiUrl] = useState<string>();
+  const [dbConnectionString, setDbConnectionString] = useState<string>();
   
   // ✅ Use useContext for configuration (static during render)
   const { region, environment } = useContext(ConfigContext);
@@ -112,8 +112,8 @@ function InfrastructureStack() {
   setApiUrl(api.url);
   setDbConnectionString(db.connectionString);
   
-  // ✅ Return null (no JSX rendering)
-  return null;
+  // ✅ Return Fragment (no JSX rendering)
+  return <></>;
 }
 ```
 
@@ -122,9 +122,9 @@ function InfrastructureStack() {
 ```tsx
 it('should update persistent state without re-render', () => {
   function TestComponent() {
-    const [value, setValue] = useState('initial');
+    const [value, setValue] = useState();
     setValue('updated'); // Updates persistent state
-    return null;
+    return <></>;
   }
 
   const fiber = renderer.render(<TestComponent />);
@@ -149,7 +149,7 @@ function BadExample() {
   setCount(1);
   setCount(count + 1); // count is still 0, so this sets to 1, not 2
   
-  return null;
+  return <></>;
 }
 ```
 
@@ -163,7 +163,7 @@ function GoodExample() {
   setCount(1);
   setCount(prev => prev + 1); // Uses previous value correctly
   
-  return null;
+  return <></>;
 }
 ```
 
@@ -191,7 +191,7 @@ function GoodExample() {
     config: config // Uses static value
   });
   
-  return null;
+  return <></>;
 }
 ```
 

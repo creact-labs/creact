@@ -913,6 +913,8 @@ export class StateMachine {
     await this.logAction(stackName, 'checkpoint', state);
   }
 
+
+
   /**
    * Check if a stack has an incomplete deployment
    *

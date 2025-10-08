@@ -24,9 +24,9 @@ export function MessagingLayer({ children }: MessagingLayerProps) {
   const config = useContext(InfraConfigContext);
 
   // State for messaging endpoints (populated after deployment)
-  const [kafkaBrokers, setKafkaBrokers] = useState<string[]>([]);
-  const [sqsQueueUrl, setSqsQueueUrl] = useState<string>('');
-  const [snsTopicArn, setSnsTopicArn] = useState<string>('');
+  const [kafkaBrokers, setKafkaBrokers] = useState<string[]>();
+  const [sqsQueueUrl, setSqsQueueUrl] = useState<string>();
+  const [snsTopicArn, setSnsTopicArn] = useState<string>();
 
   // Kafka cluster for real-time message streaming
   const kafka = useInstance(KafkaCluster, {
