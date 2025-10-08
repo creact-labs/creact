@@ -58,6 +58,12 @@ export interface FiberNode {
 
   /** Components that depend on this component */
   dependents?: Set<FiberNode>;
+
+  /** Effect bindings for reactive system integration */
+  effectBindings?: Map<number, {
+    boundOutputs: string[];
+    registeredAt: number;
+  }>;
 }
 
 /**
@@ -241,6 +247,9 @@ export interface CReactEvents {
 
   /** Called when a fiber is scheduled for re-render (for telemetry/visualization) */
   onFiberReRenderScheduled?(fiber: FiberNode, reason: ReRenderReason, contextId?: symbol): void;
+
+  /** Called when structural changes are detected in CloudDOM topology */
+  onStructuralChange?(change: any): void;
 }
 
 /**

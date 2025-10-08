@@ -18,6 +18,7 @@ import { StateBindingManager } from './StateBindingManager';
 import { ProviderOutputTracker } from './ProviderOutputTracker';
 import { ContextDependencyTracker } from './ContextDependencyTracker';
 import { ErrorRecoveryManager } from './ErrorRecoveryManager';
+import { StructuralChangeDetector } from './StructuralChangeDetector';
 
 /**
  * Configuration for CReact orchestrator
@@ -93,6 +94,7 @@ export class CReact {
   private providerOutputTracker: ProviderOutputTracker;
   private contextDependencyTracker: ContextDependencyTracker;
   private errorRecoveryManager: ErrorRecoveryManager;
+  private structuralChangeDetector: StructuralChangeDetector;
 
   /**
    * Constructor receives all dependencies via config (dependency injection)
@@ -121,10 +123,12 @@ export class CReact {
     this.providerOutputTracker = new ProviderOutputTracker(config.eventHooks);
     this.contextDependencyTracker = new ContextDependencyTracker(config.eventHooks);
     this.errorRecoveryManager = new ErrorRecoveryManager(config.eventHooks);
+    this.structuralChangeDetector = new StructuralChangeDetector(config.eventHooks);
 
     // Wire up reactive components
     this.renderer.setRenderScheduler(this.renderScheduler);
     this.renderer.setContextDependencyTracker(this.contextDependencyTracker);
+    this.renderer.setStructuralChangeDetector(this.structuralChangeDetector);
     this.cloudDOMBuilder.setReactiveComponents(this.stateBindingManager, this.providerOutputTracker);
     this.contextDependencyTracker.setStateBindingManager(this.stateBindingManager);
     
@@ -300,6 +304,28 @@ export class CReact {
     // Step 7: Build CloudDOM from Fiber (commit phase)
     this.log('Building CloudDOM from Fiber');
     const cloudDOM = await this.cloudDOMBuilder.build(fiber);
+
+    // Step 8: Detect structural changes if we have previous state
+    if (previousState?.cloudDOM) {
+      this.log('Detecting structural changes');
+      const structuralChanges = this.structuralChangeDetector.detectStructuralChanges(
+        previousState.cloudDOM,
+        cloudDOM,
+        fiber
+      );
+
+      if (structuralChanges.length > 0) {
+        this.log(`Detected ${structuralChanges.length} structural changes`);
+        
+        // Trigger re-renders for affected components
+        this.structuralChangeDetector.triggerStructuralReRenders(structuralChanges, this.renderScheduler);
+        
+        // Check if deployment plan needs updating
+        if (this.structuralChangeDetector.requiresDeploymentPlanUpdate(structuralChanges)) {
+          this.log('Structural changes require deployment plan update');
+        }
+      }
+    }
 
     this.log('Build pipeline complete');
     return cloudDOM;

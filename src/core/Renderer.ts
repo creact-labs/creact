@@ -1,6 +1,6 @@
 // REQ-01: Renderer - JSX → Fiber transformation
 
-import { FiberNode, JSXElement, ReRenderReason } from './types';
+import { FiberNode, JSXElement, ReRenderReason, CloudDOMNode } from './types';
 import { setRenderContext, clearRenderContext, resetConstructCounts } from '../hooks/useInstance';
 import { setStateRenderContext, clearStateRenderContext } from '../hooks/useState';
 import {
@@ -35,7 +35,8 @@ export class Renderer {
   private currentPath: string[] = [];
   private renderScheduler?: RenderScheduler;
   private contextDependencyTracker?: any;
-  
+  private structuralChangeDetector?: any;
+
   // Structural change detection
   private previousStructures = new WeakMap<FiberNode, string>();
 
@@ -267,6 +268,14 @@ export class Renderer {
   }
 
   /**
+   * Set structural change detector for topology change detection
+   * @param detector - StructuralChangeDetector instance
+   */
+  setStructuralChangeDetector(detector: any): void {
+    this.structuralChangeDetector = detector;
+  }
+
+  /**
    * Handle context provider value changes
    * Called when a context provider's value prop changes
    * 
@@ -301,27 +310,27 @@ export class Renderer {
   private detectStructuralChanges(fiber: FiberNode): boolean {
     // Generate structural signature for current render
     const currentStructure = this.generateStructuralSignature(fiber);
-    
+
     // Get previous structure
     const previousStructure = this.previousStructures.get(fiber);
-    
+
     // Store current structure for next comparison
     this.previousStructures.set(fiber, currentStructure);
-    
+
     // If no previous structure, this is the first render (not a change)
     if (!previousStructure) {
       return false;
     }
-    
+
     // Compare structures
     const hasChanged = previousStructure !== currentStructure;
-    
+
     if (hasChanged && process.env.CREACT_DEBUG === 'true') {
       console.debug(`[Renderer] Structural change detected in ${fiber.path.join('.')}:`);
       console.debug(`  Previous: ${previousStructure}`);
       console.debug(`  Current:  ${currentStructure}`);
     }
-    
+
     return hasChanged;
   }
 
@@ -334,35 +343,35 @@ export class Renderer {
    */
   private generateStructuralSignature(fiber: FiberNode): string {
     const parts: string[] = [];
-    
+
     // Include component type
     parts.push(`type:${fiber.type?.name || fiber.type}`);
-    
+
     // Include number and types of CloudDOM nodes (useInstance calls)
     if (fiber.cloudDOMNodes && fiber.cloudDOMNodes.length > 0) {
-      const nodeSignatures = fiber.cloudDOMNodes.map(node => 
+      const nodeSignatures = fiber.cloudDOMNodes.map(node =>
         `${node.construct?.name || 'unknown'}:${node.id}`
       ).sort(); // Sort for consistent ordering
       parts.push(`nodes:[${nodeSignatures.join(',')}]`);
     } else {
       parts.push('nodes:[]');
     }
-    
+
     // Include number of children and their types
     if (fiber.children && fiber.children.length > 0) {
-      const childTypes = fiber.children.map(child => 
+      const childTypes = fiber.children.map(child =>
         child.type?.name || child.type || 'unknown'
       ).sort(); // Sort for consistent ordering
       parts.push(`children:[${childTypes.join(',')}]`);
     } else {
       parts.push('children:[]');
     }
-    
+
     // Include key if present (affects identity)
     if (fiber.key) {
       parts.push(`key:${fiber.key}`);
     }
-    
+
     return parts.join('|');
   }
 
@@ -378,7 +387,7 @@ export class Renderer {
       if (this.renderScheduler) {
         this.renderScheduler.schedule(fiber, 'structural-change');
       }
-      
+
       // Also check if any dependent components need re-rendering
       if (fiber.dependents) {
         Array.from(fiber.dependents).forEach(dependent => {
@@ -388,6 +397,72 @@ export class Renderer {
         });
       }
     }
+  }
+
+  /**
+   * Handle structural changes between old and new fiber trees
+   * Called during re-rendering to detect topology changes
+   * 
+   * @param oldFiber - Previous fiber tree
+   * @param newFiber - New fiber tree after re-render
+   */
+  private handleStructuralChangesComparison(oldFiber: FiberNode, newFiber: FiberNode): void {
+    if (!this.structuralChangeDetector) {
+      return;
+    }
+
+    try {
+      // Extract CloudDOM from both fiber trees for comparison
+      const oldCloudDOM = this.extractCloudDOMFromFiber(oldFiber);
+      const newCloudDOM = this.extractCloudDOMFromFiber(newFiber);
+
+      // Detect structural changes
+      const changes = this.structuralChangeDetector.detectStructuralChanges(
+        oldCloudDOM,
+        newCloudDOM,
+        newFiber
+      );
+
+      if (changes.length > 0) {
+        // Trigger re-renders for affected components
+        this.structuralChangeDetector.triggerStructuralReRenders(changes, this.renderScheduler);
+      }
+
+    } catch (error) {
+      console.error('[Renderer] Error handling structural changes:', error);
+    }
+  }
+
+  /**
+   * Extract CloudDOM nodes from a fiber tree for structural comparison
+   * 
+   * @param fiber - Fiber tree to extract CloudDOM from
+   * @returns Array of CloudDOM nodes
+   */
+  private extractCloudDOMFromFiber(fiber: FiberNode): CloudDOMNode[] {
+    const cloudDOMNodes: CloudDOMNode[] = [];
+
+    const walkFiber = (currentFiber: FiberNode) => {
+      // Check for cloudDOMNodes array
+      if ((currentFiber as any).cloudDOMNodes && Array.isArray((currentFiber as any).cloudDOMNodes)) {
+        cloudDOMNodes.push(...(currentFiber as any).cloudDOMNodes);
+      }
+
+      // Check for single cloudDOMNode
+      if (currentFiber.cloudDOMNode) {
+        cloudDOMNodes.push(currentFiber.cloudDOMNode);
+      }
+
+      // Recursively walk children
+      if (currentFiber.children && currentFiber.children.length > 0) {
+        for (const child of currentFiber.children) {
+          walkFiber(child);
+        }
+      }
+    };
+
+    walkFiber(fiber);
+    return cloudDOMNodes;
   }
 
   /**
@@ -417,6 +492,11 @@ export class Renderer {
 
         // Selectively re-render the components
         const updatedRoot = this.selectiveReRender(rootComponent, new Set(components), reason);
+
+        // Detect structural changes if this is a structural re-render
+        if (reason === 'structural-change' && this.structuralChangeDetector) {
+          this.handleStructuralChangesComparison(rootComponent, updatedRoot);
+        }
 
         // Update current fiber reference
         this.currentFiber = updatedRoot;

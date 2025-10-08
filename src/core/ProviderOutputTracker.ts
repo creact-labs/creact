@@ -4,14 +4,14 @@ import { FiberNode, CloudDOMNode, CReactEvents, OutputChange } from './types';
  * ProviderOutputTracker - Tracks useInstance calls and their output dependencies
  * 
  * Key Features:
- * - Track useInstance calls and their output dependencies
- * - Implement output change detection
- * - Event hook integration for tooling
- * - Notify bound components when outputs change
+ * - Track which components use which provider instances
+ * - Detect when provider outputs change
+ * - Notify bound components of output changes
+ * - Event hook integration for tooling and debugging
  */
 export class ProviderOutputTracker {
   private instanceBindings = new Map<string, Set<FiberNode>>();
-  private nodeOutputs = new Map<string, Record<string, any>>();
+  private instanceOutputs = new Map<string, Record<string, any>>();
   private eventHooks?: CReactEvents;
 
   constructor(eventHooks?: CReactEvents) {
@@ -19,43 +19,45 @@ export class ProviderOutputTracker {
   }
 
   /**
-   * Track a useInstance call and bind it to the calling fiber
-   * This is called from useInstance when a CloudDOM node is created
+   * Track a useInstance call - bind a fiber to a CloudDOM node
+   * This is called whenever useInstance is called in a component
    */
   trackInstance(node: CloudDOMNode, fiber: FiberNode): void {
+    // Initialize bindings for this instance if not exists
     if (!this.instanceBindings.has(node.id)) {
       this.instanceBindings.set(node.id, new Set());
     }
+
+    // Add the fiber to the bindings
     this.instanceBindings.get(node.id)!.add(fiber);
 
-    // Initialize outputs tracking for this node
-    if (!this.nodeOutputs.has(node.id)) {
-      this.nodeOutputs.set(node.id, {});
+    // Store initial outputs if available
+    if (node.outputs) {
+      this.instanceOutputs.set(node.id, { ...node.outputs });
     }
   }
 
   /**
-   * Get all fibers that are bound to a specific instance
+   * Get all fibers bound to a specific instance
    */
   getBindingsForInstance(nodeId: string): Set<FiberNode> {
     return this.instanceBindings.get(nodeId) || new Set();
   }
 
   /**
-   * Update outputs for a specific node and detect changes
-   * This is called after deployment when provider outputs are available
+   * Update outputs for an instance and detect changes
+   * Returns array of output changes that occurred
    */
-  updateNodeOutputs(nodeId: string, newOutputs: Record<string, any>): OutputChange[] {
-    const previousOutputs = this.nodeOutputs.get(nodeId) || {};
+  updateInstanceOutputs(nodeId: string, newOutputs: Record<string, any>): OutputChange[] {
+    const previousOutputs = this.instanceOutputs.get(nodeId) || {};
     const changes: OutputChange[] = [];
+    const boundFibers = Array.from(this.getBindingsForInstance(nodeId));
 
-    // Detect changes in outputs
+    // Check for changed outputs
     for (const [outputKey, newValue] of Object.entries(newOutputs)) {
       const previousValue = previousOutputs[outputKey];
       
       if (previousValue !== newValue) {
-        const boundFibers = Array.from(this.getBindingsForInstance(nodeId));
-        
         changes.push({
           nodeId,
           outputKey,
@@ -69,8 +71,6 @@ export class ProviderOutputTracker {
     // Check for removed outputs
     for (const [outputKey, previousValue] of Object.entries(previousOutputs)) {
       if (!(outputKey in newOutputs)) {
-        const boundFibers = Array.from(this.getBindingsForInstance(nodeId));
-        
         changes.push({
           nodeId,
           outputKey,
@@ -82,135 +82,132 @@ export class ProviderOutputTracker {
     }
 
     // Update stored outputs
-    this.nodeOutputs.set(nodeId, { ...newOutputs });
+    this.instanceOutputs.set(nodeId, { ...newOutputs });
 
     return changes;
   }
 
   /**
-   * Notify about output changes and trigger appropriate events
-   * This integrates with the event hooks system
+   * Notify bound components of output changes
+   * This triggers re-renders for affected components
    */
-  notifyOutputChange(nodeId: string, outputKey: string, newValue: any, previousValue: any): void {
-    const boundFibers = this.getBindingsForInstance(nodeId);
-    
-    Array.from(boundFibers).forEach(fiber => {
-      try {
-        // Emit render start event for affected fiber
-        this.eventHooks?.onRenderStart(fiber);
-        
-        // Update reactive state if available
-        if (fiber.reactiveState) {
-          fiber.reactiveState.lastRenderReason = 'output-update';
-          fiber.reactiveState.lastRenderTime = Date.now();
-          fiber.reactiveState.isDirty = true;
+  notifyOutputChanges(changes: OutputChange[]): void {
+    for (const change of changes) {
+      const boundFibers = this.getBindingsForInstance(change.nodeId);
+      
+      for (const fiber of boundFibers) {
+        try {
+          // Emit render start event for tooling
+          this.eventHooks?.onRenderStart(fiber);
+          
+          // Mark fiber as needing re-render due to output change
+          if (!fiber.reactiveState) {
+            fiber.reactiveState = {
+              renderCount: 0,
+              isDirty: true,
+              updatePending: true,
+              lastRenderReason: 'output-update',
+              lastRenderTime: Date.now()
+            };
+          } else {
+            fiber.reactiveState.lastRenderReason = 'output-update';
+            fiber.reactiveState.lastRenderTime = Date.now();
+            fiber.reactiveState.isDirty = true;
+            fiber.reactiveState.updatePending = true;
+          }
+          
+        } catch (error) {
+          this.eventHooks?.onError(error as Error, fiber);
         }
-        
-      } catch (error) {
-        this.eventHooks?.onError(error as Error, fiber);
       }
-    });
+    }
   }
 
   /**
-   * Process multiple output changes and return all affected fibers
-   * This is used by the deployment system to batch process changes
+   * Process a batch of CloudDOM nodes and detect all output changes
+   * This is typically called after deployment completes
    */
-  processOutputChanges(changes: OutputChange[]): Set<FiberNode> {
-    const allAffectedFibers = new Set<FiberNode>();
+  processCloudDOMOutputs(nodes: CloudDOMNode[]): OutputChange[] {
+    const allChanges: OutputChange[] = [];
 
-    for (const change of changes) {
-      // Notify about the change
-      this.notifyOutputChange(
-        change.nodeId,
-        change.outputKey,
-        change.newValue,
-        change.previousValue
-      );
+    for (const node of nodes) {
+      if (node.outputs) {
+        const changes = this.updateInstanceOutputs(node.id, node.outputs);
+        allChanges.push(...changes);
+      }
 
-      // Collect affected fibers
-      change.affectedFibers.forEach(fiber => allAffectedFibers.add(fiber));
+      // Process child nodes recursively
+      if (node.children && node.children.length > 0) {
+        const childChanges = this.processCloudDOMOutputs(node.children);
+        allChanges.push(...childChanges);
+      }
     }
 
-    return allAffectedFibers;
+    return allChanges;
   }
 
   /**
-   * Get current outputs for a specific node
-   */
-  getNodeOutputs(nodeId: string): Record<string, any> {
-    return { ...this.nodeOutputs.get(nodeId) || {} };
-  }
-
-  /**
-   * Check if a node has any tracked outputs
-   */
-  hasOutputs(nodeId: string): boolean {
-    const outputs = this.nodeOutputs.get(nodeId);
-    return outputs ? Object.keys(outputs).length > 0 : false;
-  }
-
-  /**
-   * Remove tracking for a specific fiber (cleanup)
+   * Remove bindings for a specific fiber (cleanup)
    */
   removeBindingsForFiber(fiber: FiberNode): void {
-    Array.from(this.instanceBindings.entries()).forEach(([nodeId, fibers]) => {
-      if (fibers.has(fiber)) {
-        fibers.delete(fiber);
-        
-        // Clean up empty sets
-        if (fibers.size === 0) {
-          this.instanceBindings.delete(nodeId);
-          this.nodeOutputs.delete(nodeId);
-        }
+    for (const [nodeId, bindings] of this.instanceBindings) {
+      bindings.delete(fiber);
+      
+      // Clean up empty binding sets
+      if (bindings.size === 0) {
+        this.instanceBindings.delete(nodeId);
+        this.instanceOutputs.delete(nodeId);
       }
-    });
+    }
   }
 
   /**
-   * Remove tracking for a specific node (when resource is deleted)
+   * Remove bindings for a specific instance (when resource is deleted)
    */
-  removeBindingsForNode(nodeId: string): void {
+  removeBindingsForInstance(nodeId: string): void {
     this.instanceBindings.delete(nodeId);
-    this.nodeOutputs.delete(nodeId);
+    this.instanceOutputs.delete(nodeId);
   }
 
   /**
-   * Validate all tracked instances and remove invalid ones
+   * Validate bindings and remove invalid ones
    * This should be called periodically to clean up stale bindings
    */
   validateBindings(validNodes: Set<string>): void {
-    const invalidNodes: string[] = [];
+    const invalidNodeIds: string[] = [];
 
-    // Find invalid nodes
-    Array.from(this.instanceBindings.keys()).forEach(nodeId => {
+    for (const nodeId of this.instanceBindings.keys()) {
       if (!validNodes.has(nodeId)) {
-        invalidNodes.push(nodeId);
+        invalidNodeIds.push(nodeId);
       }
-    });
+    }
 
-    // Remove invalid nodes
-    invalidNodes.forEach(nodeId => {
-      this.removeBindingsForNode(nodeId);
-    });
+    // Remove invalid bindings
+    for (const nodeId of invalidNodeIds) {
+      this.removeBindingsForInstance(nodeId);
+    }
   }
 
   /**
-   * Get all tracked instances for debugging/inspection
+   * Get current outputs for an instance
    */
-  getAllBindings(): Map<string, Array<{ fiber: FiberNode; outputs: Record<string, any> }>> {
-    const result = new Map<string, Array<{ fiber: FiberNode; outputs: Record<string, any> }>>();
+  getInstanceOutputs(nodeId: string): Record<string, any> | undefined {
+    return this.instanceOutputs.get(nodeId);
+  }
 
-    Array.from(this.instanceBindings.entries()).forEach(([nodeId, fibers]) => {
-      const outputs = this.getNodeOutputs(nodeId);
-      const bindingList = Array.from(fibers).map(fiber => ({ fiber, outputs }));
-      
-      if (bindingList.length > 0) {
-        result.set(nodeId, bindingList);
-      }
-    });
+  /**
+   * Check if an instance has any bound components
+   */
+  hasBindings(nodeId: string): boolean {
+    const bindings = this.instanceBindings.get(nodeId);
+    return bindings ? bindings.size > 0 : false;
+  }
 
-    return result;
+  /**
+   * Get all tracked instances
+   */
+  getTrackedInstances(): string[] {
+    return Array.from(this.instanceBindings.keys());
   }
 
   /**
@@ -218,25 +215,42 @@ export class ProviderOutputTracker {
    */
   getBindingStats(): {
     totalInstances: number;
-    boundFibers: number;
-    totalOutputs: number;
+    totalBindings: number;
+    instancesWithOutputs: number;
   } {
-    let totalOutputs = 0;
-    let boundFibers = 0;
-
-    Array.from(this.instanceBindings.values()).forEach(fibers => {
-      boundFibers += fibers.size;
-    });
-
-    Array.from(this.nodeOutputs.values()).forEach(outputs => {
-      totalOutputs += Object.keys(outputs).length;
-    });
+    let totalBindings = 0;
+    
+    for (const bindings of this.instanceBindings.values()) {
+      totalBindings += bindings.size;
+    }
 
     return {
       totalInstances: this.instanceBindings.size,
-      boundFibers,
-      totalOutputs
+      totalBindings,
+      instancesWithOutputs: this.instanceOutputs.size
     };
+  }
+
+  /**
+   * Get all bindings for debugging/inspection
+   */
+  getAllBindings(): Map<string, { 
+    fibers: FiberNode[]; 
+    outputs: Record<string, any> | undefined;
+  }> {
+    const result = new Map<string, { 
+      fibers: FiberNode[]; 
+      outputs: Record<string, any> | undefined;
+    }>();
+
+    for (const [nodeId, bindings] of this.instanceBindings) {
+      result.set(nodeId, {
+        fibers: Array.from(bindings),
+        outputs: this.instanceOutputs.get(nodeId)
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -244,52 +258,197 @@ export class ProviderOutputTracker {
    */
   clearAllBindings(): void {
     this.instanceBindings.clear();
-    this.nodeOutputs.clear();
+    this.instanceOutputs.clear();
   }
 
   /**
-   * Create a provider output reference that can be used for automatic binding
-   * This creates a special object that StateBindingManager can detect
+   * Create a snapshot of current state for comparison
+   * Useful for detecting changes between deployments
    */
-  createOutputReference(nodeId: string, outputKey: string, value: any): any {
-    // Create a wrapper object with metadata for automatic binding detection
-    if (value && typeof value === 'object') {
-      return {
-        ...value,
-        __providerOutput: {
-          nodeId,
-          outputKey
-        }
-      };
+  createSnapshot(): {
+    bindings: Map<string, string[]>; // nodeId -> fiber paths
+    outputs: Map<string, Record<string, any>>;
+  } {
+    const bindingsSnapshot = new Map<string, string[]>();
+    const outputsSnapshot = new Map<string, Record<string, any>>();
+
+    // Create bindings snapshot with fiber paths instead of fiber objects
+    for (const [nodeId, fibers] of this.instanceBindings) {
+      bindingsSnapshot.set(nodeId, Array.from(fibers).map(f => f.path.join('.')));
     }
 
-    // For primitive values, create a wrapper object
+    // Create outputs snapshot
+    for (const [nodeId, outputs] of this.instanceOutputs) {
+      outputsSnapshot.set(nodeId, { ...outputs });
+    }
+
     return {
-      value,
-      __providerOutput: {
-        nodeId,
-        outputKey
-      },
-      // Make it behave like the primitive value
-      valueOf: () => value,
-      toString: () => String(value)
+      bindings: bindingsSnapshot,
+      outputs: outputsSnapshot
     };
   }
 
   /**
-   * Extract output references from CloudDOM nodes
-   * This is used to create output references for useState binding
+   * Compare with a previous snapshot to detect changes
    */
-  extractOutputReferences(node: CloudDOMNode): Record<string, any> {
-    const references: Record<string, any> = {};
+  compareWithSnapshot(snapshot: {
+    bindings: Map<string, string[]>;
+    outputs: Map<string, Record<string, any>>;
+  }): {
+    bindingChanges: { added: string[]; removed: string[]; modified: string[] };
+    outputChanges: OutputChange[];
+  } {
+    const bindingChanges = {
+      added: [] as string[],
+      removed: [] as string[],
+      modified: [] as string[]
+    };
+    const outputChanges: OutputChange[] = [];
 
-    // Extract outputs from the node if available
-    if (node.outputs) {
-      for (const [outputKey, value] of Object.entries(node.outputs)) {
-        references[outputKey] = this.createOutputReference(node.id, outputKey, value);
+    // Check for binding changes
+    const currentNodeIds = new Set(this.instanceBindings.keys());
+    const snapshotNodeIds = new Set(snapshot.bindings.keys());
+
+    // Added instances
+    for (const nodeId of currentNodeIds) {
+      if (!snapshotNodeIds.has(nodeId)) {
+        bindingChanges.added.push(nodeId);
       }
     }
 
-    return references;
+    // Removed instances
+    for (const nodeId of snapshotNodeIds) {
+      if (!currentNodeIds.has(nodeId)) {
+        bindingChanges.removed.push(nodeId);
+      }
+    }
+
+    // Modified instances (binding changes)
+    for (const nodeId of currentNodeIds) {
+      if (snapshotNodeIds.has(nodeId)) {
+        const currentPaths = Array.from(this.instanceBindings.get(nodeId)!).map(f => f.path.join('.'));
+        const snapshotPaths = snapshot.bindings.get(nodeId)!;
+        
+        if (JSON.stringify(currentPaths.sort()) !== JSON.stringify(snapshotPaths.sort())) {
+          bindingChanges.modified.push(nodeId);
+        }
+      }
+    }
+
+    // Check for output changes
+    for (const nodeId of currentNodeIds) {
+      const currentOutputs = this.instanceOutputs.get(nodeId) || {};
+      const snapshotOutputs = snapshot.outputs.get(nodeId) || {};
+      
+      const changes = this.compareOutputs(nodeId, snapshotOutputs, currentOutputs);
+      outputChanges.push(...changes);
+    }
+
+    return { bindingChanges, outputChanges };
+  }
+
+  /**
+   * Compare two output objects and return changes
+   */
+  private compareOutputs(
+    nodeId: string, 
+    previousOutputs: Record<string, any>, 
+    currentOutputs: Record<string, any>
+  ): OutputChange[] {
+    const changes: OutputChange[] = [];
+    const boundFibers = Array.from(this.getBindingsForInstance(nodeId));
+
+    // Check for changed/added outputs
+    for (const [outputKey, currentValue] of Object.entries(currentOutputs)) {
+      const previousValue = previousOutputs[outputKey];
+      
+      if (previousValue !== currentValue) {
+        changes.push({
+          nodeId,
+          outputKey,
+          previousValue,
+          newValue: currentValue,
+          affectedFibers: boundFibers
+        });
+      }
+    }
+
+    // Check for removed outputs
+    for (const [outputKey, previousValue] of Object.entries(previousOutputs)) {
+      if (!(outputKey in currentOutputs)) {
+        changes.push({
+          nodeId,
+          outputKey,
+          previousValue,
+          newValue: undefined,
+          affectedFibers: boundFibers
+        });
+      }
+    }
+
+    return changes;
+  }
+
+  /**
+   * Extract output references for automatic state binding
+   * Creates proxy objects that can be used to automatically bind state to outputs
+   */
+  extractOutputReferences(node: CloudDOMNode): Record<string, any> {
+    const outputReferences: Record<string, any> = {};
+    
+    if (!node.outputs) {
+      return outputReferences;
+    }
+
+    // Create output reference objects for each output
+    for (const [outputKey, value] of Object.entries(node.outputs)) {
+      outputReferences[outputKey] = {
+        __providerOutput: {
+          nodeId: node.id,
+          outputKey,
+          value
+        },
+        // Also include the actual value for direct access
+        valueOf: () => value,
+        toString: () => String(value),
+        // Make it behave like the actual value in most contexts
+        [Symbol.toPrimitive]: () => value
+      };
+    }
+
+    return outputReferences;
+  }
+
+  /**
+   * Update outputs for a specific node and return changes
+   * This is an alias for updateInstanceOutputs for compatibility
+   */
+  updateNodeOutputs(nodeId: string, newOutputs: Record<string, any>): OutputChange[] {
+    return this.updateInstanceOutputs(nodeId, newOutputs);
+  }
+
+  /**
+   * Process output changes and return affected fibers
+   * This is an alias for processCloudDOMOutputs for single node updates
+   */
+  processOutputChanges(changes: OutputChange[]): Set<FiberNode> {
+    const affectedFibers = new Set<FiberNode>();
+    
+    for (const change of changes) {
+      change.affectedFibers.forEach(fiber => affectedFibers.add(fiber));
+    }
+    
+    // Notify about the changes
+    this.notifyOutputChanges(changes);
+    
+    return affectedFibers;
+  }
+
+  /**
+   * Get current outputs for a node
+   * This is an alias for getInstanceOutputs for compatibility
+   */
+  getNodeOutputs(nodeId: string): Record<string, any> {
+    return this.getInstanceOutputs(nodeId) || {};
   }
 }

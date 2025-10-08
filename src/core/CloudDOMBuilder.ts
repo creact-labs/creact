@@ -774,7 +774,7 @@ export class CloudDOMBuilder {
 
       for (const node of cloudDOM) {
         if (node.outputs) {
-          const nodeChanges = this.providerOutputTracker.updateNodeOutputs(node.id, node.outputs);
+          const nodeChanges = this.providerOutputTracker.updateInstanceOutputs(node.id, node.outputs);
           outputChanges.push(...nodeChanges);
         }
       }
@@ -828,14 +828,54 @@ export class CloudDOMBuilder {
 
       // Also notify provider output tracker about the changes
       if (this.providerOutputTracker) {
-        this.providerOutputTracker.processOutputChanges(changes);
+        this.providerOutputTracker.notifyOutputChanges(changes);
       }
+
+      // Execute reactive effects for affected fibers
+      this.executeReactiveEffects(affectedFibers, changes);
 
       return affectedFibers;
 
     } catch (error) {
       console.error('[CloudDOMBuilder] Error applying output changes to state:', error);
       return [];
+    }
+  }
+
+  /**
+   * Execute reactive effects for fibers affected by output changes
+   * This triggers useEffect callbacks that depend on changed provider outputs
+   * 
+   * @param affectedFibers - Fibers that were affected by output changes
+   * @param changes - Output changes that occurred
+   */
+  private async executeReactiveEffects(affectedFibers: FiberNode[], changes: OutputChange[]): Promise<void> {
+    if (affectedFibers.length === 0) {
+      return;
+    }
+
+    try {
+      const { executeEffectsOnOutputChange } = await import('../hooks/useEffect');
+      const { generateBindingKey } = await import('../utils/naming');
+
+      // Convert output changes to binding keys for effect matching
+      const changedOutputKeys = new Set<string>();
+      for (const change of changes) {
+        const bindingKey = generateBindingKey(change.nodeId, change.outputKey);
+        changedOutputKeys.add(bindingKey);
+      }
+
+      // Execute reactive effects for each affected fiber
+      for (const fiber of affectedFibers) {
+        executeEffectsOnOutputChange(fiber, changedOutputKeys);
+      }
+
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[CloudDOMBuilder] Executed reactive effects for ${affectedFibers.length} fibers`);
+      }
+
+    } catch (error) {
+      console.error('[CloudDOMBuilder] Error executing reactive effects:', error);
     }
   }
 

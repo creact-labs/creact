@@ -5,13 +5,13 @@ import {
   getStateContext,
   incrementHookIndex,
 } from './context';
-import { FiberNode, ReRenderReason } from '../core/types';
-import { generateBindingKey, parseBindingKey } from '../utils/naming';
+import { FiberNode } from '../core/types';
+import { generateBindingKey } from '../utils/naming';
 
 /**
- * Effect function type - runs after deployment
+ * Effect function type - runs after deployment (supports async)
  */
-export type EffectCallback = () => void | (() => void);
+export type EffectCallback = () => void | (() => void) | Promise<void | (() => void)>;
 
 /**
  * Dependency array type - same as React
@@ -30,6 +30,8 @@ interface EffectHook {
   boundOutputs?: Set<string>; // Track which provider outputs this effect depends on (using binding keys)
   lastDepsHash?: string; // Hash of dependencies for change detection
   isReactive?: boolean; // Whether this effect should respond to output changes
+  // Debugging and tracing
+  effectId?: string; // Unique ID for debugging and orchestrator logs
 }
 
 /**
@@ -80,12 +82,12 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   // Get current context from AsyncLocalStorage
   const context = getStateContext();
   const { currentFiber } = context;
-  
+
   // Validate hook is called during rendering
   if (!currentFiber) {
     throw new Error(
       'useEffect must be called during component rendering. ' +
-        'Make sure you are calling it inside a component function, not at the top level.'
+      'Make sure you are calling it inside a component function, not at the top level.'
     );
   }
 
@@ -100,7 +102,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   // Analyze dependencies for provider output tracking
   const boundOutputs = new Set<string>();
   const isReactive = deps !== undefined && deps.length > 0;
-  
+
   if (isReactive && deps) {
     // Detect provider outputs in dependencies using consistent naming
     for (const dep of deps) {
@@ -109,7 +111,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
         if (dep.__providerOutput) {
           const bindingKey = generateBindingKey(dep.__providerOutput.nodeId, dep.__providerOutput.outputKey);
           boundOutputs.add(bindingKey);
-          
+
           if (process.env.CREACT_DEBUG === 'true') {
             console.debug(`[useEffect] Detected provider output dependency: ${bindingKey}`);
           }
@@ -118,7 +120,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
         else if (dep.__cloudDOMOutput) {
           const bindingKey = generateBindingKey(dep.__cloudDOMOutput.nodeId, dep.__cloudDOMOutput.outputKey);
           boundOutputs.add(bindingKey);
-          
+
           if (process.env.CREACT_DEBUG === 'true') {
             console.debug(`[useEffect] Detected CloudDOM output dependency: ${bindingKey}`);
           }
@@ -130,6 +132,9 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   // Generate dependency hash for change detection
   const depsHash = deps ? generateDependencyHash(deps) : undefined;
 
+  // Generate unique effect ID for debugging and orchestrator logs
+  const effectId = `${currentFiber.path.join('.')}:${currentHookIndex}`;
+
   // Store effect data in Fiber node
   const effectHook: EffectHook = {
     callback: effect,
@@ -137,7 +142,8 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     hasRun: false,
     boundOutputs: boundOutputs.size > 0 ? boundOutputs : undefined,
     lastDepsHash: depsHash,
-    isReactive
+    isReactive,
+    effectId
   };
 
   (currentFiber as any).effects[currentHookIndex] = effectHook;
@@ -180,8 +186,8 @@ function generateDependencyHash(deps: DependencyList): string {
  * Uses binding keys for consistent output tracking
  */
 function registerEffectWithReactiveSystem(
-  fiber: FiberNode, 
-  effectIndex: number, 
+  fiber: FiberNode,
+  effectIndex: number,
   boundOutputs: Set<string>
 ): void {
   // This would integrate with the reactive system to notify when outputs change
@@ -189,7 +195,7 @@ function registerEffectWithReactiveSystem(
   if (!fiber.effectBindings) {
     (fiber as any).effectBindings = new Map();
   }
-  
+
   const bindingKeys = Array.from(boundOutputs);
   (fiber as any).effectBindings.set(effectIndex, {
     boundOutputs: bindingKeys, // These are already binding keys from generateBindingKey
@@ -205,7 +211,7 @@ function registerEffectWithReactiveSystem(
  * Check if effect dependencies have changed, including provider outputs
  */
 function hasEffectDependenciesChanged(
-  current: EffectHook, 
+  current: EffectHook,
   previous?: EffectHook,
   changedOutputs?: Set<string>
 ): boolean {
@@ -269,7 +275,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
       console.debug(`[useEffect] Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
     }
   }
-  
+
   if (!fiber.effects || !Array.isArray(fiber.effects)) {
     if (process.env.CREACT_DEBUG === 'true') {
       console.debug(`[useEffect] No effects found for fiber: ${fiber.path?.join('.')}`);
@@ -283,7 +289,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
 
   for (let i = 0; i < fiber.effects.length; i++) {
     const effectHook = fiber.effects[i] as EffectHook;
-    
+
     if (!effectHook) {
       if (process.env.CREACT_DEBUG === 'true') {
         console.debug(`[useEffect] Effect ${i} is null/undefined`);
@@ -293,7 +299,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
 
     // Check if effect should run based on dependencies and output changes
     const shouldRun = hasEffectDependenciesChanged(effectHook, fiber.previousEffects?.[i], changedOutputs);
-    
+
     if (process.env.CREACT_DEBUG === 'true') {
       console.debug(`[useEffect] Effect ${i} should run: ${shouldRun}`);
       if (effectHook.boundOutputs && effectHook.boundOutputs.size > 0) {
@@ -315,27 +321,44 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
         }
       }
 
-      // Run the effect
+      // Run the effect with async support and tracing
       try {
         if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[useEffect] Running effect ${i}`);
+          console.debug(`[useEffect] Running effect ${effectHook.effectId || i}`);
         }
-        const cleanup = effectHook.callback();
-        if (typeof cleanup === 'function') {
-          effectHook.cleanup = cleanup;
-        }
-        effectHook.hasRun = true;
         
+        const result = effectHook.callback();
+        
+        // Handle async effects
+        if (result instanceof Promise) {
+          result.then(cleanup => {
+            if (typeof cleanup === 'function') {
+              effectHook.cleanup = cleanup;
+            }
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[useEffect] Async effect ${effectHook.effectId || i} completed successfully`);
+            }
+          }).catch(error => {
+            console.error(`[useEffect] Async effect ${effectHook.effectId || i} error:`, error);
+          });
+        } else {
+          // Handle sync effects
+          if (typeof result === 'function') {
+            effectHook.cleanup = result;
+          }
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[useEffect] Sync effect ${effectHook.effectId || i} completed successfully`);
+          }
+        }
+        
+        effectHook.hasRun = true;
+
         // Update dependency hash for next comparison
         if (effectHook.deps) {
           effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
         }
-        
-        if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[useEffect] Effect ${i} completed successfully`);
-        }
       } catch (error) {
-        console.error('[useEffect] Effect error:', error);
+        console.error(`[useEffect] Effect ${effectHook.effectId || i} error:`, error);
       }
     }
   }
@@ -364,14 +387,14 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
 
   for (let i = 0; i < fiber.effects.length; i++) {
     const effectHook = fiber.effects[i] as EffectHook;
-    
+
     if (!effectHook || !effectHook.isReactive) {
       continue; // Skip non-reactive effects
     }
 
     // Check if this effect is bound to any of the changed outputs
     if (effectHook.boundOutputs) {
-      const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput => 
+      const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput =>
         changedOutputs.has(boundOutput)
       );
 
@@ -389,26 +412,42 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
           }
         }
 
-        // Run the effect
+        // Run the reactive effect with async support and tracing
         try {
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Running reactive effect ${i}`);
-          }
-          const cleanup = effectHook.callback();
-          if (typeof cleanup === 'function') {
-            effectHook.cleanup = cleanup;
+            console.debug(`[useEffect] Running reactive effect ${effectHook.effectId || i}`);
           }
           
+          const result = effectHook.callback();
+          
+          // Handle async reactive effects
+          if (result instanceof Promise) {
+            result.then(cleanup => {
+              if (typeof cleanup === 'function') {
+                effectHook.cleanup = cleanup;
+              }
+              if (process.env.CREACT_DEBUG === 'true') {
+                console.debug(`[useEffect] Async reactive effect ${effectHook.effectId || i} completed successfully`);
+              }
+            }).catch(error => {
+              console.error(`[useEffect] Async reactive effect ${effectHook.effectId || i} error:`, error);
+            });
+          } else {
+            // Handle sync reactive effects
+            if (typeof result === 'function') {
+              effectHook.cleanup = result;
+            }
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[useEffect] Sync reactive effect ${effectHook.effectId || i} completed successfully`);
+            }
+          }
+
           // Update dependency hash
           if (effectHook.deps) {
             effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
           }
-          
-          if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Reactive effect ${i} completed successfully`);
-          }
         } catch (error) {
-          console.error('[useEffect] Reactive effect error:', error);
+          console.error(`[useEffect] Reactive effect ${effectHook.effectId || i} error:`, error);
         }
       }
     }
