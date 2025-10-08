@@ -43,7 +43,7 @@ export class DevCommand extends BaseCommand {
     try {
       // Check for auto-approve flag
       this.autoApprove = !!this.context.flags['auto-approve'] || !!this.context.flags.auto;
-      
+
       // Find entry file
       let entryPath: string;
       try {
@@ -56,7 +56,7 @@ export class DevCommand extends BaseCommand {
       // Show mode information
       console.log('🚀 Starting CReact development mode...');
       console.log(`📋 Mode: ${this.autoApprove ? colors.warning('Auto-approve') : colors.info('Manual approval')}`);
-      
+
       if (!this.autoApprove) {
         console.log('� tTip: Use --auto-approve to automatically deploy changes');
       }
@@ -69,7 +69,7 @@ export class DevCommand extends BaseCommand {
 
       // Keep process alive
       console.log('👀 Watching for changes... (Press Ctrl+C to stop)');
-      
+
       // Handle graceful shutdown
       process.on('SIGINT', () => {
         console.log('\n👋 Stopping development mode...');
@@ -79,7 +79,7 @@ export class DevCommand extends BaseCommand {
 
       // Keep the process alive indefinitely
       await this.keepAlive();
-      
+
       // This line will never be reached, but TypeScript needs it
       return { exitCode: 0, message: 'Development mode started' };
 
@@ -91,31 +91,31 @@ export class DevCommand extends BaseCommand {
   private async performInitialDeploy(entryPath: string, spinner: Spinner): Promise<void> {
     try {
       spinner.start('Building and deploying initial state...');
-      
+
       const result = await CLIContextManager.createCLIInstance(entryPath, this.verbose);
-      
+
       // Store state for future comparisons
       this.state.lastCloudDOM = result.cloudDOM;
       this.state.lastStackName = result.stackName;
       this.state.instance = result.instance;
-      
+
       // Capture initial reactive state
       this.captureReactiveState(result.instance);
-      
+
       // Deploy initial state
       await result.instance.deploy(result.cloudDOM, result.stackName, 'dev-user');
-      
+
       spinner.succeed(`✅ Initial deployment complete: ${result.cloudDOM.length} resources`);
-      
+
       if (this.verbose) {
         console.log(`Stack: ${result.stackName}`);
         console.log(`Resources: ${result.cloudDOM.length}`);
       }
-      
+
     } catch (error) {
       spinner.fail('❌ Initial deployment failed');
       console.error(`Error: ${(error as Error).message}`);
-      
+
       if (this.verbose && (error as Error).stack) {
         console.error((error as Error).stack);
       }
@@ -125,12 +125,12 @@ export class DevCommand extends BaseCommand {
   private async performHotReload(entryPath: string, spinner: Spinner): Promise<void> {
     try {
       spinner.start('Building changes with reactive state preservation...');
-      
+
       // Preserve reactive state before recompilation
       const preservedState = this.preserveReactiveState();
-      
+
       const result = await CLIContextManager.createCLIInstance(entryPath, this.verbose);
-      
+
       if (!this.state.lastCloudDOM || !this.state.instance) {
         spinner.fail('❌ No previous state found');
         return;
@@ -150,21 +150,21 @@ export class DevCommand extends BaseCommand {
         ReconcilerClass = require(resolve(__dirname, '../../core/Reconciler')).Reconciler;
       }
       const reconciler = new ReconcilerClass();
-      
+
       const changeSet = reconciler.reconcile(this.state.lastCloudDOM, result.cloudDOM);
-      
+
       // Debug: Show outputs comparison
       if (this.verbose) {
         console.log('\n🔍 Debug: Comparing outputs...');
         this.debugOutputs(this.state.lastCloudDOM, result.cloudDOM);
-        
+
         if (hasReactiveChanges) {
           console.log('🔄 Reactive system triggered re-renders during hot reload');
         }
       }
-      
+
       // Check if there are any changes
-      const hasChanges = 
+      const hasChanges =
         changeSet.creates.length > 0 ||
         changeSet.updates.length > 0 ||
         changeSet.deletes.length > 0 ||
@@ -176,11 +176,11 @@ export class DevCommand extends BaseCommand {
         return;
       }
 
-      const totalChanges = changeSet.creates.length + changeSet.updates.length + 
-                          changeSet.deletes.length + changeSet.replacements.length + 
-                          changeSet.moves.length;
+      const totalChanges = changeSet.creates.length + changeSet.updates.length +
+        changeSet.deletes.length + changeSet.replacements.length +
+        changeSet.moves.length;
 
-      const changeMessage = hasReactiveChanges 
+      const changeMessage = hasReactiveChanges
         ? `📋 Changes detected: ${totalChanges} structural + reactive changes`
         : `📋 Changes detected: ${totalChanges} changes`;
 
@@ -196,7 +196,7 @@ export class DevCommand extends BaseCommand {
       } else {
         // Manual approval mode: ask user
         const shouldDeploy = await this.promptForApproval();
-        
+
         if (shouldDeploy) {
           await this.deployChanges(result, spinner);
         } else {
@@ -205,15 +205,15 @@ export class DevCommand extends BaseCommand {
           this.updateStateAfterHotReload(result);
         }
       }
-      
+
     } catch (error) {
       spinner.fail('❌ Hot reload failed');
       console.error(`Error: ${(error as Error).message}`);
-      
+
       if (this.verbose && (error as Error).stack) {
         console.error((error as Error).stack);
       }
-      
+
       // Attempt to recover reactive state
       this.recoverReactiveState();
     }
@@ -222,22 +222,22 @@ export class DevCommand extends BaseCommand {
   private async deployChanges(result: any, spinner: Spinner): Promise<void> {
     try {
       spinner.start('Deploying changes...');
-      
+
       await result.instance.deploy(result.cloudDOM, result.stackName, 'dev-user');
-      
+
       // Update state with reactive preservation
       this.updateStateAfterDeployment(result);
-      
+
       spinner.succeed(`✅ Deployment complete: ${result.cloudDOM.length} resources`);
-      
+
     } catch (error) {
       spinner.fail('❌ Deployment failed');
       console.error(`Error: ${(error as Error).message}`);
-      
+
       if (this.verbose && (error as Error).stack) {
         console.error((error as Error).stack);
       }
-      
+
       // Attempt to recover reactive state on deployment failure
       this.recoverReactiveState();
     }
@@ -252,9 +252,9 @@ export class DevCommand extends BaseCommand {
     return new Promise((resolve) => {
       rl.question(colors.highlight('Deploy these changes? (y/N/a=auto-approve): '), (answer) => {
         rl.close();
-        
+
         const response = answer.toLowerCase().trim();
-        
+
         if (response === 'a' || response === 'auto') {
           console.log(colors.warning('🔄 Switching to auto-approve mode'));
           this.autoApprove = true;
@@ -270,14 +270,14 @@ export class DevCommand extends BaseCommand {
 
   private startWatching(entryPath: string, spinner: Spinner): void {
     if (this.isWatching) return;
-    
+
     this.isWatching = true;
     const absoluteEntryPath = resolve(process.cwd(), entryPath);
-    
+
     // Watch the entry file, its directory, and src directory
     const entryDir = resolve(absoluteEntryPath, '..');
     const srcDir = resolve(process.cwd(), 'src');
-    
+
     const watchPaths = [
       entryDir,    // Watch the directory containing the entry file (e.g., examples/messaging-app/)
       srcDir       // Watch the src directory for core library changes
@@ -289,26 +289,26 @@ export class DevCommand extends BaseCommand {
       try {
         watch(watchPath, { recursive: true }, (eventType, filename) => {
           if (!filename) return;
-          
+
           this.logVerbose(`File event: ${eventType} on ${filename}`);
-          
+
           // Skip certain file types
           if (this.shouldIgnoreFile(filename)) {
             this.logVerbose(`Ignoring file: ${filename}`);
             return;
           }
-          
+
           // Debounce file changes
           if (this.watchTimeout) {
             clearTimeout(this.watchTimeout);
           }
-          
+
           this.watchTimeout = setTimeout(() => {
             console.log(`\n📝 File changed: ${colors.dim(filename)} (${eventType})`);
             this.performHotReload(entryPath, spinner);
           }, 300); // Slightly longer debounce for hot reload
         });
-        
+
         this.logVerbose(`Started watching: ${watchPath}`);
       } catch (error) {
         console.warn(`Warning: Could not watch ${watchPath}: ${(error as Error).message}`);
@@ -319,17 +319,17 @@ export class DevCommand extends BaseCommand {
   private shouldIgnoreFile(filename: string): boolean {
     const ignoredExtensions = ['.log', '.tmp', '.swp', '.DS_Store'];
     const ignoredPatterns = ['node_modules', '.git', 'dist', '.next', '.cache'];
-    
+
     // Check extensions
     if (ignoredExtensions.some(ext => filename.endsWith(ext))) {
       return true;
     }
-    
+
     // Check patterns
     if (ignoredPatterns.some(pattern => filename.includes(pattern))) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -362,15 +362,15 @@ export class DevCommand extends BaseCommand {
     };
 
     const currentIds = getAllNodeIds(current);
-    
+
     for (const id of currentIds) {
       const prevNode = findNodeById(previous, id);
       const currNode = findNodeById(current, id);
-      
+
       if (prevNode && currNode) {
         const prevOutputs = prevNode.outputs || {};
         const currOutputs = currNode.outputs || {};
-        
+
         if (JSON.stringify(prevOutputs) !== JSON.stringify(currOutputs)) {
           console.log(`📊 ${colors.highlight(id)} outputs changed:`);
           console.log(`  Previous: ${JSON.stringify(prevOutputs)}`);
@@ -520,7 +520,7 @@ export class DevCommand extends BaseCommand {
 
       // Check if there are any pending re-renders
       const pendingReRenders = instance.renderScheduler.getPendingReRenders();
-      
+
       if (pendingReRenders.size > 0) {
         if (this.verbose) {
           console.log(`🔄 Triggering hot reload re-render for ${pendingReRenders.size} components`);
@@ -574,7 +574,7 @@ export class DevCommand extends BaseCommand {
       if (this.state.instance && this.state.reactiveState) {
         // Attempt to restore the last known good reactive state
         this.restoreReactiveState(this.state.instance, this.state.reactiveState);
-        
+
         if (this.verbose) {
           console.log('🔄 Recovered reactive state after error');
         }
@@ -654,7 +654,7 @@ export class DevCommand extends BaseCommand {
     try {
       // Preserve failure statistics but clear pending renders
       const failureStats = renderScheduler.getFailureStats ? renderScheduler.getFailureStats() : null;
-      
+
       return {
         failureStats,
         timestamp: Date.now()

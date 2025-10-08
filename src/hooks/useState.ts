@@ -173,7 +173,14 @@ export function useState<T = undefined>(
 
     // Debug logging
     if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[useState] setState called: hookIdx=${hookIdx}, oldValue=${JSON.stringify(oldValue)}, newValue=${JSON.stringify(newValue)}, fiber.id=${fiber.path?.join('.')}`);
+      const safeStringify = (value: any) => {
+        try {
+          return JSON.stringify(value);
+        } catch {
+          return String(value);
+        }
+      };
+      console.debug(`[useState] setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, fiber.id=${fiber.path?.join('.')}`);
     }
 
     // Update this hook's state
@@ -208,14 +215,23 @@ export function useState<T = undefined>(
       }
     }
 
-    // TODO: Optional re-render scheduling for manual state changes
-    // This would be used for deployment scripts or manual updates
-    // Currently not needed since provider-driven changes handle re-renders automatically
-    //
-    // if (!outputInfo && oldValue !== newValue) {
-    //   const creact = getCReactInstance();
-    //   creact.scheduleReRender(fiber, 'manual');
-    // }
+    // Schedule re-render for state changes (both bound and unbound)
+    if (oldValue !== newValue) {
+      // For now, trigger re-render for all state changes
+      // In the future, this could be optimized to only trigger for output-bound state
+      try {
+        // Get CReact instance and schedule re-render
+        const { getCReactInstance } = require('../core/CReact');
+        const creact = getCReactInstance();
+        if (creact) {
+          creact.scheduleReRender(fiber, outputInfo ? 'output-update' : 'state-change');
+        }
+      } catch (error) {
+        if (process.env.CREACT_DEBUG === 'true') {
+          console.warn('[useState] Failed to schedule re-render:', error);
+        }
+      }
+    }
   };
 
   // Get current state for this hook - read it fresh each time

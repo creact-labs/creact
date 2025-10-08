@@ -107,6 +107,11 @@ export function getNodeName(
     return toKebabCase(type);
   }
 
+  // Priority 5: Handle Fragment (Symbol type)
+  if (typeof type === 'symbol') {
+    return 'fragment';
+  }
+
   // Fallback
   return 'anonymous';
 }
@@ -134,8 +139,8 @@ export function validateIdUniqueness(
 
     throw new Error(
       `Duplicate resource ID: '${id}'. ` +
-        `Each resource must have a unique ID within its scope. ` +
-        `Use the 'key' prop to differentiate components with the same name.${stackTrace}`
+      `Each resource must have a unique ID within its scope. ` +
+      `Use the 'key' prop to differentiate components with the same name.${stackTrace}`
     );
   }
 }
@@ -228,7 +233,7 @@ export function generateBindingKey(nodeId: string, outputKey: string): string {
 
   // Normalize the output key to kebab-case for consistency
   const normalizedOutputKey = toKebabCase(outputKey);
-  
+
   return `${nodeId}.${normalizedOutputKey}`;
 }
 

@@ -148,7 +148,7 @@ export class ErrorRecoveryManager {
       // This method just validates that we have a snapshot to rollback to
       return true;
     } catch (error) {
-      console.warn(`Failed to rollback context ${contextId.toString()}:`, error);
+      console.warn(`Failed to rollback context ${String(contextId)}:`, error);
       return false;
     }
   }

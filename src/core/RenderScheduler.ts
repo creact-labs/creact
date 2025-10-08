@@ -180,21 +180,34 @@ export class RenderScheduler {
 
   /**
    * Execute re-renders for the given fibers
-   * This is a placeholder - actual implementation will integrate with Renderer
+   * Integrates with the Renderer to perform actual re-rendering
    */
   private async executeReRenders(fibers: FiberNode[]): Promise<void> {
-    // TODO: Integrate with enhanced Renderer.reRenderComponents()
-    // For now, this is a placeholder that marks components as re-rendered
+    if (fibers.length === 0) return;
 
-    for (const fiber of fibers) {
-      // Simulate re-render work
-      await new Promise(resolve => setTimeout(resolve, 0));
+    try {
+      // Get the CReact instance to access the renderer
+      const { getCReactInstance } = require('./CReact');
+      const creact = getCReactInstance();
 
-      // Update render count
-      if (fiber.reactiveState) {
-        fiber.reactiveState.renderCount++;
-        fiber.reactiveState.isDirty = false;
+      if (!creact) {
+        console.warn('[RenderScheduler] No CReact instance available for re-rendering');
+        return;
       }
+
+      // Use the CReact rerender method to perform actual re-rendering
+      await creact.rerender('default', fibers);
+
+      // Update render count for successfully rendered fibers
+      for (const fiber of fibers) {
+        if (fiber.reactiveState) {
+          fiber.reactiveState.renderCount++;
+          fiber.reactiveState.isDirty = false;
+        }
+      }
+    } catch (error) {
+      console.error('[RenderScheduler] Failed to execute re-renders:', error);
+      throw error;
     }
   }
 
@@ -396,14 +409,35 @@ export class RenderScheduler {
    * Execute re-render for a single fiber
    */
   private async executeReRender(fiber: FiberNode): Promise<void> {
-    // This is a placeholder - actual implementation will integrate with Renderer
-    // For now, simulate re-render work
-    await new Promise(resolve => setTimeout(resolve, 0));
+    try {
+      // Get the CReact instance to access the renderer
+      const { getCReactInstance } = require('./CReact');
+      const creact = getCReactInstance();
 
-    // Update render count
-    if (fiber.reactiveState) {
-      fiber.reactiveState.renderCount++;
-      fiber.reactiveState.isDirty = false;
+      if (!creact) {
+        console.warn('[RenderScheduler] No CReact instance available for re-rendering');
+        return;
+      }
+
+      // Note: Previously skipped re-renders during initial build, but now that
+      // CloudDOMBuilder properly handles re-render scenarios, we allow all re-renders
+
+      // Use selective re-rendering to avoid rebuilding the entire tree
+      const renderer = (creact as any).renderer;
+      if (renderer && renderer.reRenderComponents) {
+        renderer.reRenderComponents([fiber], 'manual');
+      } else {
+        console.warn('[RenderScheduler] Renderer not available for selective re-rendering');
+      }
+
+      // Update render count
+      if (fiber.reactiveState) {
+        fiber.reactiveState.renderCount++;
+        fiber.reactiveState.isDirty = false;
+      }
+    } catch (error) {
+      console.error('[RenderScheduler] Failed to execute re-render for fiber:', fiber.path.join('.'), error);
+      throw error;
     }
   }
 

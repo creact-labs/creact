@@ -111,6 +111,112 @@ export class DummyCloudProvider implements ICloudProvider {
         apiKey: `api-key-${Math.random().toString(36).substr(2, 9)}`,
         stage: 'prod'
       };
+    } else if (node.construct?.name === 'VaultCluster') {
+      node.outputs = {
+        ...node.outputs,
+        vaultUrl: `https://${node.props.name}.vault.example.com:8200`,
+        status: 'active',
+        nodes: node.props.nodes || 3,
+        version: '1.15.0'
+      };
+    } else if (node.construct?.name === 'CertificateManager') {
+      node.outputs = {
+        ...node.outputs,
+        certificateArn: `arn:aws:acm:us-east-1:123456789012:certificate/${Math.random().toString(36).substr(2, 9)}`,
+        domain: node.props.domain,
+        status: 'issued',
+        validationStatus: 'success'
+      };
+    } else if (node.construct?.name === 'PostgresDatabase') {
+      node.outputs = {
+        ...node.outputs,
+        connectionUrl: `postgres://${node.props.name}.rds.amazonaws.com:5432/${node.props.name}`,
+        endpoint: `${node.props.name}.rds.amazonaws.com`,
+        port: 5432,
+        status: 'available'
+      };
+    } else if (node.construct?.name === 'RedisCluster') {
+      node.outputs = {
+        ...node.outputs,
+        endpoint: `${node.props.name}.cache.amazonaws.com:6379`,
+        port: 6379,
+        status: 'available'
+      };
+    } else if (node.construct?.name === 'ElasticsearchCluster') {
+      node.outputs = {
+        ...node.outputs,
+        endpoint: `https://${node.props.name}.es.amazonaws.com`,
+        kibanaUrl: `https://${node.props.name}.es.amazonaws.com/_plugin/kibana/`,
+        status: 'active'
+      };
+    } else if (node.construct?.name === 'SQSQueue') {
+      node.outputs = {
+        ...node.outputs,
+        queueUrl: `https://sqs.us-east-1.amazonaws.com/123456789012/${node.props.name}`,
+        queueArn: `arn:aws:sqs:us-east-1:123456789012:${node.props.name}`,
+        status: 'available'
+      };
+    } else if (node.construct?.name === 'KafkaCluster') {
+      node.outputs = {
+        ...node.outputs,
+        brokers: [`${node.props.name}-1.kafka.amazonaws.com:9092`, `${node.props.name}-2.kafka.amazonaws.com:9092`],
+        zookeeperConnect: `${node.props.name}.zookeeper.amazonaws.com:2181`,
+        status: 'active'
+      };
+    } else if (node.construct?.name === 'SNSTopic') {
+      node.outputs = {
+        ...node.outputs,
+        topicArn: `arn:aws:sns:us-east-1:123456789012:${node.props.name}`,
+        status: 'confirmed'
+      };
+    } else if (node.construct?.name === 'S3Bucket') {
+      node.outputs = {
+        ...node.outputs,
+        bucketName: node.props.bucketName || node.props.name,
+        bucketUrl: `https://${node.props.bucketName || node.props.name}.s3.amazonaws.com`,
+        region: 'us-east-1'
+      };
+    } else if (node.construct?.name === 'CloudFront') {
+      node.outputs = {
+        ...node.outputs,
+        distributionId: `E${Math.random().toString(36).substr(2, 13).toUpperCase()}`,
+        domainName: `${Math.random().toString(36).substr(2, 8)}.cloudfront.net`,
+        status: 'deployed'
+      };
+    } else if (node.construct?.name === 'KubernetesDeployment') {
+      node.outputs = {
+        ...node.outputs,
+        serviceName: node.props.name,
+        namespace: node.props.namespace || 'default',
+        replicas: node.props.replicas || 3,
+        status: 'running'
+      };
+    } else if (node.construct?.name === 'AwsLambda') {
+      node.outputs = {
+        ...node.outputs,
+        functionArn: `arn:aws:lambda:us-east-1:123456789012:function:${node.props.name}`,
+        functionName: node.props.name,
+        status: 'active'
+      };
+    } else if (node.construct?.name === 'EFSFileSystem') {
+      node.outputs = {
+        ...node.outputs,
+        fileSystemId: `fs-${Math.random().toString(36).substr(2, 8)}`,
+        dnsName: `fs-${Math.random().toString(36).substr(2, 8)}.efs.us-east-1.amazonaws.com`,
+        status: 'available'
+      };
+    } else if (node.construct?.name === 'PrometheusServer') {
+      node.outputs = {
+        ...node.outputs,
+        endpoint: `https://${node.props.name}.prometheus.example.com`,
+        status: 'running'
+      };
+    } else if (node.construct?.name === 'GrafanaDashboard') {
+      node.outputs = {
+        ...node.outputs,
+        dashboardUrl: `https://${node.props.name}.grafana.example.com`,
+        status: 'active'
+      };
     } else {
       // Generic mock outputs for unknown construct types
       node.outputs = {
@@ -122,8 +228,7 @@ export class DummyCloudProvider implements ICloudProvider {
 
     // Safely log props (handle undefined/null)
     const propsStr = this.safeStringify(node.props || {}, 2);
-    const propsLines = propsStr.split('\n');
-    console.debug(`${indent}  Props: ${propsLines.join(`\n${indent}  `)}`);
+    // console.debug(`${indent}  Props: ${propsLines.join(`\n${indent}  `)}`);
 
     // Log outputs
     if (node.outputs && Object.keys(node.outputs).length > 0) {

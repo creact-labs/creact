@@ -46,34 +46,52 @@ export function getProviderOutputTrackerInstance(): ProviderOutputTracker {
 /**
  * Create an enhanced CloudDOM node with output reference capabilities
  * This allows automatic binding when outputs are used in useState
+ * The proxy dynamically reads from the node's current outputs for reactivity
  * @internal
  */
 function createEnhancedNode(node: CloudDOMNode, outputReferences: Record<string, any>): CloudDOMNode {
-  // Create a proxy that intercepts property access to provide output references
+  // Create a proxy that intercepts property access to provide reactive output access
   return new Proxy(node, {
     get(target, prop, receiver) {
+      // Special handling for 'outputs' property to ensure reactivity
+      if (prop === 'outputs') {
+        return target.outputs || {};
+      }
+
+      // If accessing an output property directly on the node, check current outputs first
+      if (typeof prop === 'string' && target.outputs && prop in target.outputs) {
+        return target.outputs[prop];
+      }
+
       // If accessing an output property, return the output reference for automatic binding
       if (typeof prop === 'string' && outputReferences[prop]) {
         return outputReferences[prop];
       }
-      
+
       // For all other properties, return the original value
       return Reflect.get(target, prop, receiver);
     },
-    
+
     has(target, prop) {
+      // Check current outputs first
+      if (typeof prop === 'string' && target.outputs && prop in target.outputs) {
+        return true;
+      }
+
       // Include output references in property checks
       if (typeof prop === 'string' && outputReferences[prop]) {
         return true;
       }
       return Reflect.has(target, prop);
     },
-    
+
     ownKeys(target) {
-      // Include output reference keys
+      // Include output reference keys and current output keys
       const originalKeys = Reflect.ownKeys(target);
       const outputKeys = Object.keys(outputReferences);
-      return [...originalKeys, ...outputKeys.filter(key => !originalKeys.includes(key))];
+      const currentOutputKeys = target.outputs ? Object.keys(target.outputs) : [];
+      const allOutputKeys = [...outputKeys, ...currentOutputKeys];
+      return [...originalKeys, ...allOutputKeys.filter(key => !originalKeys.includes(key))];
     }
   });
 }
@@ -164,12 +182,12 @@ export function useInstance<T = any>(
 ): CloudDOMNode {
   // Get current context from AsyncLocalStorage
   const { currentFiber, currentPath, previousOutputsMap } = getInstanceContext();
-  
+
   // Validate hook is called during rendering
   if (!currentFiber) {
     throw new Error(
       'useInstance must be called during component rendering. ' +
-        'Make sure you are calling it inside a component function, not at the top level.'
+      'Make sure you are calling it inside a component function, not at the top level.'
     );
   }
 
@@ -179,17 +197,17 @@ export function useInstance<T = any>(
   // Extract event callbacks from current component's props (not useInstance props)
   const componentProps = currentFiber.props || {};
   const eventCallbacks: CloudDOMEventCallbacks = {};
-  
+
   // Extract onDeploy callback
   if (typeof componentProps.onDeploy === 'function') {
     eventCallbacks.onDeploy = componentProps.onDeploy;
   }
-  
+
   // Extract onError callback
   if (typeof componentProps.onError === 'function') {
     eventCallbacks.onError = componentProps.onError;
   }
-  
+
   // Extract onDestroy callback
   if (typeof componentProps.onDestroy === 'function') {
     eventCallbacks.onDestroy = componentProps.onDestroy;
@@ -255,13 +273,14 @@ export function useInstance<T = any>(
 
   // Create output references for automatic state binding
   const outputReferences = outputTracker.extractOutputReferences(node);
-  
+
   // Enhance the node with output reference methods
   const enhancedNode = createEnhancedNode(node, outputReferences);
 
   // Debug logging
   if (process.env.CREACT_DEBUG === 'true') {
     console.debug(`[useInstance] Created and tracked instance: ${resourceId}, outputs: ${Object.keys(outputReferences).length}`);
+    console.debug(`[useInstance] Node outputs at creation: ${JSON.stringify(node.outputs || {})}`);
   }
 
   // Return reference to the enhanced node
@@ -307,18 +326,18 @@ export function isRendering(): boolean {
 export function updateNodeOutputs(nodeId: string, newOutputs: Record<string, any>): void {
   const outputTracker = getProviderOutputTracker();
   const changes = outputTracker.updateNodeOutputs(nodeId, newOutputs);
-  
+
   if (changes.length > 0) {
     // Process the changes and get affected fibers
     const affectedFibers = outputTracker.processOutputChanges(changes);
-    
+
     if (process.env.CREACT_DEBUG === 'true') {
       console.debug(`[useInstance] Output changes detected for ${nodeId}:`, {
         changes: changes.length,
         affectedFibers: affectedFibers.size
       });
     }
-    
+
     // Note: The actual re-rendering will be handled by the RenderScheduler
     // when it's integrated with the CReact main orchestrator
   }

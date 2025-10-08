@@ -205,7 +205,7 @@ export class ContextPropagationError extends ReactiveError {
     public readonly cause?: Error,
     public readonly details?: Record<string, any>
   ) {
-    super(message, { ...details, contextId: contextId.toString(), affectedFibers, cause: cause?.message });
+    super(message, { ...details, contextId: String(contextId), affectedFibers, cause: cause?.message });
     this.name = 'ContextPropagationError';
   }
 }

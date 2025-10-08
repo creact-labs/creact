@@ -37,6 +37,12 @@ export class CloudDOMBuilder {
   private providerOutputTracker?: ProviderOutputTracker;
 
   /**
+   * Track existing nodes to handle re-render scenarios
+   * Maps node ID to fiber path for duplicate detection during re-renders
+   */
+  private existingNodeMap = new Map<string, string>();
+
+  /**
    * Constructor receives ICloudProvider via dependency injection
    *
    * REQ-04: Dependency injection pattern - provider is injected, not inherited
@@ -257,7 +263,14 @@ export class CloudDOMBuilder {
 
     // Debug logging
     if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[CloudDOMBuilder] extractOutputsFromFiber: fiber.path=${fiber.path?.join('.')}, hooks=${JSON.stringify(fiber.hooks)}`);
+      const safeStringify = (value: any) => {
+        try {
+          return JSON.stringify(value);
+        } catch {
+          return String(value);
+        }
+      };
+      console.debug(`[CloudDOMBuilder] extractOutputsFromFiber: fiber.path=${fiber.path?.join('.')}, hooks=${safeStringify(fiber.hooks)}`);
     }
 
     // Check if this Fiber has hooks from useState calls
@@ -360,14 +373,68 @@ export class CloudDOMBuilder {
    * Update a CloudDOM node's outputs with the latest Fiber hook state
    */
   private updateCloudDOMNodeOutputs(fiber: FiberNode, cloudNode: CloudDOMNode): void {
-    // Extract fresh outputs from the Fiber node
+    // Extract fresh outputs from the Fiber node (useState outputs)
     const freshOutputs = this.extractOutputsFromFiber(fiber);
 
     if (Object.keys(freshOutputs).length > 0) {
-      console.log(`[CloudDOMBuilder] Updating outputs for ${cloudNode.id}:`, freshOutputs);
+      console.log(`[CloudDOMBuilder] Merging useState outputs for ${cloudNode.id}:`, freshOutputs);
+      console.log(`[CloudDOMBuilder] Existing provider outputs for ${cloudNode.id}:`, cloudNode.outputs);
 
-      // Update the CloudDOM node's outputs
+      // Merge outputs: provider outputs take precedence over useState outputs
+      // This ensures provider outputs (like vaultUrl) are not overwritten by useState outputs (like state1, state2)
       cloudNode.outputs = { ...cloudNode.outputs, ...freshOutputs };
+    }
+
+    // CRITICAL FIX: Sync outputs back to original nodes that components reference
+    this.syncOutputsToOriginalNodes(fiber, cloudNode);
+  }
+
+  /**
+   * Sync outputs back to the original CloudDOM nodes that components reference
+   * This ensures that enhanced node proxies see the updated outputs
+   */
+  private syncOutputsToOriginalNodes(fiber: FiberNode, updatedNode: CloudDOMNode): void {
+    // Find the original nodes in the fiber that match this updated node
+    if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
+      for (const originalNode of (fiber as any).cloudDOMNodes) {
+        if (originalNode.id === updatedNode.id) {
+          // Update the original node's outputs with the latest values
+          if (updatedNode.outputs) {
+            if (!originalNode.outputs) {
+              originalNode.outputs = {};
+            }
+            
+            // Merge outputs, preserving existing ones and adding new ones
+            Object.assign(originalNode.outputs, updatedNode.outputs);
+            
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[CloudDOMBuilder] Synced outputs to original node ${originalNode.id}:`, originalNode.outputs);
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    // Also check single cloudDOMNode (legacy support)
+    if (fiber.cloudDOMNode && fiber.cloudDOMNode.id === updatedNode.id) {
+      if (updatedNode.outputs) {
+        if (!fiber.cloudDOMNode.outputs) {
+          fiber.cloudDOMNode.outputs = {};
+        }
+        Object.assign(fiber.cloudDOMNode.outputs, updatedNode.outputs);
+        
+        if (process.env.CREACT_DEBUG === 'true') {
+          console.debug(`[CloudDOMBuilder] Synced outputs to original single node ${fiber.cloudDOMNode.id}:`, fiber.cloudDOMNode.outputs);
+        }
+      }
+    }
+
+    // Recursively sync for child fibers
+    if (fiber.children && fiber.children.length > 0) {
+      for (const child of fiber.children) {
+        this.syncOutputsToOriginalNodes(child, updatedNode);
+      }
     }
   }
 
@@ -396,6 +463,10 @@ export class CloudDOMBuilder {
    * - Invalid paths (empty or non-array)
    * - Circular references in paths
    *
+   * Enhanced for re-render scenarios:
+   * - Allows re-validation of existing nodes from the same fiber path
+   * - Prevents false positives during reactive re-renders
+   *
    * @param nodes - CloudDOM nodes to validate
    * @throws Error if duplicate IDs or circular references are found
    */
@@ -404,15 +475,31 @@ export class CloudDOMBuilder {
     const pathStrings = new Set<string>();
 
     for (const node of nodes) {
-      // Check for duplicate IDs
+      const currentFiberPath = node.path.join('.');
+
+      // Check for duplicate IDs with re-render support
       if (seenIds.has(node.id)) {
+        // Check if this is a re-render of the same node from the same fiber path
+        const existingFiberPath = this.existingNodeMap.get(node.id);
+        if (existingFiberPath === currentFiberPath) {
+          // This is a re-render of the same node - allow it
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[CloudDOMBuilder] Re-validating existing node during re-render: ${node.id}`);
+          }
+          continue;
+        }
+
+        // This is a true duplicate from different fiber paths
         throw new Error(
           `[CloudDOMBuilder] Duplicate CloudDOMNode id detected: '${node.id}' at ${this.formatPath(node)}. ` +
           `Each resource must have a unique ID. ` +
           `Use the 'key' prop to differentiate components with the same name.`
         );
       }
+      
       seenIds.add(node.id);
+      // Track this node for future re-render validation
+      this.existingNodeMap.set(node.id, currentFiberPath);
 
       // Validate path (should already be filtered in collectCloudDOMNodes, but double-check)
       if (!Array.isArray(node.path) || node.path.length === 0) {
@@ -770,6 +857,7 @@ export class CloudDOMBuilder {
 
     try {
       // Step 1: Update provider output tracker with new outputs
+      // Note: Output syncing to original nodes is now done before effects in integrateWithPostDeploymentEffects
       const outputChanges: OutputChange[] = [];
 
       for (const node of cloudDOM) {
@@ -779,7 +867,7 @@ export class CloudDOMBuilder {
         }
       }
 
-      // Step 2: If we have previous state, detect additional changes
+      // Step 3: If we have previous state, detect additional changes
       if (previousCloudDOM) {
         const additionalChanges = this.detectOutputChanges(previousCloudDOM, cloudDOM);
 
@@ -794,7 +882,7 @@ export class CloudDOMBuilder {
         }
       }
 
-      // Step 3: Apply output changes to bound state
+      // Step 4: Apply output changes to bound state
       const affectedFibers = this.applyOutputChangesToState(outputChanges);
 
       // Debug logging
@@ -807,6 +895,83 @@ export class CloudDOMBuilder {
     } catch (error) {
       console.error('[CloudDOMBuilder] Error during output synchronization:', error);
       return [];
+    }
+  }
+
+  /**
+   * Sync CloudDOM outputs to the original nodes that components reference
+   * This is critical for reactivity to work - components need to see updated outputs
+   */
+  private syncCloudDOMOutputsToOriginalNodes(fiber: FiberNode, cloudDOM: CloudDOMNode[]): void {
+    console.log('[CloudDOMBuilder] syncCloudDOMOutputsToOriginalNodes called');
+    console.log(`[CloudDOMBuilder] CloudDOM nodes to sync: ${cloudDOM.length}`);
+    
+    // Build a map of CloudDOM nodes by ID for fast lookup
+    const cloudDOMMap = new Map<string, CloudDOMNode>();
+    
+    const buildMap = (nodes: CloudDOMNode[]) => {
+      for (const node of nodes) {
+        cloudDOMMap.set(node.id, node);
+        if (node.outputs && Object.keys(node.outputs).length > 0) {
+          console.log(`[CloudDOMBuilder] CloudDOM node ${node.id} has outputs:`, Object.keys(node.outputs));
+        }
+        if (node.children && node.children.length > 0) {
+          buildMap(node.children);
+        }
+      }
+    };
+    
+    buildMap(cloudDOM);
+    console.log(`[CloudDOMBuilder] Built CloudDOM map with ${cloudDOMMap.size} nodes`);
+
+    // Recursively sync outputs to original nodes
+    this.syncOutputsToOriginalNodesRecursive(fiber, cloudDOMMap);
+  }
+
+  /**
+   * Recursively sync outputs to original nodes in the fiber tree
+   */
+  private syncOutputsToOriginalNodesRecursive(fiber: FiberNode, cloudDOMMap: Map<string, CloudDOMNode>): void {
+    // Sync outputs for nodes in this fiber
+    if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
+      for (const originalNode of (fiber as any).cloudDOMNodes) {
+        const updatedNode = cloudDOMMap.get(originalNode.id);
+        if (updatedNode && updatedNode.outputs) {
+          if (!originalNode.outputs) {
+            originalNode.outputs = {};
+          }
+          
+          // Merge outputs from the deployed CloudDOM back to the original node
+          const beforeOutputs = { ...originalNode.outputs };
+          Object.assign(originalNode.outputs, updatedNode.outputs);
+          
+          console.log(`[CloudDOMBuilder] ✓ Synced outputs to original node ${originalNode.id}`);
+          console.log(`[CloudDOMBuilder]   Before:`, beforeOutputs);
+          console.log(`[CloudDOMBuilder]   After:`, originalNode.outputs);
+        }
+      }
+    }
+
+    // Also handle single cloudDOMNode (legacy support)
+    if (fiber.cloudDOMNode) {
+      const updatedNode = cloudDOMMap.get(fiber.cloudDOMNode.id);
+      if (updatedNode && updatedNode.outputs) {
+        if (!fiber.cloudDOMNode.outputs) {
+          fiber.cloudDOMNode.outputs = {};
+        }
+        Object.assign(fiber.cloudDOMNode.outputs, updatedNode.outputs);
+        
+        if (process.env.CREACT_DEBUG === 'true') {
+          console.debug(`[CloudDOMBuilder] Synced outputs to original single node ${fiber.cloudDOMNode.id}:`, fiber.cloudDOMNode.outputs);
+        }
+      }
+    }
+
+    // Recursively sync for child fibers
+    if (fiber.children && fiber.children.length > 0) {
+      for (const child of fiber.children) {
+        this.syncOutputsToOriginalNodesRecursive(child, cloudDOMMap);
+      }
     }
   }
 
@@ -893,15 +1058,68 @@ export class CloudDOMBuilder {
     cloudDOM: CloudDOMNode[],
     previousCloudDOM?: CloudDOMNode[]
   ): Promise<FiberNode[]> {
-    // First execute the existing post-deployment effects
-    await this.executePostDeploymentEffects(fiber);
+    try {
+      console.log('[CloudDOMBuilder] *** integrateWithPostDeploymentEffects called ***');
+      console.log(`[CloudDOMBuilder] CloudDOM nodes: ${cloudDOM.length}`);
+      console.log(`[CloudDOMBuilder] Fiber path: ${fiber.path?.join('.')}`);
 
-    // Then sync outputs and trigger re-renders
-    const affectedFibers = await this.syncOutputsAndReRender(fiber, cloudDOM, previousCloudDOM);
+      // CRITICAL FIX: Sync outputs to original nodes FIRST, before executing effects
+      console.log('[CloudDOMBuilder] Syncing outputs to original nodes before effects...');
+      this.syncCloudDOMOutputsToOriginalNodes(fiber, cloudDOM);
 
-    // Finally sync any state changes back to CloudDOM
-    this.syncFiberStateToCloudDOM(fiber, cloudDOM);
+      // Then execute the post-deployment effects (now they can see the updated outputs)
+      console.log('[CloudDOMBuilder] Executing post-deployment effects...');
+      await this.executePostDeploymentEffects(fiber);
 
-    return affectedFibers;
+      // Then sync outputs and trigger re-renders for any reactive changes
+      console.log('[CloudDOMBuilder] Syncing outputs and triggering re-renders...');
+      const affectedFibers = await this.syncOutputsAndReRender(fiber, cloudDOM, previousCloudDOM);
+
+      // Finally sync any state changes back to CloudDOM
+      console.log('[CloudDOMBuilder] Syncing fiber state to CloudDOM...');
+      this.syncFiberStateToCloudDOM(fiber, cloudDOM);
+
+      console.log(`[CloudDOMBuilder] *** integrateWithPostDeploymentEffects completed, affected fibers: ${affectedFibers.length} ***`);
+      return affectedFibers;
+    } catch (error) {
+      console.error('[CloudDOMBuilder] Error in integrateWithPostDeploymentEffects:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clear the existing node map (for testing or fresh builds)
+   * This allows starting with a clean slate for node validation
+   */
+  clearExistingNodes(): void {
+    this.existingNodeMap.clear();
+  }
+
+  /**
+   * Get the existing node map (for debugging/inspection)
+   * Returns a copy to prevent external mutation
+   */
+  getExistingNodes(): Map<string, string> {
+    return new Map(this.existingNodeMap);
+  }
+
+  /**
+   * Create a JSON replacer function that handles Symbols safely
+   * Converts Symbols to their string representation for debugging
+   */
+  private createSymbolReplacer(): (key: string, value: any) => any {
+    return (key: string, value: any) => {
+      if (typeof value === 'symbol') {
+        return String(value);
+      }
+      if (typeof value === 'function' && value._contextId && typeof value._contextId === 'symbol') {
+        // Handle context provider/consumer functions with Symbol IDs
+        return {
+          ...value,
+          _contextId: String(value._contextId)
+        };
+      }
+      return value;
+    };
   }
 }

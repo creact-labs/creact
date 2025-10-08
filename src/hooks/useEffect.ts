@@ -104,7 +104,19 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   const isReactive = deps !== undefined && deps.length > 0;
 
   if (isReactive && deps) {
-    // Detect provider outputs in dependencies using consistent naming
+    // Track which CloudDOM nodes are referenced in this effect
+    const referencedNodes = new Set<string>();
+    
+    // Get current fiber's CloudDOM nodes for reference tracking
+    const fiberCloudDOMNodes = (currentFiber as any).cloudDOMNodes || [];
+    const nodeMap = new Map<any, string>();
+    
+    // Build a map from node objects to their IDs
+    for (const node of fiberCloudDOMNodes) {
+      nodeMap.set(node, node.id);
+    }
+    
+    // Analyze dependencies to find CloudDOM node references
     for (const dep of deps) {
       if (dep && typeof dep === 'object') {
         // Check if dependency is a provider output reference
@@ -125,7 +137,39 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
             console.debug(`[useEffect] Detected CloudDOM output dependency: ${bindingKey}`);
           }
         }
+        // Check if dependency is a CloudDOM node (from useInstance)
+        else if (nodeMap.has(dep)) {
+          const nodeId = nodeMap.get(dep)!;
+          referencedNodes.add(nodeId);
+          
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[useEffect] Detected CloudDOM node reference: ${nodeId}`);
+          }
+        }
       }
+    }
+    
+    // For referenced nodes, bind to all their current and future outputs
+    for (const nodeId of referencedNodes) {
+      const node = fiberCloudDOMNodes.find((n: any) => n.id === nodeId);
+      if (node) {
+        // Bind to all current outputs
+        if (node.outputs) {
+          for (const outputKey of Object.keys(node.outputs)) {
+            const bindingKey = generateBindingKey(nodeId, outputKey);
+            boundOutputs.add(bindingKey);
+          }
+        }
+        
+        // Bind to all potential outputs using a wildcard pattern
+        // This ensures the effect runs when new outputs are added
+        const wildcardBindingKey = generateBindingKey(nodeId, '*');
+        boundOutputs.add(wildcardBindingKey);
+      }
+    }
+
+    if (process.env.CREACT_DEBUG === 'true' && boundOutputs.size > 0) {
+      console.debug(`[useEffect] Bound to ${boundOutputs.size} output patterns: ${Array.from(boundOutputs).join(', ')}`);
     }
   }
 
@@ -394,9 +438,22 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
 
     // Check if this effect is bound to any of the changed outputs
     if (effectHook.boundOutputs) {
-      const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput =>
-        changedOutputs.has(boundOutput)
-      );
+      const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput => {
+        // Direct match
+        if (changedOutputs.has(boundOutput)) {
+          return true;
+        }
+        
+        // Wildcard match: if bound to nodeId.* and any output from that node changed
+        if (boundOutput.endsWith('.*')) {
+          const nodeIdPrefix = boundOutput.slice(0, -1); // Remove the '*'
+          return Array.from(changedOutputs).some(changedOutput => 
+            changedOutput.startsWith(nodeIdPrefix)
+          );
+        }
+        
+        return false;
+      });
 
       if (hasChangedDependency) {
         // Run cleanup from previous effect if it exists

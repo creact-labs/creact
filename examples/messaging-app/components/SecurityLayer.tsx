@@ -45,13 +45,17 @@ export function SecurityLayer({ children }: SecurityLayerProps) {
   
   // useEffect runs after deployment to populate state with security configuration
   useEffect(() => {
+    console.log('[SecurityLayer] useEffect triggered for vaultUrl:', vault.outputs?.vaultUrl);
     if (vault.outputs?.vaultUrl) {
+      console.log('[SecurityLayer] Setting vaultUrl to:', vault.outputs.vaultUrl);
       setVaultUrl(vault.outputs.vaultUrl as string);
     }
   }, [vault.outputs?.vaultUrl]);
   
   useEffect(() => {
+    console.log('[SecurityLayer] useEffect triggered for certificateArn:', certificate.outputs?.certificateArn);
     if (certificate.outputs?.certificateArn) {
+      console.log('[SecurityLayer] Setting certificateArn to:', certificate.outputs.certificateArn);
       setCertificateArn(certificate.outputs.certificateArn as string);
     }
   }, [certificate.outputs?.certificateArn]);

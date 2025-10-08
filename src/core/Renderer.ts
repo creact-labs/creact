@@ -96,7 +96,7 @@ export class Renderer {
       props: { ...safeProps },
       children: [],
       path,
-      key: key?.toString(),
+      key: key !== undefined ? (typeof key === 'symbol' ? nodeName : key.toString()) : undefined,
       cloudDOMNodes: [], // Will be populated by useInstance
     };
 
@@ -179,7 +179,7 @@ export class Renderer {
         return props.children;
       }
 
-      throw new Error(`Unknown component type: ${String(type)}`);
+      throw new Error(`Unknown component type: ${typeof type === 'symbol' ? 'Symbol' : type}`);
     } finally {
       // Clear rendering context for hooks
       clearRenderContext();
@@ -345,7 +345,8 @@ export class Renderer {
     const parts: string[] = [];
 
     // Include component type
-    parts.push(`type:${fiber.type?.name || fiber.type}`);
+    const typeName = fiber.type?.name || (typeof fiber.type === 'symbol' ? 'fragment' : fiber.type);
+    parts.push(`type:${typeName}`);
 
     // Include number and types of CloudDOM nodes (useInstance calls)
     if (fiber.cloudDOMNodes && fiber.cloudDOMNodes.length > 0) {
@@ -360,7 +361,7 @@ export class Renderer {
     // Include number of children and their types
     if (fiber.children && fiber.children.length > 0) {
       const childTypes = fiber.children.map(child =>
-        child.type?.name || child.type || 'unknown'
+        child.type?.name || (typeof child.type === 'symbol' ? 'fragment' : child.type) || 'unknown'
       ).sort(); // Sort for consistent ordering
       parts.push(`children:[${childTypes.join(',')}]`);
     } else {
@@ -369,7 +370,8 @@ export class Renderer {
 
     // Include key if present (affects identity)
     if (fiber.key) {
-      parts.push(`key:${fiber.key}`);
+      const keyValue = typeof fiber.key === 'symbol' ? 'fragment' : fiber.key;
+      parts.push(`key:${keyValue}`);
     }
 
     return parts.join('|');

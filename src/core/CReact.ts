@@ -81,6 +81,9 @@ export class CReact {
   static createElement = JSXCReact.createElement;
   static Fragment = JSXCReact.Fragment;
 
+  // Global instance for hooks to access
+  private static globalInstance: CReact | null = null;
+
   private renderer: Renderer;
   private validator: Validator;
   private cloudDOMBuilder: CloudDOMBuilder;
@@ -104,6 +107,9 @@ export class CReact {
    * @param config - Configuration with injected providers
    */
   constructor(private config: CReactConfig) {
+    // Set global instance for hooks to access
+    CReact.globalInstance = this;
+    
     // Instantiate core components
     this.renderer = new Renderer();
     this.validator = new Validator();
@@ -135,6 +141,14 @@ export class CReact {
     // Set the context dependency tracker in useContext hook
     const { setContextDependencyTracker } = require('../hooks/useContext');
     setContextDependencyTracker(this.contextDependencyTracker);
+    
+    // Set the state binding manager in useState hook
+    const { setStateBindingManager } = require('../hooks/useState');
+    setStateBindingManager(this.stateBindingManager);
+    
+    // Set the provider output tracker in useInstance hook
+    const { setProviderOutputTracker } = require('../hooks/useInstance');
+    setProviderOutputTracker(this.providerOutputTracker);
   }
 
   /**
@@ -147,6 +161,14 @@ export class CReact {
     if (process.env.CREACT_DEBUG === 'true') {
       console.debug(`[CReact] ${message}`);
     }
+  }
+
+  /**
+   * Get the global CReact instance for hooks to access
+   * @internal
+   */
+  static getCReactInstance(): CReact | null {
+    return CReact.globalInstance;
   }
 
   /**
@@ -170,7 +192,7 @@ export class CReact {
    * @returns Promise resolving to affected fibers that were re-rendered
    */
   async handleContextChange(contextId: symbol, newValue: any): Promise<FiberNode[]> {
-    this.log(`Context change detected for context: ${contextId.toString()}`);
+    this.log(`Context change detected for context: ${String(contextId)}`);
 
     try {
       // Update context value and get affected fibers
@@ -512,6 +534,9 @@ export class CReact {
       this.log('Completing deployment via StateMachine');
       await this.stateMachine.completeDeployment(stackName);
 
+      // Note: Previously marked initial build as complete, but now reactive system
+      // works throughout the entire lifecycle thanks to improved CloudDOMBuilder
+
       // Execute post-deployment effects with reactive output synchronization
       this.log('Executing post-deployment effects with reactive sync');
       if (this.lastFiberTree) {
@@ -759,3 +784,6 @@ export class CReact {
     return null;
   }
 }
+
+// Export the getCReactInstance function for hooks to use
+export const getCReactInstance = CReact.getCReactInstance;

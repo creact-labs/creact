@@ -1,55 +1,50 @@
 /**
- * Reactive Context & State Test Example
+ * CReact Reactive Infrastructure Example
  *
- * Demonstrates fine-grained reactivity in CReact.
- * Includes:
- *  - Dummy Cloud provider simulating resource output changes
- *  - Context propagation and dependency re-rendering
- *  - Stateful outputs reacting to provider updates
+ * Demonstrates declarative reactivity using useEffect and dependency arrays.
+ * - No imperative provider listeners
+ * - Hooks manage post-deployment side effects
+ * - Providers remain stateless and deterministic
  *
  * Usage:
- *   creact build --entry examples/reactivity/reactivity-test.tsx
- *   creact deploy --entry examples/reactivity/reactivity-test.tsx
+ *   creact build --entry examples/reactivity/basic-reactivity.tsx
+ *   creact deploy --entry examples/reactivity/basic-reactivity.tsx
  */
 
-import { CReact } from '../../src/jsx';
 import { CReact as CReactCore } from '../../src/core/CReact';
 import { useInstance } from '../../src/hooks/useInstance';
 import { useState } from '../../src/hooks/useState';
 import { useEffect } from '../../src/hooks/useEffect';
-import { createContext, useContext } from '../../src/hooks/useContext';
-import { CloudDOMNode } from '../../src/core/types';
+import {  useContext } from '../../src/hooks/useContext';
 import { ICloudProvider } from '../../src/providers/ICloudProvider';
-import { DummyBackendProvider } from '../providers/DummyBackendProvider';
+import { CloudDOMNode } from '../../src/core/types';
+import { createContext } from '../../src/context/createContext';
 
 /* -------------------------------------------------------------------------- */
-/* 🧩 Dummy Constructs                                                         */
+/*                                Mock Constructs                             */
 /* -------------------------------------------------------------------------- */
 
 class Database {
   constructor(public props: { name: string }) {}
 }
 
-class WebApp {
+class API {
   constructor(public props: { name: string; dbUrl?: string }) {}
 }
 
-/* -------------------------------------------------------------------------- */
-/* 🧠 Reactive Context                                                        */
-/* -------------------------------------------------------------------------- */
-
-const DatabaseContext = createContext<{ url: string | null }>({ url: null });
+class Frontend {
+  constructor(public props: { name: string; apiUrl?: string }) {}
+}
 
 /* -------------------------------------------------------------------------- */
-/* ☁️ Mock Cloud Provider - Reactive Simulation                               */
+/*                           Mock Cloud Provider                              */
 /* -------------------------------------------------------------------------- */
 
 class ReactiveMockProvider implements ICloudProvider {
   private initialized = false;
-  private listeners: ((id: string, outputs: any) => void)[] = [];
 
   async initialize(): Promise<void> {
-    console.log('[ReactiveMockProvider] Initializing...');
+    console.log('[MockProvider] initialized');
     this.initialized = true;
   }
 
@@ -58,101 +53,105 @@ class ReactiveMockProvider implements ICloudProvider {
   }
 
   async preDeploy(cloudDOM: CloudDOMNode[]): Promise<void> {
-    console.log('[ReactiveMockProvider] Pre-deploy hook');
+    console.log(`[MockProvider] preDeploy (${cloudDOM.length} resources)`);
   }
 
   async postDeploy(cloudDOM: CloudDOMNode[], outputs: Record<string, any>): Promise<void> {
-    console.log('[ReactiveMockProvider] Post-deploy complete');
+    console.log(`[MockProvider] postDeploy complete`);
   }
 
   async onError(error: Error, cloudDOM: CloudDOMNode[]): Promise<void> {
-    console.error('[ReactiveMockProvider] Error during deploy:', error.message);
+    console.error(`[MockProvider] Deployment error: ${error.message}`);
   }
 
   materialize(cloudDOM: CloudDOMNode[]): void {
-    console.debug('\n=== ReactiveMockProvider: Materializing CloudDOM ===\n');
-
+    console.log('[MockProvider] Materializing resources...');
     for (const node of cloudDOM) {
-      console.log(`→ Deploying ${node.id} (${node.construct?.name})`);
-
       if (node.construct?.name === 'Database') {
-        node.outputs = { url: `postgres://${node.props.name}.local:5432` };
-      }
-
-      if (node.construct?.name === 'WebApp') {
         node.outputs = {
-          endpoint: `https://${node.props.name}.example.com`,
+          connectionUrl: `postgres://${node.props.name}.db.local`,
+          status: 'ready'
+        };
+      } else if (node.construct?.name === 'API') {
+        node.outputs = {
+          endpoint: `https://${node.props.name}.api.local`,
+          dbConnected: !!node.props.dbUrl
+        };
+      } else if (node.construct?.name === 'Frontend') {
+        node.outputs = {
+          url: `https://${node.props.name}.frontend.local`,
+          apiConnected: !!node.props.apiUrl
         };
       }
     }
-
-    console.debug('\n=== Materialization Complete ===\n');
-
-    // Simulate async output mutation for reactivity test
-    setTimeout(() => {
-      const changedUrl = `postgres://${Math.random().toString(36).substring(2, 6)}.reactive.local:5432`;
-      console.log(`⚡ [ReactiveMockProvider] Simulating database URL update: ${changedUrl}`);
-
-      for (const listener of this.listeners) {
-        listener('Database', { url: changedUrl });
-      }
-    }, 3000);
-  }
-
-  onOutputChange(listener: (id: string, outputs: any) => void) {
-    this.listeners.push(listener);
   }
 }
 
 /* -------------------------------------------------------------------------- */
-/* 🗄️ Database Stack - Produces Context Value                                 */
+/*                              Contexts                                      */
+/* -------------------------------------------------------------------------- */
+
+const DatabaseContext = createContext<{ dbUrl?: string }>({ dbUrl: undefined });
+const APIContext = createContext<{ apiUrl?: string }>({ apiUrl: undefined });
+
+/* -------------------------------------------------------------------------- */
+/*                        Infrastructure Components                           */
 /* -------------------------------------------------------------------------- */
 
 function DatabaseStack() {
   const db = useInstance(Database, { name: 'users-db' });
-  const [url, setUrl] = useState<string>('postgres://init.local:5432');
+  const [dbUrl, setDbUrl] = useState<string>();
 
-  // Reactive effect that updates when provider pushes new output
+  // Update local state after deployment when output is available
   useEffect(() => {
-    console.log(`[DatabaseStack] Current DB URL: ${url}`);
-  }, [url]);
-
-  // Subscribe to provider's simulated updates
-  useEffect(() => {
-    CReactCore.cloudProvider.onOutputChange((id: string, outputs: any) => {
-      if (id === 'Database' && outputs.url) {
-        setUrl(outputs.url);
-      }
-    });
-  }, []);
+    if (db.outputs?.connectionUrl) {
+      setDbUrl(db.outputs.connectionUrl);
+      console.log(`[DatabaseStack] Ready at ${db.outputs.connectionUrl}`);
+    }
+  }, [db.outputs?.connectionUrl]);
 
   return (
-    <DatabaseContext.Provider value={{ url }}>
-      <WebAppStack />
+    <DatabaseContext.Provider value={{ dbUrl }}>
+      <APIStack />
     </DatabaseContext.Provider>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* 🌐 WebApp Stack - Consumes Context Reactively                              */
-/* -------------------------------------------------------------------------- */
-
-function WebAppStack() {
-  const ctx = useContext(DatabaseContext);
-  const app = useInstance(WebApp, {
-    name: 'frontend',
-    dbUrl: ctx.url || 'pending...',
-  });
+function APIStack() {
+  const { dbUrl } = useContext(DatabaseContext);
+  const api = useInstance(API, { name: 'user-api', dbUrl });
+  const [apiUrl, setApiUrl] = useState<string>();
 
   useEffect(() => {
-    console.log(`[WebAppStack] Reactively updated DB URL: ${ctx.url}`);
-  }, [ctx.url]);
+    if (api.outputs?.endpoint) {
+      setApiUrl(api.outputs.endpoint);
+      console.log(`[APIStack] API deployed at ${api.outputs.endpoint}`);
+    }
+  }, [api.outputs?.endpoint]);
+
+  return (
+    <APIContext.Provider value={{ apiUrl }}>
+      <FrontendStack />
+    </APIContext.Provider>
+  );
+}
+
+function FrontendStack() {
+  const { apiUrl } = useContext(APIContext);
+  const frontend = useInstance(Frontend, { name: 'user-frontend', apiUrl });
+
+  useEffect(() => {
+    if (frontend.outputs?.url) {
+      console.log(`[FrontendStack] Frontend deployed at ${frontend.outputs.url}`);
+      console.log(`[FrontendStack] Connected to API: ${frontend.props.apiUrl}`);
+    }
+  }, [frontend.outputs?.url, frontend.props.apiUrl]);
 
   return <></>;
 }
 
 /* -------------------------------------------------------------------------- */
-/* 🏗️ Root App                                                               */
+/*                              Application Root                              */
 /* -------------------------------------------------------------------------- */
 
 function ReactiveApp() {
@@ -164,11 +163,21 @@ function ReactiveApp() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* ⚙️ Configure Providers & Deploy                                            */
+/*                              Runtime Configuration                         */
 /* -------------------------------------------------------------------------- */
 
 CReactCore.cloudProvider = new ReactiveMockProvider();
-CReactCore.backendProvider = new DummyBackendProvider();
+CReactCore.retryPolicy = {
+  maxRetries: 2,
+  initialDelay: 1000,
+  backoffMultiplier: 2,
+  timeout: 60000,
+};
+CReactCore.asyncTimeout = 60000;
 
-const stackName = process.env.STACK_NAME || 'reactivity-demo-stack';
+/* -------------------------------------------------------------------------- */
+/*                              Render Invocation                             */
+/* -------------------------------------------------------------------------- */
+
+const stackName = process.env.STACK_NAME || 'reactive-stack';
 export default CReactCore.renderCloudDOM(<ReactiveApp />, stackName);

@@ -30,8 +30,8 @@ CReactCore.retryPolicy = {
 
 // Optional: Configure async timeout
 CReactCore.asyncTimeout = 600000; // 10 minutes
- 
+
 // Render to CloudDOM (like ReactDOM.render)
 // Now we can use JSX syntax directly!
-const stackName = process.env.STACK_NAME || 's';
+const stackName = process.env.STACK_NAME || 'messaging-app';
 export default CReactCore.renderCloudDOM(<MessagingApp />, stackName);
