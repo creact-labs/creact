@@ -129,6 +129,11 @@ export function useState<T = undefined>(
     const newValue =
       typeof value === 'function' ? (value as (prev: T) => T)(fiber.hooks[hookIdx]) : value;
 
+    // Debug logging
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[useState] setState called: hookIdx=${hookIdx}, value=${JSON.stringify(newValue)}, fiber.id=${fiber.path?.join('.')}`);
+    }
+
     // Update this hook's state
     fiber.hooks[hookIdx] = newValue;
   };

@@ -652,11 +652,16 @@ export class Reconciler {
 
     // Fast path: if hashes match, props are identical (skip deep equality)
     if (prevHash === currHash) {
+      // Even if props are the same, check if outputs changed
+      if (this.outputsChanged(previous.outputs, current.outputs)) {
+        return 'update';
+      }
       return 'none';
     }
 
     // Hashes differ: perform deep equality check to confirm
-    if (this.propsChanged(previous.props, current.props)) {
+    if (this.propsChanged(previous.props, current.props) || 
+        this.outputsChanged(previous.outputs, current.outputs)) {
       return 'update';
     }
 
@@ -744,6 +749,28 @@ export class Reconciler {
 
     // Use deep equality with memoization
     return !deepEqual(prevFiltered, currFiltered);
+  }
+
+  /**
+   * Check if outputs have changed using deep equality
+   *
+   * @param previous - Previous outputs
+   * @param current - Current outputs
+   * @returns True if outputs changed
+   */
+  private outputsChanged(
+    previous: Record<string, any> | undefined, 
+    current: Record<string, any> | undefined
+  ): boolean {
+    // Handle undefined cases
+    if (previous === undefined && current === undefined) {
+      return false;
+    }
+    if (previous === undefined || current === undefined) {
+      return true;
+    }
+    
+    return !deepEqual(previous, current);
   }
 
   /**

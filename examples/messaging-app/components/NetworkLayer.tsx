@@ -12,6 +12,7 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { LoadBalancer, ApiGateway, CloudFront } from '../constructs';
 import { InfraConfigContext, NetworkContext } from '../contexts';
 
@@ -22,10 +23,10 @@ interface NetworkLayerProps {
 export function NetworkLayer({ children }: NetworkLayerProps) {
   const config = useContext(InfraConfigContext);
   
-  // State for network endpoints
-  const [loadBalancerUrl, setLoadBalancerUrl] = useState<string>();
-  const [apiGatewayUrl, setApiGatewayUrl] = useState<string>();
-  const [cdnUrl, setCdnUrl] = useState<string>();
+  // State for network endpoints (populated after deployment)
+  const [loadBalancerUrl, setLoadBalancerUrl] = useState<string>('');
+  const [apiGatewayUrl, setApiGatewayUrl] = useState<string>('');
+  const [cdnUrl, setCdnUrl] = useState<string>('');
   
   // Application Load Balancer for HTTP traffic
   const appLoadBalancer = useInstance(LoadBalancer, {
@@ -77,18 +78,24 @@ export function NetworkLayer({ children }: NetworkLayerProps) {
     },
   });
   
-  // Extract network endpoints
-  if (appLoadBalancer.outputs?.dnsName && !loadBalancerUrl) {
-    setLoadBalancerUrl(appLoadBalancer.outputs.dnsName as string);
-  }
+  // useEffect runs after deployment to populate state with network endpoints
+  useEffect(() => {
+    if (appLoadBalancer.outputs?.dnsName) {
+      setLoadBalancerUrl(appLoadBalancer.outputs.dnsName as string);
+    }
+  }, [appLoadBalancer.outputs?.dnsName]);
   
-  if (apiGateway.outputs?.invokeUrl && !apiGatewayUrl) {
-    setApiGatewayUrl(apiGateway.outputs.invokeUrl as string);
-  }
+  useEffect(() => {
+    if (apiGateway.outputs?.invokeUrl) {
+      setApiGatewayUrl(apiGateway.outputs.invokeUrl as string);
+    }
+  }, [apiGateway.outputs?.invokeUrl]);
   
-  if (cdn.outputs?.distributionUrl && !cdnUrl) {
-    setCdnUrl(cdn.outputs.distributionUrl as string);
-  }
+  useEffect(() => {
+    if (cdn.outputs?.distributionUrl) {
+      setCdnUrl(cdn.outputs.distributionUrl as string);
+    }
+  }, [cdn.outputs?.distributionUrl]);
   
   // Provide network configuration to child components
   return (

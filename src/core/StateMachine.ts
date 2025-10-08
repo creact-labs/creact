@@ -166,6 +166,12 @@ export class StateMachine {
   };
 
   /**
+   * Map of active lock renewal timers by stack name
+   * Used to clean up timers when deployment completes
+   */
+  private lockRenewalTimers = new Map<string, NodeJS.Timeout>();
+
+  /**
    * Valid state transitions
    *
    * Defines allowed transitions for state machine validation.
@@ -250,6 +256,60 @@ export class StateMachine {
         // Don't let listener errors break state machine
         console.error(`Error in StateMachine event handler for ${event}:`, error);
       }
+    }
+  }
+
+  /**
+   * Start lock auto-renewal for a stack
+   * 
+   * Renews the lock at 50% of the TTL interval to prevent expiration
+   * during long deployments. Only starts renewal if backend supports locking.
+   *
+   * @param stackName - Name of the stack
+   * @param holder - Lock holder identifier
+   * @param ttl - Lock TTL in seconds
+   */
+  private startLockRenewal(stackName: string, holder: string, ttl: number): void {
+    // Only start renewal if backend supports locking
+    if (!this.backendProvider.acquireLock) {
+      return;
+    }
+
+    // Clear any existing timer for this stack
+    this.stopLockRenewal(stackName);
+
+    // Renew at 50% of TTL (convert to milliseconds)
+    const renewalInterval = (ttl * 1000) / 2;
+
+    const timer = setInterval(async () => {
+      try {
+        // Renew the lock with the same TTL
+        await this.backendProvider.acquireLock!(stackName, holder, ttl);
+        console.debug(`[StateMachine] Lock renewed for stack: ${stackName}`);
+      } catch (error) {
+        console.error(`[StateMachine] Failed to renew lock for ${stackName}:`, error);
+        // Stop renewal on failure to prevent spam
+        this.stopLockRenewal(stackName);
+      }
+    }, renewalInterval);
+
+    this.lockRenewalTimers.set(stackName, timer);
+    console.debug(`[StateMachine] Lock auto-renewal started for stack: ${stackName} (interval: ${renewalInterval}ms)`);
+  }
+
+  /**
+   * Stop lock auto-renewal for a stack
+   * 
+   * Cleans up the renewal timer to prevent memory leaks.
+   *
+   * @param stackName - Name of the stack
+   */
+  private stopLockRenewal(stackName: string): void {
+    const timer = this.lockRenewalTimers.get(stackName);
+    if (timer) {
+      clearInterval(timer);
+      this.lockRenewalTimers.delete(stackName);
+      console.debug(`[StateMachine] Lock auto-renewal stopped for stack: ${stackName}`);
     }
   }
 
@@ -439,8 +499,12 @@ export class StateMachine {
     // Acquire lock to prevent concurrent deployments
     // NOTE: Lock acquisition should NOT be retried - it should fail immediately
     if (this.backendProvider.acquireLock) {
+      const lockTTL = this.options.lockTTL ?? 600;
       try {
-        await this.backendProvider.acquireLock(stackName, user, this.options.lockTTL ?? 600);
+        await this.backendProvider.acquireLock(stackName, user, lockTTL);
+        
+        // Start auto-renewal to prevent lock expiration during long deployments
+        this.startLockRenewal(stackName, user, lockTTL);
       } catch (error) {
         throw new DeploymentError(
           `Failed to acquire lock for stack ${stackName}. ` +
@@ -484,7 +548,8 @@ export class StateMachine {
         deletes: changeSet.deletes.length,
       });
     } catch (error) {
-      // Release lock if state save fails
+      // Stop lock renewal and release lock if state save fails
+      this.stopLockRenewal(stackName);
       if (this.backendProvider.releaseLock) {
         try {
           await this.backendProvider.releaseLock(stackName);
@@ -587,7 +652,8 @@ export class StateMachine {
     // Log action to audit trail
     await this.logAction(stackName, 'complete', state);
 
-    // Release lock
+    // Stop lock renewal and release lock
+    this.stopLockRenewal(stackName);
     if (this.backendProvider.releaseLock) {
       try {
         await this.backendProvider.releaseLock(stackName);
@@ -648,7 +714,8 @@ export class StateMachine {
     // Log action to audit trail
     await this.logAction(stackName, 'fail', state, error);
 
-    // Release lock
+    // Stop lock renewal and release lock
+    this.stopLockRenewal(stackName);
     if (this.backendProvider.releaseLock) {
       try {
         await this.backendProvider.releaseLock(stackName);
@@ -793,7 +860,8 @@ export class StateMachine {
     // Log action to audit trail
     await this.logAction(stackName, 'rollback', state);
 
-    // Release lock
+    // Stop lock renewal and release lock
+    this.stopLockRenewal(stackName);
     if (this.backendProvider.releaseLock) {
       try {
         await this.backendProvider.releaseLock(stackName);
@@ -814,6 +882,35 @@ export class StateMachine {
    */
   async getState(stackName: string): Promise<DeploymentState | undefined> {
     return await this.backendProvider.getState(stackName);
+  }
+
+  /**
+   * Update the CloudDOM in the deployment state (for post-deployment effects)
+   *
+   * @param stackName - Stack name
+   * @param cloudDOM - Updated CloudDOM with new outputs
+   * @throws DeploymentError if state update fails
+   */
+  async updateCloudDOM(stackName: string, cloudDOM: CloudDOMNode[]): Promise<void> {
+    const state = await this.withRetry(() => this.getState(stackName));
+
+    if (!state) {
+      throw new DeploymentError(`No deployment state found for stack: ${stackName}`, {
+        message: `No deployment state found for stack: ${stackName}`,
+        code: 'STATE_NOT_FOUND',
+        details: { stackName },
+      });
+    }
+
+    // Update the CloudDOM in the state
+    state.cloudDOM = cloudDOM;
+    state.timestamp = Date.now();
+
+    // Save the updated state
+    await this.withRetry(() => this.backendProvider.saveState(stackName, state));
+
+    // Log action to audit trail
+    await this.logAction(stackName, 'checkpoint', state);
   }
 
   /**

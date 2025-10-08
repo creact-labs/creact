@@ -26,6 +26,7 @@ export { DummyBackendProvider } from './providers/DummyBackendProvider';
 export { useInstance } from './hooks/useInstance';
 export { useState } from './hooks/useState';
 export { useContext } from './hooks/useContext';
+export { useEffect } from './hooks/useEffect';
 
 // Context API
 export { createContext, Context } from './context';

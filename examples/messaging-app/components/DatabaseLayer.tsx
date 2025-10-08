@@ -12,6 +12,7 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { PostgresDatabase, RedisCluster, ElasticsearchCluster } from '../constructs';
 import { InfraConfigContext, DatabaseContext } from '../contexts';
 
@@ -22,11 +23,6 @@ interface DatabaseLayerProps {
 export function DatabaseLayer({ children }: DatabaseLayerProps) {
   // Get shared configuration from context
   const config = useContext(InfraConfigContext);
-  
-  // State for database URLs (will be populated after deployment)
-  const [postgresUrl, setPostgresUrl] = useState<string>();
-  const [redisUrl, setRedisUrl] = useState<string>();
-  const [elasticsearchUrl, setElasticsearchUrl] = useState<string>();
   
   // Create PostgreSQL database for persistent storage
   const postgres = useInstance(PostgresDatabase, {
@@ -55,23 +51,32 @@ export function DatabaseLayer({ children }: DatabaseLayerProps) {
     version: '8.5.0',
   });
   
-  // Simulate outputs from deployed resources
-  // In real deployment, these would come from the cloud provider
-  if (postgres.outputs?.connectionUrl && !postgresUrl) {
-    setPostgresUrl(postgres.outputs.connectionUrl as string);
-  }
+  // State for database URLs (will be populated by useEffect after deployment)
+  const [postgresUrl, setPostgresUrl] = useState<string>('');
+  const [redisUrl, setRedisUrl] = useState<string>('');
+  const [elasticsearchUrl, setElasticsearchUrl] = useState<string>('');
   
-  if (redis.outputs?.endpoint && !redisUrl) {
-    setRedisUrl(redis.outputs.endpoint as string);
-  }
+  // useEffect runs after deployment when real resource outputs are available
+  useEffect(() => {
+    if (postgres.outputs?.connectionUrl) {
+      setPostgresUrl(postgres.outputs.connectionUrl as string);
+    }
+  }, [postgres.outputs?.connectionUrl]);
   
-  if (elasticsearch.outputs?.endpoint && !elasticsearchUrl) {
-    setElasticsearchUrl(elasticsearch.outputs.endpoint as string);
-  }
+  useEffect(() => {
+    if (redis.outputs?.endpoint) {
+      setRedisUrl(redis.outputs.endpoint as string);
+    }
+  }, [redis.outputs?.endpoint]);
+  
+  useEffect(() => {
+    // For testing - this will change the output after deployment
+    setElasticsearchUrl("POST_DEPLOY_VALUE_" + Date.now());
+  }, []); // Empty deps = run once after first deployment
   
   // Provide database configuration to child components
   return (
-    <DatabaseContext.Provider
+    <DatabaseContext.Provider 
       value={{
         postgresUrl,
         redisUrl,

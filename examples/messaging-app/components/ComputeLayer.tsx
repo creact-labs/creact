@@ -12,6 +12,7 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { KubernetesDeployment, AwsLambda } from '../constructs';
 import {
   InfraConfigContext,
@@ -24,10 +25,10 @@ export function ComputeLayer() {
   const database = useContext(DatabaseContext);
   const messaging = useContext(MessagingContext);
   
-  // State for service endpoints
-  const [apiServiceUrl, setApiServiceUrl] = useState<string>();
-  const [websocketServiceUrl, setWebsocketServiceUrl] = useState<string>();
-  const [workerServiceUrl, setWorkerServiceUrl] = useState<string>();
+  // State for service endpoints (populated after deployment)
+  const [apiServiceUrl, setApiServiceUrl] = useState<string>('');
+  const [websocketServiceUrl, setWebsocketServiceUrl] = useState<string>('');
+  const [workerServiceUrl, setWorkerServiceUrl] = useState<string>('');
   
   // Build environment variables from context
   const baseEnv = {
@@ -143,18 +144,31 @@ export function ComputeLayer() {
     },
   });
   
-  // Extract service endpoints
-  if (apiService.outputs?.serviceUrl && !apiServiceUrl) {
-    setApiServiceUrl(apiService.outputs.serviceUrl as string);
-  }
+  // useEffect runs after deployment to populate state with service endpoints
+  useEffect(() => {
+    if (apiService.outputs?.serviceUrl) {
+      setApiServiceUrl(apiService.outputs.serviceUrl as string);
+    }
+  }, [apiService.outputs?.serviceUrl]);
   
-  if (websocketService.outputs?.serviceUrl && !websocketServiceUrl) {
-    setWebsocketServiceUrl(websocketService.outputs.serviceUrl as string);
-  }
+  useEffect(() => {
+    if (websocketService.outputs?.serviceUrl) {
+      setWebsocketServiceUrl(websocketService.outputs.serviceUrl as string);
+    }
+  }, [websocketService.outputs?.serviceUrl]);
   
-  if (messageWorker.outputs?.serviceUrl && !workerServiceUrl) {
-    setWorkerServiceUrl(messageWorker.outputs.serviceUrl as string);
-  }
+  useEffect(() => {
+    if (messageWorker.outputs?.serviceUrl) {
+      setWorkerServiceUrl(messageWorker.outputs.serviceUrl as string);
+    }
+  }, [messageWorker.outputs?.serviceUrl]);
+  
+  // Cleanup effect example - runs before stack destruction
+  useEffect(() => {
+    return () => {
+      console.log('Cleaning up compute resources...');
+    };
+  }, []);
   
   return <></>;
 }

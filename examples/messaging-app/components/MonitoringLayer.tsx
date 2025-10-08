@@ -11,6 +11,7 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { PrometheusServer, GrafanaDashboard } from '../constructs';
 import { InfraConfigContext, DatabaseContext, MessagingContext } from '../contexts';
 
@@ -19,9 +20,9 @@ export function MonitoringLayer() {
   const database = useContext(DatabaseContext);
   const messaging = useContext(MessagingContext);
   
-  // State for monitoring endpoints
-  const [prometheusUrl, setPrometheusUrl] = useState<string>();
-  const [grafanaUrl, setGrafanaUrl] = useState<string>();
+  // State for monitoring endpoints (populated after deployment)
+  const [prometheusUrl, setPrometheusUrl] = useState<string>('');
+  const [grafanaUrl, setGrafanaUrl] = useState<string>('');
   
   // Only deploy monitoring in environments where it's enabled
   if (!config.enableMonitoring) {
@@ -57,14 +58,18 @@ export function MonitoringLayer() {
     ],
   });
   
-  // Extract monitoring endpoints
-  if (prometheus.outputs?.serverUrl && !prometheusUrl) {
-    setPrometheusUrl(prometheus.outputs.serverUrl as string);
-  }
+  // useEffect runs after deployment to populate state with monitoring endpoints
+  useEffect(() => {
+    if (prometheus.outputs?.serverUrl) {
+      setPrometheusUrl(prometheus.outputs.serverUrl as string);
+    }
+  }, [prometheus.outputs?.serverUrl]);
   
-  if (grafana.outputs?.dashboardUrl && !grafanaUrl) {
-    setGrafanaUrl(grafana.outputs.dashboardUrl as string);
-  }
+  useEffect(() => {
+    if (grafana.outputs?.dashboardUrl) {
+      setGrafanaUrl(grafana.outputs.dashboardUrl as string);
+    }
+  }, [grafana.outputs?.dashboardUrl]);
   
   return <></>;
 }

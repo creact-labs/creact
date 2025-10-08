@@ -11,17 +11,18 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { S3Bucket, EFSFileSystem } from '../constructs';
 import { InfraConfigContext } from '../contexts';
 
 export function StorageLayer() {
   const config = useContext(InfraConfigContext);
   
-  // State for storage endpoints
-  const [mediaBucketUrl, setMediaBucketUrl] = useState<string>();
-  const [staticBucketUrl, setStaticBucketUrl] = useState<string>();
-  const [backupBucketUrl, setBackupBucketUrl] = useState<string>();
-  const [efsEndpoint, setEfsEndpoint] = useState<string>();
+  // State for storage endpoints (populated after deployment)
+  const [mediaBucketUrl, setMediaBucketUrl] = useState<string>('');
+  const [staticBucketUrl, setStaticBucketUrl] = useState<string>('');
+  const [backupBucketUrl, setBackupBucketUrl] = useState<string>('');
+  const [efsEndpoint, setEfsEndpoint] = useState<string>('');
   
   // S3 bucket for user-uploaded media (images, videos, files)
   const mediaBucket = useInstance(S3Bucket, {
@@ -63,22 +64,30 @@ export function StorageLayer() {
     throughputMode: config.environment === 'prod' ? 'provisioned' : 'bursting',
   });
   
-  // Extract storage endpoints
-  if (mediaBucket.outputs?.bucketUrl && !mediaBucketUrl) {
-    setMediaBucketUrl(mediaBucket.outputs.bucketUrl as string);
-  }
+  // useEffect runs after deployment to populate state with storage endpoints
+  useEffect(() => {
+    if (mediaBucket.outputs?.bucketUrl) {
+      setMediaBucketUrl(mediaBucket.outputs.bucketUrl as string);
+    }
+  }, [mediaBucket.outputs?.bucketUrl]);
   
-  if (staticBucket.outputs?.bucketUrl && !staticBucketUrl) {
-    setStaticBucketUrl(staticBucket.outputs.bucketUrl as string);
-  }
+  useEffect(() => {
+    if (staticBucket.outputs?.bucketUrl) {
+      setStaticBucketUrl(staticBucket.outputs.bucketUrl as string);
+    }
+  }, [staticBucket.outputs?.bucketUrl]);
   
-  if (backupBucket.outputs?.bucketUrl && !backupBucketUrl) {
-    setBackupBucketUrl(backupBucket.outputs.bucketUrl as string);
-  }
+  useEffect(() => {
+    if (backupBucket.outputs?.bucketUrl) {
+      setBackupBucketUrl(backupBucket.outputs.bucketUrl as string);
+    }
+  }, [backupBucket.outputs?.bucketUrl]);
   
-  if (sharedFileSystem.outputs?.dnsName && !efsEndpoint) {
-    setEfsEndpoint(sharedFileSystem.outputs.dnsName as string);
-  }
+  useEffect(() => {
+    if (sharedFileSystem.outputs?.dnsName) {
+      setEfsEndpoint(sharedFileSystem.outputs.dnsName as string);
+    }
+  }, [sharedFileSystem.outputs?.dnsName]);
   
   return <></>;
 }

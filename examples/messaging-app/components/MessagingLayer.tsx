@@ -12,6 +12,7 @@ import { CReact } from '../../../src/jsx';
 import { useInstance } from '../../../src/hooks/useInstance';
 import { useState } from '../../../src/hooks/useState';
 import { useContext } from '../../../src/hooks/useContext';
+import { useEffect } from '../../../src/hooks/useEffect';
 import { KafkaCluster, SQSQueue, SNSTopic } from '../constructs';
 import { InfraConfigContext, MessagingContext } from '../contexts';
 
@@ -21,12 +22,12 @@ interface MessagingLayerProps {
 
 export function MessagingLayer({ children }: MessagingLayerProps) {
   const config = useContext(InfraConfigContext);
-  
-  // State for messaging endpoints
-  const [kafkaBrokers, setKafkaBrokers] = useState<string[]>();
-  const [sqsQueueUrl, setSqsQueueUrl] = useState<string>();
-  const [snsTopicArn, setSnsTopicArn] = useState<string>();
-  
+
+  // State for messaging endpoints (populated after deployment)
+  const [kafkaBrokers, setKafkaBrokers] = useState<string[]>([]);
+  const [sqsQueueUrl, setSqsQueueUrl] = useState<string>('');
+  const [snsTopicArn, setSnsTopicArn] = useState<string>('');
+
   // Kafka cluster for real-time message streaming
   const kafka = useInstance(KafkaCluster, {
     key: 'message-stream',
@@ -56,7 +57,7 @@ export function MessagingLayer({ children }: MessagingLayerProps) {
       },
     ],
   });
-  
+
   // SQS queue for async job processing
   const jobQueue = useInstance(SQSQueue, {
     key: 'job-queue',
@@ -65,7 +66,7 @@ export function MessagingLayer({ children }: MessagingLayerProps) {
     messageRetention: 1209600, // 14 days
     deadLetterQueue: true,
   });
-  
+
   // SQS queue for media processing
   const mediaQueue = useInstance(SQSQueue, {
     key: 'media-queue',
@@ -74,7 +75,7 @@ export function MessagingLayer({ children }: MessagingLayerProps) {
     messageRetention: 604800, // 7 days
     deadLetterQueue: true,
   });
-  
+
   // SNS topic for push notifications
   const notificationTopic = useInstance(SNSTopic, {
     key: 'notifications',
@@ -87,20 +88,26 @@ export function MessagingLayer({ children }: MessagingLayerProps) {
       },
     ],
   });
-  
-  // Extract outputs from deployed resources
-  if (kafka.outputs?.brokers && !kafkaBrokers) {
-    setKafkaBrokers(kafka.outputs.brokers as string[]);
-  }
-  
-  if (jobQueue.outputs?.queueUrl && !sqsQueueUrl) {
-    setSqsQueueUrl(jobQueue.outputs.queueUrl as string);
-  }
-  
-  if (notificationTopic.outputs?.topicArn && !snsTopicArn) {
-    setSnsTopicArn(notificationTopic.outputs.topicArn as string);
-  }
-  
+
+  // useEffect runs after deployment to populate state with real resource outputs
+  useEffect(() => {
+    if (kafka.outputs?.brokers) {
+      setKafkaBrokers(kafka.outputs.brokers as string[]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (jobQueue.outputs?.queueUrl) {
+      setSqsQueueUrl(jobQueue.outputs.queueUrl as string);
+    }
+  }, [jobQueue.outputs?.queueUrl]);
+
+  useEffect(() => {
+    if (notificationTopic.outputs?.topicArn) {
+      setSnsTopicArn(notificationTopic.outputs.topicArn as string);
+    }
+  }, [notificationTopic.outputs?.topicArn]);
+
   // Provide messaging configuration to child components
   return (
     <MessagingContext.Provider

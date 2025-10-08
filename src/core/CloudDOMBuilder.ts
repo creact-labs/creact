@@ -229,6 +229,11 @@ export class CloudDOMBuilder {
   private extractOutputsFromFiber(fiber: FiberNode): Record<string, any> {
     const outputs: Record<string, any> = {};
 
+    // Debug logging
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CloudDOMBuilder] extractOutputsFromFiber: fiber.path=${fiber.path?.join('.')}, hooks=${JSON.stringify(fiber.hooks)}`);
+    }
+
     // Check if this Fiber has hooks from useState calls
     if (fiber.hooks && Array.isArray(fiber.hooks) && fiber.hooks.length > 0) {
       // Each hook in the array represents a useState call
@@ -239,9 +244,105 @@ export class CloudDOMBuilder {
         const outputKey = `state${index}`;
         outputs[outputKey] = hookValue;
       });
+
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[CloudDOMBuilder] Extracted outputs: ${JSON.stringify(outputs)}`);
+      }
     }
 
     return outputs;
+  }
+
+  /**
+   * Execute post-deployment effects for all Fiber nodes
+   * Called after successful deployment to run useEffect callbacks
+   *
+   * @param fiber - Root Fiber node
+   */
+  async executePostDeploymentEffects(fiber: FiberNode): Promise<void> {
+    const { executeEffects } = await import('../hooks/useEffect');
+    
+    console.log(`[CloudDOMBuilder] Executing effects for fiber: ${fiber.path?.join('.')}`);
+    console.log(`[CloudDOMBuilder] Fiber has effects: ${!!(fiber as any).effects}`);
+    
+    // Execute effects for this node
+    executeEffects(fiber);
+    
+    // Recursively execute effects for children
+    if (fiber.children && fiber.children.length > 0) {
+      for (const child of fiber.children) {
+        await this.executePostDeploymentEffects(child);
+      }
+    }
+  }
+
+  /**
+   * Sync Fiber hook state back to CloudDOM outputs after effects run
+   * This ensures useState changes in useEffect are reflected in the CloudDOM
+   *
+   * @param fiber - Root Fiber node
+   * @param cloudDOM - CloudDOM nodes to update
+   */
+  syncFiberStateToCloudDOM(fiber: FiberNode, cloudDOM: CloudDOMNode[]): void {
+    console.log(`[CloudDOMBuilder] Syncing Fiber state to CloudDOM...`);
+    
+    // Build a map of CloudDOM nodes by path for fast lookup
+    const cloudDOMMap = new Map<string, CloudDOMNode>();
+    
+    const buildMap = (nodes: CloudDOMNode[]) => {
+      for (const node of nodes) {
+        const pathKey = node.path.join('.');
+        cloudDOMMap.set(pathKey, node);
+        if (node.children && node.children.length > 0) {
+          buildMap(node.children);
+        }
+      }
+    };
+    
+    buildMap(cloudDOM);
+    
+    // Recursively sync Fiber state to CloudDOM
+    this.syncFiberNodeToCloudDOM(fiber, cloudDOMMap);
+    
+    console.log(`[CloudDOMBuilder] Fiber state sync completed`);
+  }
+
+  /**
+   * Sync a single Fiber node's state to its corresponding CloudDOM node
+   */
+  private syncFiberNodeToCloudDOM(fiber: FiberNode, cloudDOMMap: Map<string, CloudDOMNode>): void {
+    // Check if this Fiber node has corresponding CloudDOM nodes
+    if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
+      for (const cloudNode of (fiber as any).cloudDOMNodes) {
+        this.updateCloudDOMNodeOutputs(fiber, cloudNode);
+      }
+    }
+    
+    if (fiber.cloudDOMNode) {
+      this.updateCloudDOMNodeOutputs(fiber, fiber.cloudDOMNode);
+    }
+    
+    // Recursively sync children
+    if (fiber.children && fiber.children.length > 0) {
+      for (const child of fiber.children) {
+        this.syncFiberNodeToCloudDOM(child, cloudDOMMap);
+      }
+    }
+  }
+
+  /**
+   * Update a CloudDOM node's outputs with the latest Fiber hook state
+   */
+  private updateCloudDOMNodeOutputs(fiber: FiberNode, cloudNode: CloudDOMNode): void {
+    // Extract fresh outputs from the Fiber node
+    const freshOutputs = this.extractOutputsFromFiber(fiber);
+    
+    if (Object.keys(freshOutputs).length > 0) {
+      console.log(`[CloudDOMBuilder] Updating outputs for ${cloudNode.id}:`, freshOutputs);
+      
+      // Update the CloudDOM node's outputs
+      cloudNode.outputs = { ...cloudNode.outputs, ...freshOutputs };
+    }
   }
 
   /**

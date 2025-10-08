@@ -42,17 +42,13 @@ export class Renderer {
         return this.currentFiber;
       } finally {
         // Clear context stacks to prevent memory leaks
+        // This ensures context stacks are always cleared after each render cycle
         clearContextStacks();
       }
     });
   }
 
-  /**
-   * Get the current Fiber tree (for validation)
-   */
-  getCurrentFiber(): FiberNode | null {
-    return this.currentFiber;
-  }
+
 
   /**
    * Recursively render a JSX element to a Fiber node
@@ -218,5 +214,14 @@ export class Renderer {
    */
   getCurrentPath(): string[] {
     return [...this.currentPath];
+  }
+
+  /**
+   * Get current Fiber for post-deployment effects
+   *
+   * @returns Current Fiber node or null
+   */
+  getCurrentFiber(): FiberNode | null {
+    return this.currentFiber;
   }
 }

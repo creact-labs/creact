@@ -76,6 +76,7 @@ export class CReact {
   private cloudDOMBuilder: CloudDOMBuilder;
   private reconciler: Reconciler;
   private stateMachine: StateMachine;
+  private lastFiberTree: any = null; // Store the last rendered Fiber tree for effects
 
   /**
    * Constructor receives all dependencies via config (dependency injection)
@@ -140,14 +141,17 @@ export class CReact {
     this.log('Rendering JSX to Fiber tree');
     const fiber = this.renderer.render(jsx);
 
-    // Step 4: Clear previous outputs from useInstance hook
+    // Step 4: Store the Fiber tree for post-deployment effects
+    this.lastFiberTree = fiber;
+
+    // Step 5: Clear previous outputs from useInstance hook
     setPreviousOutputs(null);
 
-    // Step 5: Validate Fiber (REQ-07)
+    // Step 6: Validate Fiber (REQ-07)
     this.log('Validating Fiber tree');
     this.validator.validate(fiber);
 
-    // Step 6: Build CloudDOM from Fiber (commit phase)
+    // Step 7: Build CloudDOM from Fiber (commit phase)
     this.log('Building CloudDOM from Fiber');
     const cloudDOM = await this.cloudDOMBuilder.build(fiber);
 
@@ -317,6 +321,25 @@ export class CReact {
       // Complete deployment via StateMachine
       this.log('Completing deployment via StateMachine');
       await this.stateMachine.completeDeployment(stackName);
+
+      // Execute post-deployment effects (useEffect callbacks)
+      this.log('Executing post-deployment effects');
+      if (this.lastFiberTree) {
+        console.log('[CReact] Executing post-deployment effects...');
+        await this.cloudDOMBuilder.executePostDeploymentEffects(this.lastFiberTree);
+        
+        // Sync updated Fiber state back to CloudDOM outputs
+        console.log('[CReact] Syncing Fiber state to CloudDOM outputs...');
+        this.cloudDOMBuilder.syncFiberStateToCloudDOM(this.lastFiberTree, cloudDOM);
+        
+        // Save the updated CloudDOM state with new outputs
+        console.log('[CReact] Saving updated state with new outputs...');
+        await this.stateMachine.updateCloudDOM(stackName, cloudDOM);
+        
+        console.log('[CReact] Post-deployment effects completed');
+      } else {
+        console.log('[CReact] No fiber tree found for effects execution');
+      }
 
       console.log('[CReact] Deployment complete');
     } catch (error) {
@@ -510,7 +533,27 @@ export class CReact {
       asyncTimeout: CReact.asyncTimeout,
     });
 
+    // Store the instance globally so CLI can access it
+    (CReact as any)._lastInstance = instance;
+    (CReact as any)._lastElement = element;
+    (CReact as any)._lastStackName = stackName;
+
     // Build and return CloudDOM
     return instance.build(element, stackName);
+  }
+
+  /**
+   * Get the last instance created by renderCloudDOM (for CLI use)
+   * @internal
+   */
+  static getLastInstance(): { instance: CReact; element: JSXElement; stackName: string } | null {
+    if ((CReact as any)._lastInstance) {
+      return {
+        instance: (CReact as any)._lastInstance,
+        element: (CReact as any)._lastElement,
+        stackName: (CReact as any)._lastStackName,
+      };
+    }
+    return null;
   }
 }

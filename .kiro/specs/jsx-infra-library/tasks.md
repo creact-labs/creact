@@ -22,25 +22,25 @@ CReact is a JSX-based infrastructure library that brings React-style developer e
   - Ensure thread-safe hook execution in concurrent deployments
   - _Requirements: REQ-CORE-01_
 
-- [ ] 2. Fix memory leak in context stacks
+- [x] 2. Fix memory leak in context stacks
   - Add clearContextStacks() in Renderer's finally block
   - Prevent unbounded growth of contextStacks Map
   - _Requirements: REQ-CORE-01_
 
-- [ ] 3. Implement lock auto-renewal (for backends that support locking)
+- [X] 3. Implement lock auto-renewal (for backends that support locking)
   - Add setInterval to renew locks at 50% TTL
   - Clean up renewal timers on deployment completion
   - _Requirements: REQ-PROVIDER-01_
 
 ### Phase 2: Complete CLI Commands
 
-- [ ] 4. Implement `creact build` command
+- [X] 4. Implement `creact build` command
   - Create CLI wrapper around existing build functionality
   - Add proper error handling and user-friendly output
   - Support `index.ts` as default entry point
   - _Requirements: REQ-CLI-01_
 
-- [ ] 5. Implement `creact plan` command
+- [X] 5. Implement `creact plan` command
   - Create CLI wrapper around existing reconciler diff
   - Add colored output (green=create, yellow=update, red=delete)
   - Support JSON output with `--json` flag
