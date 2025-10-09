@@ -5,12 +5,11 @@ import { CloudDOMNode, CloudDOMEventCallbacks } from '../core/types';
 import { generateResourceId, toKebabCase } from '../utils/naming';
 import { ProviderOutputTracker } from '../core/ProviderOutputTracker';
 import {
-  setInstanceRenderContext,
-  clearInstanceRenderContext,
-  getInstanceContext,
+  setRenderContext,
+  clearRenderContext,
   setPreviousOutputs as setPreviousOutputsInternal,
-  getCurrentPath as getCurrentPathInternal,
-  isRendering as isRenderingInternal,
+  requireHookContext,
+  incrementHookIndex,
 } from './context';
 
 // Global ProviderOutputTracker instance
@@ -47,25 +46,52 @@ export function getProviderOutputTrackerInstance(): ProviderOutputTracker {
  * Create an enhanced CloudDOM node with output reference capabilities
  * This allows automatic binding when outputs are used in useState
  * The proxy dynamically reads from the node's current outputs for reactivity
+ * 
+ * REQ-2.1, 2.4, 2.5: Enhanced proxy that always reads live values and tracks access
+ * 
  * @internal
  */
-function createEnhancedNode(node: CloudDOMNode, outputReferences: Record<string, any>): CloudDOMNode {
+function createEnhancedNode(node: CloudDOMNode, fiber: any): CloudDOMNode {
   // Create a proxy that intercepts property access to provide reactive output access
   return new Proxy(node, {
     get(target, prop, receiver) {
       // Special handling for 'outputs' property to ensure reactivity
       if (prop === 'outputs') {
-        return target.outputs || {};
-      }
+        // Return a proxy for the outputs object that tracks reads
+        return new Proxy(target.outputs || {}, {
+          get(outputsTarget, outputKey) {
+            if (typeof outputKey === 'string') {
+              // REQ-2.1: Always read from current target.outputs (live values)
+              const currentValue = target.outputs?.[outputKey];
 
-      // If accessing an output property directly on the node, check current outputs first
-      if (typeof prop === 'string' && target.outputs && prop in target.outputs) {
-        return target.outputs[prop];
-      }
+              // REQ-2.4, 2.5: Track this output read for binding creation
+              if (currentValue !== undefined) {
+                const tracker = getProviderOutputTracker();
+                tracker.trackOutputRead(target.id, outputKey, fiber);
 
-      // If accessing an output property, return the output reference for automatic binding
-      if (typeof prop === 'string' && outputReferences[prop]) {
-        return outputReferences[prop];
+                if (process.env.CREACT_DEBUG === 'true') {
+                  console.debug(`[useInstance] Tracked output read: ${target.id}.${outputKey} = ${currentValue}`);
+                }
+              }
+
+              // REQ-2.2: Return undefined gracefully if not populated
+              return currentValue;
+            }
+            return Reflect.get(outputsTarget, outputKey);
+          },
+
+          has(outputsTarget, outputKey) {
+            // Check if output exists in current target.outputs
+            return typeof outputKey === 'string' &&
+              target.outputs !== undefined &&
+              outputKey in target.outputs;
+          },
+
+          ownKeys(outputsTarget) {
+            // Return keys from current target.outputs
+            return target.outputs ? Object.keys(target.outputs) : [];
+          }
+        });
       }
 
       // For all other properties, return the original value
@@ -73,25 +99,13 @@ function createEnhancedNode(node: CloudDOMNode, outputReferences: Record<string,
     },
 
     has(target, prop) {
-      // Check current outputs first
-      if (typeof prop === 'string' && target.outputs && prop in target.outputs) {
-        return true;
-      }
-
-      // Include output references in property checks
-      if (typeof prop === 'string' && outputReferences[prop]) {
-        return true;
-      }
+      // Standard property checks
       return Reflect.has(target, prop);
     },
 
     ownKeys(target) {
-      // Include output reference keys and current output keys
-      const originalKeys = Reflect.ownKeys(target);
-      const outputKeys = Object.keys(outputReferences);
-      const currentOutputKeys = target.outputs ? Object.keys(target.outputs) : [];
-      const allOutputKeys = [...outputKeys, ...currentOutputKeys];
-      return [...originalKeys, ...allOutputKeys.filter(key => !originalKeys.includes(key))];
+      // Return original keys
+      return Reflect.ownKeys(target);
     }
   });
 }
@@ -102,8 +116,8 @@ function createEnhancedNode(node: CloudDOMNode, outputReferences: Record<string,
  *
  * @internal
  */
-export function setRenderContext(fiber: any, path: string[]): void {
-  setInstanceRenderContext(fiber, path);
+export function setInstanceRenderContext(fiber: any, path: string[]): void {
+  setRenderContext(fiber, path);
 }
 
 /**
@@ -112,8 +126,8 @@ export function setRenderContext(fiber: any, path: string[]): void {
  *
  * @internal
  */
-export function clearRenderContext(): void {
-  clearInstanceRenderContext();
+export function clearInstanceRenderContext(): void {
+  clearRenderContext();
 }
 
 /**
@@ -180,16 +194,13 @@ export function useInstance<T = any>(
   construct: new (...args: any[]) => T,
   props: Record<string, any>
 ): CloudDOMNode {
-  // Get current context from AsyncLocalStorage
-  const { currentFiber, currentPath, previousOutputsMap } = getInstanceContext();
+  // Use consolidated hook context
+  const context = requireHookContext();
+  const currentFiber = context.currentFiber!; // Non-null assertion safe due to requireHookContext validation
+  const { currentPath, previousOutputsMap } = context;
 
-  // Validate hook is called during rendering
-  if (!currentFiber) {
-    throw new Error(
-      'useInstance must be called during component rendering. ' +
-      'Make sure you are calling it inside a component function, not at the top level.'
-    );
-  }
+  // Get hook index for this useInstance call (instance-specific)
+  const hookIndex = incrementHookIndex('instance');
 
   // Extract key from props (React-like)
   const { key, ...restProps } = props;
@@ -271,20 +282,19 @@ export function useInstance<T = any>(
   const outputTracker = getProviderOutputTracker();
   outputTracker.trackInstance(node, currentFiber);
 
-  // Create output references for automatic state binding
-  const outputReferences = outputTracker.extractOutputReferences(node);
-
-  // Enhance the node with output reference methods
-  const enhancedNode = createEnhancedNode(node, outputReferences);
+  // REQ-2.3, 6.1: Enhance the node with proxy that reads live values and tracks access
+  // No longer creating stale outputReferences - proxy reads directly from target.outputs
+  const enhancedNode = createEnhancedNode(node, currentFiber);
 
   // Debug logging
   if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useInstance] Created and tracked instance: ${resourceId}, outputs: ${Object.keys(outputReferences).length}`);
+    console.debug(`[useInstance] Created and tracked instance: ${resourceId}`);
     console.debug(`[useInstance] Node outputs at creation: ${JSON.stringify(node.outputs || {})}`);
   }
 
   // Return reference to the enhanced node
   // This allows components to reference the resource and its outputs
+  // REQ-2.5: Multiple accesses within same render cycle are consistent
   return enhancedNode;
 }
 
@@ -305,7 +315,12 @@ export function resetConstructCounts(fiber: any): void {
  * @internal
  */
 export function getCurrentPath(): string[] {
-  return getCurrentPathInternal();
+  try {
+    const context = requireHookContext();
+    return [...context.currentPath];
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -315,7 +330,12 @@ export function getCurrentPath(): string[] {
  * @internal
  */
 export function isRendering(): boolean {
-  return isRenderingInternal();
+  try {
+    const context = requireHookContext();
+    return context.currentFiber !== null;
+  } catch {
+    return false;
+  }
 }
 
 /**

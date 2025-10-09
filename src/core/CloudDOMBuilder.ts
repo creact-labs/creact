@@ -254,9 +254,10 @@ export class CloudDOMBuilder {
    *
    * REQ-02: Extract outputs from useState calls
    * REQ-06: Universal output access
+   * REQ-3.1: Use 'state.' prefix for useState outputs to separate from provider outputs
    *
    * @param fiber - Fiber node to extract outputs from
-   * @returns Object mapping output keys to values
+   * @returns Object mapping output keys to values (with 'state.' prefix)
    */
   private extractOutputsFromFiber(fiber: FiberNode): Record<string, any> {
     const outputs: Record<string, any> = {};
@@ -275,17 +276,19 @@ export class CloudDOMBuilder {
 
     // Check if this Fiber has hooks from useState calls
     if (fiber.hooks && Array.isArray(fiber.hooks) && fiber.hooks.length > 0) {
+      // Import naming utility for state output key generation
+      const { generateStateOutputKey } = require('../utils/naming');
+
       // Each hook in the array represents a useState call
-      // We need to generate keys for each hook value
+      // REQ-3.1: Use 'state.' prefix to separate useState outputs from provider outputs
       fiber.hooks.forEach((hookValue, index) => {
-        // Generate output key: hook-{index} or use a more meaningful name if available
-        // For now, use index-based keys since we don't have explicit names
-        const outputKey = `state${index}`;
+        // Generate output key with 'state.' prefix using naming utility
+        const outputKey = generateStateOutputKey(index);
         outputs[outputKey] = hookValue;
       });
 
       if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[CloudDOMBuilder] Extracted outputs: ${JSON.stringify(outputs)}`);
+        console.debug(`[CloudDOMBuilder] Extracted useState outputs with 'state.' prefix:`, outputs);
       }
     }
 
@@ -371,18 +374,32 @@ export class CloudDOMBuilder {
 
   /**
    * Update a CloudDOM node's outputs with the latest Fiber hook state
+   * 
+   * REQ-3.2, 3.3, 3.4: Separate useState outputs from provider outputs
+   * Provider outputs take precedence for same keys
    */
   private updateCloudDOMNodeOutputs(fiber: FiberNode, cloudNode: CloudDOMNode): void {
-    // Extract fresh outputs from the Fiber node (useState outputs)
-    const freshOutputs = this.extractOutputsFromFiber(fiber);
+    // Extract fresh outputs from the Fiber node (useState outputs with 'state.' prefix)
+    const stateOutputs = this.extractOutputsFromFiber(fiber);
 
-    if (Object.keys(freshOutputs).length > 0) {
-      console.log(`[CloudDOMBuilder] Merging useState outputs for ${cloudNode.id}:`, freshOutputs);
+    if (Object.keys(stateOutputs).length > 0) {
+      console.log(`[CloudDOMBuilder] Merging useState outputs for ${cloudNode.id}:`, stateOutputs);
       console.log(`[CloudDOMBuilder] Existing provider outputs for ${cloudNode.id}:`, cloudNode.outputs);
 
-      // Merge outputs: provider outputs take precedence over useState outputs
-      // This ensures provider outputs (like vaultUrl) are not overwritten by useState outputs (like state1, state2)
-      cloudNode.outputs = { ...cloudNode.outputs, ...freshOutputs };
+      // Initialize outputs if not present
+      if (!cloudNode.outputs) {
+        cloudNode.outputs = {};
+      }
+
+      // REQ-3.2, 3.3: Merge outputs keeping provider and state outputs separate
+      // State outputs have 'state.' prefix, so they won't conflict with provider outputs
+      // REQ-3.4: Provider outputs take precedence - merge state outputs first, then provider outputs
+      const mergedOutputs = { ...stateOutputs, ...cloudNode.outputs };
+      
+      // REQ-3.5: Both types are preserved in their respective namespaces
+      cloudNode.outputs = mergedOutputs;
+
+      console.log(`[CloudDOMBuilder] Merged outputs for ${cloudNode.id}:`, cloudNode.outputs);
     }
 
     // CRITICAL FIX: Sync outputs back to original nodes that components reference
@@ -758,8 +775,46 @@ export class CloudDOMBuilder {
   }
 
   /**
+   * Build efficient node map for CloudDOM comparison
+   * Creates a flat map of node ID to node for fast lookup during comparison
+   * Handles nested node structures properly
+   * 
+   * REQ-1.4, 9.1: Efficient map building for CloudDOM comparison
+   * 
+   * @param nodes - CloudDOM nodes to map
+   * @returns Map of node ID to CloudDOM node
+   */
+  private buildNodeMap(nodes: CloudDOMNode[]): Map<string, CloudDOMNode> {
+    const nodeMap = new Map<string, CloudDOMNode>();
+
+    const walkNodes = (nodeList: CloudDOMNode[]) => {
+      for (const node of nodeList) {
+        // Ensure consistent node identification
+        if (node.id) {
+          nodeMap.set(node.id, node);
+        }
+
+        // Recursively handle nested children
+        if (node.children && node.children.length > 0) {
+          walkNodes(node.children);
+        }
+      }
+    };
+
+    walkNodes(nodes);
+    return nodeMap;
+  }
+
+  /**
    * Detect output changes after deployment by comparing previous and current CloudDOM
    * This is called after deployment to identify which provider outputs have changed
+   * 
+   * Enhanced to:
+   * - Compare previous and current CloudDOM states properly
+   * - Identify specific output keys that changed
+   * - Track affected fibers for each change
+   * 
+   * REQ-1.4, 1.5, 9.1, 9.2, 9.3: Enhanced output change detection
    * 
    * @param previous - Previous CloudDOM state
    * @param current - Current CloudDOM state after deployment
@@ -768,69 +823,117 @@ export class CloudDOMBuilder {
   detectOutputChanges(previous: CloudDOMNode[], current: CloudDOMNode[]): OutputChange[] {
     const changes: OutputChange[] = [];
 
-    // Build maps for efficient lookup
-    const previousMap = this.toFlatMap(previous);
-    const currentMap = this.toFlatMap(current);
+    // REQ-9.1: Build efficient maps for comparison using buildNodeMap
+    const previousMap = this.buildNodeMap(previous);
+    const currentMap = this.buildNodeMap(current);
 
-    // Check for changed outputs in existing nodes
-    for (const [nodeId, currentNode] of Object.entries(currentMap)) {
-      const previousNode = previousMap[nodeId];
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CloudDOMBuilder] Detecting output changes: ${previousMap.size} previous nodes, ${currentMap.size} current nodes`);
+    }
 
-      if (previousNode && currentNode.outputs && previousNode.outputs) {
-        // Compare outputs
-        for (const [outputKey, currentValue] of Object.entries(currentNode.outputs)) {
-          const previousValue = previousNode.outputs[outputKey];
+    // REQ-9.2, 9.3: Compare previous and current states, identify specific changes
+    // Check for changed outputs in existing nodes and new outputs in new nodes
+    for (const [nodeId, currentNode] of currentMap.entries()) {
+      const previousNode = previousMap.get(nodeId);
 
+      // REQ-9.3: Track affected fibers for each change
+      const getAffectedFibers = (): FiberNode[] => {
+        if (!this.providerOutputTracker) {
+          return [];
+        }
+        return Array.from(this.providerOutputTracker.getBindingsForInstance(nodeId));
+      };
+
+      if (previousNode) {
+        // Node existed before - check for changed or new outputs
+        const currentOutputs = currentNode.outputs || {};
+        const previousOutputs = previousNode.outputs || {};
+
+        // Check for changed or new outputs
+        for (const [outputKey, currentValue] of Object.entries(currentOutputs)) {
+          const previousValue = previousOutputs[outputKey];
+
+          // REQ-9.2: Identify specific output keys that changed
           if (previousValue !== currentValue) {
-            // Get affected fibers from provider output tracker
-            const affectedFibers = this.providerOutputTracker
-              ? Array.from(this.providerOutputTracker.getBindingsForInstance(nodeId))
-              : [];
-
             changes.push({
               nodeId,
               outputKey,
               previousValue,
               newValue: currentValue,
-              affectedFibers
+              affectedFibers: getAffectedFibers()
             });
+
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[CloudDOMBuilder] Output changed: ${nodeId}.${outputKey} (${previousValue} → ${currentValue})`);
+            }
           }
         }
 
         // Check for removed outputs
-        for (const [outputKey, previousValue] of Object.entries(previousNode.outputs)) {
-          if (!(outputKey in currentNode.outputs)) {
-            const affectedFibers = this.providerOutputTracker
-              ? Array.from(this.providerOutputTracker.getBindingsForInstance(nodeId))
-              : [];
-
+        for (const [outputKey, previousValue] of Object.entries(previousOutputs)) {
+          if (!(outputKey in currentOutputs)) {
             changes.push({
               nodeId,
               outputKey,
               previousValue,
               newValue: undefined,
-              affectedFibers
+              affectedFibers: getAffectedFibers()
             });
+
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[CloudDOMBuilder] Output removed: ${nodeId}.${outputKey}`);
+            }
           }
         }
-      }
-
-      // Check for new outputs in new nodes
-      if (!previousNode && currentNode.outputs) {
-        for (const [outputKey, currentValue] of Object.entries(currentNode.outputs)) {
-          const affectedFibers = this.providerOutputTracker
-            ? Array.from(this.providerOutputTracker.getBindingsForInstance(nodeId))
-            : [];
-
+      } else {
+        // New node - all outputs are new
+        const currentOutputs = currentNode.outputs || {};
+        
+        for (const [outputKey, currentValue] of Object.entries(currentOutputs)) {
           changes.push({
             nodeId,
             outputKey,
             previousValue: undefined,
             newValue: currentValue,
-            affectedFibers
+            affectedFibers: getAffectedFibers()
           });
+
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[CloudDOMBuilder] New output: ${nodeId}.${outputKey} = ${currentValue}`);
+          }
         }
       }
+    }
+
+    // Check for deleted nodes (all their outputs are removed)
+    for (const [nodeId, previousNode] of previousMap.entries()) {
+      if (!currentMap.has(nodeId)) {
+        const previousOutputs = previousNode.outputs || {};
+        const getAffectedFibers = (): FiberNode[] => {
+          if (!this.providerOutputTracker) {
+            return [];
+          }
+          return Array.from(this.providerOutputTracker.getBindingsForInstance(nodeId));
+        };
+
+        for (const [outputKey, previousValue] of Object.entries(previousOutputs)) {
+          changes.push({
+            nodeId,
+            outputKey,
+            previousValue,
+            newValue: undefined,
+            affectedFibers: getAffectedFibers()
+          });
+
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[CloudDOMBuilder] Node deleted, output removed: ${nodeId}.${outputKey}`);
+          }
+        }
+      }
+    }
+
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CloudDOMBuilder] Detected ${changes.length} output changes`);
     }
 
     return changes;
@@ -979,30 +1082,66 @@ export class CloudDOMBuilder {
    * Apply output changes to bound state using StateBindingManager
    * This updates useState values that are bound to provider outputs
    * 
+   * Enhanced to:
+   * - Apply detected changes to bound state via StateBindingManager
+   * - Handle binding updates without creating loops
+   * - Return affected fibers for re-rendering
+   * 
+   * REQ-9.4, 9.5: Apply output changes to state and return affected fibers
+   * 
    * @param changes - Array of output changes to apply
    * @returns Array of fibers affected by the changes
    */
   applyOutputChangesToState(changes: OutputChange[]): FiberNode[] {
     if (!this.stateBindingManager) {
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug('[CloudDOMBuilder] No StateBindingManager available, skipping state updates');
+      }
+      return [];
+    }
+
+    if (changes.length === 0) {
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug('[CloudDOMBuilder] No output changes to apply');
+      }
       return [];
     }
 
     try {
-      // Process changes through state binding manager
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[CloudDOMBuilder] Applying ${changes.length} output changes to bound state`);
+      }
+
+      // REQ-9.4: Process changes through state binding manager
+      // This uses internal setState to prevent circular dependencies (REQ-4.2, 4.4)
       const affectedFibers = this.stateBindingManager.processOutputChanges(changes);
 
-      // Also notify provider output tracker about the changes
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[CloudDOMBuilder] ${affectedFibers.length} fibers affected by output changes`);
+      }
+
+      // Notify provider output tracker about the changes for tracking
       if (this.providerOutputTracker) {
-        this.providerOutputTracker.notifyOutputChanges(changes);
+        try {
+          this.providerOutputTracker.notifyOutputChanges(changes);
+        } catch (error) {
+          console.warn('[CloudDOMBuilder] Error notifying provider output tracker:', error);
+          // Continue despite notification failure
+        }
       }
 
       // Execute reactive effects for affected fibers
+      // This triggers useEffect callbacks that depend on changed outputs
       this.executeReactiveEffects(affectedFibers, changes);
 
+      // REQ-9.5: Return affected fibers for re-rendering
       return affectedFibers;
 
     } catch (error) {
       console.error('[CloudDOMBuilder] Error applying output changes to state:', error);
+      
+      // Return empty array to prevent re-render failures from blocking deployment
+      // The error has been logged for debugging
       return [];
     }
   }
@@ -1048,6 +1187,12 @@ export class CloudDOMBuilder {
    * Integrate with post-deployment effects to trigger output synchronization
    * This method should be called after deployment completes
    * 
+   * Phase ordering (REQ-1.1, 1.2, 1.5):
+   * 1. Sync outputs to original nodes BEFORE executing effects
+   * 2. Execute effects (they can now see updated outputs)
+   * 3. Sync outputs and trigger re-renders for reactive changes
+   * 4. Sync state changes back to CloudDOM
+   * 
    * @param fiber - Root fiber node
    * @param cloudDOM - Current CloudDOM after deployment
    * @param previousCloudDOM - Previous CloudDOM state (optional)
@@ -1058,31 +1203,68 @@ export class CloudDOMBuilder {
     cloudDOM: CloudDOMNode[],
     previousCloudDOM?: CloudDOMNode[]
   ): Promise<FiberNode[]> {
+    console.log('[CloudDOMBuilder] *** Starting post-deployment integration ***');
+    console.log(`[CloudDOMBuilder] CloudDOM nodes: ${cloudDOM.length}`);
+    console.log(`[CloudDOMBuilder] Fiber path: ${fiber.path?.join('.')}`);
+
     try {
-      console.log('[CloudDOMBuilder] *** integrateWithPostDeploymentEffects called ***');
-      console.log(`[CloudDOMBuilder] CloudDOM nodes: ${cloudDOM.length}`);
-      console.log(`[CloudDOMBuilder] Fiber path: ${fiber.path?.join('.')}`);
+      // PHASE 1: Sync outputs to original nodes FIRST (REQ-1.1, 1.4)
+      // This ensures effects have access to current provider outputs
+      console.log('[CloudDOMBuilder] PHASE 1: Syncing outputs to original nodes...');
+      try {
+        this.syncCloudDOMOutputsToOriginalNodes(fiber, cloudDOM);
+        console.log('[CloudDOMBuilder] ✓ Phase 1 complete: Outputs synced to original nodes');
+      } catch (error) {
+        console.error('[CloudDOMBuilder] ✗ Phase 1 failed: Error syncing outputs to original nodes:', error);
+        throw new Error(`Output sync failed: ${(error as Error).message}`);
+      }
 
-      // CRITICAL FIX: Sync outputs to original nodes FIRST, before executing effects
-      console.log('[CloudDOMBuilder] Syncing outputs to original nodes before effects...');
-      this.syncCloudDOMOutputsToOriginalNodes(fiber, cloudDOM);
+      // PHASE 2: Execute post-deployment effects (REQ-1.2, 1.5)
+      // Effects now have access to current outputs from Phase 1
+      console.log('[CloudDOMBuilder] PHASE 2: Executing post-deployment effects...');
+      try {
+        await this.executePostDeploymentEffects(fiber);
+        console.log('[CloudDOMBuilder] ✓ Phase 2 complete: Effects executed with current outputs');
+      } catch (error) {
+        console.error('[CloudDOMBuilder] ✗ Phase 2 failed: Error executing effects:', error);
+        // Continue to next phase even if effects fail (non-critical)
+        console.warn('[CloudDOMBuilder] Continuing to next phase despite effect execution failure');
+      }
 
-      // Then execute the post-deployment effects (now they can see the updated outputs)
-      console.log('[CloudDOMBuilder] Executing post-deployment effects...');
-      await this.executePostDeploymentEffects(fiber);
+      // PHASE 3: Sync outputs and trigger re-renders (REQ-1.5)
+      // Detect output changes and update bound state
+      console.log('[CloudDOMBuilder] PHASE 3: Syncing outputs and triggering re-renders...');
+      let affectedFibers: FiberNode[] = [];
+      try {
+        affectedFibers = await this.syncOutputsAndReRender(fiber, cloudDOM, previousCloudDOM);
+        console.log(`[CloudDOMBuilder] ✓ Phase 3 complete: ${affectedFibers.length} fibers affected by output changes`);
+      } catch (error) {
+        console.error('[CloudDOMBuilder] ✗ Phase 3 failed: Error syncing outputs and re-renders:', error);
+        // Continue to next phase even if re-render sync fails (non-critical)
+        console.warn('[CloudDOMBuilder] Continuing to next phase despite re-render sync failure');
+      }
 
-      // Then sync outputs and trigger re-renders for any reactive changes
-      console.log('[CloudDOMBuilder] Syncing outputs and triggering re-renders...');
-      const affectedFibers = await this.syncOutputsAndReRender(fiber, cloudDOM, previousCloudDOM);
+      // PHASE 4: Sync state changes back to CloudDOM
+      // Persist any state changes from effects
+      console.log('[CloudDOMBuilder] PHASE 4: Syncing fiber state to CloudDOM...');
+      try {
+        this.syncFiberStateToCloudDOM(fiber, cloudDOM);
+        console.log('[CloudDOMBuilder] ✓ Phase 4 complete: Fiber state synced to CloudDOM');
+      } catch (error) {
+        console.error('[CloudDOMBuilder] ✗ Phase 4 failed: Error syncing fiber state:', error);
+        // Continue despite failure (state will be synced on next deployment)
+        console.warn('[CloudDOMBuilder] State sync failed but deployment can continue');
+      }
 
-      // Finally sync any state changes back to CloudDOM
-      console.log('[CloudDOMBuilder] Syncing fiber state to CloudDOM...');
-      this.syncFiberStateToCloudDOM(fiber, cloudDOM);
-
-      console.log(`[CloudDOMBuilder] *** integrateWithPostDeploymentEffects completed, affected fibers: ${affectedFibers.length} ***`);
+      console.log(`[CloudDOMBuilder] *** Post-deployment integration complete: ${affectedFibers.length} affected fibers ***`);
       return affectedFibers;
+
     } catch (error) {
-      console.error('[CloudDOMBuilder] Error in integrateWithPostDeploymentEffects:', error);
+      console.error('[CloudDOMBuilder] ✗✗✗ Critical error in post-deployment integration:', error);
+      console.error('[CloudDOMBuilder] Stack trace:', (error as Error).stack);
+      
+      // Return empty array to allow deployment to complete
+      // The error has been logged for debugging
       return [];
     }
   }

@@ -265,3 +265,99 @@ export function parseBindingKey(bindingKey: string): { nodeId: string; outputKey
 
   return { nodeId, outputKey };
 }
+
+/**
+ * Generate a state output key for useState hooks
+ *
+ * REQ-3.1: Use 'state.' prefix to separate useState outputs from provider outputs
+ *
+ * Creates a namespaced key for useState outputs to prevent conflicts with
+ * provider outputs. Uses 1-based indexing for consistency.
+ *
+ * Examples:
+ * - generateStateOutputKey(0) → 'state.state1'
+ * - generateStateOutputKey(1) → 'state.state2'
+ * - generateStateOutputKey(2) → 'state.state3'
+ *
+ * @param hookIndex - Zero-based hook index
+ * @returns State output key with 'state.' prefix
+ */
+export function generateStateOutputKey(hookIndex: number): string {
+  if (hookIndex < 0 || !Number.isInteger(hookIndex)) {
+    throw new Error(`Invalid hook index: ${hookIndex}. Must be a non-negative integer.`);
+  }
+
+  // Use 1-based indexing for user-friendly naming (state1, state2, state3)
+  return `state.state${hookIndex + 1}`;
+}
+
+/**
+ * Check if an output key is a state output (has 'state.' prefix)
+ *
+ * REQ-3.1: Identify useState outputs by their 'state.' prefix
+ *
+ * Examples:
+ * - isStateOutputKey('state.state1') → true
+ * - isStateOutputKey('state.state2') → true
+ * - isStateOutputKey('connectionUrl') → false
+ * - isStateOutputKey('vaultUrl') → false
+ *
+ * @param outputKey - Output key to check
+ * @returns True if the key is a state output
+ */
+export function isStateOutputKey(outputKey: string): boolean {
+  return typeof outputKey === 'string' && outputKey.startsWith('state.');
+}
+
+/**
+ * Check if an output key is a provider output (no 'state.' prefix)
+ *
+ * REQ-3.1: Identify provider outputs by absence of 'state.' prefix
+ *
+ * Examples:
+ * - isProviderOutputKey('connectionUrl') → true
+ * - isProviderOutputKey('vaultUrl') → true
+ * - isProviderOutputKey('state.state1') → false
+ * - isProviderOutputKey('state.state2') → false
+ *
+ * @param outputKey - Output key to check
+ * @returns True if the key is a provider output
+ */
+export function isProviderOutputKey(outputKey: string): boolean {
+  return typeof outputKey === 'string' && !outputKey.startsWith('state.');
+}
+
+/**
+ * Parse a state output key to extract the hook index
+ *
+ * Inverse of generateStateOutputKey.
+ *
+ * Examples:
+ * - parseStateOutputKey('state.state1') → 0
+ * - parseStateOutputKey('state.state2') → 1
+ * - parseStateOutputKey('state.state3') → 2
+ *
+ * @param stateOutputKey - State output key
+ * @returns Zero-based hook index
+ * @throws Error if the key is not a valid state output key
+ */
+export function parseStateOutputKey(stateOutputKey: string): number {
+  if (!isStateOutputKey(stateOutputKey)) {
+    throw new Error(`Invalid state output key: ${stateOutputKey}. Must start with 'state.'`);
+  }
+
+  // Extract the numeric part after 'state.state'
+  const match = stateOutputKey.match(/^state\.state(\d+)$/);
+  if (!match) {
+    throw new Error(`Invalid state output key format: ${stateOutputKey}. Expected format: 'state.state{N}'`);
+  }
+
+  // Convert from 1-based to 0-based indexing
+  const hookIndex = parseInt(match[1], 10) - 1;
+  
+  if (hookIndex < 0) {
+    throw new Error(`Invalid state output key: ${stateOutputKey}. Index must be positive.`);
+  }
+
+  return hookIndex;
+}

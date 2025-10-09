@@ -1,6 +1,17 @@
 import { FiberNode, CloudDOMNode, CReactEvents, OutputChange } from './types';
 
 /**
+ * Access tracking session for dependency analysis
+ * REQ-6.2, 6.3, 6.4: Track output reads during component execution
+ */
+interface AccessTrackingSession {
+  fiber: FiberNode;
+  startTime: number;
+  trackedOutputs: Set<string>; // Set of binding keys (nodeId.outputKey)
+  isActive: boolean;
+}
+
+/**
  * ProviderOutputTracker - Tracks useInstance calls and their output dependencies
  * 
  * Key Features:
@@ -8,11 +19,15 @@ import { FiberNode, CloudDOMNode, CReactEvents, OutputChange } from './types';
  * - Detect when provider outputs change
  * - Notify bound components of output changes
  * - Event hook integration for tooling and debugging
+ * - REQ-6.2, 6.3, 6.4: Track output reads for automatic binding creation
  */
 export class ProviderOutputTracker {
   private instanceBindings = new Map<string, Set<FiberNode>>();
   private instanceOutputs = new Map<string, Record<string, any>>();
   private eventHooks?: CReactEvents;
+  
+  // REQ-6.2, 6.3: Access tracking sessions for dependency analysis
+  private activeSessions = new Map<FiberNode, AccessTrackingSession>();
 
   constructor(eventHooks?: CReactEvents) {
     this.eventHooks = eventHooks;
@@ -450,5 +465,93 @@ export class ProviderOutputTracker {
    */
   getNodeOutputs(nodeId: string): Record<string, any> {
     return this.getInstanceOutputs(nodeId) || {};
+  }
+
+  /**
+   * Start an access tracking session for a fiber
+   * REQ-6.2, 6.3: Track which outputs are accessed during execution
+   * 
+   * @param fiber - Fiber node to track
+   */
+  startAccessTracking(fiber: FiberNode): void {
+    this.activeSessions.set(fiber, {
+      fiber,
+      startTime: Date.now(),
+      trackedOutputs: new Set(),
+      isActive: true
+    });
+
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[ProviderOutputTracker] Started access tracking for ${fiber.path.join('.')}`);
+    }
+  }
+
+  /**
+   * End an access tracking session and return tracked outputs
+   * REQ-6.3, 6.4: Collect tracked outputs for binding creation
+   * 
+   * @param fiber - Fiber node to end tracking for
+   * @returns Set of binding keys that were accessed
+   */
+  endAccessTracking(fiber: FiberNode): Set<string> {
+    const session = this.activeSessions.get(fiber);
+    if (!session) {
+      return new Set();
+    }
+
+    session.isActive = false;
+    this.activeSessions.delete(fiber);
+
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[ProviderOutputTracker] Ended access tracking for ${fiber.path.join('.')}, tracked ${session.trackedOutputs.size} outputs`);
+    }
+
+    return session.trackedOutputs;
+  }
+
+  /**
+   * Track an output read during an active session
+   * REQ-6.2, 6.4: Record when outputs are accessed for binding creation
+   * 
+   * @param nodeId - CloudDOM node ID
+   * @param outputKey - Output key that was accessed
+   * @param fiber - Fiber node that accessed the output
+   */
+  trackOutputRead(nodeId: string, outputKey: string, fiber: FiberNode): void {
+    const session = this.activeSessions.get(fiber);
+    if (session?.isActive) {
+      // Generate binding key for this output
+      const bindingKey = `${nodeId}.${outputKey}`;
+      session.trackedOutputs.add(bindingKey);
+
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[ProviderOutputTracker] Tracked output read: ${bindingKey} by ${fiber.path.join('.')}`);
+      }
+    }
+  }
+
+  /**
+   * Check if a fiber has an active tracking session
+   * 
+   * @param fiber - Fiber node to check
+   * @returns True if tracking is active for this fiber
+   */
+  isTrackingActive(fiber: FiberNode): boolean {
+    const session = this.activeSessions.get(fiber);
+    return session?.isActive ?? false;
+  }
+
+  /**
+   * Get all active tracking sessions (for debugging)
+   */
+  getActiveSessions(): AccessTrackingSession[] {
+    return Array.from(this.activeSessions.values());
+  }
+
+  /**
+   * Clear all active tracking sessions (for cleanup/testing)
+   */
+  clearActiveSessions(): void {
+    this.activeSessions.clear();
   }
 }

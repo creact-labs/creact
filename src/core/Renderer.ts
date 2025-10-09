@@ -1,16 +1,15 @@
 // REQ-01: Renderer - JSX → Fiber transformation
 
 import { FiberNode, JSXElement, ReRenderReason, CloudDOMNode } from './types';
-import { setRenderContext, clearRenderContext, resetConstructCounts } from '../hooks/useInstance';
-import { setStateRenderContext, clearStateRenderContext } from '../hooks/useState';
+import { resetConstructCounts } from '../hooks/useInstance';
 import {
-  setContextRenderContext,
-  clearContextRenderContext,
+  setRenderContext,
+  clearRenderContext,
   pushContextValue,
   popContextValue,
   clearContextStacks,
-} from '../hooks/useContext';
-import { runWithHookContext } from '../hooks/context';
+  runWithHookContext,
+} from '../hooks/context';
 import { getNodeName } from '../utils/naming';
 import { RenderScheduler } from './RenderScheduler';
 import { ContextDependencyTracker } from './ContextDependencyTracker';
@@ -115,13 +114,9 @@ export class Renderer {
 
     // Set context and execute component function to get children
     setRenderContext(fiber, path);
-    setStateRenderContext(fiber);
-    setContextRenderContext(fiber);
     resetConstructCounts(fiber); // Reset construct call counts for this component
     const children = this.executeComponent(type, safeProps, path);
     clearRenderContext();
-    clearStateRenderContext();
-    clearContextRenderContext();
 
     // Recursively render children
     if (children) {
@@ -183,8 +178,6 @@ export class Renderer {
     } finally {
       // Clear rendering context for hooks
       clearRenderContext();
-      clearStateRenderContext();
-      clearContextRenderContext();
 
       // Restore previous path
       this.currentPath = previousPath;
@@ -764,8 +757,6 @@ export class Renderer {
   private reExecuteComponent(fiber: FiberNode, currentPath: string[]): void {
     // Set up rendering context
     setRenderContext(fiber, fiber.path);
-    setStateRenderContext(fiber);
-    setContextRenderContext(fiber);
     resetConstructCounts(fiber);
 
     try {
@@ -783,8 +774,6 @@ export class Renderer {
     } finally {
       // Clean up context
       clearRenderContext();
-      clearStateRenderContext();
-      clearContextRenderContext();
     }
   }
 

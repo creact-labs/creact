@@ -549,11 +549,13 @@ export class CReact {
           previousCloudDOM
         );
 
-        // If there are affected fibers, trigger re-renders
-        if (affectedFibers.length > 0) {
-          console.log(`[CReact] Triggering re-renders for ${affectedFibers.length} affected components`);
+        // REQ-7.1, 7.2, 7.3: Check if outputs actually changed (including undefined → value)
+        const hasActualChanges = this.hasActualOutputChanges(previousCloudDOM, cloudDOM);
+        
+        if (affectedFibers.length > 0 && hasActualChanges) {
+          console.log(`[CReact] Triggering re-renders for ${affectedFibers.length} affected components (output changes detected)`);
 
-          // Schedule re-renders for affected components
+          // REQ-7.4, 7.5: Schedule re-renders with proper batching and deduplication
           affectedFibers.forEach(fiber => {
             this.scheduleReRender(fiber, 'output-update');
           });
@@ -566,6 +568,8 @@ export class CReact {
 
           // Update the stored CloudDOM with reactive changes
           cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
+        } else if (affectedFibers.length > 0 && !hasActualChanges) {
+          console.log(`[CReact] No actual output changes detected (${affectedFibers.length} fibers tracked but values unchanged)`);
         }
 
         // Save the updated CloudDOM state with new outputs
@@ -606,6 +610,74 @@ export class CReact {
       // Re-throw error to halt deployment (REQ-09.4)
       throw error;
     }
+  }
+
+  /**
+   * Check if outputs actually changed between previous and current CloudDOM
+   * REQ-7.1, 7.2, 7.3: Proper output change detection including undefined → value transitions
+   * 
+   * @param previous - Previous CloudDOM state
+   * @param current - Current CloudDOM state
+   * @returns True if any outputs actually changed
+   */
+  private hasActualOutputChanges(previous: CloudDOMNode[], current: CloudDOMNode[]): boolean {
+    // Build maps for efficient comparison
+    const previousMap = new Map<string, Record<string, any>>();
+    const currentMap = new Map<string, Record<string, any>>();
+
+    const buildMap = (nodes: CloudDOMNode[], map: Map<string, Record<string, any>>) => {
+      for (const node of nodes) {
+        if (node.outputs) {
+          map.set(node.id, node.outputs);
+        }
+        if (node.children && node.children.length > 0) {
+          buildMap(node.children, map);
+        }
+      }
+    };
+
+    buildMap(previous, previousMap);
+    buildMap(current, currentMap);
+
+    // Check for changed outputs in existing nodes
+    for (const [nodeId, currentOutputs] of currentMap) {
+      const previousOutputs = previousMap.get(nodeId) || {};
+
+      // Check each output key
+      for (const [outputKey, currentValue] of Object.entries(currentOutputs)) {
+        const previousValue = previousOutputs[outputKey];
+
+        // REQ-7.1, 7.3: undefined → value IS a change (initial deployment scenario)
+        if (previousValue !== currentValue) {
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[CReact] Output changed: ${nodeId}.${outputKey} (${previousValue} → ${currentValue})`);
+          }
+          return true;
+        }
+      }
+
+      // Check for removed outputs
+      for (const outputKey of Object.keys(previousOutputs)) {
+        if (!(outputKey in currentOutputs)) {
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[CReact] Output removed: ${nodeId}.${outputKey}`);
+          }
+          return true;
+        }
+      }
+    }
+
+    // Check for new nodes with outputs
+    for (const [nodeId, currentOutputs] of currentMap) {
+      if (!previousMap.has(nodeId) && Object.keys(currentOutputs).length > 0) {
+        if (process.env.CREACT_DEBUG === 'true') {
+          console.debug(`[CReact] New node with outputs: ${nodeId}`);
+        }
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

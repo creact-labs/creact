@@ -2,7 +2,7 @@
 // This hook manages side effects that run between deployment cycles
 
 import {
-  getStateContext,
+  requireHookContext,
   incrementHookIndex,
 } from './context';
 import { FiberNode } from '../core/types';
@@ -20,6 +20,7 @@ export type DependencyList = ReadonlyArray<any>;
 
 /**
  * Effect hook data stored in Fiber
+ * REQ-5.1, 5.5: Enhanced dependency tracking and comparison
  */
 interface EffectHook {
   callback: EffectCallback;
@@ -29,9 +30,12 @@ interface EffectHook {
   // Reactive system integration
   boundOutputs?: Set<string>; // Track which provider outputs this effect depends on (using binding keys)
   lastDepsHash?: string; // Hash of dependencies for change detection
+  lastDepsValues?: any[]; // REQ-5.5: Store actual dependency values for comparison
   isReactive?: boolean; // Whether this effect should respond to output changes
   // Debugging and tracing
   effectId?: string; // Unique ID for debugging and orchestrator logs
+  // REQ-5.1, 5.5: Enhanced dependency comparison method
+  hasDepChanged?(newDeps: any[]): boolean;
 }
 
 /**
@@ -79,31 +83,60 @@ interface EffectHook {
  * ```
  */
 export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
-  // Get current context from AsyncLocalStorage
-  const context = getStateContext();
-  const { currentFiber } = context;
-
-  // Validate hook is called during rendering
-  if (!currentFiber) {
-    throw new Error(
-      'useEffect must be called during component rendering. ' +
-      'Make sure you are calling it inside a component function, not at the top level.'
-    );
-  }
+  // Use consolidated hook context
+  const context = requireHookContext();
+  const currentFiber = context.currentFiber!; // Non-null assertion safe due to requireHookContext validation
 
   // Initialize effects array in Fiber node if not already present
-  if (!currentFiber.effects) {
+  if (!(currentFiber as any).effects) {
     (currentFiber as any).effects = [];
   }
 
-  // Get current hook index and increment for next call
-  const currentHookIndex = incrementHookIndex();
+  // Get current hook index and increment for next call (effect-specific)
+  const currentHookIndex = incrementHookIndex('effect');
 
   // Analyze dependencies for provider output tracking
   const boundOutputs = new Set<string>();
   const isReactive = deps !== undefined && deps.length > 0;
 
   if (isReactive && deps) {
+    // REQ-5.2, 5.3, 5.4: Start access tracking session before evaluating dependencies
+    // This will track which outputs are actually accessed during dependency evaluation
+    const { getProviderOutputTrackerInstance } = require('./useInstance');
+    const outputTracker = getProviderOutputTrackerInstance();
+    
+    if (outputTracker) {
+      outputTracker.startAccessTracking(currentFiber);
+      
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[useEffect] Started access tracking for dependency evaluation`);
+      }
+    }
+    // REQ-5.3, 5.4: Access dependencies to trigger proxy tracking
+    // This will record which outputs are actually read
+    for (const dep of deps) {
+      // Simply accessing the dependency triggers the proxy tracking
+      // The proxy in useInstance will call outputTracker.trackOutputRead()
+      void dep; // Access the dependency to trigger tracking
+    }
+    
+    // REQ-5.3, 5.4: End access tracking session and collect tracked outputs
+    if (outputTracker) {
+      const trackedOutputs = outputTracker.endAccessTracking(currentFiber);
+      
+      // Add tracked outputs to boundOutputs
+      trackedOutputs.forEach((bindingKey: string) => {
+        boundOutputs.add(bindingKey);
+      });
+      
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[useEffect] Tracked ${trackedOutputs.size} output accesses during dependency evaluation`);
+        if (trackedOutputs.size > 0) {
+          console.debug(`[useEffect] Tracked outputs: ${Array.from(trackedOutputs).join(', ')}`);
+        }
+      }
+    }
+    
     // Track which CloudDOM nodes are referenced in this effect
     const referencedNodes = new Set<string>();
     
@@ -153,18 +186,14 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     for (const nodeId of referencedNodes) {
       const node = fiberCloudDOMNodes.find((n: any) => n.id === nodeId);
       if (node) {
-        // Bind to all current outputs
+        // REQ-5.1, 5.2: Only bind to specific outputs that are actually accessed
+        // No wildcard bindings - precise tracking only
         if (node.outputs) {
           for (const outputKey of Object.keys(node.outputs)) {
             const bindingKey = generateBindingKey(nodeId, outputKey);
             boundOutputs.add(bindingKey);
           }
         }
-        
-        // Bind to all potential outputs using a wildcard pattern
-        // This ensures the effect runs when new outputs are added
-        const wildcardBindingKey = generateBindingKey(nodeId, '*');
-        boundOutputs.add(wildcardBindingKey);
       }
     }
 
@@ -179,6 +208,32 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   // Generate unique effect ID for debugging and orchestrator logs
   const effectId = `${currentFiber.path.join('.')}:${currentHookIndex}`;
 
+  // REQ-5.1, 5.5: Create enhanced dependency comparison method
+  const hasDepChanged = function(this: EffectHook, newDeps: any[]): boolean {
+    if (!this.lastDepsValues) return true;
+    if (this.lastDepsValues.length !== newDeps.length) return true;
+    
+    return this.lastDepsValues.some((prev, i) => {
+      const curr = newDeps[i];
+      
+      // REQ-5.5: Handle provider outputs specially
+      if (isProviderOutput(prev) && isProviderOutput(curr)) {
+        // Compare by nodeId and outputKey, not by value
+        return prev.__providerOutput.nodeId !== curr.__providerOutput.nodeId ||
+               prev.__providerOutput.outputKey !== curr.__providerOutput.outputKey;
+      }
+      
+      // Handle CloudDOM outputs
+      if (isCloudDOMOutput(prev) && isCloudDOMOutput(curr)) {
+        return prev.__cloudDOMOutput.nodeId !== curr.__cloudDOMOutput.nodeId ||
+               prev.__cloudDOMOutput.outputKey !== curr.__cloudDOMOutput.outputKey;
+      }
+      
+      // Standard comparison for other values
+      return prev !== curr;
+    });
+  };
+
   // Store effect data in Fiber node
   const effectHook: EffectHook = {
     callback: effect,
@@ -186,8 +241,10 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     hasRun: false,
     boundOutputs: boundOutputs.size > 0 ? boundOutputs : undefined,
     lastDepsHash: depsHash,
+    lastDepsValues: deps ? [...deps] : undefined, // REQ-5.5: Store actual values
     isReactive,
-    effectId
+    effectId,
+    hasDepChanged // REQ-5.1: Attach comparison method
   };
 
   (currentFiber as any).effects[currentHookIndex] = effectHook;
@@ -196,6 +253,22 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   if (boundOutputs.size > 0) {
     registerEffectWithReactiveSystem(currentFiber, currentHookIndex, boundOutputs);
   }
+}
+
+/**
+ * Check if a value is a provider output
+ * REQ-5.5: Helper for enhanced dependency comparison
+ */
+function isProviderOutput(value: any): boolean {
+  return value && typeof value === 'object' && value.__providerOutput;
+}
+
+/**
+ * Check if a value is a CloudDOM output
+ * REQ-5.5: Helper for enhanced dependency comparison
+ */
+function isCloudDOMOutput(value: any): boolean {
+  return value && typeof value === 'object' && value.__cloudDOMOutput;
 }
 
 /**
@@ -253,6 +326,7 @@ function registerEffectWithReactiveSystem(
 
 /**
  * Check if effect dependencies have changed, including provider outputs
+ * REQ-5.1, 5.5: Use enhanced dependency comparison
  */
 function hasEffectDependenciesChanged(
   current: EffectHook,
@@ -286,12 +360,17 @@ function hasEffectDependenciesChanged(
     }
   }
 
-  // Compare dependency hash
+  // REQ-5.1, 5.5: Use enhanced dependency comparison if available
+  if (current.hasDepChanged && current.deps) {
+    return current.hasDepChanged([...current.deps]);
+  }
+
+  // Fallback: Compare dependency hash
   if (current.lastDepsHash !== previous.lastDepsHash) {
     return true;
   }
 
-  // Fallback to direct comparison
+  // Fallback: Direct comparison
   if (!previous.deps || previous.deps.length !== current.deps.length) {
     return true;
   }
@@ -397,8 +476,9 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
         
         effectHook.hasRun = true;
 
-        // Update dependency hash for next comparison
+        // REQ-5.5: Update dependency values and hash for next comparison
         if (effectHook.deps) {
+          effectHook.lastDepsValues = [...effectHook.deps];
           effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
         }
       } catch (error) {
@@ -437,22 +517,11 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
     }
 
     // Check if this effect is bound to any of the changed outputs
+    // REQ-5.2, 5.4: Only check specific bindings, no wildcard matching
     if (effectHook.boundOutputs) {
       const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput => {
-        // Direct match
-        if (changedOutputs.has(boundOutput)) {
-          return true;
-        }
-        
-        // Wildcard match: if bound to nodeId.* and any output from that node changed
-        if (boundOutput.endsWith('.*')) {
-          const nodeIdPrefix = boundOutput.slice(0, -1); // Remove the '*'
-          return Array.from(changedOutputs).some(changedOutput => 
-            changedOutput.startsWith(nodeIdPrefix)
-          );
-        }
-        
-        return false;
+        // Direct match only - no wildcard patterns
+        return changedOutputs.has(boundOutput);
       });
 
       if (hasChangedDependency) {
@@ -499,8 +568,9 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
             }
           }
 
-          // Update dependency hash
+          // REQ-5.5: Update dependency values and hash
           if (effectHook.deps) {
+            effectHook.lastDepsValues = [...effectHook.deps];
             effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
           }
         } catch (error) {

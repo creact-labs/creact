@@ -5,55 +5,88 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { FiberNode } from '../core/types';
 
 /**
- * Hook execution context - contains all state needed for hooks
+ * Access tracking session for output dependency analysis
  */
-interface HookContext {
-  // useState context
-  currentFiber: any | null;
-  hookIndex: number;
+interface AccessTrackingSession {
+  fiber: FiberNode;
+  startTime: number;
+  trackedOutputs: Set<string>;
+  isActive: boolean;
+}
+
+/**
+ * Consolidated Hook Context - Single source of truth for all hook state
+ * Addresses Issue #9: Hook Context Consolidation
+ */
+interface ConsolidatedHookContext {
+  // Single context for all hooks - unified fiber reference
+  currentFiber: FiberNode | null;
   
-  // useContext context
-  contextFiber: FiberNode | null;
+  // Separate indices per hook type to avoid conflicts
+  stateHookIndex: number;
+  effectHookIndex: number;
+  contextHookIndex: number;
+  instanceHookIndex: number;
+  
+  // Context stacks for useContext
   contextStacks: Map<symbol, any[]>;
   
-  // useInstance context
-  instanceFiber: any | null;
+  // useInstance specific context
   currentPath: string[];
   previousOutputsMap: Map<string, Record<string, any>> | null;
+  
+  // Access tracking for output dependency analysis
+  accessTrackingSessions: Map<FiberNode, AccessTrackingSession>;
 }
 
 /**
  * AsyncLocalStorage instance for hook context isolation
  */
-const hookContextStorage = new AsyncLocalStorage<HookContext>();
+const hookContextStorage = new AsyncLocalStorage<ConsolidatedHookContext>();
 
 /**
- * Create a new hook context
+ * Create a new consolidated hook context
  */
-function createHookContext(): HookContext {
+function createConsolidatedHookContext(): ConsolidatedHookContext {
   return {
-    // useState context
+    // Single fiber reference for all hooks
     currentFiber: null,
-    hookIndex: 0,
     
-    // useContext context
-    contextFiber: null,
+    // Separate indices per hook type
+    stateHookIndex: 0,
+    effectHookIndex: 0,
+    contextHookIndex: 0,
+    instanceHookIndex: 0,
+    
+    // Context stacks
     contextStacks: new Map<symbol, any[]>(),
     
     // useInstance context
-    instanceFiber: null,
     currentPath: [],
     previousOutputsMap: null,
+    
+    // Access tracking
+    accessTrackingSessions: new Map<FiberNode, AccessTrackingSession>(),
   };
 }
 
 /**
- * Get the current hook context, throwing if not available
+ * Get the consolidated hook context with validation
+ * This is the primary function all hooks should use
  */
-function getHookContext(): HookContext {
+export function requireHookContext(): ConsolidatedHookContext {
   const context = hookContextStorage.getStore();
   if (!context) {
-    throw new Error('Hook called outside of rendering context. This is likely a bug in CReact.');
+    throw new Error(
+      'Hook called outside of rendering context. ' +
+      'Hooks must be called inside component functions during render.'
+    );
+  }
+  if (!context.currentFiber) {
+    throw new Error(
+      'Hook called without active fiber context. ' +
+      'This indicates a timing issue in the rendering pipeline.'
+    );
   }
   return context;
 }
@@ -61,89 +94,109 @@ function getHookContext(): HookContext {
 /**
  * Get the current hook context, returning null if not available
  */
-function getHookContextSafe(): HookContext | null {
+function getHookContextSafe(): ConsolidatedHookContext | null {
   return hookContextStorage.getStore() || null;
 }
 
 /**
- * Run a function with a new hook context
+ * Run a function with a new consolidated hook context
  */
 export function runWithHookContext<T>(fn: () => T): T {
-  const context = createHookContext();
+  const context = createConsolidatedHookContext();
   return hookContextStorage.run(context, fn);
 }
 
-// useState context management
-export function setStateRenderContext(fiber: any): void {
+/**
+ * Increment hook index for specific hook type
+ */
+export function incrementHookIndex(hookType: 'state' | 'effect' | 'context' | 'instance' = 'state'): number {
+  const context = requireHookContext();
+  
+  switch (hookType) {
+    case 'state':
+      const stateIndex = context.stateHookIndex;
+      context.stateHookIndex++;
+      return stateIndex;
+    case 'effect':
+      const effectIndex = context.effectHookIndex;
+      context.effectHookIndex++;
+      return effectIndex;
+    case 'context':
+      const contextIndex = context.contextHookIndex;
+      context.contextHookIndex++;
+      return contextIndex;
+    case 'instance':
+      const instanceIndex = context.instanceHookIndex;
+      context.instanceHookIndex++;
+      return instanceIndex;
+    default:
+      throw new Error(`Unknown hook type: ${hookType}`);
+  }
+}
+
+// ============================================================================
+// Render Context Management
+// ============================================================================
+
+/**
+ * Set the current rendering context for all hooks
+ * Called by Renderer before executing a component
+ *
+ * Requirements: 8.2, 8.4
+ */
+export function setRenderContext(fiber: FiberNode, path?: string[]): void {
   const context = getHookContextSafe();
   if (context) {
     context.currentFiber = fiber;
-    context.hookIndex = 0; // Reset hook index for new component
+    context.currentPath = path || [];
+    context.stateHookIndex = 0;
+    context.effectHookIndex = 0;
+    context.contextHookIndex = 0;
+    context.instanceHookIndex = 0;
   }
 }
 
-export function clearStateRenderContext(): void {
+/**
+ * Clear the current rendering context for all hooks
+ * Called by Renderer after component execution
+ *
+ * Requirements: 8.2, 8.4
+ */
+export function clearRenderContext(): void {
   const context = getHookContextSafe();
   if (context) {
     context.currentFiber = null;
-    context.hookIndex = 0;
+    context.stateHookIndex = 0;
+    context.effectHookIndex = 0;
+    context.contextHookIndex = 0;
+    context.instanceHookIndex = 0;
   }
 }
 
-export function getStateContext(): { currentFiber: any | null; hookIndex: number } {
-  const context = getHookContextSafe();
-  if (!context) {
-    throw new Error('Hook called outside of rendering context. This is likely a bug in CReact.');
-  }
-  return {
-    currentFiber: context.currentFiber,
-    hookIndex: context.hookIndex,
-  };
-}
-
-export function incrementHookIndex(): number {
-  const context = getHookContextSafe();
-  if (!context) {
-    throw new Error('Hook called outside of rendering context. This is likely a bug in CReact.');
-  }
-  const currentIndex = context.hookIndex;
-  context.hookIndex++;
-  return currentIndex;
-}
-
-export function hasStateContext(): boolean {
+/**
+ * Check if there is an active render context
+ */
+export function hasRenderContext(): boolean {
   const context = getHookContextSafe();
   return context?.currentFiber !== null;
 }
 
+/**
+ * Get the current fiber state
+ */
 export function getCurrentState(): Record<string, any> | undefined {
   const context = getHookContextSafe();
   return context?.currentFiber?.state;
 }
 
-// useContext context management
-export function setContextRenderContext(fiber: FiberNode): void {
-  const context = getHookContextSafe();
-  if (context) {
-    context.contextFiber = fiber;
-  }
-}
+// ============================================================================
+// useContext Support Functions
+// ============================================================================
 
-export function clearContextRenderContext(): void {
-  const context = getHookContextSafe();
-  if (context) {
-    context.contextFiber = null;
-  }
-}
-
-export function getContextRenderContext(): FiberNode | null {
-  const context = getHookContextSafe();
-  if (!context) {
-    throw new Error('Hook called outside of rendering context. This is likely a bug in CReact.');
-  }
-  return context.contextFiber;
-}
-
+/**
+ * Push a context value onto the stack
+ * Called by Renderer when entering a Provider
+ */
 export function pushContextValue(contextId: symbol, value: any): void {
   const context = getHookContextSafe();
   if (context) {
@@ -154,6 +207,10 @@ export function pushContextValue(contextId: symbol, value: any): void {
   }
 }
 
+/**
+ * Pop a context value from the stack
+ * Called by Renderer when exiting a Provider
+ */
 export function popContextValue(contextId: symbol): void {
   const context = getHookContextSafe();
   if (context) {
@@ -164,6 +221,9 @@ export function popContextValue(contextId: symbol): void {
   }
 }
 
+/**
+ * Get the current context value from the stack
+ */
 export function getContextValue(contextId: symbol): { hasValue: boolean; value: any } {
   const context = getHookContextSafe();
   if (!context) {
@@ -176,6 +236,10 @@ export function getContextValue(contextId: symbol): { hasValue: boolean; value: 
   return { hasValue: false, value: undefined };
 }
 
+/**
+ * Clear all context stacks
+ * Called by Renderer to prevent memory leaks
+ */
 export function clearContextStacks(): void {
   const context = getHookContextSafe();
   if (context) {
@@ -183,39 +247,14 @@ export function clearContextStacks(): void {
   }
 }
 
-// useInstance context management
-export function setInstanceRenderContext(fiber: any, path: string[]): void {
-  const context = getHookContextSafe();
-  if (context) {
-    context.instanceFiber = fiber;
-    context.currentPath = path;
-  }
-}
+// ============================================================================
+// useInstance Support Functions
+// ============================================================================
 
-export function clearInstanceRenderContext(): void {
-  const context = getHookContextSafe();
-  if (context) {
-    context.instanceFiber = null;
-    context.currentPath = [];
-  }
-}
-
-export function getInstanceContext(): {
-  currentFiber: any | null;
-  currentPath: string[];
-  previousOutputsMap: Map<string, Record<string, any>> | null;
-} {
-  const context = getHookContextSafe();
-  if (!context) {
-    throw new Error('Hook called outside of rendering context. This is likely a bug in CReact.');
-  }
-  return {
-    currentFiber: context.instanceFiber,
-    currentPath: context.currentPath,
-    previousOutputsMap: context.previousOutputsMap,
-  };
-}
-
+/**
+ * Set previous outputs map for restoration during render
+ * Called by CReact before rendering
+ */
 export function setPreviousOutputs(outputsMap: Map<string, Record<string, any>> | null): void {
   const context = getHookContextSafe();
   if (context) {
@@ -223,6 +262,9 @@ export function setPreviousOutputs(outputsMap: Map<string, Record<string, any>> 
   }
 }
 
+/**
+ * Get the current rendering path
+ */
 export function getCurrentPath(): string[] {
   const context = getHookContextSafe();
   if (!context) {
@@ -231,7 +273,66 @@ export function getCurrentPath(): string[] {
   return [...context.currentPath];
 }
 
+/**
+ * Check if currently rendering
+ */
 export function isRendering(): boolean {
   const context = getHookContextSafe();
-  return context?.instanceFiber !== null;
+  return context?.currentFiber !== null;
+}
+
+// ============================================================================
+// Access Tracking for Output Dependency Analysis
+// ============================================================================
+
+/**
+ * Start tracking output accesses for a fiber
+ * Used by useEffect to track which outputs are accessed in dependencies
+ */
+export function startAccessTracking(fiber: FiberNode): void {
+  const context = requireHookContext();
+  context.accessTrackingSessions.set(fiber, {
+    fiber,
+    startTime: Date.now(),
+    trackedOutputs: new Set(),
+    isActive: true
+  });
+}
+
+/**
+ * End tracking and return the set of accessed outputs
+ */
+export function endAccessTracking(fiber: FiberNode): Set<string> {
+  const context = requireHookContext();
+  const session = context.accessTrackingSessions.get(fiber);
+  
+  if (!session) {
+    return new Set();
+  }
+  
+  session.isActive = false;
+  context.accessTrackingSessions.delete(fiber);
+  
+  return session.trackedOutputs;
+}
+
+/**
+ * Track an output access during an active tracking session
+ */
+export function trackOutputAccess(fiber: FiberNode, bindingKey: string): void {
+  const context = getHookContextSafe();
+  if (!context) return;
+  
+  const session = context.accessTrackingSessions.get(fiber);
+  if (session?.isActive) {
+    session.trackedOutputs.add(bindingKey);
+  }
+}
+
+/**
+ * Get the current access tracking session for a fiber
+ */
+export function getAccessTrackingSession(fiber: FiberNode): AccessTrackingSession | undefined {
+  const context = getHookContextSafe();
+  return context?.accessTrackingSessions.get(fiber);
 }

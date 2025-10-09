@@ -67,6 +67,8 @@ export class StateBindingManager {
   /**
    * Update bound state when provider outputs change
    * Returns list of fibers that were affected by the change
+   * 
+   * REQ-4.2, 4.4, 4.5: Use internal setState to prevent circular dependencies
    */
   updateBoundState(nodeId: string, outputKey: string, newValue: any): FiberNode[] {
     const bindingKey = generateBindingKey(nodeId, outputKey);
@@ -87,17 +89,59 @@ export class StateBindingManager {
 
       // Only update if value actually changed
       if (binding.lastValue !== newValue) {
-        // Update the state in the fiber's hooks
-        if (fiber.hooks && fiber.hooks[hookIndex] !== newValue) {
-          fiber.hooks[hookIndex] = newValue;
-          binding.lastValue = newValue;
-          binding.lastUpdate = Date.now(); // Track when binding was last updated
-          affectedFibers.push(fiber);
+        // REQ-4.2, 4.4: Use stored setState callback with isInternalUpdate=true
+        // This prevents infinite binding loops
+        const setStateCallbacks = (fiber as any).setStateCallbacks;
+        
+        if (setStateCallbacks && setStateCallbacks[hookIndex]) {
+          try {
+            // Call setState with isInternalUpdate=true to skip binding creation
+            setStateCallbacks[hookIndex](newValue, true);
+            
+            binding.lastValue = newValue;
+            binding.lastUpdate = Date.now();
+            affectedFibers.push(fiber);
+            
+            if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[StateBindingManager] Updated bound state via internal setState: ${bindingKey}`);
+            }
+          } catch (error) {
+            console.error(`[StateBindingManager] Error calling internal setState for ${bindingKey}:`, error);
+            // REQ-4.5: Fallback to direct hook update if callback fails
+            this.fallbackDirectUpdate(fiber, hookIndex, newValue, binding, affectedFibers);
+          }
+        } else {
+          // REQ-4.5: Fallback to direct hook update if callback not available
+          if (process.env.CREACT_DEBUG === 'true') {
+            console.debug(`[StateBindingManager] No setState callback found, using direct update: ${bindingKey}`);
+          }
+          this.fallbackDirectUpdate(fiber, hookIndex, newValue, binding, affectedFibers);
         }
       }
     });
 
     return affectedFibers;
+  }
+
+  /**
+   * Fallback method for direct hook update when setState callback is not available
+   * REQ-4.5: Proper error handling and recovery
+   * 
+   * @private
+   */
+  private fallbackDirectUpdate(
+    fiber: FiberNode,
+    hookIndex: number,
+    newValue: any,
+    binding: OutputBinding,
+    affectedFibers: FiberNode[]
+  ): void {
+    if (fiber.hooks && fiber.hooks[hookIndex] !== newValue) {
+      fiber.hooks[hookIndex] = newValue;
+      binding.lastValue = newValue;
+      binding.lastUpdate = Date.now();
+      affectedFibers.push(fiber);
+    }
   }
 
   /**

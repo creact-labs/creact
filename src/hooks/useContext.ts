@@ -4,14 +4,14 @@
 import { Context } from '../context/createContext';
 import { FiberNode } from '../core/types';
 import {
-  setContextRenderContext as setContextRenderContextInternal,
-  clearContextRenderContext as clearContextRenderContextInternal,
+  setRenderContext as setContextRenderContextInternal,
+  clearRenderContext as clearContextRenderContextInternal,
   pushContextValue as pushContextValueInternal,
   popContextValue as popContextValueInternal,
-  getContextRenderContext,
   getContextValue,
   clearContextStacks as clearContextStacksInternal,
   incrementHookIndex,
+  requireHookContext,
 } from './context';
 
 // Global context dependency tracker instance
@@ -120,19 +120,12 @@ export function clearContextStacks(): void {
  * ```
  */
 export function useContext<T>(context: Context<T>): T {
-  // Get current context from AsyncLocalStorage
-  const currentFiber = getContextRenderContext();
-  
-  // Validate hook is called during rendering
-  if (!currentFiber) {
-    throw new Error(
-      'useContext must be called during component rendering. ' +
-        'Make sure you are calling it inside a component function, not at the top level.'
-    );
-  }
+  // Use consolidated hook context
+  const hookContext = requireHookContext();
+  const currentFiber = hookContext.currentFiber!; // Non-null assertion safe due to requireHookContext validation
 
-  // Get hook index for dependency tracking
-  const hookIndex = incrementHookIndex();
+  // Get hook index for dependency tracking (context-specific)
+  const hookIndex = incrementHookIndex('context');
 
   // Track context dependency for reactive updates
   if (contextDependencyTracker) {
