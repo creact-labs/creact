@@ -2,7 +2,7 @@
 
 import { FiberNode, CloudDOMNode, OutputChange } from './types';
 import { ICloudProvider } from '../providers/ICloudProvider';
-import { generateResourceId, normalizePath as normalizePathUtil, generateStateOutputKey } from '../utils/naming';
+import { generateResourceId, normalizePath as normalizePathUtil } from '../utils/naming';
 import { StateBindingManager } from './StateBindingManager';
 import { ProviderOutputTracker } from './ProviderOutputTracker';
 
@@ -193,8 +193,8 @@ export class CloudDOMBuilder {
    * @param collected - Array to collect CloudDOM nodes into
    */
   private collectCloudDOMNodes(fiber: FiberNode, collected: CloudDOMNode[]): void {
-    // Extract outputs from useState hooks in this Fiber node
-    const outputs = this.extractOutputsFromFiber(fiber);
+    // Extract state from useState hooks in this Fiber node
+    const stateValues = this.extractOutputsFromFiber(fiber);
 
     // Check for cloudDOMNodes array (multiple nodes from useInstance calls)
     if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
@@ -204,9 +204,9 @@ export class CloudDOMBuilder {
           cloudNode.path = normalizePathUtil(cloudNode.path);
           cloudNode.id = generateResourceId(cloudNode.path);
 
-          // Attach outputs from useState hooks to CloudDOM node
-          if (Object.keys(outputs).length > 0) {
-            cloudNode.outputs = { ...cloudNode.outputs, ...outputs };
+          // Attach state from useState hooks to CloudDOM node's state field
+          if (Object.keys(stateValues).length > 0) {
+            cloudNode.state = { ...stateValues };
           }
 
           collected.push(cloudNode);
@@ -228,9 +228,9 @@ export class CloudDOMBuilder {
         cloudNode.path = normalizePathUtil(cloudNode.path);
         cloudNode.id = generateResourceId(cloudNode.path);
 
-        // Attach outputs from useState hooks to CloudDOM node
-        if (Object.keys(outputs).length > 0) {
-          cloudNode.outputs = { ...cloudNode.outputs, ...outputs };
+        // Attach state from useState hooks to CloudDOM node's state field
+        if (Object.keys(stateValues).length > 0) {
+          cloudNode.state = { ...stateValues };
         }
 
         collected.push(cloudNode);
@@ -250,17 +250,17 @@ export class CloudDOMBuilder {
   }
 
   /**
-   * Extract outputs from useState hooks in a Fiber node
+   * Extract state from useState hooks in a Fiber node
    *
    * REQ-02: Extract outputs from useState calls
    * REQ-06: Universal output access
-   * REQ-3.1: Use 'state.' prefix for useState outputs to separate from provider outputs
+   * REQ-2.1: Store useState values without 'state.' prefix
    *
-   * @param fiber - Fiber node to extract outputs from
-   * @returns Object mapping output keys to values (with 'state.' prefix)
+   * @param fiber - Fiber node to extract state from
+   * @returns Object mapping state keys to values (state1, state2, etc.)
    */
   private extractOutputsFromFiber(fiber: FiberNode): Record<string, any> {
-    const outputs: Record<string, any> = {};
+    const stateValues: Record<string, any> = {};
 
     // Debug logging
     if (process.env.CREACT_DEBUG === 'true') {
@@ -277,19 +277,19 @@ export class CloudDOMBuilder {
     // Check if this Fiber has hooks from useState calls
     if (fiber.hooks && Array.isArray(fiber.hooks) && fiber.hooks.length > 0) {
       // Each hook in the array represents a useState call
-      // REQ-3.1: Use 'state.' prefix to separate useState outputs from provider outputs
+      // REQ-2.1: Store as state1, state2, etc. (no 'state.' prefix)
       fiber.hooks.forEach((hookValue, index) => {
-        // Generate output key with 'state.' prefix using naming utility
-        const outputKey = generateStateOutputKey(index);
-        outputs[outputKey] = hookValue;
+        // Generate state key without prefix: state1, state2, etc.
+        const stateKey = `state${index + 1}`;
+        stateValues[stateKey] = hookValue;
       });
 
       if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[CloudDOMBuilder] Extracted useState outputs with 'state.' prefix:`, outputs);
+        console.debug(`[CloudDOMBuilder] Extracted useState values without prefix:`, stateValues);
       }
     }
 
-    return outputs;
+    return stateValues;
   }
 
   /**
@@ -370,72 +370,41 @@ export class CloudDOMBuilder {
   }
 
   /**
-   * Update a CloudDOM node's outputs with the latest Fiber hook state
+   * Update a CloudDOM node's state with the latest Fiber hook state
    * 
-   * REQ-3.2, 3.3, 3.4: Separate useState outputs from provider outputs
-   * Provider outputs take precedence for same keys
+   * REQ-1.2, 1.3: Separate useState values from provider outputs
+   * State is stored in separate `state` field, not in `outputs`
    */
   private updateCloudDOMNodeOutputs(fiber: FiberNode, cloudNode: CloudDOMNode): void {
-    // Extract fresh outputs from the Fiber node (useState outputs with 'state.' prefix)
-    const stateOutputs = this.extractOutputsFromFiber(fiber);
+    // Extract fresh state values from the Fiber node
+    const stateValues = this.extractOutputsFromFiber(fiber);
 
-    if (Object.keys(stateOutputs).length > 0) {
-      console.log(`[CloudDOMBuilder] Merging useState outputs for ${cloudNode.id}:`, stateOutputs);
-      console.log(`[CloudDOMBuilder] Existing provider outputs for ${cloudNode.id}:`, cloudNode.outputs);
+    if (Object.keys(stateValues).length > 0) {
+      // REQ-1.2: Write to state field, not outputs
+      cloudNode.state = stateValues;
 
-      // Initialize outputs if not present
-      if (!cloudNode.outputs) {
-        cloudNode.outputs = {};
-      }
-
-      // REQ-3.2, 3.3: Merge outputs keeping provider and state outputs separate
-      // State outputs have 'state.' prefix, so they won't conflict with provider outputs
-      // REQ-3.4: Provider outputs take precedence for same keys
-      // CRITICAL FIX: Fresh state outputs from fiber.hooks must overwrite stale state outputs in cloudNode.outputs
-      // Only preserve non-state outputs (provider outputs) from cloudNode.outputs
-      const providerOutputs: Record<string, any> = {};
-      if (cloudNode.outputs) {
-        for (const [key, value] of Object.entries(cloudNode.outputs)) {
-          if (!key.startsWith('state.')) {
-            providerOutputs[key] = value;
-          }
-        }
-      }
-
-      // Merge: fresh state outputs + existing provider outputs
-      // Provider outputs can overwrite state outputs if they have the same key (though unlikely with 'state.' prefix)
-      const mergedOutputs = { ...stateOutputs, ...providerOutputs };
-
-      // REQ-3.5: Both types are preserved in their respective namespaces
-      cloudNode.outputs = mergedOutputs;
-
-      console.log(`[CloudDOMBuilder] Merged outputs for ${cloudNode.id}:`, cloudNode.outputs);
+      console.log(`[CloudDOMBuilder] Synced state for ${cloudNode.id}:`, cloudNode.state);
     }
 
-    // CRITICAL FIX: Sync outputs back to original nodes that components reference
+    // CRITICAL FIX: Sync state back to original nodes that components reference
     this.syncOutputsToOriginalNodes(fiber, cloudNode);
   }
 
   /**
-   * Sync outputs back to the original CloudDOM nodes that components reference
-   * This ensures that enhanced node proxies see the updated outputs
+   * Sync state back to the original CloudDOM nodes that components reference
+   * This ensures that enhanced node proxies see the updated state
    */
   private syncOutputsToOriginalNodes(fiber: FiberNode, updatedNode: CloudDOMNode): void {
     // Find the original nodes in the fiber that match this updated node
     if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
       for (const originalNode of (fiber as any).cloudDOMNodes) {
         if (originalNode.id === updatedNode.id) {
-          // Update the original node's outputs with the latest values
-          if (updatedNode.outputs) {
-            if (!originalNode.outputs) {
-              originalNode.outputs = {};
-            }
-
-            // Merge outputs, preserving existing ones and adding new ones
-            Object.assign(originalNode.outputs, updatedNode.outputs);
+          // Update the original node's state with the latest values
+          if (updatedNode.state) {
+            originalNode.state = { ...updatedNode.state };
 
             if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[CloudDOMBuilder] Synced outputs to original node ${originalNode.id}:`, originalNode.outputs);
+              console.debug(`[CloudDOMBuilder] Synced state to original node ${originalNode.id}:`, originalNode.state);
             }
           }
           break;
@@ -445,14 +414,11 @@ export class CloudDOMBuilder {
 
     // Also check single cloudDOMNode (legacy support)
     if (fiber.cloudDOMNode && fiber.cloudDOMNode.id === updatedNode.id) {
-      if (updatedNode.outputs) {
-        if (!fiber.cloudDOMNode.outputs) {
-          fiber.cloudDOMNode.outputs = {};
-        }
-        Object.assign(fiber.cloudDOMNode.outputs, updatedNode.outputs);
+      if (updatedNode.state) {
+        fiber.cloudDOMNode.state = { ...updatedNode.state };
 
         if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[CloudDOMBuilder] Synced outputs to original single node ${fiber.cloudDOMNode.id}:`, fiber.cloudDOMNode.outputs);
+          console.debug(`[CloudDOMBuilder] Synced state to original single node ${fiber.cloudDOMNode.id}:`, fiber.cloudDOMNode.state);
         }
       }
     }

@@ -9,6 +9,7 @@ build/
 # CReact persistence directory
 .creact/
 .creact-*/
+.kiro
 
 # Test coverage
 coverage/

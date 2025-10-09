@@ -6,8 +6,10 @@ import { BaseCommand, CommandResult } from '../core/BaseCommand';
 import { CLIContextManager } from '../core/CLIContext';
 import { Spinner, colors, formatDiff } from '../output';
 import { watch } from 'fs';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { createInterface } from 'readline';
+import { Reconciler, getTotalChanges } from '../../core/Reconciler';
+import { getReactiveUpdateQueue } from '../../core/ReactiveUpdateQueue';
 
 interface DevState {
   lastCloudDOM: any[] | null;
@@ -101,27 +103,29 @@ export class DevCommand extends BaseCommand {
       const previousCloudDOM = backendState?.cloudDOM || [];
 
       // Compute diff using Reconciler
-      let ReconcilerModule;
-      try {
-        ReconcilerModule = require(resolve(process.cwd(), 'src/core/Reconciler'));
-      } catch {
-        ReconcilerModule = require(resolve(__dirname, '../../core/Reconciler'));
-      }
-      const reconciler = new ReconcilerModule.Reconciler();
+      const reconciler = new Reconciler();
 
       const changeSet = reconciler.reconcile(previousCloudDOM, result.cloudDOM);
 
       // Use single source of truth for change counting
-      const totalChanges = ReconcilerModule.getTotalChanges(changeSet);
-
-      // Debug: Log the changeset structure
+      const totalChanges = getTotalChanges(changeSet);
+ 
+      // Debug: Log the changeset structure with node IDs
       if (this.verbose) {
         console.log('\n🔍 Debug: ChangeSet structure:');
-        console.log(`  creates: ${changeSet.creates.length}`);
-        console.log(`  updates: ${changeSet.updates.length}`);
-        console.log(`  deletes: ${changeSet.deletes.length}`);
-        console.log(`  replacements: ${changeSet.replacements.length}`);
+        console.log(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
+        console.log(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
+        console.log(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
+        console.log(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
         console.log(`  moves: ${changeSet.moves.length}`);
+        
+        if (changeSet.moves.length > 0) {
+          console.log('\n  Move details:');
+          changeSet.moves.forEach((move: any) => {
+            console.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
+          });
+        }
+        
         console.log(`  Total changes: ${totalChanges}`);
       }
 
@@ -182,23 +186,32 @@ export class DevCommand extends BaseCommand {
       // No need to call loadStateForHydration() here - it's automatic!
 
       // Compute diff using Reconciler
-      let ReconcilerModule;
-      try {
-        ReconcilerModule = require(resolve(process.cwd(), 'src/core/Reconciler'));
-      } catch {
-        ReconcilerModule = require(resolve(__dirname, '../../core/Reconciler'));
-      }
-      const reconciler = new ReconcilerModule.Reconciler();
+      const reconciler = new Reconciler();
 
       const changeSet = reconciler.reconcile(this.state.lastCloudDOM, result.cloudDOM);
 
       // Use single source of truth for change counting
-      const totalChanges = ReconcilerModule.getTotalChanges(changeSet);
+      const totalChanges = getTotalChanges(changeSet);
 
-      // Debug: Show outputs comparison
+      // Debug: Show outputs comparison and changeset structure
       if (this.verbose && this.state.lastCloudDOM) {
         console.log("\n🔍 Debug: Comparing outputs...");
         this.debugOutputs(this.state.lastCloudDOM, result.cloudDOM);
+        
+        console.log('\n🔍 Debug: ChangeSet structure:');
+        console.log(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
+        console.log(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
+        console.log(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
+        console.log(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
+        console.log(`  moves: ${changeSet.moves.length}`);
+        
+        if (changeSet.moves.length > 0) {
+          console.log('\n  Move details:');
+          changeSet.moves.forEach((move: any) => {
+            console.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
+          });
+        }
+        
         console.log(`\n🔍 Total changes: ${totalChanges}`);
       }
 
@@ -303,7 +316,6 @@ export class DevCommand extends BaseCommand {
     const absoluteEntryPath = resolve(process.cwd(), entryPath);
 
     // Watch only the directory containing the entry file
-    const { dirname } = require('path');
     const entryDir = dirname(absoluteEntryPath);
 
     const watchPaths = [
@@ -469,15 +481,7 @@ export class DevCommand extends BaseCommand {
    */
   private async processReactiveUpdates(instance: any, spinner: Spinner): Promise<void> {
     try {
-      // Import ReactiveUpdateQueue
-      let ReactiveUpdateQueue;
-      try {
-        ReactiveUpdateQueue = require(resolve(process.cwd(), 'src/core/ReactiveUpdateQueue'));
-      } catch {
-        ReactiveUpdateQueue = require(resolve(__dirname, '../../core/ReactiveUpdateQueue'));
-      }
-
-      const queue = ReactiveUpdateQueue.getReactiveUpdateQueue();
+      const queue = getReactiveUpdateQueue();
       const queueSize = queue.size();
 
       if (queueSize === 0) {

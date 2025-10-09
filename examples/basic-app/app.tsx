@@ -173,6 +173,8 @@ function MessagingApp() {
 
 function GlobalCDN({ origins }: { origins: string[] }) {
   const cdn = useInstance(CDN, { name: "global-cdn", origins });
+  const cdn2 = useInstance(CDN, { name: "global-cdn", origins });
+
   useEffect(() => {
     if (cdn.outputs?.domain) {
       console.log(`[GlobalCDN] Live at ${cdn.outputs.domain}`);

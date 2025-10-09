@@ -1,6 +1,7 @@
 import { FiberNode, ReRenderReason, CReactEvents } from './types';
 import { ErrorRecoveryManager } from './ErrorRecoveryManager';
 import { CircularDependencyError } from './errors';
+import { getCReactInstance } from './CReact';
 
 /**
  * RenderScheduler - Manages batched re-rendering of components
@@ -187,7 +188,6 @@ export class RenderScheduler {
 
     try {
       // Get the CReact instance to access the renderer
-      const { getCReactInstance } = require('./CReact');
       const creact = getCReactInstance();
 
       if (!creact) {
@@ -411,7 +411,6 @@ export class RenderScheduler {
   private async executeReRender(fiber: FiberNode): Promise<void> {
     try {
       // Get the CReact instance to access the renderer
-      const { getCReactInstance } = require('./CReact');
       const creact = getCReactInstance();
 
       if (!creact) {

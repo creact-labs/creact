@@ -4,8 +4,9 @@
 
 import { BaseCommand, CommandResult } from '../core/BaseCommand';
 import { CLIContextManager } from '../core/CLIContext';
-import { Spinner } from '../output';
+import { Spinner, formatDiff } from '../output';
 import { resolve } from 'path';
+import { Reconciler } from '../../core/Reconciler';
 
 export class PlanCommand extends BaseCommand {
   getName(): string {
@@ -66,13 +67,7 @@ export class PlanCommand extends BaseCommand {
       // Compute diff using Reconciler
       spinner.start('Computing changes...');
       
-      let ReconcilerClass;
-      try {
-        ReconcilerClass = require(resolve(process.cwd(), 'src/core/Reconciler')).Reconciler;
-      } catch {
-        ReconcilerClass = require(resolve(__dirname, '../../core/Reconciler')).Reconciler;
-      }
-      const reconciler = new ReconcilerClass();
+      const reconciler = new Reconciler();
       
       const changeSet = reconciler.reconcile(previousCloudDOM, result.cloudDOM);
       
@@ -133,8 +128,6 @@ export class PlanCommand extends BaseCommand {
   }
 
   private printDiff(changeSet: any): void {
-    // Import formatDiff from output module
-    const { formatDiff } = require('../output');
     console.log(formatDiff(changeSet));
   }
 

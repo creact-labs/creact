@@ -141,14 +141,20 @@ export interface CloudDOMNode {
   /** Construct type (e.g., EcrRepository, AppRunnerService) */
   construct: any;
 
+  /** Serializable construct type name (e.g., 'EcrRepository', 'AppRunnerService') */
+  constructType: string;
+
   /** Props for the construct */
   props: Record<string, any>;
 
   /** Child CloudDOM nodes */
   children: CloudDOMNode[];
 
-  /** Outputs from useState (optional) */
+  /** Infrastructure outputs from cloud provider (e.g., connectionUrl, port, bucketName) */
   outputs?: Record<string, any>;
+
+  /** Application state from useState hooks (e.g., { state1: "...", state2: 123 }) */
+  state?: Record<string, any>;
 
   /** Event callbacks extracted from component props (optional) */
   eventCallbacks?: CloudDOMEventCallbacks;

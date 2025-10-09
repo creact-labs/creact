@@ -262,7 +262,7 @@ export class Reconciler {
    * Compute a shallow hash of props for fast equality checks
    *
    * Creates a stable, key-order-independent hash by:
-   * - Filtering out metadata keys (starting with _)
+   * - Filtering out special props (metadata, key, children)
    * - Sorting entries by key
    * - JSON stringifying the result
    *
@@ -277,7 +277,7 @@ export class Reconciler {
     }
 
     const entries = Object.entries(props)
-      .filter(([k]) => !this.isMetadataKey(k))
+      .filter(([k]) => !this.isMetadataKey(k) && k !== 'key' && k !== 'children')
       .sort(([a], [b]) => a.localeCompare(b));
 
     try {
@@ -369,6 +369,21 @@ export class Reconciler {
     // Step 4.5: Detect moves (nodes that changed parent in hierarchy)
     const moves = this.detectMoves(previousMap, currentMap);
     this.log(`Moves: ${moves.length} nodes`);
+
+    // Debug logging: breakdown of change types (CREACT_DEBUG only)
+    this.log('\n🔍 Reconciliation Change Breakdown:');
+    this.log(`  Creates: ${creates.length} nodes - ${creates.map(n => n.id).join(', ') || 'none'}`);
+    this.log(`  Updates: ${updates.length} nodes - ${updates.map(n => n.id).join(', ') || 'none'}`);
+    this.log(`  Deletes: ${deletes.length} nodes - ${deletes.map(n => n.id).join(', ') || 'none'}`);
+    this.log(`  Replacements: ${replacements.length} nodes - ${replacements.map(n => n.id).join(', ') || 'none'}`);
+    this.log(`  Moves: ${moves.length} nodes`);
+    
+    if (moves.length > 0) {
+      this.log('  Move details:');
+      moves.forEach(move => {
+        this.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
+      });
+    }
 
     // Calculate unchanged nodes for idempotency verification
     const unchanged = currentMap.size - (creates.length + updates.length + replacements.length);
@@ -621,19 +636,29 @@ export class Reconciler {
         const prevParentPathArray = previousNode.path.slice(0, -1);
         const currParentPathArray = currentNode.path.slice(0, -1);
 
+        // CRITICAL FIX: Handle empty parent paths (root nodes)
+        // Both nodes at root level (empty parent paths) - no move
+        if (prevParentPathArray.length === 0 && currParentPathArray.length === 0) {
+          this.log(`Skipping move detection for root node: ${id}`);
+          continue; 
+        }
+
         // Check if parent changed using array equality (not string comparison)
         // This handles dynamic segments correctly
         if (!deepEqual(prevParentPathArray, currParentPathArray, false)) {
           const prevParentPath = prevParentPathArray.join('.') || '<root>';
           const currParentPath = currParentPathArray.join('.') || '<root>';
 
-          moves.push({
-            nodeId: id,
-            from: prevParentPath,
-            to: currParentPath,
-          });
+          // Only add if paths are actually different strings
+          if (prevParentPath !== currParentPath) {
+            moves.push({
+              nodeId: id,
+              from: prevParentPath,
+              to: currParentPath,
+            });
 
-          this.log(`Move detected: ${id} from ${prevParentPath} to ${currParentPath}`);
+            this.log(`Move detected: ${id} from ${prevParentPath} to ${currParentPath}`);
+          }
         }
       }
     }
@@ -654,6 +679,11 @@ export class Reconciler {
    * - Only falls back to deep equality if hashes differ
    * - Caches hashes in node metadata (_propHash)
    *
+   * NOTE: The `state` field is intentionally NOT compared during reconciliation.
+   * Only `props` and `outputs` are compared. The `state` field contains useState
+   * values which should not trigger infrastructure updates. This separation ensures
+   * that application state changes don't cause unnecessary resource deployments.
+   *
    * @param previous - Previous node
    * @param current - Current node
    * @returns Change type
@@ -663,7 +693,17 @@ export class Reconciler {
     current: CloudDOMNode
   ): 'replacement' | 'update' | 'none' {
     // Check if construct type changed (needs replacement)
-    if (!this.constructsEqual(previous.construct, current.construct)) {
+    // Use constructType string field for reliable comparison after serialization
+    const prevType = previous.constructType || this.getConstructName(previous.construct);
+    const currType = current.constructType || this.getConstructName(current.construct);
+    
+    if (prevType !== currType) {
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.log(`[Reconciler] Construct type mismatch for ${current.id}:`, {
+          previousType: prevType,
+          currentType: currType,
+        });
+      }
       return 'replacement';
     }
 
@@ -671,18 +711,27 @@ export class Reconciler {
     const prevHash = ((previous as any)._propHash ??= this.computeShallowHash(previous.props));
     const currHash = ((current as any)._propHash ??= this.computeShallowHash(current.props));
 
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.log(`[Reconciler] Hash comparison for ${current.id}:`, {
+        prevHash,
+        currHash,
+        match: prevHash === currHash,
+        prevProps: previous.props,
+        currProps: current.props,
+      });
+    }
+
     // Fast path: if hashes match, props are identical (skip deep equality)
     if (prevHash === currHash) {
-      // Even if props are the same, check if outputs changed
-      if (this.outputsChanged(previous.outputs, current.outputs)) {
-        return 'update';
-      }
+      // Props are identical - no change needed
+      // NOTE: outputs are ignored per REQ-R03 (runtime values only)
       return 'none';
     }
 
     // Hashes differ: perform deep equality check to confirm
-    if (this.propsChanged(previous.props, current.props) || 
-        this.outputsChanged(previous.outputs, current.outputs)) {
+    // NOTE: Only compares `props` field, NOT `outputs` or `state` fields
+    // outputs are runtime values and should not trigger reconciliation (REQ-R03)
+    if (this.propsChanged(previous.props, current.props)) {
       return 'update';
     }
 
@@ -694,6 +743,9 @@ export class Reconciler {
    *
    * Constructs are considered equal if they have the same name.
    * Handles edge cases like minified builds where function names may be undefined.
+   *
+   * NOTE: After serialization, construct field may be undefined, so we rely on
+   * constructType string field for comparison.
    *
    * @param a - First construct
    * @param b - Second construct
@@ -744,7 +796,10 @@ export class Reconciler {
    * Compares props objects deeply to detect any changes.
    * Uses the deepEqual utility with memoization for performance.
    *
-   * Skips props that start with underscore (internal metadata).
+   * Excludes special props that don't affect rendering:
+   * - Metadata props (starting with _)
+   * - key prop (used for identity, not rendering)
+   * - children prop (handled separately in rendering)
    *
    * @param prevProps - Previous props (optional, defaults to empty object)
    * @param currProps - Current props (optional, defaults to empty object)
@@ -754,19 +809,29 @@ export class Reconciler {
     prevProps: Record<string, any> = {},
     currProps: Record<string, any> = {}
   ): boolean {
-    // Filter out internal metadata props using shared helper
-    const filterMetadata = (props: Record<string, any>) => {
+    // Filter out special props that don't affect rendering
+    const filterSpecialProps = (props: Record<string, any>) => {
       const filtered: Record<string, any> = {};
       for (const [key, value] of Object.entries(props)) {
-        if (!this.isMetadataKey(key)) {
-          filtered[key] = value;
+        // Exclude metadata (starts with _)
+        if (this.isMetadataKey(key)) {
+          continue;
         }
+        // Exclude key (used for identity, not rendering)
+        if (key === 'key') {
+          continue;
+        }
+        // Exclude children (handled separately)
+        if (key === 'children') {
+          continue;
+        }
+        filtered[key] = value;
       }
       return filtered;
     };
 
-    const prevFiltered = filterMetadata(prevProps);
-    const currFiltered = filterMetadata(currProps);
+    const prevFiltered = filterSpecialProps(prevProps);
+    const currFiltered = filterSpecialProps(currProps);
 
     // Use deep equality with memoization
     return !deepEqual(prevFiltered, currFiltered);
@@ -775,23 +840,42 @@ export class Reconciler {
   /**
    * Check if outputs have changed using deep equality
    *
-   * @param previous - Previous outputs
-   * @param current - Current outputs
+   * Treats empty objects ({}) as equivalent to undefined for idempotency.
+   *
+   * NOTE: This method only receives and compares the `outputs` field from CloudDOMNode.
+   * The `state` field is never passed to this method, ensuring that useState values
+   * do not trigger infrastructure updates. This separation is automatic - callers
+   * explicitly pass `node.outputs`, not `node.state`.
+   *
+   * @param previous - Previous outputs (from node.outputs field only)
+   * @param current - Current outputs (from node.outputs field only)
    * @returns True if outputs changed
    */
   private outputsChanged(
     previous: Record<string, any> | undefined, 
     current: Record<string, any> | undefined
   ): boolean {
-    // Handle undefined cases
-    if (previous === undefined && current === undefined) {
+    // Helper to check if output is empty (undefined or {})
+    const isEmpty = (output: Record<string, any> | undefined): boolean => {
+      return output === undefined || 
+             (typeof output === 'object' && Object.keys(output).length === 0);
+    };
+
+    const prevIsEmpty = isEmpty(previous);
+    const currIsEmpty = isEmpty(current);
+
+    // CRITICAL FIX: Both empty - no change
+    if (prevIsEmpty && currIsEmpty) {
       return false;
     }
-    if (previous === undefined || current === undefined) {
+
+    // One empty, one not - changed
+    if (prevIsEmpty !== currIsEmpty) {
       return true;
     }
-    
-    return !deepEqual(previous, current);
+
+    // Both have content - use deep equality
+    return !deepEqual(previous, current, true);
   }
 
   /**

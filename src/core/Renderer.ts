@@ -52,7 +52,7 @@ export class Renderer {
     return runWithHookContext(() => {
       try {
         this.currentPath = [];
-        this.currentFiber = this.renderElement(jsx, []);
+        this.currentFiber = this.renderElement(jsx, [], 0);
         return this.currentFiber;
       } finally {
         // Clear context stacks to prevent memory leaks
@@ -69,9 +69,10 @@ export class Renderer {
    *
    * @param element - JSX element
    * @param parentPath - Path from parent
+   * @param siblingIndex - Sibling index for automatic key generation (default 0)
    * @returns Fiber node
    */
-  private renderElement(element: JSXElement, parentPath: string[]): FiberNode {
+  private renderElement(element: JSXElement, parentPath: string[], siblingIndex: number = 0): FiberNode {
     if (!element || typeof element !== 'object') {
       throw new Error('Invalid JSX element');
     }
@@ -85,8 +86,8 @@ export class Renderer {
     // Ensure props is always an object (handle null/undefined)
     const safeProps = props || {};
 
-    // Generate path for this node
-    const nodeName = getNodeName(type, safeProps, key);
+    // Generate path for this node with sibling index support
+    const nodeName = getNodeName(type, safeProps, key, siblingIndex);
     const path = [...parentPath, nodeName];
 
     // Create Fiber node for component execution
@@ -207,6 +208,12 @@ export class Renderer {
       (child) => child !== null && child !== undefined && typeof child !== 'boolean'
     );
 
+    // Track sibling counts by component type for automatic key generation
+    const siblingCounts = new Map<any, number>();
+    
+    // Track which types have been warned about (only warn once per type per render)
+    const warnedTypes = new Set<any>();
+
     // Render each child
     return validChildren
       .map((child) => {
@@ -218,12 +225,49 @@ export class Renderer {
 
         // Render JSX element
         if (typeof child === 'object' && child.type) {
-          return this.renderElement(child, parentPath);
+          // Track sibling index for this type
+          const currentIndex = siblingCounts.get(child.type) || 0;
+          siblingCounts.set(child.type, currentIndex + 1);
+
+          // Emit warning when multiple siblings of same type without explicit keys
+          // This detects potential .map() usage without keys
+          if (currentIndex > 0 && !child.key && !warnedTypes.has(child.type)) {
+            warnedTypes.add(child.type);
+            const typeName = this.getTypeName(child.type);
+            const pathStr = parentPath.join('.');
+            console.warn(
+              `Warning: Multiple children of type "${typeName}" ` +
+              `without explicit keys at path "${pathStr}". ` +
+              `Consider adding a "key" prop for better reconciliation.`
+            );
+          }
+
+          // Pass sibling index to renderElement
+          return this.renderElement(child, parentPath, currentIndex);
         }
 
         return null;
       })
       .filter((node): node is FiberNode => node !== null);
+  }
+
+  /**
+   * Get a human-readable type name for warning messages
+   * 
+   * @param type - Component type
+   * @returns Type name string
+   */
+  private getTypeName(type: any): string {
+    if (typeof type === 'function') {
+      return type.displayName || type.name || 'anonymous';
+    }
+    if (typeof type === 'string') {
+      return type;
+    }
+    if (typeof type === 'symbol') {
+      return 'Fragment';
+    }
+    return 'unknown';
   }
 
   /**

@@ -5,7 +5,7 @@ import { Renderer } from './Renderer';
 import { Validator } from './Validator';
 import { CloudDOMBuilder } from './CloudDOMBuilder';
 import { StateMachine } from './StateMachine';
-import { Reconciler } from './Reconciler';
+import { Reconciler, hasChanges } from './Reconciler';
 import { ICloudProvider } from '../providers/ICloudProvider';
 import { IBackendProvider } from '../providers/IBackendProvider';
 import { CloudDOMNode, JSXElement, ChangeSet, FiberNode, ReRenderReason, CReactEvents } from './types';
@@ -462,8 +462,6 @@ export class CReact {
     const changeSet = this.reconciler.reconcile(previousCloudDOM, cloudDOM);
 
     // Use single source of truth for checking changes
-    const { hasChanges } = require('./Reconciler');
-    
     if (!hasChanges(changeSet)) {
       console.log('[CReact] No changes detected. Deployment skipped.');
       this.log('No resources to deploy');
@@ -695,14 +693,13 @@ export class CReact {
           continue;
         }
 
-        if (node.outputs) {
-          const stateValues: any[] = [];
-          // Collect state.stateN outputs in order
-          let index = 1;
-          while (`state.state${index}` in node.outputs) {
-            stateValues.push(node.outputs[`state.state${index}`]);
-            index++;
-          }
+        // Read from state field instead of filtering state.* from outputs
+        if (node.state && Object.keys(node.state).length > 0) {
+          // Convert state object to array: { state1: "a", state2: "b" } → ["a", "b"]
+          // Ensure keys are sorted (state1, state2, state3...) before converting to array
+          const stateValues = Object.keys(node.state)
+            .sort() // Sort to ensure state1, state2, state3... order
+            .map(key => node.state![key]);
 
           if (stateValues.length > 0) {
             // Only set if not already set (first node from component wins)
@@ -894,14 +891,14 @@ export class CReact {
 
     const extractStateOutputs = (nodes: CloudDOMNode[]) => {
       for (const node of nodes) {
-        if (node.outputs) {
-          const stateValues: any[] = [];
-          // Collect state.stateN outputs in order
-          let index = 1;
-          while (`state.state${index}` in node.outputs) {
-            stateValues.push(node.outputs[`state.state${index}`]);
-            index++;
-          }
+        // Read from state field instead of filtering state.* from outputs
+        if (node.state && Object.keys(node.state).length > 0) {
+          // Convert state object to array: { state1: "a", state2: "b" } → ["a", "b"]
+          // Ensure keys are sorted (state1, state2, state3...) before converting to array
+          const stateValues = Object.keys(node.state)
+            .sort() // Sort to ensure state1, state2, state3... order
+            .map(key => node.state![key]);
+          
           if (stateValues.length > 0) {
             stateOutputs.set(node.id, stateValues);
           }

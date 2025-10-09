@@ -13,6 +13,7 @@ import { StateBindingManager } from '../core/StateBindingManager';
 import { generateBindingKey } from '../utils/naming';
 import { FiberNode } from '../core/types';
 import { getReactiveUpdateQueue } from '../core/ReactiveUpdateQueue';
+import { getCReactInstance } from '../core/CReact';
 
 // Global StateBindingManager instance
 let stateBindingManager: StateBindingManager | null = null;
@@ -138,7 +139,6 @@ export function useState<T = undefined>(
 
     // Try to get CReact instance to check for hydration data
     try {
-      const { getCReactInstance } = require('../core/CReact');
       const creactInstance = getCReactInstance?.();
 
       if (creactInstance && creactInstance.hasHydrationData()) {

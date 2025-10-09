@@ -205,6 +205,16 @@ export function useInstance<T = any>(
   // Extract key from props (React-like)
   const { key, ...restProps } = props;
 
+  // Remove undefined values from props to match JSON serialization behavior
+  // When CloudDOM is saved to backend, JSON.stringify strips undefined values
+  // This ensures consistent comparison after deserialization
+  const cleanProps: Record<string, any> = {};
+  for (const [k, v] of Object.entries(restProps)) {
+    if (v !== undefined) {
+      cleanProps[k] = v;
+    }
+  }
+
   // Extract event callbacks from current component's props (not useInstance props)
   const componentProps = currentFiber.props || {};
   const eventCallbacks: CloudDOMEventCallbacks = {};
@@ -254,12 +264,17 @@ export function useInstance<T = any>(
   const fullPath = [...currentPath, id];
   const resourceId = generateResourceId(fullPath);
 
+  // Generate stable constructType identifier
+  // This is a serializable string that uniquely identifies the construct type
+  const constructType = construct.name || 'UnknownConstruct';
+
   // Create CloudDOM node
   const node: CloudDOMNode = {
     id: resourceId,
     path: fullPath,
     construct,
-    props: { ...restProps }, // Clone props (without key) to avoid mutations
+    constructType, // Serializable construct type identifier
+    props: cleanProps, // Use cleaned props (no undefined values, no key)
     children: [],
     outputs: {}, // Will be populated during materialization
     eventCallbacks: Object.keys(eventCallbacks).length > 0 ? eventCallbacks : undefined,

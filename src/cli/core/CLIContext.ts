@@ -99,12 +99,7 @@ export class CLIContextManager {
     }
 
     // Now get the CReact class - providers should be configured by the entry file
-    let CReactClass;
-    try {
-      CReactClass = require(resolve(process.cwd(), 'src/core/CReact')).CReact;
-    } catch {
-      CReactClass = require(resolve(__dirname, '../../core/CReact')).CReact;
-    }
+    const CReactClass = CReact;
 
     // Validate that providers are configured (they should be after loading entry file)
     if (!CReactClass.cloudProvider || !CReactClass.backendProvider) {

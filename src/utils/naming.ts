@@ -65,55 +65,65 @@ export function toKebabCase(str: string): string {
 }
 
 /**
- * Generate a node name from component type, props, and key
+ * Generate a node name from component type and key
  *
  * Priority order:
- * 1. Custom key prop (highest priority)
- * 2. Name prop
- * 3. Component function name or displayName
- * 4. Type string (for intrinsic elements)
- * 5. 'anonymous' (fallback)
+ * 1. Custom key prop (highest priority, for identity)
+ * 2. Component function name or displayName
+ * 3. Type string (for intrinsic elements)
+ * 4. 'anonymous' (fallback)
+ * 5. Append siblingIndex if > 0 (for automatic position-based keys)
+ *
+ * Note: The props parameter is kept for future extensibility and for passing
+ * to child components during execution, but props are NOT used for node identity.
+ * Only the 'key' prop determines identity.
  *
  * REQ-01: Support custom keys via key prop
+ * REQ-6.9: Only key prop is used for identity, not name prop
+ * REQ-6.2: Automatic position-based keys for static JSX siblings
  *
  * @param type - Component type (function, class, or string)
- * @param props - Component props
- * @param key - Optional key prop
+ * @param props - Component props (for component execution, not identity)
+ * @param key - Optional key prop (for identity)
+ * @param siblingIndex - Optional sibling index for automatic key generation
  * @returns Node name in kebab-case
  */
 export function getNodeName(
   type: any,
   props: Record<string, any> = {},
-  key?: string | number
+  key?: string | number,
+  siblingIndex?: number
 ): string {
-  // Priority 1: Use key if provided
+  // Priority 1: Use key if provided (identity)
   if (key !== undefined) {
     return toKebabCase(String(key));
   }
 
-  // Priority 2: Use name prop if provided
-  if (props && props.name) {
-    return toKebabCase(props.name);
-  }
-
-  // Priority 3: Use component function name or displayName
+  // Priority 2: Use component function name or displayName
+  let baseName: string;
   if (typeof type === 'function') {
-    const name = type.displayName || type.name || 'anonymous';
-    return toKebabCase(name);
+    baseName = type.displayName || type.name || 'anonymous';
+  } else if (typeof type === 'string') {
+    // Priority 3: Use string type as-is (intrinsic elements)
+    baseName = type;
+  } else if (typeof type === 'symbol') {
+    // Priority 4: Handle Fragment (Symbol type)
+    baseName = 'fragment';
+  } else {
+    // Fallback
+    baseName = 'anonymous';
   }
 
-  // Priority 4: Use string type as-is (intrinsic elements)
-  if (typeof type === 'string') {
-    return toKebabCase(type);
+  // Convert to kebab-case
+  const kebabName = toKebabCase(baseName);
+
+  // Priority 5: Append siblingIndex if provided and > 0
+  // Keep first sibling without suffix (index 0)
+  if (siblingIndex !== undefined && siblingIndex > 0) {
+    return `${kebabName}-${siblingIndex}`;
   }
 
-  // Priority 5: Handle Fragment (Symbol type)
-  if (typeof type === 'symbol') {
-    return 'fragment';
-  }
-
-  // Fallback
-  return 'anonymous';
+  return kebabName;
 }
 
 /**
@@ -269,18 +279,19 @@ export function parseBindingKey(bindingKey: string): { nodeId: string; outputKey
 /**
  * Generate a state output key for useState hooks
  *
- * REQ-3.1: Use 'state.' prefix to separate useState outputs from provider outputs
+ * REQ-3.1: Generate state keys without prefix (stored in separate state field)
  *
- * Creates a namespaced key for useState outputs to prevent conflicts with
- * provider outputs. Uses 1-based indexing for consistency.
+ * Creates a key for useState outputs. Uses 1-based indexing for consistency.
+ * State values are stored in the separate `state` field on CloudDOMNode,
+ * not in the `outputs` field, so no prefix is needed.
  *
  * Examples:
- * - generateStateOutputKey(0) → 'state.state1'
- * - generateStateOutputKey(1) → 'state.state2'
- * - generateStateOutputKey(2) → 'state.state3'
+ * - generateStateOutputKey(0) → 'state1'
+ * - generateStateOutputKey(1) → 'state2'
+ * - generateStateOutputKey(2) → 'state3'
  *
  * @param hookIndex - Zero-based hook index
- * @returns State output key with 'state.' prefix
+ * @returns State output key without prefix
  */
 export function generateStateOutputKey(hookIndex: number): string {
   if (hookIndex < 0 || !Number.isInteger(hookIndex)) {
@@ -288,17 +299,17 @@ export function generateStateOutputKey(hookIndex: number): string {
   }
 
   // Use 1-based indexing for user-friendly naming (state1, state2, state3)
-  return `state.state${hookIndex + 1}`;
+  return `state${hookIndex + 1}`;
 }
 
 /**
- * Check if an output key is a state output (has 'state.' prefix)
+ * Check if an output key is a state output (matches state key format)
  *
- * REQ-3.1: Identify useState outputs by their 'state.' prefix
+ * REQ-3.1: Identify useState outputs by their key format (state1, state2, etc.)
  *
  * Examples:
- * - isStateOutputKey('state.state1') → true
- * - isStateOutputKey('state.state2') → true
+ * - isStateOutputKey('state1') → true
+ * - isStateOutputKey('state2') → true
  * - isStateOutputKey('connectionUrl') → false
  * - isStateOutputKey('vaultUrl') → false
  *
@@ -306,25 +317,25 @@ export function generateStateOutputKey(hookIndex: number): string {
  * @returns True if the key is a state output
  */
 export function isStateOutputKey(outputKey: string): boolean {
-  return typeof outputKey === 'string' && outputKey.startsWith('state.');
+  return typeof outputKey === 'string' && /^state\d+$/.test(outputKey);
 }
 
 /**
- * Check if an output key is a provider output (no 'state.' prefix)
+ * Check if an output key is a provider output (not a state key)
  *
- * REQ-3.1: Identify provider outputs by absence of 'state.' prefix
+ * REQ-3.1: Identify provider outputs by absence of state key format
  *
  * Examples:
  * - isProviderOutputKey('connectionUrl') → true
  * - isProviderOutputKey('vaultUrl') → true
- * - isProviderOutputKey('state.state1') → false
- * - isProviderOutputKey('state.state2') → false
+ * - isProviderOutputKey('state1') → false
+ * - isProviderOutputKey('state2') → false
  *
  * @param outputKey - Output key to check
  * @returns True if the key is a provider output
  */
 export function isProviderOutputKey(outputKey: string): boolean {
-  return typeof outputKey === 'string' && !outputKey.startsWith('state.');
+  return typeof outputKey === 'string' && !isStateOutputKey(outputKey);
 }
 
 /**
@@ -333,9 +344,9 @@ export function isProviderOutputKey(outputKey: string): boolean {
  * Inverse of generateStateOutputKey.
  *
  * Examples:
- * - parseStateOutputKey('state.state1') → 0
- * - parseStateOutputKey('state.state2') → 1
- * - parseStateOutputKey('state.state3') → 2
+ * - parseStateOutputKey('state1') → 0
+ * - parseStateOutputKey('state2') → 1
+ * - parseStateOutputKey('state3') → 2
  *
  * @param stateOutputKey - State output key
  * @returns Zero-based hook index
@@ -343,13 +354,13 @@ export function isProviderOutputKey(outputKey: string): boolean {
  */
 export function parseStateOutputKey(stateOutputKey: string): number {
   if (!isStateOutputKey(stateOutputKey)) {
-    throw new Error(`Invalid state output key: ${stateOutputKey}. Must start with 'state.'`);
+    throw new Error(`Invalid state output key: ${stateOutputKey}. Must match format 'state{N}'`);
   }
 
-  // Extract the numeric part after 'state.state'
-  const match = stateOutputKey.match(/^state\.state(\d+)$/);
+  // Extract the numeric part after 'state'
+  const match = stateOutputKey.match(/^state(\d+)$/);
   if (!match) {
-    throw new Error(`Invalid state output key format: ${stateOutputKey}. Expected format: 'state.state{N}'`);
+    throw new Error(`Invalid state output key format: ${stateOutputKey}. Expected format: 'state{N}'`);
   }
 
   // Convert from 1-based to 0-based indexing
