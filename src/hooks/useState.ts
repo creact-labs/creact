@@ -12,6 +12,7 @@ import {
 import { StateBindingManager } from '../core/StateBindingManager';
 import { generateBindingKey } from '../utils/naming';
 import { FiberNode } from '../core/types';
+import { getReactiveUpdateQueue } from '../core/ReactiveUpdateQueue';
 
 // Global StateBindingManager instance
 let stateBindingManager: StateBindingManager | null = null;
@@ -131,7 +132,45 @@ export function useState<T = undefined>(
 
   // Initialize this hook's state if first render
   if (currentFiber.hooks[currentHookIndex] === undefined) {
-    currentFiber.hooks[currentHookIndex] = initialValue;
+    // CRITICAL: Check for hydrated value first (hot reload state restoration)
+    // This allows useState to restore persisted state instead of using initial value
+    let hydratedValue: any = undefined;
+
+    // Try to get CReact instance to check for hydration data
+    try {
+      const { getCReactInstance } = require('../core/CReact');
+      const creactInstance = getCReactInstance?.();
+
+      if (creactInstance && creactInstance.hasHydrationData()) {
+        // CRITICAL: The fiber path is the component path (e.g., 'web-app-stack')
+        const fiberPath = currentFiber.path?.join('.') || '';
+        console.log(`[useState] 🔍 Looking for hydration: component="${fiberPath}", hookIndex=${currentHookIndex}`);
+        
+        // Try to get hydration from component path
+        hydratedValue = creactInstance.getHydratedValueForComponent(fiberPath, currentHookIndex);
+
+        if (hydratedValue !== undefined) {
+          console.log(`[useState] ✅ HYDRATION SUCCESS for ${fiberPath}[${currentHookIndex}]:`, hydratedValue);
+        } else {
+          console.log(`[useState] ❌ HYDRATION FAILED for ${fiberPath}[${currentHookIndex}]`);
+          console.log(`[useState]    Available hydration keys:`, creactInstance.getHydrationMapKeys?.() || 'N/A');
+        }
+      } else {
+        console.log(`[useState] ⚠️  No hydration data available (instance=${!!creactInstance}, hasData=${creactInstance?.hasHydrationData()})`);
+      }
+    } catch (error) {
+      // Hydration is optional, continue with initial value if it fails
+      console.warn('[useState] ⚠️  Hydration check failed:', error);
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug('[useState] Stack:', (error as Error).stack);
+      }
+    }
+
+    // Use hydrated value if available, otherwise use initial value
+    const finalValue = hydratedValue !== undefined ? hydratedValue : initialValue;
+    currentFiber.hooks[currentHookIndex] = finalValue;
+    
+    console.log(`[useState] 📝 Initialized hook[${currentHookIndex}] = ${JSON.stringify(finalValue)} (hydrated=${hydratedValue !== undefined})`);
   }
 
   // Store the fiber and hook index for later access
@@ -161,12 +200,7 @@ export function useState<T = undefined>(
 
     const oldValue = fiber.hooks?.[hookIdx];
 
-    // Only proceed if value actually changed
-    if (oldValue === newValue) {
-      return; // No change, skip update
-    }
-
-    // Debug logging
+    // Debug logging (before change check for better visibility)
     if (process.env.CREACT_DEBUG === 'true') {
       const safeStringify = (value: any) => {
         try {
@@ -176,6 +210,14 @@ export function useState<T = undefined>(
         }
       };
       console.debug(`[useState] setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, isInternal=${isInternalUpdate}, fiber.id=${fiber.path?.join('.')}`);
+    }
+
+    // Only proceed if value actually changed
+    if (oldValue === newValue) {
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[useState] No change detected, skipping update`);
+      }
+      return; // No change, skip update
     }
 
     // Update this hook's state
@@ -206,7 +248,7 @@ export function useState<T = undefined>(
           if (process.env.CREACT_DEBUG === 'true') {
             const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
             console.debug(`[useState] Auto-bound state to output: ${bindingKey}`);
-          }
+          } 
         } else {
           if (process.env.CREACT_DEBUG === 'true') {
             const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
@@ -220,17 +262,23 @@ export function useState<T = undefined>(
       }
     }
 
-    // IMPORTANT: setState should NOT trigger re-renders directly
-    // Re-renders are triggered when state receives a value from an output (after bind when value is filled)
-    // This happens through the StateBindingManager when provider outputs change
+    // REQ-4.4: Mark fiber as dirty and enqueue for re-render
+    // This is critical for initial deployment where outputs go from undefined → value
+    // The fiber will be collected by the reactivity phase and re-rendered
+    if (!isInternalUpdate && oldValue !== newValue) {
+      // Mark this fiber as having state changes
+      if (!(fiber as any).__stateChanged) {
+        (fiber as any).__stateChanged = true;
+      }
 
-    // The reactive flow is:
-    // 1. Provider outputs change after deployment
-    // 2. StateBindingManager detects bound state that should update
-    // 3. StateBindingManager updates the bound state values (using isInternalUpdate=true)
-    // 4. StateBindingManager triggers re-renders for affected components
+      // Enqueue fiber for re-rendering in reactivity phase
+      const queue = getReactiveUpdateQueue();
+      queue.enqueue(fiber);
 
-    // setState is just for updating the state value, not for triggering reactivity
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[useState] Enqueued fiber ${fiber.path?.join('.')} for re-render (queue size: ${queue.size()})`);
+      }
+    }
   };
 
   // REQ-4.1, 4.2: Store setState callback in fiber for internal updates

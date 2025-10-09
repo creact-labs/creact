@@ -40,6 +40,27 @@ export interface ChangeSet {
 }
 
 /**
+ * Helper function to get total number of changes from a ChangeSet
+ * Single source of truth for change counting
+ */
+export function getTotalChanges(changeSet: ChangeSet): number {
+  return (
+    changeSet.creates.length +
+    changeSet.updates.length +
+    changeSet.deletes.length +
+    changeSet.replacements.length +
+    changeSet.moves.length
+  );
+}
+
+/**
+ * Helper function to check if a ChangeSet has any changes
+ */
+export function hasChanges(changeSet: ChangeSet): boolean {
+  return getTotalChanges(changeSet) > 0;
+}
+
+/**
  * DependencyGraph represents resource dependencies for deployment ordering
  *
  * Maps node ID → array of dependency IDs

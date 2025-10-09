@@ -7,6 +7,7 @@ import {
 } from './context';
 import { FiberNode } from '../core/types';
 import { generateBindingKey } from '../utils/naming';
+import { getProviderOutputTrackerInstance } from './useInstance';
 
 /**
  * Effect function type - runs after deployment (supports async)
@@ -102,7 +103,6 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   if (isReactive && deps) {
     // REQ-5.2, 5.3, 5.4: Start access tracking session before evaluating dependencies
     // This will track which outputs are actually accessed during dependency evaluation
-    const { getProviderOutputTrackerInstance } = require('./useInstance');
     const outputTracker = getProviderOutputTrackerInstance();
     
     if (outputTracker) {

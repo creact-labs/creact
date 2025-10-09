@@ -10,7 +10,9 @@ import { ICloudProvider } from '../providers/ICloudProvider';
 import { IBackendProvider } from '../providers/IBackendProvider';
 import { CloudDOMNode, JSXElement, ChangeSet, FiberNode, ReRenderReason, CReactEvents } from './types';
 import { CloudDOMEventBus } from './EventBus';
-import { setPreviousOutputs } from '../hooks/useInstance';
+import { setPreviousOutputs, setProviderOutputTracker } from '../hooks/useInstance';
+import { setStateBindingManager } from '../hooks/useState';
+import { setContextDependencyTracker } from '../hooks/useContext';
 import { DeploymentError } from './errors';
 import { CReact as JSXCReact } from '../jsx';
 import { RenderScheduler } from './RenderScheduler';
@@ -84,6 +86,12 @@ export class CReact {
   // Global instance for hooks to access
   private static globalInstance: CReact | null = null;
 
+  // CRITICAL: Hydration map must be STATIC (shared across all instances)
+  // During hot reload, multiple CReact instances are created, but they all need
+  // to share the same hydration data. The hydration is prepared on one instance
+  // but useState (via getCReactInstance) accesses another instance.
+  private static hydrationMap: Map<string, any[]> = new Map();
+
   private renderer: Renderer;
   private validator: Validator;
   private cloudDOMBuilder: CloudDOMBuilder;
@@ -109,7 +117,7 @@ export class CReact {
   constructor(private config: CReactConfig) {
     // Set global instance for hooks to access
     CReact.globalInstance = this;
-    
+
     // Instantiate core components
     this.renderer = new Renderer();
     this.validator = new Validator();
@@ -137,17 +145,14 @@ export class CReact {
     this.renderer.setStructuralChangeDetector(this.structuralChangeDetector);
     this.cloudDOMBuilder.setReactiveComponents(this.stateBindingManager, this.providerOutputTracker);
     this.contextDependencyTracker.setStateBindingManager(this.stateBindingManager);
-    
+
     // Set the context dependency tracker in useContext hook
-    const { setContextDependencyTracker } = require('../hooks/useContext');
     setContextDependencyTracker(this.contextDependencyTracker);
-    
+
     // Set the state binding manager in useState hook
-    const { setStateBindingManager } = require('../hooks/useState');
     setStateBindingManager(this.stateBindingManager);
-    
+
     // Set the provider output tracker in useInstance hook
-    const { setProviderOutputTracker } = require('../hooks/useInstance');
     setProviderOutputTracker(this.providerOutputTracker);
   }
 
@@ -212,7 +217,7 @@ export class CReact {
 
       // Execute the scheduled re-renders
       const updatedFiber = this.renderer.reRenderComponents(affectedFibers, 'context-change');
-      
+
       // Update the last fiber tree
       this.lastFiberTree = updatedFiber;
 
@@ -220,13 +225,13 @@ export class CReact {
 
     } catch (error) {
       this.log(`Context change handling failed: ${(error as Error).message}`);
-      
+
       // Attempt rollback
       const rollbackSuccess = this.contextDependencyTracker.rollbackContextValue(contextId);
       if (rollbackSuccess) {
         this.log('Context value rolled back successfully');
       }
-      
+
       throw error;
     }
   }
@@ -303,20 +308,26 @@ export class CReact {
     this.log('Loading previous state');
     const previousState = await this.stateMachine.getState(stackName);
 
-    // Step 2: If we have previous state, inject outputs into useInstance hook
+    // Step 2: If we have previous state, prepare hydration for useState AND inject outputs for useInstance
     if (previousState?.cloudDOM) {
+      // CRITICAL: Prepare hydration BEFORE rendering so useState can restore values
+      this.log('Preparing hydration for useState');
+      this.prepareHydration(previousState.cloudDOM);
+
       this.log('Injecting previous outputs into useInstance hook');
       setPreviousOutputs(this.buildOutputsMap(previousState.cloudDOM));
     }
 
-    // Step 3: Render JSX → Fiber (with outputs available)
+    // Step 3: Render JSX → Fiber (with hydration and outputs available)
     this.log('Rendering JSX to Fiber tree');
     const fiber = this.renderer.render(jsx);
 
     // Step 4: Store the Fiber tree for post-deployment effects
     this.lastFiberTree = fiber;
 
-    // Step 5: Clear previous outputs from useInstance hook
+    // Step 5: Clear hydration and previous outputs after render
+    this.log('Clearing hydration data');
+    this.clearHydration();
     setPreviousOutputs(null);
 
     // Step 6: Validate Fiber (REQ-07)
@@ -338,10 +349,10 @@ export class CReact {
 
       if (structuralChanges.length > 0) {
         this.log(`Detected ${structuralChanges.length} structural changes`);
-        
+
         // Trigger re-renders for affected components
         this.structuralChangeDetector.triggerStructuralReRenders(structuralChanges, this.renderScheduler);
-        
+
         // Check if deployment plan needs updating
         if (this.structuralChangeDetector.requiresDeploymentPlanUpdate(structuralChanges)) {
           this.log('Structural changes require deployment plan update');
@@ -450,14 +461,10 @@ export class CReact {
 
     const changeSet = this.reconciler.reconcile(previousCloudDOM, cloudDOM);
 
-    // Check if there are any changes (creates, updates, deletes, or replacements)
-    const hasChanges =
-      changeSet.creates.length > 0 ||
-      changeSet.updates.length > 0 ||
-      changeSet.deletes.length > 0 ||
-      changeSet.replacements.length > 0;
-
-    if (!hasChanges) {
+    // Use single source of truth for checking changes
+    const { hasChanges } = require('./Reconciler');
+    
+    if (!hasChanges(changeSet)) {
       console.log('[CReact] No changes detected. Deployment skipped.');
       this.log('No resources to deploy');
       return;
@@ -511,7 +518,7 @@ export class CReact {
         }
 
         // Materialize single resource
-        this.config.cloudProvider.materialize([resourceNode], null);
+        await this.config.cloudProvider.materialize([resourceNode], null);
 
         // Trigger onDeploy event callback for this resource
         await CloudDOMEventBus.triggerEventCallbacks(resourceNode, 'deploy');
@@ -551,25 +558,35 @@ export class CReact {
 
         // REQ-7.1, 7.2, 7.3: Check if outputs actually changed (including undefined → value)
         const hasActualChanges = this.hasActualOutputChanges(previousCloudDOM, cloudDOM);
-        
-        if (affectedFibers.length > 0 && hasActualChanges) {
-          console.log(`[CReact] Triggering re-renders for ${affectedFibers.length} affected components (output changes detected)`);
+
+        // CRITICAL: If state outputs changed but no provider output bindings triggered,
+        // we still need to re-render to display updated state in the component
+        const needsReRender = hasActualChanges || affectedFibers.length > 0;
+
+        if (needsReRender) {
+          // If no fibers were affected by provider outputs, but state changed,
+          // re-render the root component to display updated state
+          const fibersToReRender = affectedFibers.length > 0
+            ? affectedFibers
+            : [this.lastFiberTree];
+
+          console.log(`[CReact] Triggering re-renders for ${fibersToReRender.length} affected components (${hasActualChanges ? 'output changes detected' : 'state changes detected'})`);
 
           // REQ-7.4, 7.5: Schedule re-renders with proper batching and deduplication
-          affectedFibers.forEach(fiber => {
+          fibersToReRender.forEach(fiber => {
             this.scheduleReRender(fiber, 'output-update');
           });
 
           // Execute the scheduled re-renders
-          const updatedFiber = this.renderer.reRenderComponents(affectedFibers, 'output-update');
+          const updatedFiber = this.renderer.reRenderComponents(fibersToReRender, 'output-update');
 
           // Build updated CloudDOM from re-rendered components
           const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
 
           // Update the stored CloudDOM with reactive changes
           cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
-        } else if (affectedFibers.length > 0 && !hasActualChanges) {
-          console.log(`[CReact] No actual output changes detected (${affectedFibers.length} fibers tracked but values unchanged)`);
+        } else {
+          console.log(`[CReact] No output or state changes detected, skipping re-render`);
         }
 
         // Save the updated CloudDOM state with new outputs
@@ -610,6 +627,329 @@ export class CReact {
       // Re-throw error to halt deployment (REQ-09.4)
       throw error;
     }
+  }
+
+  // Hydration map is now STATIC (see declaration above with globalInstance)
+
+  /**
+   * Load previous state from backend and prepare for hydration
+   * This should be called before rendering to restore persisted state
+   * 
+   * @param stackName - Stack name to load state for
+   */
+  async loadStateForHydration(stackName: string): Promise<void> {
+    try {
+      const previousState = await this.stateMachine.getState(stackName);
+
+      if (previousState && previousState.cloudDOM) {
+        this.prepareHydration(previousState.cloudDOM);
+        this.log(`Loaded state for hydration from backend: ${stackName}`);
+      } else {
+        this.log(`No previous state found for stack: ${stackName}`);
+      }
+    } catch (error) {
+      console.warn(`[CReact] Failed to load state for hydration: ${(error as Error).message}`);
+      // Continue without hydration - this is not a fatal error
+    }
+  }
+
+  /**
+   * Prepare hydration data from previous CloudDOM
+   * This must be called BEFORE rendering to make state available to useState
+   * 
+   * CRITICAL: State outputs belong to the COMPONENT that called useState,
+   * not the CloudDOM node. We need to key by component path (parent of node).
+   * 
+   * Example:
+   * - Component path: ['web-app-stack']
+   * - CloudDOM node paths: ['web-app-stack', 'vpc'], ['web-app-stack', 'database']
+   * - All nodes from same component share the same state outputs
+   * - Hydration should be keyed by 'web-app-stack', not 'web-app-stack.vpc'
+   * 
+   * @param previousCloudDOM - Previous CloudDOM with persisted state outputs
+   * @param clearExisting - Whether to clear existing hydration data (default: false)
+   */
+  prepareHydration(previousCloudDOM: CloudDOMNode[], clearExisting: boolean = false): void {
+    if (clearExisting) {
+      CReact.hydrationMap.clear();
+    }
+
+    if (!previousCloudDOM || previousCloudDOM.length === 0) {
+      this.log('No previous state to prepare for hydration');
+      return;
+    }
+
+    // Extract state outputs from previous CloudDOM and build hydration map
+    const extractStateOutputs = (nodes: CloudDOMNode[]) => {
+      for (const node of nodes) {
+        // CRITICAL FIX: Extract component path (parent of CloudDOM node)
+        // node.path = ['web-app-stack', 'vpc']
+        // componentPath = 'web-app-stack' (where useState was called)
+        const componentPath = node.path.length > 1
+          ? node.path.slice(0, -1).join('.')  // Normal case: parent component
+          : node.path.join('.');               // Edge case: root node
+
+        // Validate path
+        if (!componentPath) {
+          console.warn(`[CReact] Invalid component path for hydration:`, node.path);
+          continue;
+        }
+
+        if (node.outputs) {
+          const stateValues: any[] = [];
+          // Collect state.stateN outputs in order
+          let index = 1;
+          while (`state.state${index}` in node.outputs) {
+            stateValues.push(node.outputs[`state.state${index}`]);
+            index++;
+          }
+
+          if (stateValues.length > 0) {
+            // Only set if not already set (first node from component wins)
+            if (!CReact.hydrationMap.has(componentPath)) {
+              CReact.hydrationMap.set(componentPath, stateValues);
+              console.log(`[CReact] Prepared hydration for component "${componentPath}" (from node "${node.path.join('.')}"): ${JSON.stringify(stateValues)}`);
+            } else if (process.env.CREACT_DEBUG === 'true') {
+              console.debug(`[CReact] Skipping duplicate hydration for component "${componentPath}" (already set from another node)`);
+            }
+          }
+        }
+
+        if (node.children && node.children.length > 0) {
+          extractStateOutputs(node.children);
+        }
+      }
+    };
+
+    extractStateOutputs(previousCloudDOM);
+ 
+    console.log(`[CReact] Hydration prepared: ${CReact.hydrationMap.size} components with state`);
+    console.log(`[CReact] Hydration map keys:`, Array.from(CReact.hydrationMap.keys()));
+    console.log(`[CReact] This instance is global: ${this === CReact.globalInstance}`);
+
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CReact] Full hydration map:`, Object.fromEntries(CReact.hydrationMap));
+    }
+  }
+
+  /**
+   * Get hydrated value for a specific fiber and hook index
+   * Called by useState during render to check for persisted state
+   * 
+   * @param fiberPath - Path of the fiber
+   * @param hookIndex - Index of the hook
+   * @returns Hydrated value or undefined if not found
+   */
+  getHydratedValue(fiberPath: string, hookIndex: number): any {
+    const values = CReact.hydrationMap.get(fiberPath);
+    if (values && hookIndex < values.length) {
+      return values[hookIndex];
+    }
+    return undefined;
+  }
+
+  /**
+   * Get hydrated value for a component by searching for any child node
+   * This handles the case where useState is in a parent component but state
+   * outputs are stored on child CloudDOM nodes
+   * 
+   * With the path mapping fix, this should now find exact matches.
+   * The child node search is kept as a fallback for edge cases.
+   * 
+   * @param componentPath - Path of the component (e.g., 'web-app-stack')
+   * @param hookIndex - Index of the hook
+   * @returns Hydrated value or undefined if not found
+   */
+  getHydratedValueForComponent(componentPath: string, hookIndex: number): any {
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CReact] getHydratedValueForComponent: path="${componentPath}", hookIndex=${hookIndex}`);
+      console.debug(`[CReact] Available hydration keys:`, Array.from(CReact.hydrationMap.keys()));
+    }
+
+    // Try exact match first (should work now with path mapping fix)
+    const exactMatch = this.getHydratedValue(componentPath, hookIndex);
+    if (exactMatch !== undefined) {
+      if (process.env.CREACT_DEBUG === 'true') {
+        console.debug(`[CReact] ✅ Found exact match for "${componentPath}"[${hookIndex}]:`, exactMatch);
+      }
+      return exactMatch;
+    }
+
+    // Fallback: Search for any child node that starts with this component path
+    // This handles edge cases where path mapping might not work as expected
+    for (const [nodePath, values] of CReact.hydrationMap.entries()) {
+      if (nodePath.startsWith(componentPath + '.') && hookIndex < values.length) {
+        console.log(`[CReact] ✅ Found hydration in child node: ${nodePath} for component: ${componentPath}`);
+        return values[hookIndex];
+      }
+    }
+
+    // No match found
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.debug(`[CReact] ❌ No hydration found for "${componentPath}"[${hookIndex}]`);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Check if hydration data is available
+   * 
+   * @returns True if hydration map has data
+   */
+  hasHydrationData(): boolean {
+    const hasData = CReact.hydrationMap.size > 0;
+    console.log(`[CReact.hasHydrationData] size=${CReact.hydrationMap.size}, hasData=${hasData}, instance=${this === CReact.globalInstance ? 'GLOBAL' : 'OTHER'}`);
+    return hasData;
+  }
+
+  /**
+   * Get hydration map keys for debugging
+   * 
+   * @returns Array of component paths with hydration data
+   */
+  getHydrationMapKeys(): string[] {
+    return Array.from(CReact.hydrationMap.keys());
+  }
+
+  /**
+   * Clear hydration data after rendering is complete
+   */
+  clearHydration(): void {
+    console.log(`[CReact.clearHydration] Clearing ${CReact.hydrationMap.size} entries`);
+    if (process.env.CREACT_DEBUG === 'true') {
+      console.log('[CReact.clearHydration] Stack trace:', new Error().stack);
+    }
+    CReact.hydrationMap.clear();
+    this.log('Hydration data cleared');
+  }
+
+  /**
+   * Serialize internal reactive state for hot reload preservation
+   * This captures the state of reactive systems that need to survive recompilation
+   * 
+   * @returns Serialized state object
+   */
+  serializeReactiveState(): any {
+    try {
+      const state: any = {
+        timestamp: Date.now(),
+      };
+
+      // Note: Most reactive state is already persisted in CloudDOM outputs
+      // This is mainly for tracking metadata and failure statistics
+
+      if (this.renderScheduler) {
+        // Preserve failure statistics but not pending renders
+        state.renderSchedulerStats = {
+          // Add any failure stats if the scheduler tracks them
+        };
+      }
+
+      return state;
+    } catch (error) {
+      console.warn('[CReact] Failed to serialize reactive state:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Restore internal reactive state after hot reload recompilation
+   * This restores the state of reactive systems from serialized data
+   * 
+   * @param serializedState - Previously serialized state
+   */
+  restoreReactiveState(serializedState: any): void {
+    if (!serializedState) {
+      this.log('No serialized state to restore');
+      return;
+    }
+
+    try {
+      // Clear any pending renders from the previous session
+      if (this.renderScheduler && (this.renderScheduler as any).clearPending) {
+        (this.renderScheduler as any).clearPending();
+      }
+
+      this.log('Reactive state restored from hot reload');
+    } catch (error) {
+      console.warn('[CReact] Failed to restore reactive state:', error);
+    }
+  }
+
+  /**
+   * Hydrate the current fiber tree with state values from previous CloudDOM
+   * This is used during hot reload to restore persisted state values
+   * 
+   * @param previousCloudDOM - Previous CloudDOM with persisted state outputs
+   */
+  hydrateStateFromPreviousCloudDOM(previousCloudDOM: CloudDOMNode[]): void {
+    if (!this.lastFiberTree || !previousCloudDOM || previousCloudDOM.length === 0) {
+      this.log('No previous state to hydrate');
+      return;
+    }
+
+    // Extract state outputs from previous CloudDOM
+    const stateOutputs = new Map<string, any[]>();
+
+    const extractStateOutputs = (nodes: CloudDOMNode[]) => {
+      for (const node of nodes) {
+        if (node.outputs) {
+          const stateValues: any[] = [];
+          // Collect state.stateN outputs in order
+          let index = 1;
+          while (`state.state${index}` in node.outputs) {
+            stateValues.push(node.outputs[`state.state${index}`]);
+            index++;
+          }
+          if (stateValues.length > 0) {
+            stateOutputs.set(node.id, stateValues);
+          }
+        }
+        if (node.children && node.children.length > 0) {
+          extractStateOutputs(node.children);
+        }
+      }
+    };
+
+    extractStateOutputs(previousCloudDOM);
+
+    if (stateOutputs.size === 0) {
+      this.log('No state outputs found in previous CloudDOM');
+      return;
+    }
+
+    // Hydrate fiber tree with state values
+    const hydrateFiber = (fiber: FiberNode) => {
+      // Match fiber to CloudDOM node by path
+      if ((fiber as any).cloudDOMNodes && Array.isArray((fiber as any).cloudDOMNodes)) {
+        for (const node of (fiber as any).cloudDOMNodes) {
+          const savedState = stateOutputs.get(node.id);
+          if (savedState && savedState.length > 0) {
+            // Initialize hooks array if not present
+            if (!fiber.hooks) {
+              fiber.hooks = [];
+            }
+            // Restore state values
+            for (let i = 0; i < savedState.length; i++) {
+              fiber.hooks[i] = savedState[i];
+            }
+            this.log(`Hydrated ${savedState.length} state values for ${node.id}`);
+          }
+        }
+      }
+
+      // Recursively hydrate children
+      if (fiber.children && fiber.children.length > 0) {
+        for (const child of fiber.children) {
+          hydrateFiber(child);
+        }
+      }
+    };
+
+    hydrateFiber(this.lastFiberTree);
+
+    this.log(`State hydration complete: ${stateOutputs.size} nodes hydrated`);
   }
 
   /**
@@ -790,6 +1130,16 @@ export class CReact {
   }
 
   /**
+   * Get backend state for a stack (for CLI/comparison)
+   *
+   * @param stackName - Stack name to get state for
+   * @returns Promise resolving to backend state or null
+   */
+  async getBackendState(stackName: string): Promise<any> {
+    return this.stateMachine.getState(stackName);
+  }
+
+  /**
    * React-style render method (singleton API)
    *
    * Renders JSX to CloudDOM using the singleton configuration.
@@ -836,6 +1186,10 @@ export class CReact {
     (CReact as any)._lastInstance = instance;
     (CReact as any)._lastElement = element;
     (CReact as any)._lastStackName = stackName;
+
+    // CRITICAL: Load previous state from backend before rendering
+    // This enables useState to hydrate from persisted state
+    await instance.loadStateForHydration(stackName);
 
     // Build and return CloudDOM
     return instance.build(element, stackName);
