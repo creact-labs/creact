@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 /**
 
@@ -29,7 +30,6 @@
 
  */
 
-#!/usr/bin/env node
 
 /**
  * CReact CLI Entry Point - Clean modular architecture
