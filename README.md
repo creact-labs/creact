@@ -1,12 +1,44 @@
-# CReact: Infrastructure as React Components
+# CReact — React for Infrastructure
 
-CReact brings React's component model to infrastructure deployment. Write infrastructure using JSX components that compile to cloud resources through a sophisticated reconciliation engine.
+Think of it as React's rendering model — but instead of a DOM, you render to the cloud.
 
-> **Note**: CReact is not a replacement for Terraform, Pulumi, CDK, or other IaC tools. It's an orchestration layer designed to work alongside them. Use CReact to compose and coordinate existing infrastructure tools with React-style components, reactive dependency management, and automatic deployment orchestration. Think of it as the "React" to their "DOM APIs" - a higher-level abstraction that makes complex multi-tool workflows feel natural.
+Write your cloud architecture in JSX. CReact figures out the dependencies, orchestrates the deployment, and keeps everything in sync.
 
-## Example: Reactive Multi-Layer Deployment
+```tsx
+function App() {
+  return (
+    <VPC name="prod-vpc">
+      <Database name="users-db">
+        <API name="users-api">
+          <Monitoring />
+        </API>
+      </Database>
+    </VPC>
+  );
+}
+```
 
-Watch CReact deploy a complex 5-layer enterprise application with automatic dependency resolution and reactive updates:
+That's it. No dependency graphs, no explicit ordering, no YAML. Just components that render to actual infrastructure.
+
+## The Problem
+
+Terraform and Pulumi are great, but they're static. You write a plan, run it, and hope nothing breaks. If you need dynamic orchestration - like deploying a database, waiting for its endpoint, then using that endpoint in your API config - you're writing bash scripts or custom tooling.
+
+CReact treats infrastructure like React treats UI. Components re-render when their dependencies change. Outputs flow naturally through context. The Reconciler figures out what actually needs to deploy.
+
+## What Makes It Different
+
+**It's reactive** - when a database finishes deploying and outputs its endpoint, components that depend on it automatically re-render and deploy. No manual dependency chains.
+
+**It's a compiler** - your JSX compiles to CloudDOM (basically an AST for infrastructure). You can diff it, version it, test it without cloud credentials. Only when you're ready does it materialize to real resources.
+
+**It's resilient** - every deployment is checkpointed and resumable. Crash halfway through? Resume from where you left off. The Reconciler only deploys what changed, like React's virtual DOM but for cloud resources.
+
+**It works with existing tools** - CReact doesn't replace Terraform or CDK. It orchestrates them. Wrap your Terraform modules as CReact components and compose them together.
+
+## Watch It Work
+
+Here's a real deployment - 22 resources across 3 regions, 6 reactive cycles, fully automatic:
 
 ```bash
 $ creact dev --entry reactive-app.tsx --auto-approve
@@ -80,83 +112,48 @@ Duration: 0.4s
 Watching for changes... (Press Ctrl+C to stop)
 ```
 
-**What just happened?**
+**What happened:**
 
-1. **Layer 1**: VPC and Analytics deployed first (no dependencies)
-2. **Layer 2**: Subnets and security groups deployed (depend on VPC)
-3. **Layer 3**: Database, cache, storage, and load balancer deployed (depend on network)
-4. **Layer 4**: Lambda functions deployed (depend on database + storage)
-5. **Layer 5**: API Gateways deployed (depend on Lambda functions)
-6. **Layer 6**: Monitoring deployed (depend on APIs)
+VPC deployed first. When its outputs became available, subnets and security groups deployed in parallel. When those finished, database and cache deployed. When the database endpoint was ready, Lambdas deployed. When Lambdas got function ARNs, API Gateways deployed. When APIs were live, monitoring deployed.
 
-CReact automatically detected dependencies, orchestrated deployment order, and triggered reactive updates as outputs became available. All from a single JSX component tree.
+You didn't orchestrate anything manually. You just wrote JSX components that reference each other's outputs. CReact figured out the rest.
 
-## The Paradigm Shift
+## How It Works
 
-### What is a CReact App?
-
-A CReact application is a React component tree that renders to cloud infrastructure instead of DOM elements.
+### JSX Compiles to CloudDOM
 
 ```tsx
-function InfrastructureApp() {
-  return (
-    <Database name="users-db">
-      <API name="users-api">
-        <Monitoring />
-      </API>
-    </Database>
-  );
-}
-```
-
-### What Does Running a CReact App Mean?
-
-Running a CReact app means deploying and maintaining cloud infrastructure through a continuous reactive process:
-
-1. **Initial Render**: Components create resource references
-2. **Deployment Waves**: Resources deploy as dependencies become available
-3. **Reactive Updates**: Components re-render when dependencies change
-4. **State Persistence**: Application state survives across deployments
-5. **Continuous Sync**: Infrastructure stays in sync with code changes
-
-## Core Architecture
-
-### Provider System
-
-CReact works with any infrastructure platform through two provider interfaces:
-
-```tsx
-// Deploy resources to any cloud platform
-interface ICloudProvider {
-  materialize(resources: CloudDOMNode[]): Promise<void>;
-}
-
-// Persist state across deployments
-interface IBackendProvider {
-  getState(stackName: string): Promise<any>;
-  saveState(stackName: string, state: any): Promise<void>;
-}
-```
-
-### JSX to CloudDOM Compilation
-
-CReact compiles JSX to an intermediate representation called CloudDOM:
-
-```tsx
-// JSX Input
 <VPC name="app-vpc" cidr="10.0.0.0/16" />
+```
 
-// Compiles to CloudDOM
+becomes:
+
+```json
 {
-  id: "app-vpc",
-  construct: VPC,
-  props: { name: "app-vpc", cidr: "10.0.0.0/16" },
-  outputs: {}, // Populated after deployment
-  children: []
+  "id": "app-vpc",
+  "construct": "VPC",
+  "props": { "cidr": "10.0.0.0/16" },
+  "outputs": {}
 }
 ```
 
-## Hooks API
+CloudDOM is just a JSON tree. You can diff it like Git, version it, test it without touching AWS. It's the intermediate representation between your code and actual cloud resources.
+
+### The Reconciler Figures Out What Changed
+
+Before deploying anything, CReact diffs the previous CloudDOM against the new one. Creates, updates, deletes, replacements - all computed ahead of time. You get a Terraform-style plan but it's just comparing two data structures.
+
+### Deployment Is Checkpointed
+
+After each resource deploys, CReact saves a checkpoint. Crash halfway through? Run it again and it resumes from where it left off. No manual cleanup, no orphaned resources.
+
+### Outputs Trigger Re-renders
+
+When a resource finishes deploying, its outputs (endpoint, ARN, ID) become available. Any component that depends on those outputs automatically re-renders and creates new resources. It's like useEffect but for infrastructure.
+
+
+
+## Hooks
 
 ### useInstance - Create Resources
 
