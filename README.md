@@ -2,6 +2,8 @@
 
 CReact brings React's component model to infrastructure deployment. Write infrastructure using JSX components that compile to cloud resources through a sophisticated reconciliation engine.
 
+> **Note**: CReact is not a replacement for Terraform, Pulumi, CDK, or other IaC tools. It's an orchestration layer designed to work alongside them. Use CReact to compose and coordinate existing infrastructure tools with React-style components, reactive dependency management, and automatic deployment orchestration. Think of it as the "React" to their "DOM APIs" - a higher-level abstraction that makes complex multi-tool workflows feel natural.
+
 ## Example: Reactive Multi-Layer Deployment
 
 Watch CReact deploy a complex 5-layer enterprise application with automatic dependency resolution and reactive updates:
