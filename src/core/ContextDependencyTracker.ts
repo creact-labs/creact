@@ -1,14 +1,45 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, CReactEvents } from './types';
 
 /**
  * ContextDependencyTracker - Manages context dependencies and change detection
- * 
+ *
  * Key Features:
  * - Track which components consume which contexts
  * - Detect context value changes
  * - Trigger re-renders only for components with output-bound context values
  * - Integrate with StateBindingManager for selective reactivity
- * 
+ *
  * Optimizations:
  * - Uses Map<FiberNode, number[]> instead of Set<object> for stable identity
  * - Smart equality checking with structural hashing
@@ -18,22 +49,22 @@ import { FiberNode, CReactEvents } from './types';
 export class ContextDependencyTracker {
   // Map context ID to consuming fibers and their hook indices (stable identity)
   private contextConsumers = new Map<symbol, Map<FiberNode, number[]>>();
-  
+
   // Map context ID to current value for change detection
   private contextValues = new Map<symbol, any>();
-  
+
   // Map context ID to previous value for rollback capability
   private previousContextValues = new Map<symbol, any>();
-  
+
   // Map fiber to consumed contexts for cleanup
   private fiberContexts = new WeakMap<FiberNode, Set<symbol>>();
-  
+
   // Structural hash cache for performance
   private valueHashCache = new WeakMap<object, string>();
-  
+
   // Event hooks for observability
   private eventHooks?: CReactEvents;
-  
+
   // StateBindingManager reference for direct integration
   private stateBindingManager?: any;
 
@@ -53,21 +84,17 @@ export class ContextDependencyTracker {
    * Called by enhanced useContext hook
    * Uses stable Map<FiberNode, number[]> for reliable cleanup
    */
-  trackContextConsumption(
-    contextId: symbol, 
-    fiber: FiberNode, 
-    hookIndex?: number
-  ): void {
+  trackContextConsumption(contextId: symbol, fiber: FiberNode, hookIndex?: number): void {
     // Track consumer with stable identity
     if (!this.contextConsumers.has(contextId)) {
       this.contextConsumers.set(contextId, new Map());
     }
-    
+
     const fiberMap = this.contextConsumers.get(contextId)!;
     if (!fiberMap.has(fiber)) {
       fiberMap.set(fiber, []);
     }
-    
+
     // Add hook index if provided and not already tracked
     if (hookIndex !== undefined) {
       const hookIndices = fiberMap.get(fiber)!;
@@ -90,7 +117,7 @@ export class ContextDependencyTracker {
    */
   updateContextValue(contextId: symbol, newValue: any): FiberNode[] {
     const previousValue = this.contextValues.get(contextId);
-    
+
     // Check if value actually changed using smart equality
     if (this.smartEqual(previousValue, newValue)) {
       return []; // No change, no re-renders needed
@@ -134,20 +161,20 @@ export class ContextDependencyTracker {
   /**
    * Rollback context value to previous state
    * Used when provider update fails (e.g., backend error)
-   * 
+   *
    * @param contextId - Context to rollback
    * @returns True if rollback was successful, false if no previous value exists
    */
   rollbackContextValue(contextId: symbol): boolean {
     const previousValue = this.previousContextValues.get(contextId);
-    
+
     if (previousValue === undefined) {
       return false; // No previous value to rollback to
     }
 
     // Restore previous value
     this.contextValues.set(contextId, previousValue);
-    
+
     // Clear the rollback value
     this.previousContextValues.delete(contextId);
 
@@ -169,8 +196,8 @@ export class ContextDependencyTracker {
    * Direct integration with StateBindingManager for accurate detection
    */
   private isContextValueBoundToOutput(
-    fiber: FiberNode, 
-    contextId: symbol, 
+    fiber: FiberNode,
+    contextId: symbol,
     hookIndex: number
   ): boolean {
     // Direct StateBindingManager integration
@@ -227,7 +254,7 @@ export class ContextDependencyTracker {
     }
 
     // Remove fiber from all context consumer lists (stable cleanup)
-    Array.from(contexts).forEach(contextId => {
+    Array.from(contexts).forEach((contextId) => {
       const fiberMap = this.contextConsumers.get(contextId);
       if (fiberMap) {
         // Direct fiber removal with Map
@@ -253,9 +280,9 @@ export class ContextDependencyTracker {
     if (fiberMap) {
       // Convert to array first to avoid mid-loop deletion issues
       const fibers = Array.from(fiberMap.keys());
-      
+
       // Remove context from each fiber's tracking
-      fibers.forEach(fiber => {
+      fibers.forEach((fiber) => {
         const fiberContexts = this.fiberContexts.get(fiber);
         if (fiberContexts) {
           fiberContexts.delete(contextId);
@@ -282,7 +309,7 @@ export class ContextDependencyTracker {
 
     return Array.from(fiberMap.entries()).map(([fiber, hookIndices]) => ({
       fiber,
-      hookIndices: [...hookIndices]
+      hookIndices: [...hookIndices],
     }));
   }
 
@@ -307,14 +334,14 @@ export class ContextDependencyTracker {
     let contextsWithConsumers = 0;
     let totalHookBindings = 0;
 
-    Array.from(this.contextConsumers.values()).forEach(fiberMap => {
+    Array.from(this.contextConsumers.values()).forEach((fiberMap) => {
       totalConsumers += fiberMap.size;
       if (fiberMap.size > 0) {
         contextsWithConsumers++;
       }
-      
+
       // Count total hook bindings
-      Array.from(fiberMap.values()).forEach(hookIndices => {
+      Array.from(fiberMap.values()).forEach((hookIndices) => {
         totalHookBindings += hookIndices.length;
       });
     });
@@ -323,7 +350,7 @@ export class ContextDependencyTracker {
       totalContexts: this.contextValues.size,
       totalConsumers,
       contextsWithConsumers,
-      totalHookBindings
+      totalHookBindings,
     };
   }
 
@@ -344,19 +371,19 @@ export class ContextDependencyTracker {
   private smartEqual(a: any, b: any): boolean {
     // Fast path: reference equality
     if (a === b) return true;
-    
+
     // Handle null/undefined
     if (a == null || b == null) return a === b;
-    
+
     // Different types are not equal
     if (typeof a !== typeof b) return false;
-    
+
     // Primitives
     if (typeof a !== 'object') return a === b;
-    
+
     // Try shallow equality first (common case for infrastructure contexts)
     if (this.shallowEqual(a, b)) return true;
-    
+
     // Fall back to structural hash comparison for complex objects
     return this.structuralHashEqual(a, b);
   }
@@ -366,7 +393,7 @@ export class ContextDependencyTracker {
    */
   private shallowEqual(a: any, b: any): boolean {
     if (Array.isArray(a) !== Array.isArray(b)) return false;
-    
+
     if (Array.isArray(a)) {
       if (a.length !== b.length) return false;
       for (let i = 0; i < a.length; i++) {
@@ -374,16 +401,16 @@ export class ContextDependencyTracker {
       }
       return true;
     }
-    
+
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
-    
+
     if (keysA.length !== keysB.length) return false;
-    
+
     for (const key of keysA) {
       if (!keysB.includes(key) || a[key] !== b[key]) return false;
     }
-    
+
     return true;
   }
 
@@ -444,12 +471,12 @@ export class ContextDependencyTracker {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.sortObjectKeys(item));
+      return obj.map((item) => this.sortObjectKeys(item));
     }
 
     const sorted: any = {};
     const keys = Object.keys(obj).sort();
-    
+
     for (const key of keys) {
       sorted[key] = this.sortObjectKeys(obj[key]);
     }
@@ -462,15 +489,15 @@ export class ContextDependencyTracker {
    */
   private deepEqual(a: any, b: any): boolean {
     if (a === b) return true;
-    
+
     if (a == null || b == null) return a === b;
-    
+
     if (typeof a !== typeof b) return false;
-    
+
     if (typeof a !== 'object') return a === b;
-    
+
     if (Array.isArray(a) !== Array.isArray(b)) return false;
-    
+
     if (Array.isArray(a)) {
       if (a.length !== b.length) return false;
       for (let i = 0; i < a.length; i++) {
@@ -478,17 +505,17 @@ export class ContextDependencyTracker {
       }
       return true;
     }
-    
+
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
-    
+
     if (keysA.length !== keysB.length) return false;
-    
+
     for (const key of keysA) {
       if (!keysB.includes(key)) return false;
       if (!this.deepEqual(a[key], b[key])) return false;
     }
-    
+
     return true;
   }
 }

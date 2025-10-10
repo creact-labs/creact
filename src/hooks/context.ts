@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // Hook context management using AsyncLocalStorage for thread safety
 // This ensures hook state is isolated per execution context in concurrent deployments
 
@@ -86,13 +117,13 @@ export function requireHookContext(): ConsolidatedHookContext {
   if (!context) {
     throw new Error(
       'Hook called outside of rendering context. ' +
-      'Hooks must be called inside component functions during render.'
+        'Hooks must be called inside component functions during render.'
     );
   }
   if (!context.currentFiber) {
     throw new Error(
       'Hook called without active fiber context. ' +
-      'This indicates a timing issue in the rendering pipeline.'
+        'This indicates a timing issue in the rendering pipeline.'
     );
   }
   return context;
@@ -116,7 +147,9 @@ export function runWithHookContext<T>(fn: () => T): T {
 /**
  * Increment hook index for specific hook type
  */
-export function incrementHookIndex(hookType: 'state' | 'effect' | 'context' | 'instance' = 'state'): number {
+export function incrementHookIndex(
+  hookType: 'state' | 'effect' | 'context' | 'instance' = 'state'
+): number {
   const context = requireHookContext();
 
   switch (hookType) {
@@ -318,7 +351,7 @@ export function startAccessTracking(fiber: FiberNode): void {
     fiber,
     startTime: Date.now(),
     trackedOutputs: new Set(),
-    isActive: true
+    isActive: true,
   });
 }
 

@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // CloudDOM Event Bus - Centralized event system for deployment lifecycle
 // Handles CloudDOM event callbacks without coupling to CloudDOMBuilder
 
@@ -8,17 +39,17 @@ const logger = LoggerFactory.getLogger('clouddom');
 
 /**
  * CloudDOM Event Bus - Centralized event system for deployment lifecycle
- * 
+ *
  * Provides a clean way to trigger CloudDOM event callbacks without
  * coupling to specific classes like CloudDOMBuilder or StateMachine.
- * 
+ *
  * REQ-2.3: CloudDOM event callbacks for deployment lifecycle
  * REQ-3.2: Error handling with component context
  */
 export class CloudDOMEventBus {
   /**
    * Trigger CloudDOM event callbacks for a resource
-   * 
+   *
    * Called during deployment lifecycle to notify parent components
    * about their child resources' deployment events.
    *
@@ -27,7 +58,7 @@ export class CloudDOMEventBus {
    * @param error - Error object (only for 'error' phase)
    */
   static async triggerEventCallbacks(
-    node: CloudDOMNode, 
+    node: CloudDOMNode,
     phase: 'deploy' | 'error' | 'destroy',
     error?: Error
   ): Promise<void> {
@@ -54,13 +85,13 @@ export class CloudDOMEventBus {
             await node.eventCallbacks.onDeploy(context);
           }
           break;
-          
+
         case 'error':
           if (node.eventCallbacks.onError && error) {
             await node.eventCallbacks.onError(context, error);
           }
           break;
-          
+
         case 'destroy':
           if (node.eventCallbacks.onDestroy) {
             await node.eventCallbacks.onDestroy(context);
@@ -69,16 +100,13 @@ export class CloudDOMEventBus {
       }
     } catch (callbackError) {
       // Don't let callback errors break deployment
-      logger.error(
-        `Event callback failed for ${node.id} (${phase}):`, 
-        callbackError
-      );
+      logger.error(`Event callback failed for ${node.id} (${phase}):`, callbackError);
     }
   }
 
   /**
    * Trigger event callbacks for all nodes in a CloudDOM tree
-   * 
+   *
    * Recursively walks the tree and triggers callbacks for each node.
    *
    * @param nodes - CloudDOM nodes to trigger events for
@@ -86,14 +114,14 @@ export class CloudDOMEventBus {
    * @param error - Error object (only for 'error' phase)
    */
   static async triggerEventCallbacksRecursive(
-    nodes: CloudDOMNode[], 
+    nodes: CloudDOMNode[],
     phase: 'deploy' | 'error' | 'destroy',
     error?: Error
   ): Promise<void> {
     for (const node of nodes) {
       // Trigger callback for this node
       await CloudDOMEventBus.triggerEventCallbacks(node, phase, error);
-      
+
       // Recursively trigger for children
       if (node.children && node.children.length > 0) {
         await CloudDOMEventBus.triggerEventCallbacksRecursive(node.children, phase, error);
@@ -103,7 +131,7 @@ export class CloudDOMEventBus {
 
   /**
    * Trigger event callbacks for a specific list of nodes by ID
-   * 
+   *
    * Useful for triggering events for specific resources during deployment.
    *
    * @param allNodes - All CloudDOM nodes to search in
@@ -119,7 +147,7 @@ export class CloudDOMEventBus {
   ): Promise<void> {
     // Build a map for fast lookup
     const nodeMap = new Map<string, CloudDOMNode>();
-    
+
     const buildMap = (nodes: CloudDOMNode[]) => {
       for (const node of nodes) {
         nodeMap.set(node.id, node);
@@ -128,9 +156,9 @@ export class CloudDOMEventBus {
         }
       }
     };
-    
+
     buildMap(allNodes);
-    
+
     // Trigger events for specified nodes
     for (const nodeId of nodeIds) {
       const node = nodeMap.get(nodeId);
@@ -142,7 +170,7 @@ export class CloudDOMEventBus {
 
   /**
    * Check if any nodes in a tree have event callbacks
-   * 
+   *
    * Useful for optimization - skip event processing if no callbacks exist.
    *
    * @param nodes - CloudDOM nodes to check
@@ -153,20 +181,20 @@ export class CloudDOMEventBus {
       if (node.eventCallbacks && Object.keys(node.eventCallbacks).length > 0) {
         return true;
       }
-      
+
       if (node.children && node.children.length > 0) {
         if (CloudDOMEventBus.hasEventCallbacks(node.children)) {
           return true;
         }
       }
     }
-    
+
     return false;
   }
 
   /**
    * Get all nodes with event callbacks from a tree
-   * 
+   *
    * Useful for debugging and introspection.
    *
    * @param nodes - CloudDOM nodes to search
@@ -174,17 +202,17 @@ export class CloudDOMEventBus {
    */
   static getNodesWithEventCallbacks(nodes: CloudDOMNode[]): CloudDOMNode[] {
     const result: CloudDOMNode[] = [];
-    
+
     for (const node of nodes) {
       if (node.eventCallbacks && Object.keys(node.eventCallbacks).length > 0) {
         result.push(node);
       }
-      
+
       if (node.children && node.children.length > 0) {
         result.push(...CloudDOMEventBus.getNodesWithEventCallbacks(node.children));
       }
     }
-    
+
     return result;
   }
 }

@@ -1,5 +1,42 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, ReRenderReason, CReactEvents } from './types';
-import { ReactiveError, ReRenderError, StateUpdateError, ContextPropagationError, CircularDependencyError } from './errors';
+import {
+  ReactiveError,
+  ReRenderError,
+  StateUpdateError,
+  ContextPropagationError,
+  CircularDependencyError,
+} from './errors';
 import { LoggerFactory } from '../utils/Logger';
 
 const logger = LoggerFactory.getLogger('runtime');
@@ -7,12 +44,12 @@ const logger = LoggerFactory.getLogger('runtime');
 /**
  * Recovery strategy for different types of errors
  */
-export type RecoveryStrategy = 
-  | 'rollback'        // Rollback to previous state
-  | 'isolate'         // Isolate failed component and continue with others
-  | 'retry'           // Retry the operation with backoff
-  | 'skip'            // Skip the failed operation and continue
-  | 'abort';          // Abort the entire operation
+export type RecoveryStrategy =
+  | 'rollback' // Rollback to previous state
+  | 'isolate' // Isolate failed component and continue with others
+  | 'retry' // Retry the operation with backoff
+  | 'skip' // Skip the failed operation and continue
+  | 'abort'; // Abort the entire operation
 
 /**
  * Recovery action result
@@ -37,7 +74,7 @@ interface ComponentSnapshot {
 
 /**
  * ErrorRecoveryManager - Handles error recovery and rollback semantics
- * 
+ *
  * Provides:
  * - Rollback semantics for failed re-renders
  * - Error isolation for component failures
@@ -63,7 +100,7 @@ export class ErrorRecoveryManager {
       fiber,
       hooks: fiber.hooks ? [...fiber.hooks] : [],
       reactiveState: fiber.reactiveState ? { ...fiber.reactiveState } : undefined,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.componentSnapshots.set(fiber, snapshot);
@@ -73,7 +110,7 @@ export class ErrorRecoveryManager {
    * Create snapshots for multiple components
    */
   createComponentSnapshots(fibers: FiberNode[]): void {
-    fibers.forEach(fiber => this.createComponentSnapshot(fiber));
+    fibers.forEach((fiber) => this.createComponentSnapshot(fiber));
   }
 
   /**
@@ -82,7 +119,7 @@ export class ErrorRecoveryManager {
   createContextSnapshot(contextId: symbol, value: any): void {
     this.contextSnapshots.set(contextId, {
       value: this.deepClone(value),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -133,7 +170,7 @@ export class ErrorRecoveryManager {
       strategy: 'rollback',
       message: `Rolled back ${recoveredFibers.length}/${fibers.length} components`,
       recoveredFibers,
-      failedFibers
+      failedFibers,
     };
   }
 
@@ -186,7 +223,7 @@ export class ErrorRecoveryManager {
           success: false,
           strategy: 'abort',
           message: `Aborting due to unrecoverable error: ${error.message}`,
-          failedFibers: affectedFibers
+          failedFibers: affectedFibers,
         };
     }
   }
@@ -194,11 +231,7 @@ export class ErrorRecoveryManager {
   /**
    * Handle state update errors with isolation
    */
-  handleStateUpdateError(
-    error: Error,
-    fiber: FiberNode,
-    hookIndex: number
-  ): RecoveryResult {
+  handleStateUpdateError(error: Error, fiber: FiberNode, hookIndex: number): RecoveryResult {
     try {
       // Try to rollback the specific hook
       const snapshot = this.componentSnapshots.get(fiber);
@@ -211,19 +244,18 @@ export class ErrorRecoveryManager {
           success: true,
           strategy: 'rollback',
           message: `Rolled back state hook ${hookIndex} for component ${fiber.path.join('.')}`,
-          recoveredFibers: [fiber]
+          recoveredFibers: [fiber],
         };
       }
 
       // If no snapshot, isolate the component
       return this.isolateFailedComponents(error, [fiber]);
-
     } catch (recoveryError) {
       return {
         success: false,
         strategy: 'abort',
         message: `Failed to recover from state update error: ${recoveryError}`,
-        failedFibers: [fiber]
+        failedFibers: [fiber],
       };
     }
   }
@@ -239,29 +271,28 @@ export class ErrorRecoveryManager {
     try {
       // Try to rollback context value
       const contextRollback = this.rollbackContextValue(contextId);
-      
+
       if (contextRollback) {
         // Rollback affected components
         const componentRollback = this.rollbackComponents(affectedFibers);
-        
+
         return {
           success: componentRollback.success,
           strategy: 'rollback',
           message: `Rolled back context and ${componentRollback.recoveredFibers?.length || 0} components`,
           recoveredFibers: componentRollback.recoveredFibers,
-          failedFibers: componentRollback.failedFibers
+          failedFibers: componentRollback.failedFibers,
         };
       }
 
       // If context rollback fails, isolate affected components
       return this.isolateFailedComponents(error, affectedFibers);
-
     } catch (recoveryError) {
       return {
         success: false,
         strategy: 'abort',
         message: `Failed to recover from context propagation error: ${recoveryError}`,
-        failedFibers: affectedFibers
+        failedFibers: affectedFibers,
       };
     }
   }
@@ -277,32 +308,31 @@ export class ErrorRecoveryManager {
       // For circular dependencies, we need to break the cycle
       // Find the fiber that's causing the cycle and isolate it
       const cycleFiber = this.findCycleCausingFiber(error.cyclePath, affectedFibers);
-      
+
       if (cycleFiber) {
         // Isolate the cycle-causing fiber
         const isolationResult = this.isolateFailedComponents(error, [cycleFiber]);
-        
+
         // Continue with remaining fibers
-        const remainingFibers = affectedFibers.filter(f => f !== cycleFiber);
-        
+        const remainingFibers = affectedFibers.filter((f) => f !== cycleFiber);
+
         return {
           success: true,
           strategy: 'isolate',
           message: `Isolated cycle-causing component ${cycleFiber.path.join('.')}`,
           recoveredFibers: remainingFibers,
-          failedFibers: [cycleFiber]
+          failedFibers: [cycleFiber],
         };
       }
 
       // If we can't identify the cycle cause, rollback all
       return this.rollbackComponents(affectedFibers);
-
     } catch (recoveryError) {
       return {
         success: false,
         strategy: 'abort',
         message: `Failed to recover from circular dependency: ${recoveryError}`,
-        failedFibers: affectedFibers
+        failedFibers: affectedFibers,
       };
     }
   }
@@ -350,7 +380,7 @@ export class ErrorRecoveryManager {
    */
   private isolateFailedComponents(error: Error, failedFibers: FiberNode[]): RecoveryResult {
     // Mark failed components as isolated
-    failedFibers.forEach(fiber => {
+    failedFibers.forEach((fiber) => {
       if (fiber.reactiveState) {
         fiber.reactiveState.isDirty = false;
         fiber.reactiveState.updatePending = false;
@@ -367,7 +397,7 @@ export class ErrorRecoveryManager {
       success: true,
       strategy: 'isolate',
       message: `Isolated ${failedFibers.length} failed components`,
-      failedFibers
+      failedFibers,
     };
   }
 
@@ -385,13 +415,13 @@ export class ErrorRecoveryManager {
         success: false,
         strategy: 'retry',
         message: `Max retries (${this.maxRetries}) exceeded`,
-        failedFibers: fibers
+        failedFibers: fibers,
       };
     }
 
     // Wait with exponential backoff
     const delay = this.retryDelay * Math.pow(2, attempt - 1);
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
     try {
       // The actual retry would be handled by the calling code
@@ -400,7 +430,7 @@ export class ErrorRecoveryManager {
         success: true,
         strategy: 'retry',
         message: `Retry attempt ${attempt} scheduled`,
-        recoveredFibers: fibers
+        recoveredFibers: fibers,
       };
     } catch (retryError) {
       // Recursive retry
@@ -413,7 +443,7 @@ export class ErrorRecoveryManager {
    */
   private skipFailedComponents(fibers: FiberNode[]): RecoveryResult {
     // Mark components as skipped
-    fibers.forEach(fiber => {
+    fibers.forEach((fiber) => {
       if (fiber.reactiveState) {
         fiber.reactiveState.isDirty = false;
         fiber.reactiveState.updatePending = false;
@@ -427,7 +457,7 @@ export class ErrorRecoveryManager {
       success: true,
       strategy: 'skip',
       message: `Skipped ${fibers.length} components`,
-      recoveredFibers: []
+      recoveredFibers: [],
     };
   }
 
@@ -458,7 +488,7 @@ export class ErrorRecoveryManager {
     }
 
     if (obj instanceof Array) {
-      return obj.map(item => this.deepClone(item));
+      return obj.map((item) => this.deepClone(item));
     }
 
     if (typeof obj === 'object') {
@@ -477,7 +507,8 @@ export class ErrorRecoveryManager {
   /**
    * Clean up old snapshots to prevent memory leaks
    */
-  cleanupOldSnapshots(maxAge: number = 300000): void { // 5 minutes default
+  cleanupOldSnapshots(maxAge: number = 300000): void {
+    // 5 minutes default
     const now = Date.now();
 
     // Clean up context snapshots
@@ -500,7 +531,7 @@ export class ErrorRecoveryManager {
   } {
     return {
       activeSnapshots: 0, // WeakMap doesn't have size
-      contextSnapshots: this.contextSnapshots.size
+      contextSnapshots: this.contextSnapshots.size,
     };
   }
 

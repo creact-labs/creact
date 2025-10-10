@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-O01, REQ-O04: Reconciler - CloudDOM diff algorithm
 // Computes minimal change sets between CloudDOM states (like React Fiber's diff algorithm)
 
@@ -372,15 +403,23 @@ export class Reconciler {
 
     // Debug logging: breakdown of change types (CREACT_DEBUG only)
     this.log('\n🔍 Reconciliation Change Breakdown:');
-    this.log(`  Creates: ${creates.length} nodes - ${creates.map(n => n.id).join(', ') || 'none'}`);
-    this.log(`  Updates: ${updates.length} nodes - ${updates.map(n => n.id).join(', ') || 'none'}`);
-    this.log(`  Deletes: ${deletes.length} nodes - ${deletes.map(n => n.id).join(', ') || 'none'}`);
-    this.log(`  Replacements: ${replacements.length} nodes - ${replacements.map(n => n.id).join(', ') || 'none'}`);
+    this.log(
+      `  Creates: ${creates.length} nodes - ${creates.map((n) => n.id).join(', ') || 'none'}`
+    );
+    this.log(
+      `  Updates: ${updates.length} nodes - ${updates.map((n) => n.id).join(', ') || 'none'}`
+    );
+    this.log(
+      `  Deletes: ${deletes.length} nodes - ${deletes.map((n) => n.id).join(', ') || 'none'}`
+    );
+    this.log(
+      `  Replacements: ${replacements.length} nodes - ${replacements.map((n) => n.id).join(', ') || 'none'}`
+    );
     this.log(`  Moves: ${moves.length} nodes`);
-    
+
     if (moves.length > 0) {
       this.log('  Move details:');
-      moves.forEach(move => {
+      moves.forEach((move) => {
         this.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
       });
     }
@@ -640,7 +679,7 @@ export class Reconciler {
         // Both nodes at root level (empty parent paths) - no move
         if (prevParentPathArray.length === 0 && currParentPathArray.length === 0) {
           this.log(`Skipping move detection for root node: ${id}`);
-          continue; 
+          continue;
         }
 
         // Check if parent changed using array equality (not string comparison)
@@ -696,7 +735,7 @@ export class Reconciler {
     // Use constructType string field for reliable comparison after serialization
     const prevType = previous.constructType || this.getConstructName(previous.construct);
     const currType = current.constructType || this.getConstructName(current.construct);
-    
+
     if (prevType !== currType) {
       logger.debug(`Construct type mismatch for ${current.id}:`, {
         previousType: prevType,
@@ -848,13 +887,14 @@ export class Reconciler {
    * @returns True if outputs changed
    */
   private outputsChanged(
-    previous: Record<string, any> | undefined, 
+    previous: Record<string, any> | undefined,
     current: Record<string, any> | undefined
   ): boolean {
     // Helper to check if output is empty (undefined or {})
     const isEmpty = (output: Record<string, any> | undefined): boolean => {
-      return output === undefined || 
-             (typeof output === 'object' && Object.keys(output).length === 0);
+      return (
+        output === undefined || (typeof output === 'object' && Object.keys(output).length === 0)
+      );
     };
 
     const prevIsEmpty = isEmpty(previous);

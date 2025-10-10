@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, CloudDOMNode, CReactEvents, ReRenderReason } from './types';
 import { generateResourceId } from '../utils/naming';
 import { LoggerFactory } from '../utils/Logger';
@@ -7,11 +38,11 @@ const logger = LoggerFactory.getLogger('clouddom');
 /**
  * Structural change types for CloudDOM topology changes
  */
-export type StructuralChangeType = 
-  | 'resource-added'      // New useInstance call appeared
-  | 'resource-removed'    // useInstance call disappeared (conditional)
-  | 'resource-moved'      // useInstance call moved in hierarchy
-  | 'topology-changed';   // Overall tree structure changed
+export type StructuralChangeType =
+  | 'resource-added' // New useInstance call appeared
+  | 'resource-removed' // useInstance call disappeared (conditional)
+  | 'resource-moved' // useInstance call moved in hierarchy
+  | 'topology-changed'; // Overall tree structure changed
 
 /**
  * Structural change event
@@ -38,7 +69,7 @@ interface TopologySnapshot {
 
 /**
  * StructuralChangeDetector - Detects CloudDOM topology changes
- * 
+ *
  * Key Features:
  * - Detect conditional useInstance calls (resources appearing/disappearing)
  * - Track resource hierarchy changes
@@ -56,7 +87,7 @@ export class StructuralChangeDetector {
   /**
    * Detect structural changes between previous and current CloudDOM
    * This is the main method called after each render to detect topology changes
-   * 
+   *
    * @param previousCloudDOM - Previous CloudDOM state
    * @param currentCloudDOM - Current CloudDOM state
    * @param currentFiber - Current fiber tree for affected component tracking
@@ -78,7 +109,11 @@ export class StructuralChangeDetector {
     changes.push(...addedChanges);
 
     // Detect removed resources
-    const removedChanges = this.detectRemovedResources(previousSnapshot, currentSnapshot, currentFiber);
+    const removedChanges = this.detectRemovedResources(
+      previousSnapshot,
+      currentSnapshot,
+      currentFiber
+    );
     changes.push(...removedChanges);
 
     // Detect moved resources
@@ -95,8 +130,8 @@ export class StructuralChangeDetector {
         metadata: {
           previousHash: previousSnapshot.hierarchyHash,
           currentHash: currentSnapshot.hierarchyHash,
-          totalChanges: changes.length
-        }
+          totalChanges: changes.length,
+        },
       };
       changes.push(topologyChange);
     }
@@ -126,7 +161,7 @@ export class StructuralChangeDetector {
         nodeIds.add(node.id);
         nodePaths.set(node.id, [...node.path]);
         nodeTypes.set(node.id, node.construct);
-        
+
         // Add to hierarchy hash elements
         hierarchyElements.push(`${depth}:${node.id}:${node.construct?.name || 'unknown'}`);
 
@@ -146,7 +181,7 @@ export class StructuralChangeDetector {
       nodePaths,
       nodeTypes,
       hierarchyHash,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -172,8 +207,8 @@ export class StructuralChangeDetector {
           affectedFibers,
           metadata: {
             construct: current.nodeTypes.get(nodeId)?.name || 'unknown',
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         });
       }
     }
@@ -203,8 +238,8 @@ export class StructuralChangeDetector {
           affectedFibers,
           metadata: {
             construct: previous.nodeTypes.get(nodeId)?.name || 'unknown',
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         });
       }
     }
@@ -230,7 +265,7 @@ export class StructuralChangeDetector {
         if (previousPath && currentPath && !this.pathsEqual(previousPath, currentPath)) {
           const affectedFibers = [
             ...this.findFibersForPath(fiber, previousPath),
-            ...this.findFibersForPath(fiber, currentPath)
+            ...this.findFibersForPath(fiber, currentPath),
           ];
 
           changes.push({
@@ -243,8 +278,8 @@ export class StructuralChangeDetector {
               construct: current.nodeTypes.get(nodeId)?.name || 'unknown',
               from: previousPath.join('.'),
               to: currentPath.join('.'),
-              timestamp: Date.now()
-            }
+              timestamp: Date.now(),
+            },
           });
         }
       }
@@ -316,7 +351,7 @@ export class StructuralChangeDetector {
     const affectedFibers = new Set<FiberNode>();
 
     for (const change of changes) {
-      change.affectedFibers.forEach(f => affectedFibers.add(f));
+      change.affectedFibers.forEach((f) => affectedFibers.add(f));
     }
 
     return Array.from(affectedFibers);
@@ -329,7 +364,7 @@ export class StructuralChangeDetector {
     let hash = 0;
     for (let i = 0; i < input.length; i++) {
       const char = input.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return hash.toString(36);
@@ -361,7 +396,7 @@ export class StructuralChangeDetector {
   /**
    * Trigger re-renders for components affected by structural changes
    * This integrates with the RenderScheduler to schedule re-renders
-   * 
+   *
    * @param changes - Structural changes detected
    * @param renderScheduler - RenderScheduler instance to schedule re-renders
    */
@@ -370,7 +405,7 @@ export class StructuralChangeDetector {
 
     // Collect all affected fibers
     for (const change of changes) {
-      change.affectedFibers.forEach(fiber => affectedFibers.add(fiber));
+      change.affectedFibers.forEach((fiber) => affectedFibers.add(fiber));
     }
 
     // Schedule re-renders for affected fibers
@@ -378,22 +413,25 @@ export class StructuralChangeDetector {
       renderScheduler.schedule(fiber, 'structural-change' as ReRenderReason);
     }
 
-    logger.debug(`Scheduled re-renders for ${affectedFibers.size} fibers due to structural changes`);
+    logger.debug(
+      `Scheduled re-renders for ${affectedFibers.size} fibers due to structural changes`
+    );
   }
 
   /**
    * Check if structural changes require deployment plan updates
    * This helps determine if the deployment needs to be re-planned
-   * 
+   *
    * @param changes - Structural changes detected
    * @returns True if deployment planning should be updated
    */
   requiresDeploymentPlanUpdate(changes: StructuralChange[]): boolean {
     // Any resource addition, removal, or move requires deployment plan update
-    return changes.some(change => 
-      change.type === 'resource-added' || 
-      change.type === 'resource-removed' || 
-      change.type === 'resource-moved'
+    return changes.some(
+      (change) =>
+        change.type === 'resource-added' ||
+        change.type === 'resource-removed' ||
+        change.type === 'resource-moved'
     );
   }
 
@@ -414,7 +452,7 @@ export class StructuralChangeDetector {
       removedResources: 0,
       movedResources: 0,
       topologyChanges: 0,
-      affectedFibers: 0
+      affectedFibers: 0,
     };
 
     const allAffectedFibers = new Set<FiberNode>();
@@ -435,7 +473,7 @@ export class StructuralChangeDetector {
           break;
       }
 
-      change.affectedFibers.forEach(fiber => allAffectedFibers.add(fiber));
+      change.affectedFibers.forEach((fiber) => allAffectedFibers.add(fiber));
     }
 
     stats.affectedFibers = allAffectedFibers.size;

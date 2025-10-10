@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * Argument Parser - parses CLI arguments and flags
  */
@@ -17,24 +48,24 @@ export class ArgumentParser {
   static parse(argv: string[]): CLIContext {
     // Remove node and script path
     const args = argv.slice(2);
-    
+
     if (args.length === 0) {
       throw new Error('No command specified');
     }
 
     const command = args[0];
     const remainingArgs = args.slice(1);
-    
+
     const flags: CLIFlags = {};
     const positionalArgs: string[] = [];
 
     for (let i = 0; i < remainingArgs.length; i++) {
       const arg = remainingArgs[i];
-      
+
       if (arg.startsWith('--')) {
         // Long flag
         const flagName = arg.slice(2);
-        
+
         if (flagName.includes('=')) {
           // --flag=value
           const [name, value] = flagName.split('=', 2);
@@ -54,7 +85,7 @@ export class ArgumentParser {
       } else if (arg.startsWith('-') && arg.length > 1) {
         // Short flag(s)
         const shortFlags = arg.slice(1);
-        
+
         for (const flag of shortFlags) {
           flags[flag] = true;
         }
@@ -66,7 +97,7 @@ export class ArgumentParser {
 
     return {
       args: [command, ...positionalArgs],
-      flags
+      flags,
     };
   }
 

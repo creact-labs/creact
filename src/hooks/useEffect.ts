@@ -1,10 +1,38 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-03: useEffect hook for infrastructure lifecycle management
 // This hook manages side effects that run between deployment cycles
 
-import {
-  requireHookContext,
-  incrementHookIndex,
-} from './context';
+import { requireHookContext, incrementHookIndex } from './context';
 import { FiberNode } from '../core/types';
 import { generateBindingKey } from '../utils/naming';
 import { getProviderOutputTrackerInstance } from './useInstance';
@@ -107,10 +135,10 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     // REQ-5.2, 5.3, 5.4: Start access tracking session before evaluating dependencies
     // This will track which outputs are actually accessed during dependency evaluation
     const outputTracker = getProviderOutputTrackerInstance();
-    
+
     if (outputTracker) {
       outputTracker.startAccessTracking(currentFiber);
-      
+
       if (process.env.CREACT_DEBUG === 'true') {
         logger.debug(`Started access tracking for dependency evaluation`);
       }
@@ -122,16 +150,16 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
       // The proxy in useInstance will call outputTracker.trackOutputRead()
       void dep; // Access the dependency to trigger tracking
     }
-    
+
     // REQ-5.3, 5.4: End access tracking session and collect tracked outputs
     if (outputTracker) {
       const trackedOutputs = outputTracker.endAccessTracking(currentFiber);
-      
+
       // Add tracked outputs to boundOutputs
       trackedOutputs.forEach((bindingKey: string) => {
         boundOutputs.add(bindingKey);
       });
-      
+
       if (process.env.CREACT_DEBUG === 'true') {
         logger.debug(`Tracked ${trackedOutputs.size} output accesses during dependency evaluation`);
         if (trackedOutputs.size > 0) {
@@ -139,25 +167,28 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
         }
       }
     }
-    
+
     // Track which CloudDOM nodes are referenced in this effect
     const referencedNodes = new Set<string>();
-    
+
     // Get current fiber's CloudDOM nodes for reference tracking
     const fiberCloudDOMNodes = (currentFiber as any).cloudDOMNodes || [];
     const nodeMap = new Map<any, string>();
-    
+
     // Build a map from node objects to their IDs
     for (const node of fiberCloudDOMNodes) {
       nodeMap.set(node, node.id);
     }
-    
+
     // Analyze dependencies to find CloudDOM node references
     for (const dep of deps) {
       if (dep && typeof dep === 'object') {
         // Check if dependency is a provider output reference
         if (dep.__providerOutput) {
-          const bindingKey = generateBindingKey(dep.__providerOutput.nodeId, dep.__providerOutput.outputKey);
+          const bindingKey = generateBindingKey(
+            dep.__providerOutput.nodeId,
+            dep.__providerOutput.outputKey
+          );
           boundOutputs.add(bindingKey);
 
           if (process.env.CREACT_DEBUG === 'true') {
@@ -166,7 +197,10 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
         }
         // Check if dependency is a CloudDOM output reference
         else if (dep.__cloudDOMOutput) {
-          const bindingKey = generateBindingKey(dep.__cloudDOMOutput.nodeId, dep.__cloudDOMOutput.outputKey);
+          const bindingKey = generateBindingKey(
+            dep.__cloudDOMOutput.nodeId,
+            dep.__cloudDOMOutput.outputKey
+          );
           boundOutputs.add(bindingKey);
 
           if (process.env.CREACT_DEBUG === 'true') {
@@ -177,14 +211,14 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
         else if (nodeMap.has(dep)) {
           const nodeId = nodeMap.get(dep)!;
           referencedNodes.add(nodeId);
-          
+
           if (process.env.CREACT_DEBUG === 'true') {
             logger.debug(`Detected CloudDOM node reference: ${nodeId}`);
           }
         }
       }
     }
-    
+
     // For referenced nodes, bind to all their current and future outputs
     for (const nodeId of referencedNodes) {
       const node = fiberCloudDOMNodes.find((n: any) => n.id === nodeId);
@@ -201,7 +235,9 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     }
 
     if (process.env.CREACT_DEBUG === 'true' && boundOutputs.size > 0) {
-      logger.debug(`Bound to ${boundOutputs.size} output patterns: ${Array.from(boundOutputs).join(', ')}`);
+      logger.debug(
+        `Bound to ${boundOutputs.size} output patterns: ${Array.from(boundOutputs).join(', ')}`
+      );
     }
   }
 
@@ -212,26 +248,30 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
   const effectId = `${currentFiber.path.join('.')}:${currentHookIndex}`;
 
   // REQ-5.1, 5.5: Create enhanced dependency comparison method
-  const hasDepChanged = function(this: EffectHook, newDeps: any[]): boolean {
+  const hasDepChanged = function (this: EffectHook, newDeps: any[]): boolean {
     if (!this.lastDepsValues) return true;
     if (this.lastDepsValues.length !== newDeps.length) return true;
-    
+
     return this.lastDepsValues.some((prev, i) => {
       const curr = newDeps[i];
-      
+
       // REQ-5.5: Handle provider outputs specially
       if (isProviderOutput(prev) && isProviderOutput(curr)) {
         // Compare by nodeId and outputKey, not by value
-        return prev.__providerOutput.nodeId !== curr.__providerOutput.nodeId ||
-               prev.__providerOutput.outputKey !== curr.__providerOutput.outputKey;
+        return (
+          prev.__providerOutput.nodeId !== curr.__providerOutput.nodeId ||
+          prev.__providerOutput.outputKey !== curr.__providerOutput.outputKey
+        );
       }
-      
+
       // Handle CloudDOM outputs
       if (isCloudDOMOutput(prev) && isCloudDOMOutput(curr)) {
-        return prev.__cloudDOMOutput.nodeId !== curr.__cloudDOMOutput.nodeId ||
-               prev.__cloudDOMOutput.outputKey !== curr.__cloudDOMOutput.outputKey;
+        return (
+          prev.__cloudDOMOutput.nodeId !== curr.__cloudDOMOutput.nodeId ||
+          prev.__cloudDOMOutput.outputKey !== curr.__cloudDOMOutput.outputKey
+        );
       }
-      
+
       // Standard comparison for other values
       return prev !== curr;
     });
@@ -247,7 +287,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     lastDepsValues: deps ? [...deps] : undefined, // REQ-5.5: Store actual values
     isReactive,
     effectId,
-    hasDepChanged // REQ-5.1: Attach comparison method
+    hasDepChanged, // REQ-5.1: Attach comparison method
   };
 
   (currentFiber as any).effects[currentHookIndex] = effectHook;
@@ -279,22 +319,30 @@ function isCloudDOMOutput(value: any): boolean {
  */
 function generateDependencyHash(deps: DependencyList): string {
   try {
-    return JSON.stringify(deps.map(dep => {
-      if (dep && typeof dep === 'object') {
-        // For provider outputs, use binding key for stable representation
-        if (dep.__providerOutput) {
-          const bindingKey = generateBindingKey(dep.__providerOutput.nodeId, dep.__providerOutput.outputKey);
-          return `__providerOutput:${bindingKey}`;
+    return JSON.stringify(
+      deps.map((dep) => {
+        if (dep && typeof dep === 'object') {
+          // For provider outputs, use binding key for stable representation
+          if (dep.__providerOutput) {
+            const bindingKey = generateBindingKey(
+              dep.__providerOutput.nodeId,
+              dep.__providerOutput.outputKey
+            );
+            return `__providerOutput:${bindingKey}`;
+          }
+          if (dep.__cloudDOMOutput) {
+            const bindingKey = generateBindingKey(
+              dep.__cloudDOMOutput.nodeId,
+              dep.__cloudDOMOutput.outputKey
+            );
+            return `__cloudDOMOutput:${bindingKey}`;
+          }
+          // For other objects, try to create a stable hash
+          return JSON.stringify(dep);
         }
-        if (dep.__cloudDOMOutput) {
-          const bindingKey = generateBindingKey(dep.__cloudDOMOutput.nodeId, dep.__cloudDOMOutput.outputKey);
-          return `__cloudDOMOutput:${bindingKey}`;
-        }
-        // For other objects, try to create a stable hash
-        return JSON.stringify(dep);
-      }
-      return dep;
-    }));
+        return dep;
+      })
+    );
   } catch (error) {
     // Fallback for non-serializable dependencies
     return `hash_error_${Date.now()}`;
@@ -319,11 +367,13 @@ function registerEffectWithReactiveSystem(
   const bindingKeys = Array.from(boundOutputs);
   (fiber as any).effectBindings.set(effectIndex, {
     boundOutputs: bindingKeys, // These are already binding keys from generateBindingKey
-    registeredAt: Date.now()
+    registeredAt: Date.now(),
   });
 
   if (process.env.CREACT_DEBUG === 'true') {
-    logger.debug(`Registered effect ${effectIndex} with reactive system for outputs: ${bindingKeys.join(', ')}`);
+    logger.debug(
+      `Registered effect ${effectIndex} with reactive system for outputs: ${bindingKeys.join(', ')}`
+    );
   }
 }
 
@@ -396,7 +446,7 @@ function hasEffectDependenciesChanged(
 export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
   if (process.env.CREACT_DEBUG === 'true') {
     logger.debug(`executeEffects called for fiber: ${fiber.path?.join('.')}`);
-    logger.debug(`Fiber has effects: ${!!(fiber.effects)}, length: ${fiber.effects?.length || 0}`);
+    logger.debug(`Fiber has effects: ${!!fiber.effects}, length: ${fiber.effects?.length || 0}`);
     if (changedOutputs && changedOutputs.size > 0) {
       logger.debug(`Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
     }
@@ -424,11 +474,17 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
     }
 
     // Check if effect should run based on dependencies and output changes
-    const shouldRun = hasEffectDependenciesChanged(effectHook, fiber.previousEffects?.[i], changedOutputs);
+    const shouldRun = hasEffectDependenciesChanged(
+      effectHook,
+      fiber.previousEffects?.[i],
+      changedOutputs
+    );
 
     logger.debug(`Effect ${i} should run: ${shouldRun}`);
     if (effectHook.boundOutputs && effectHook.boundOutputs.size > 0) {
-      logger.debug(`Effect ${i} bound to outputs: ${Array.from(effectHook.boundOutputs).join(', ')}`);
+      logger.debug(
+        `Effect ${i} bound to outputs: ${Array.from(effectHook.boundOutputs).join(', ')}`
+      );
     }
 
     if (shouldRun) {
@@ -450,21 +506,23 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
         if (process.env.CREACT_DEBUG === 'true') {
           logger.debug(`Running effect ${effectHook.effectId || i}`);
         }
-        
+
         const result = effectHook.callback();
-        
+
         // Handle async effects
         if (result instanceof Promise) {
-          result.then(cleanup => {
-            if (typeof cleanup === 'function') {
-              effectHook.cleanup = cleanup;
-            }
-            if (process.env.CREACT_DEBUG === 'true') {
-              logger.debug(`Async effect ${effectHook.effectId || i} completed successfully`);
-            }
-          }).catch(error => {
-            logger.error(`Async effect ${effectHook.effectId || i} error:`, error);
-          });
+          result
+            .then((cleanup) => {
+              if (typeof cleanup === 'function') {
+                effectHook.cleanup = cleanup;
+              }
+              if (process.env.CREACT_DEBUG === 'true') {
+                logger.debug(`Async effect ${effectHook.effectId || i} completed successfully`);
+              }
+            })
+            .catch((error) => {
+              logger.error(`Async effect ${effectHook.effectId || i} error:`, error);
+            });
         } else {
           // Handle sync effects
           if (typeof result === 'function') {
@@ -474,7 +532,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
             logger.debug(`Sync effect ${effectHook.effectId || i} completed successfully`);
           }
         }
-        
+
         effectHook.hasRun = true;
 
         // REQ-5.5: Update dependency values and hash for next comparison
@@ -495,7 +553,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
 /**
  * Execute effects when provider outputs change (reactive execution)
  * Called by the reactive system when bound outputs change
- * 
+ *
  * @param fiber - Fiber node containing effects
  * @param changedOutputs - Set of output keys that changed
  * @internal
@@ -520,7 +578,7 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
     // Check if this effect is bound to any of the changed outputs
     // REQ-5.2, 5.4: Only check specific bindings, no wildcard matching
     if (effectHook.boundOutputs) {
-      const hasChangedDependency = Array.from(effectHook.boundOutputs).some(boundOutput => {
+      const hasChangedDependency = Array.from(effectHook.boundOutputs).some((boundOutput) => {
         // Direct match only - no wildcard patterns
         return changedOutputs.has(boundOutput);
       });
@@ -544,28 +602,34 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
           if (process.env.CREACT_DEBUG === 'true') {
             logger.debug(`Running reactive effect ${effectHook.effectId || i}`);
           }
-          
+
           const result = effectHook.callback();
-          
+
           // Handle async reactive effects
           if (result instanceof Promise) {
-            result.then(cleanup => {
-              if (typeof cleanup === 'function') {
-                effectHook.cleanup = cleanup;
-              }
-              if (process.env.CREACT_DEBUG === 'true') {
-                logger.debug(`Async reactive effect ${effectHook.effectId || i} completed successfully`);
-              }
-            }).catch(error => {
-              logger.error(`Async reactive effect ${effectHook.effectId || i} error:`, error);
-            });
+            result
+              .then((cleanup) => {
+                if (typeof cleanup === 'function') {
+                  effectHook.cleanup = cleanup;
+                }
+                if (process.env.CREACT_DEBUG === 'true') {
+                  logger.debug(
+                    `Async reactive effect ${effectHook.effectId || i} completed successfully`
+                  );
+                }
+              })
+              .catch((error) => {
+                logger.error(`Async reactive effect ${effectHook.effectId || i} error:`, error);
+              });
           } else {
             // Handle sync reactive effects
             if (typeof result === 'function') {
               effectHook.cleanup = result;
             }
             if (process.env.CREACT_DEBUG === 'true') {
-              logger.debug(`Sync reactive effect ${effectHook.effectId || i} completed successfully`);
+              logger.debug(
+                `Sync reactive effect ${effectHook.effectId || i} completed successfully`
+              );
             }
           }
 

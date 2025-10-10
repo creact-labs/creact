@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, CloudDOMNode, CReactEvents, OutputChange } from './types';
 import { LoggerFactory } from '../utils/Logger';
 
@@ -16,7 +47,7 @@ interface AccessTrackingSession {
 
 /**
  * ProviderOutputTracker - Tracks useInstance calls and their output dependencies
- * 
+ *
  * Key Features:
  * - Track which components use which provider instances
  * - Detect when provider outputs change
@@ -28,7 +59,7 @@ export class ProviderOutputTracker {
   private instanceBindings = new Map<string, Set<FiberNode>>();
   private instanceOutputs = new Map<string, Record<string, any>>();
   private eventHooks?: CReactEvents;
-  
+
   // REQ-6.2, 6.3: Access tracking sessions for dependency analysis
   private activeSessions = new Map<FiberNode, AccessTrackingSession>();
 
@@ -74,14 +105,14 @@ export class ProviderOutputTracker {
     // Check for changed outputs
     for (const [outputKey, newValue] of Object.entries(newOutputs)) {
       const previousValue = previousOutputs[outputKey];
-      
+
       if (previousValue !== newValue) {
         changes.push({
           nodeId,
           outputKey,
           previousValue,
           newValue,
-          affectedFibers: boundFibers
+          affectedFibers: boundFibers,
         });
       }
     }
@@ -94,7 +125,7 @@ export class ProviderOutputTracker {
           outputKey,
           previousValue,
           newValue: undefined,
-          affectedFibers: boundFibers
+          affectedFibers: boundFibers,
         });
       }
     }
@@ -112,12 +143,12 @@ export class ProviderOutputTracker {
   notifyOutputChanges(changes: OutputChange[]): void {
     for (const change of changes) {
       const boundFibers = this.getBindingsForInstance(change.nodeId);
-      
+
       for (const fiber of boundFibers) {
         try {
           // Emit render start event for tooling
           this.eventHooks?.onRenderStart(fiber);
-          
+
           // Mark fiber as needing re-render due to output change
           if (!fiber.reactiveState) {
             fiber.reactiveState = {
@@ -125,7 +156,7 @@ export class ProviderOutputTracker {
               isDirty: true,
               updatePending: true,
               lastRenderReason: 'output-update',
-              lastRenderTime: Date.now()
+              lastRenderTime: Date.now(),
             };
           } else {
             fiber.reactiveState.lastRenderReason = 'output-update';
@@ -133,7 +164,6 @@ export class ProviderOutputTracker {
             fiber.reactiveState.isDirty = true;
             fiber.reactiveState.updatePending = true;
           }
-          
         } catch (error) {
           this.eventHooks?.onError(error as Error, fiber);
         }
@@ -170,7 +200,7 @@ export class ProviderOutputTracker {
   removeBindingsForFiber(fiber: FiberNode): void {
     for (const [nodeId, bindings] of this.instanceBindings) {
       bindings.delete(fiber);
-      
+
       // Clean up empty binding sets
       if (bindings.size === 0) {
         this.instanceBindings.delete(nodeId);
@@ -237,7 +267,7 @@ export class ProviderOutputTracker {
     instancesWithOutputs: number;
   } {
     let totalBindings = 0;
-    
+
     for (const bindings of this.instanceBindings.values()) {
       totalBindings += bindings.size;
     }
@@ -245,26 +275,32 @@ export class ProviderOutputTracker {
     return {
       totalInstances: this.instanceBindings.size,
       totalBindings,
-      instancesWithOutputs: this.instanceOutputs.size
+      instancesWithOutputs: this.instanceOutputs.size,
     };
   }
 
   /**
    * Get all bindings for debugging/inspection
    */
-  getAllBindings(): Map<string, { 
-    fibers: FiberNode[]; 
-    outputs: Record<string, any> | undefined;
-  }> {
-    const result = new Map<string, { 
-      fibers: FiberNode[]; 
+  getAllBindings(): Map<
+    string,
+    {
+      fibers: FiberNode[];
       outputs: Record<string, any> | undefined;
-    }>();
+    }
+  > {
+    const result = new Map<
+      string,
+      {
+        fibers: FiberNode[];
+        outputs: Record<string, any> | undefined;
+      }
+    >();
 
     for (const [nodeId, bindings] of this.instanceBindings) {
       result.set(nodeId, {
         fibers: Array.from(bindings),
-        outputs: this.instanceOutputs.get(nodeId)
+        outputs: this.instanceOutputs.get(nodeId),
       });
     }
 
@@ -292,7 +328,10 @@ export class ProviderOutputTracker {
 
     // Create bindings snapshot with fiber paths instead of fiber objects
     for (const [nodeId, fibers] of this.instanceBindings) {
-      bindingsSnapshot.set(nodeId, Array.from(fibers).map(f => f.path.join('.')));
+      bindingsSnapshot.set(
+        nodeId,
+        Array.from(fibers).map((f) => f.path.join('.'))
+      );
     }
 
     // Create outputs snapshot
@@ -302,7 +341,7 @@ export class ProviderOutputTracker {
 
     return {
       bindings: bindingsSnapshot,
-      outputs: outputsSnapshot
+      outputs: outputsSnapshot,
     };
   }
 
@@ -319,7 +358,7 @@ export class ProviderOutputTracker {
     const bindingChanges = {
       added: [] as string[],
       removed: [] as string[],
-      modified: [] as string[]
+      modified: [] as string[],
     };
     const outputChanges: OutputChange[] = [];
 
@@ -344,9 +383,11 @@ export class ProviderOutputTracker {
     // Modified instances (binding changes)
     for (const nodeId of currentNodeIds) {
       if (snapshotNodeIds.has(nodeId)) {
-        const currentPaths = Array.from(this.instanceBindings.get(nodeId)!).map(f => f.path.join('.'));
+        const currentPaths = Array.from(this.instanceBindings.get(nodeId)!).map((f) =>
+          f.path.join('.')
+        );
         const snapshotPaths = snapshot.bindings.get(nodeId)!;
-        
+
         if (JSON.stringify(currentPaths.sort()) !== JSON.stringify(snapshotPaths.sort())) {
           bindingChanges.modified.push(nodeId);
         }
@@ -357,7 +398,7 @@ export class ProviderOutputTracker {
     for (const nodeId of currentNodeIds) {
       const currentOutputs = this.instanceOutputs.get(nodeId) || {};
       const snapshotOutputs = snapshot.outputs.get(nodeId) || {};
-      
+
       const changes = this.compareOutputs(nodeId, snapshotOutputs, currentOutputs);
       outputChanges.push(...changes);
     }
@@ -369,8 +410,8 @@ export class ProviderOutputTracker {
    * Compare two output objects and return changes
    */
   private compareOutputs(
-    nodeId: string, 
-    previousOutputs: Record<string, any>, 
+    nodeId: string,
+    previousOutputs: Record<string, any>,
     currentOutputs: Record<string, any>
   ): OutputChange[] {
     const changes: OutputChange[] = [];
@@ -379,14 +420,14 @@ export class ProviderOutputTracker {
     // Check for changed/added outputs
     for (const [outputKey, currentValue] of Object.entries(currentOutputs)) {
       const previousValue = previousOutputs[outputKey];
-      
+
       if (previousValue !== currentValue) {
         changes.push({
           nodeId,
           outputKey,
           previousValue,
           newValue: currentValue,
-          affectedFibers: boundFibers
+          affectedFibers: boundFibers,
         });
       }
     }
@@ -399,7 +440,7 @@ export class ProviderOutputTracker {
           outputKey,
           previousValue,
           newValue: undefined,
-          affectedFibers: boundFibers
+          affectedFibers: boundFibers,
         });
       }
     }
@@ -413,7 +454,7 @@ export class ProviderOutputTracker {
    */
   extractOutputReferences(node: CloudDOMNode): Record<string, any> {
     const outputReferences: Record<string, any> = {};
-    
+
     if (!node.outputs) {
       return outputReferences;
     }
@@ -424,13 +465,13 @@ export class ProviderOutputTracker {
         __providerOutput: {
           nodeId: node.id,
           outputKey,
-          value
+          value,
         },
         // Also include the actual value for direct access
         valueOf: () => value,
         toString: () => String(value),
         // Make it behave like the actual value in most contexts
-        [Symbol.toPrimitive]: () => value
+        [Symbol.toPrimitive]: () => value,
       };
     }
 
@@ -451,14 +492,14 @@ export class ProviderOutputTracker {
    */
   processOutputChanges(changes: OutputChange[]): Set<FiberNode> {
     const affectedFibers = new Set<FiberNode>();
-    
+
     for (const change of changes) {
-      change.affectedFibers.forEach(fiber => affectedFibers.add(fiber));
+      change.affectedFibers.forEach((fiber) => affectedFibers.add(fiber));
     }
-    
+
     // Notify about the changes
     this.notifyOutputChanges(changes);
-    
+
     return affectedFibers;
   }
 
@@ -473,7 +514,7 @@ export class ProviderOutputTracker {
   /**
    * Start an access tracking session for a fiber
    * REQ-6.2, 6.3: Track which outputs are accessed during execution
-   * 
+   *
    * @param fiber - Fiber node to track
    */
   startAccessTracking(fiber: FiberNode): void {
@@ -481,7 +522,7 @@ export class ProviderOutputTracker {
       fiber,
       startTime: Date.now(),
       trackedOutputs: new Set(),
-      isActive: true
+      isActive: true,
     });
 
     logger.debug(`Started access tracking for ${fiber.path.join('.')}`);
@@ -490,7 +531,7 @@ export class ProviderOutputTracker {
   /**
    * End an access tracking session and return tracked outputs
    * REQ-6.3, 6.4: Collect tracked outputs for binding creation
-   * 
+   *
    * @param fiber - Fiber node to end tracking for
    * @returns Set of binding keys that were accessed
    */
@@ -503,7 +544,9 @@ export class ProviderOutputTracker {
     session.isActive = false;
     this.activeSessions.delete(fiber);
 
-    logger.debug(`Ended access tracking for ${fiber.path.join('.')}, tracked ${session.trackedOutputs.size} outputs`);
+    logger.debug(
+      `Ended access tracking for ${fiber.path.join('.')}, tracked ${session.trackedOutputs.size} outputs`
+    );
 
     return session.trackedOutputs;
   }
@@ -511,7 +554,7 @@ export class ProviderOutputTracker {
   /**
    * Track an output read during an active session
    * REQ-6.2, 6.4: Record when outputs are accessed for binding creation
-   * 
+   *
    * @param nodeId - CloudDOM node ID
    * @param outputKey - Output key that was accessed
    * @param fiber - Fiber node that accessed the output
@@ -529,7 +572,7 @@ export class ProviderOutputTracker {
 
   /**
    * Check if a fiber has an active tracking session
-   * 
+   *
    * @param fiber - Fiber node to check
    * @returns True if tracking is active for this fiber
    */

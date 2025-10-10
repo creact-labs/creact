@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-07: Validator - Fiber tree validation
 
 import { FiberNode } from './types';
@@ -137,18 +168,20 @@ export class Validator {
     // REQ-07.1: Required props validation
     this.validateRequiredProps(node, currentStack);
 
-    // REQ-07.3: Unique resource IDs
-    if (node.cloudDOMNode) {
-      const resourceId = node.cloudDOMNode.id;
-      if (resourceIds.has(resourceId)) {
-        throw new ValidationError(
-          `Duplicate resource ID: '${resourceId}'. Resource IDs must be unique.`,
-          currentStack,
-          this.getFilePath(node),
-          this.getLineNumber(node)
-        );
+    // REQ-07.3: Unique resource IDs - check cloudDOMNodes array
+    if (node.cloudDOMNodes && node.cloudDOMNodes.length > 0) {
+      for (const cloudNode of node.cloudDOMNodes) {
+        const resourceId = cloudNode.id;
+        if (resourceIds.has(resourceId)) {
+          throw new ValidationError(
+            `Duplicate resource ID: '${resourceId}'. Resource IDs must be unique.`,
+            currentStack,
+            this.getFilePath(node),
+            this.getLineNumber(node)
+          );
+        }
+        resourceIds.add(resourceId);
       }
-      resourceIds.add(resourceId);
     }
 
     // REQ-07.2: Context validation

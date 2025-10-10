@@ -1,11 +1,41 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * Plan Command - shows diff between current and previous CloudDOM
  */
 
 import { BaseCommand, CommandResult } from '../core/BaseCommand';
 import { CLIContextManager } from '../core/CLIContext';
-import { Spinner, formatDiff } from '../output';
-import { resolve } from 'path';
+import { createOutputManager } from '../../utils/Output';
 import { Reconciler } from '../../core/Reconciler';
 import { LoggerFactory } from '../../utils/Logger';
 
@@ -21,129 +51,150 @@ export class PlanCommand extends BaseCommand {
   }
 
   async execute(): Promise<CommandResult> {
-    const spinner = new Spinner(this.json);
+    const output = createOutputManager({
+      json: this.json,
+      quiet: !!this.context.flags.quiet,
+      verbose: this.verbose,
+    });
 
     try {
       // Find entry file
+      logger.debug('PlanCommand: Starting execution');
       let entryPath: string;
       try {
         entryPath = CLIContextManager.findEntryFile(this.context.flags.entry);
-        this.logVerbose(`Using entry file: ${entryPath}`);
+        logger.debug(`PlanCommand: Entry file resolved to ${entryPath}`);
       } catch (error) {
-        return this.handleError(error as Error, 'Entry file resolution failed');
+        output.showError('Entry file resolution failed', {
+          cause: (error as Error).message,
+          stackTrace: this.verbose ? (error as Error).stack : undefined,
+        });
+        return { exitCode: 1 };
       }
 
       // Load entry file and create CLI instance
-      spinner.start('Loading entry file and configuring providers...');
-      
+      output.showInfo('Loading entry file and configuring providers...');
+
       let result;
       try {
         result = await CLIContextManager.createCLIInstance(entryPath, this.verbose);
-        this.logVerbose(`Current CloudDOM built with ${result.cloudDOM.length} resources`);
+        logger.debug(
+          `PlanCommand: Current CloudDOM built with ${result.cloudDOM.length} resources`
+        );
       } catch (error) {
-        spinner.fail('Failed to load entry file and configure providers');
-        return this.handleError(error as Error, 'Entry file loading failed');
+        output.showError('Failed to load entry file and configure providers', {
+          cause: (error as Error).message,
+          stackTrace: this.verbose ? (error as Error).stack : undefined,
+        });
+        return { exitCode: 1 };
       }
 
-      spinner.succeed('Entry file loaded and providers configured');
+      output.showSuccess('Entry file loaded and providers configured');
 
       // Load previous CloudDOM from backend
-      spinner.start('Loading previous state...');
-      
+      output.showInfo('Loading previous state...');
+
       let previousCloudDOM: any[] = [];
-      
+
       try {
         const previousState = await result.instance.getBackendProvider().getState(result.stackName);
         if (previousState && previousState.cloudDOM) {
           previousCloudDOM = previousState.cloudDOM;
-          this.logVerbose(`Previous CloudDOM loaded with ${previousCloudDOM.length} resources`);
+          logger.debug(
+            `PlanCommand: Previous CloudDOM loaded with ${previousCloudDOM.length} resources`
+          );
         } else {
-          this.logVerbose('No previous state found (first deployment)');
+          logger.debug('PlanCommand: No previous state found (first deployment)');
         }
       } catch (stateError) {
-        this.logVerbose(`Could not load previous state: ${(stateError as Error).message}`);
+        logger.debug(
+          `PlanCommand: Could not load previous state: ${(stateError as Error).message}`
+        );
         // Continue with empty previous state
       }
 
-      spinner.succeed('Previous state loaded');
+      output.showSuccess('Previous state loaded');
 
       // Compute diff using Reconciler
-      spinner.start('Computing changes...');
-      
-      const reconciler = new Reconciler();
-      
-      const changeSet = reconciler.reconcile(previousCloudDOM, result.cloudDOM);
-      
-      this.logVerbose(`Changes computed: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes, ${changeSet.replacements.length} replacements`);
+      output.showInfo('Computing changes...');
 
-      spinner.succeed('Changes computed');
+      const reconciler = new Reconciler();
+
+      const changeSet = reconciler.reconcile(previousCloudDOM, result.cloudDOM);
+
+      logger.debug(
+        `PlanCommand: Changes computed: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes, ${changeSet.replacements.length} replacements`
+      );
+
+      output.showSuccess('Changes computed');
 
       // Check if there are any changes
-      const hasChanges = 
+      const hasChanges =
         changeSet.creates.length > 0 ||
         changeSet.updates.length > 0 ||
         changeSet.deletes.length > 0 ||
         changeSet.replacements.length > 0 ||
         changeSet.moves.length > 0;
 
+      // Display plan
+      output.showPlanHeader(result.stackName);
+      output.showPlanChanges(changeSet);
+      output.showPlanSummary(changeSet);
+
+      if (this.verbose && !this.json) {
+        this.printVerboseOutput(changeSet);
+      }
+
       if (!hasChanges) {
-        return this.handleSuccess('No changes detected', {
-          changes: {
-            creates: 0,
-            updates: 0,
-            deletes: 0,
-            replacements: 0,
-            moves: 0,
-            total: 0
-          }
-        });
+        return { exitCode: 0 };
       }
 
       // Output results
-      const totalChanges = changeSet.creates.length + changeSet.updates.length + 
-                          changeSet.deletes.length + changeSet.replacements.length + 
-                          changeSet.moves.length;
-
-      const message = `Plan complete: ${totalChanges} changes`;
+      const totalChanges =
+        changeSet.creates.length +
+        changeSet.updates.length +
+        changeSet.deletes.length +
+        changeSet.replacements.length +
+        changeSet.moves.length;
 
       if (this.json) {
         const diffVisualization = reconciler.generateDiffVisualization(changeSet);
-        
-        return this.handleSuccess(message, {
-          summary: diffVisualization.summary,
-          changes: diffVisualization.changes,
-          deployment: diffVisualization.deployment
-        });
-      } else {
-        // Human-readable colored output
-        this.printDiff(changeSet);
-        
-        if (this.verbose) {
-          this.printVerboseOutput(changeSet);
-        }
-        
-        return this.handleSuccess(message);
+
+        console.log(
+          JSON.stringify(
+            {
+              status: 'success',
+              message: `Plan complete: ${totalChanges} changes`,
+              summary: diffVisualization.summary,
+              changes: diffVisualization.changes,
+              deployment: diffVisualization.deployment,
+            },
+            null,
+            2
+          )
+        );
       }
 
+      return { exitCode: 0 };
     } catch (error) {
-      return this.handleError(error as Error, 'Plan failed');
+      output.showError('Plan failed', {
+        cause: (error as Error).message,
+        stackTrace: this.verbose ? (error as Error).stack : undefined,
+      });
+      return { exitCode: 1 };
     }
   }
 
-  private printDiff(changeSet: any): void {
-    logger.info(formatDiff(changeSet));
-  }
-
   private printVerboseOutput(changeSet: any): void {
-    logger.info('\nDeployment Order:');
+    console.log('\nDeployment Order:');
     changeSet.deploymentOrder.forEach((nodeId: string, index: number) => {
-      logger.info(`  ${String(index + 1).padStart(2)}. ${nodeId}`);
+      console.log(`  ${String(index + 1).padStart(2)}. ${nodeId}`);
     });
-    
+
     if (changeSet.parallelBatches.length > 1) {
-      logger.info('\nParallel Batches:');
+      console.log('\nParallel Batches:');
       changeSet.parallelBatches.forEach((batch: string[], index: number) => {
-        logger.info(`  Batch ${index + 1}: ${batch.join(', ')}`);
+        console.log(`  Batch ${index + 1}: ${batch.join(', ')}`);
       });
     }
   }

@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-O01: CloudDOM State Machine
 // Transactional deployment engine with crash recovery
 
@@ -107,8 +138,6 @@ export interface StateMachineEventPayload {
   /** Additional metadata (optional) */
   metadata?: Record<string, any>;
 }
-
-
 
 /**
  * StateMachine manages deployment lifecycle with crash recovery
@@ -264,7 +293,7 @@ export class StateMachine {
 
   /**
    * Start lock auto-renewal for a stack
-   * 
+   *
    * Renews the lock at 50% of the TTL interval to prevent expiration
    * during long deployments. Only starts renewal if backend supports locking.
    *
@@ -297,12 +326,14 @@ export class StateMachine {
     }, renewalInterval);
 
     this.lockRenewalTimers.set(stackName, timer);
-    logger.debug(`Lock auto-renewal started for stack: ${stackName} (interval: ${renewalInterval}ms)`);
+    logger.debug(
+      `Lock auto-renewal started for stack: ${stackName} (interval: ${renewalInterval}ms)`
+    );
   }
 
   /**
    * Stop lock auto-renewal for a stack
-   * 
+   *
    * Cleans up the renewal timer to prevent memory leaks.
    *
    * @param stackName - Name of the stack
@@ -511,7 +542,7 @@ export class StateMachine {
       } catch (error) {
         throw new DeploymentError(
           `Failed to acquire lock for stack ${stackName}. ` +
-          `Another deployment may be in progress.`,
+            `Another deployment may be in progress.`,
           {
             message: `Failed to acquire lock for stack ${stackName}`,
             code: 'LOCK_ACQUISITION_FAILED',
@@ -591,7 +622,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot update checkpoint for stack in ${state.status} state. ` +
-        `Checkpoints can only be updated during APPLYING state.`,
+          `Checkpoints can only be updated during APPLYING state.`,
         {
           message: `Cannot update checkpoint for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_CHECKPOINT',
@@ -787,7 +818,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot resume deployment for stack in ${state.status} state. ` +
-        `Only APPLYING deployments can be resumed.`,
+          `Only APPLYING deployments can be resumed.`,
         {
           message: `Cannot resume deployment for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_RESUME',
@@ -916,8 +947,6 @@ export class StateMachine {
     await this.logAction(stackName, 'checkpoint', state);
   }
 
-
-
   /**
    * Check if a stack has an incomplete deployment
    *
@@ -945,11 +974,11 @@ export class StateMachine {
    */
   async getCheckpointInfo(stackName: string): Promise<
     | {
-      checkpoint: number;
-      resourceId?: string;
-      totalResources: number;
-      percentComplete: number;
-    }
+        checkpoint: number;
+        resourceId?: string;
+        totalResources: number;
+        percentComplete: number;
+      }
     | undefined
   > {
     const state = await this.getState(stackName);

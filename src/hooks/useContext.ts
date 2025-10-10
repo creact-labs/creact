@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-02: useContext hook - React-like context consumption
 // This hook retrieves values from the nearest Provider in the component tree
 
@@ -20,7 +51,7 @@ let contextDependencyTracker: any = null;
 /**
  * Set the context dependency tracker instance
  * Called by CReact during initialization
- * 
+ *
  * @internal
  */
 export function setContextDependencyTracker(tracker: any): void {
@@ -29,7 +60,7 @@ export function setContextDependencyTracker(tracker: any): void {
 
 /**
  * Get the context dependency tracker instance
- * 
+ *
  * @internal
  */
 export function getContextDependencyTracker(): any {
@@ -129,11 +160,7 @@ export function useContext<T>(context: Context<T>): T {
 
   // Track context dependency for reactive updates
   if (contextDependencyTracker) {
-    contextDependencyTracker.trackContextConsumption(
-      context._contextId,
-      currentFiber,
-      hookIndex
-    );
+    contextDependencyTracker.trackContextConsumption(context._contextId, currentFiber, hookIndex);
   }
 
   // Look up the context value from the stack

@@ -6,11 +6,13 @@ dist/
 build/
 *.tsbuildinfo
 
+examples
+        "\"$f.tmp\""
 # CReact persistence directory
 .creact/
 .creact-*/
 .kiro
-
+        {}.tmp
 # Test coverage
 coverage/
 .nyc_output/
@@ -36,3 +38,5 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.kiro/
+examples/

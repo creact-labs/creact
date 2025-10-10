@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, OutputBinding, OutputChange } from './types';
 import { generateBindingKey, parseBindingKey } from '../utils/naming';
 import { LoggerFactory } from '../utils/Logger';
@@ -6,7 +37,7 @@ const logger = LoggerFactory.getLogger('hooks');
 
 /**
  * StateBindingManager - Manages automatic binding between component state and provider outputs
- * 
+ *
  * Key Features:
  * - Automatic binding detection when setState is called with provider outputs
  * - State update propagation when provider outputs change
@@ -22,10 +53,10 @@ export class StateBindingManager {
    * This is called internally when setState detects it's being set to a provider output
    */
   bindStateToOutput(
-    fiber: FiberNode, 
-    hookIndex: number, 
-    nodeId: string, 
-    outputKey: string, 
+    fiber: FiberNode,
+    hookIndex: number,
+    nodeId: string,
+    outputKey: string,
     initialValue: any
   ): void {
     // Initialize fiber bindings if not exists
@@ -38,7 +69,7 @@ export class StateBindingManager {
       nodeId,
       outputKey,
       lastValue: initialValue,
-      bindTime: Date.now()
+      bindTime: Date.now(),
     };
 
     // Store the binding
@@ -70,13 +101,13 @@ export class StateBindingManager {
   /**
    * Update bound state when provider outputs change
    * Returns list of fibers that were affected by the change
-   * 
+   *
    * REQ-4.2, 4.4, 4.5: Use internal setState to prevent circular dependencies
    */
   updateBoundState(nodeId: string, outputKey: string, newValue: any): FiberNode[] {
     const bindingKey = generateBindingKey(nodeId, outputKey);
     const bindings = this.outputToBindings.get(bindingKey);
-    
+
     if (!bindings) {
       return []; // No bindings for this output
     }
@@ -85,7 +116,7 @@ export class StateBindingManager {
 
     Array.from(bindings).forEach(({ fiber, hookIndex }) => {
       const binding = this.stateBindings.get(fiber)?.get(hookIndex);
-      
+
       if (!binding) {
         return; // Binding was removed
       }
@@ -95,16 +126,16 @@ export class StateBindingManager {
         // REQ-4.2, 4.4: Use stored setState callback with isInternalUpdate=true
         // This prevents infinite binding loops
         const setStateCallbacks = (fiber as any).setStateCallbacks;
-        
+
         if (setStateCallbacks && setStateCallbacks[hookIndex]) {
           try {
             // Call setState with isInternalUpdate=true to skip binding creation
             setStateCallbacks[hookIndex](newValue, true);
-            
+
             binding.lastValue = newValue;
             binding.lastUpdate = Date.now();
             affectedFibers.push(fiber);
-            
+
             logger.debug(`Updated bound state via internal setState: ${bindingKey}`);
           } catch (error) {
             logger.error(`Error calling internal setState for ${bindingKey}:`, error);
@@ -125,7 +156,7 @@ export class StateBindingManager {
   /**
    * Fallback method for direct hook update when setState callback is not available
    * REQ-4.5: Proper error handling and recovery
-   * 
+   *
    * @private
    */
   private fallbackDirectUpdate(
@@ -152,7 +183,7 @@ export class StateBindingManager {
     if (value && typeof value === 'object' && value.__providerOutput) {
       return {
         nodeId: value.__providerOutput.nodeId,
-        outputKey: value.__providerOutput.outputKey
+        outputKey: value.__providerOutput.outputKey,
       };
     }
 
@@ -160,7 +191,7 @@ export class StateBindingManager {
     if (value && typeof value === 'object' && value.__cloudDOMOutput) {
       return {
         nodeId: value.__cloudDOMOutput.nodeId,
-        outputKey: value.__cloudDOMOutput.outputKey
+        outputKey: value.__cloudDOMOutput.outputKey,
       };
     }
 
@@ -183,12 +214,9 @@ export class StateBindingManager {
           change.newValue
         );
 
-        affectedFibers.forEach(fiber => allAffectedFibers.add(fiber));
+        affectedFibers.forEach((fiber) => allAffectedFibers.add(fiber));
       } catch (err) {
-        logger.warn(
-          `Error updating bound state for ${change.nodeId}.${change.outputKey}:`, 
-          err
-        );
+        logger.warn(`Error updating bound state for ${change.nodeId}.${change.outputKey}:`, err);
         // Continue processing other changes even if one fails
       }
     }
@@ -203,7 +231,7 @@ export class StateBindingManager {
    */
   removeBindingsForFiber(fiber: FiberNode): void {
     const fiberBindings = this.stateBindings.get(fiber);
-    
+
     if (!fiberBindings) {
       return;
     }
@@ -212,10 +240,10 @@ export class StateBindingManager {
     Array.from(fiberBindings.entries()).forEach(([hookIndex, binding]) => {
       const bindingKey = generateBindingKey(binding.nodeId, binding.outputKey);
       const bindings = this.outputToBindings.get(bindingKey);
-      
+
       if (bindings) {
         // Find and remove the specific binding
-        Array.from(bindings).forEach(bindingRef => {
+        Array.from(bindings).forEach((bindingRef) => {
           if (bindingRef.fiber === fiber && bindingRef.hookIndex === hookIndex) {
             bindings.delete(bindingRef);
           }
@@ -238,7 +266,7 @@ export class StateBindingManager {
   removeBindingsForOutput(nodeId: string, outputKey: string): void {
     const bindingKey = generateBindingKey(nodeId, outputKey);
     const bindings = this.outputToBindings.get(bindingKey);
-    
+
     if (!bindings) {
       return;
     }
@@ -248,7 +276,7 @@ export class StateBindingManager {
       const fiberBindings = this.stateBindings.get(fiber);
       if (fiberBindings) {
         fiberBindings.delete(hookIndex);
-        
+
         // Clean up empty fiber bindings
         if (fiberBindings.size === 0) {
           this.stateBindings.delete(fiber);
@@ -268,7 +296,7 @@ export class StateBindingManager {
     const invalidBindings: Array<{ nodeId: string; outputKey: string }> = [];
 
     // Find invalid bindings
-    Array.from(this.outputToBindings.keys()).forEach(bindingKey => {
+    Array.from(this.outputToBindings.keys()).forEach((bindingKey) => {
       const { nodeId, outputKey } = parseBindingKey(bindingKey);
       if (!validNodes.has(nodeId)) {
         invalidBindings.push({ nodeId, outputKey });
@@ -284,11 +312,18 @@ export class StateBindingManager {
   /**
    * Get all bindings for debugging/inspection
    */
-  getAllBindings(): Map<string, Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }>> {
-    const result = new Map<string, Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }>>();
+  getAllBindings(): Map<
+    string,
+    Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }>
+  > {
+    const result = new Map<
+      string,
+      Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }>
+    >();
 
     Array.from(this.outputToBindings.entries()).forEach(([bindingKey, bindings]) => {
-      const bindingList: Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }> = [];
+      const bindingList: Array<{ fiber: FiberNode; hookIndex: number; binding: OutputBinding }> =
+        [];
 
       Array.from(bindings).forEach(({ fiber, hookIndex }) => {
         const binding = this.stateBindings.get(fiber)?.get(hookIndex);
@@ -316,9 +351,9 @@ export class StateBindingManager {
   } {
     let totalBindings = 0;
     const uniqueFibers = new Set<FiberNode>();
-    
+
     // Count bindings and unique fibers from reverse mappings
-    Array.from(this.outputToBindings.values()).forEach(bindings => {
+    Array.from(this.outputToBindings.values()).forEach((bindings) => {
       totalBindings += bindings.size;
       Array.from(bindings).forEach(({ fiber }) => {
         uniqueFibers.add(fiber);
@@ -328,7 +363,7 @@ export class StateBindingManager {
     return {
       totalBindings,
       boundFibers: uniqueFibers.size,
-      boundOutputs: this.outputToBindings.size
+      boundOutputs: this.outputToBindings.size,
     };
   }
 

@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-01, REQ-03: useInstance hook for resource creation
 // This hook registers infrastructure resources in the CloudDOM during rendering
 
@@ -46,12 +77,48 @@ export function getProviderOutputTrackerInstance(): ProviderOutputTracker {
 }
 
 /**
+ * Create a placeholder node when dependencies are undefined
+ * This node won't be included in CloudDOM but allows the component to continue rendering
+ * All output accesses return undefined
+ *
+ * @internal
+ */
+function createPlaceholderNode(): CloudDOMNode {
+  const placeholderNode: CloudDOMNode = {
+    id: '__placeholder__',
+    path: ['__placeholder__'],
+    construct: class Placeholder {},
+    constructType: 'Placeholder',
+    props: {},
+    children: [],
+    outputs: {},
+  };
+
+  // Return a proxy that always returns undefined for outputs
+  return new Proxy(placeholderNode, {
+    get(target, prop) {
+      if (prop === 'outputs') {
+        return new Proxy(
+          {},
+          {
+            get() {
+              return undefined;
+            },
+          }
+        );
+      }
+      return Reflect.get(target, prop);
+    },
+  });
+}
+
+/**
  * Create an enhanced CloudDOM node with output reference capabilities
  * This allows automatic binding when outputs are used in useState
  * The proxy dynamically reads from the node's current outputs for reactivity
- * 
+ *
  * REQ-2.1, 2.4, 2.5: Enhanced proxy that always reads live values and tracks access
- * 
+ *
  * @internal
  */
 function createEnhancedNode(node: CloudDOMNode, fiber: any): CloudDOMNode {
@@ -83,15 +150,17 @@ function createEnhancedNode(node: CloudDOMNode, fiber: any): CloudDOMNode {
 
           has(outputsTarget, outputKey) {
             // Check if output exists in current target.outputs
-            return typeof outputKey === 'string' &&
+            return (
+              typeof outputKey === 'string' &&
               target.outputs !== undefined &&
-              outputKey in target.outputs;
+              outputKey in target.outputs
+            );
           },
 
           ownKeys(outputsTarget) {
             // Return keys from current target.outputs
             return target.outputs ? Object.keys(target.outputs) : [];
-          }
+          },
         });
       }
 
@@ -107,7 +176,7 @@ function createEnhancedNode(node: CloudDOMNode, fiber: any): CloudDOMNode {
     ownKeys(target) {
       // Return original keys
       return Reflect.ownKeys(target);
-    }
+    },
   });
 }
 
@@ -152,7 +221,7 @@ const constructCallCounts = new WeakMap<any, Map<any, number>>();
  *
  * This hook creates a CloudDOM node and attaches it to the current Fiber.
  * It must be called during component rendering (inside a component function).
- * 
+ *
  * Automatically extracts event callbacks (onDeploy, onError, onDestroy) from
  * component props and attaches them to the CloudDOM node for lifecycle events.
  *
@@ -177,7 +246,7 @@ const constructCallCounts = new WeakMap<any, Map<any, number>>();
  * }
  *
  * // Usage with event callbacks
- * <MyDatabase 
+ * <MyDatabase
  *   onDeploy={(ctx) => logger.info('Database deployed:', ctx.resourceId)}
  *   onError={(ctx, err) => logger.error('Database failed:', err)}
  * />
@@ -205,6 +274,27 @@ export function useInstance<T = any>(
 
   // Extract key from props (React-like)
   const { key, ...restProps } = props;
+
+  // Check for undefined dependencies - enforce deployment order
+  // If any prop value is undefined, don't create the node yet
+  // This ensures resources are only created when their dependencies are available
+  const hasUndefinedDeps = Object.values(restProps).some((v) => v === undefined);
+
+  if (hasUndefinedDeps) {
+    logger.info(`[Deployment Order] Skipping resource creation - undefined dependencies detected`);
+    logger.info(`  Construct: ${construct.name}`);
+    logger.info(
+      `  Props with undefined values:`,
+      Object.entries(restProps)
+        .filter(([_, v]) => v === undefined)
+        .map(([k]) => k)
+    );
+
+    // Don't attach anything to fiber - this resource will be skipped entirely
+    // Return a placeholder node that won't be included in CloudDOM
+    // The proxy will return undefined for all output accesses
+    return createPlaceholderNode();
+  }
 
   // Remove undefined values from props to match JSON serialization behavior
   // When CloudDOM is saved to backend, JSON.stringify strips undefined values
@@ -259,7 +349,7 @@ export function useInstance<T = any>(
     } else {
       id = constructName;
     }
-    
+
     // If component has a key (from JSX), prepend it to make resources unique per component instance
     if (currentFiber.key) {
       id = `${currentFiber.key}-${id}`;
@@ -288,7 +378,9 @@ export function useInstance<T = any>(
   };
 
   // Restore outputs from previous state if available
-  logger.debug(`Checking for outputs: ${resourceId}, map has ${previousOutputsMap?.size || 0} entries`);
+  logger.debug(
+    `Checking for outputs: ${resourceId}, map has ${previousOutputsMap?.size || 0} entries`
+  );
   if (previousOutputsMap && previousOutputsMap.has(resourceId)) {
     node.outputs = { ...previousOutputsMap.get(resourceId)! };
     logger.debug(`✓ Restored outputs for: ${resourceId}`, node.outputs);
@@ -304,7 +396,17 @@ export function useInstance<T = any>(
   if (!currentFiber.cloudDOMNodes) {
     currentFiber.cloudDOMNodes = [];
   }
-  currentFiber.cloudDOMNodes.push(node);
+
+  // Check if a node with this ID already exists (from previous render)
+  // If so, update it instead of creating a duplicate
+  const existingNodeIndex = currentFiber.cloudDOMNodes.findIndex((n) => n.id === resourceId);
+  if (existingNodeIndex >= 0) {
+    logger.debug(`Updating existing node: ${resourceId}`);
+    currentFiber.cloudDOMNodes[existingNodeIndex] = node;
+  } else {
+    logger.debug(`Creating new node: ${resourceId}`);
+    currentFiber.cloudDOMNodes.push(node);
+  }
 
   // Track this instance with ProviderOutputTracker for output change detection
   const outputTracker = getProviderOutputTracker();
@@ -379,7 +481,7 @@ export function updateNodeOutputs(nodeId: string, newOutputs: Record<string, any
 
     logger.debug(`Output changes detected for ${nodeId}:`, {
       changes: changes.length,
-      affectedFibers: affectedFibers.size
+      affectedFibers: affectedFibers.size,
     });
 
     // Note: The actual re-rendering will be handled by the RenderScheduler

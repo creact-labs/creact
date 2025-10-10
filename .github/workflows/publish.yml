@@ -1,0 +1,45 @@
+name: 📦 Publish to npm
+
+on:
+  push:
+    branches:
+      - release
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed to fetch tags and branch info
+
+      - name: Verify branch is release
+        run: |
+          branch=$(git branch -r --contains $GITHUB_REF | grep origin/release || true)
+          if [ -z "$branch" ]; then
+            echo "❌ This tag is not from release branch. Skipping publish."
+            exit 1
+          fi
+          echo "✅ Verified: tag is from release branch."
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build --if-present
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public

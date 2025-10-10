@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * Base Command - abstract base class for all CLI commands
  */
@@ -65,12 +96,14 @@ export abstract class BaseCommand {
    */
   protected handleError(error: Error, context?: string): CommandResult {
     const message = context ? `${context}: ${error.message}` : error.message;
-    
-    if (this.outputJson({
-      status: 'error',
-      error: error.message,
-      stack: this.verbose ? error.stack : undefined,
-    })) {
+
+    if (
+      this.outputJson({
+        status: 'error',
+        error: error.message,
+        stack: this.verbose ? error.stack : undefined,
+      })
+    ) {
       return { exitCode: 1 };
     }
 
@@ -86,11 +119,13 @@ export abstract class BaseCommand {
    * Handle success consistently
    */
   protected handleSuccess(message: string, data?: any): CommandResult {
-    if (this.outputJson({
-      status: 'success',
-      message,
-      ...data,
-    })) {
+    if (
+      this.outputJson({
+        status: 'success',
+        message,
+        ...data,
+      })
+    ) {
       return { exitCode: 0 };
     }
 

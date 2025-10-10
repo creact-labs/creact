@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-01: Core types for CReact rendering pipeline
 
 /**
@@ -17,11 +48,8 @@ export interface FiberNode {
   /** Hierarchical path from root (e.g., ['registry', 'service']) */
   path: string[];
 
-  /** CloudDOM nodes attached by useInstance calls (if any) - array form */
+  /** CloudDOM nodes attached by useInstance calls (if any) */
   cloudDOMNodes?: CloudDOMNode[];
-
-  /** CloudDOM node attached by useInstance call (if any) - singular form (legacy) */
-  cloudDOMNode?: CloudDOMNode;
 
   /** Hooks attached by useState/useEffect calls (if any) */
   hooks?: any[];
@@ -60,10 +88,13 @@ export interface FiberNode {
   dependents?: Set<FiberNode>;
 
   /** Effect bindings for reactive system integration */
-  effectBindings?: Map<number, {
-    boundOutputs: string[];
-    registeredAt: number;
-  }>;
+  effectBindings?: Map<
+    number,
+    {
+      boundOutputs: string[];
+      registeredAt: number;
+    }
+  >;
 }
 
 /**
@@ -217,16 +248,16 @@ export interface DependencyGraph {
 /**
  * ReRenderReason - Reasons why a component re-render was triggered
  * Used for debugging, performance monitoring, and selective re-rendering
- * 
+ *
  * Note: useState changes alone do NOT trigger re-renders in CReact.
  * Re-renders only occur when provider outputs that are bound to state change.
  */
 export type ReRenderReason =
-  | 'output-update'     // Provider output bound to state changed (primary reason)
-  | 'context-change'    // Context value changed
+  | 'output-update' // Provider output bound to state changed (primary reason)
+  | 'context-change' // Context value changed
   | 'structural-change' // JSX structure changed (conditional useInstance)
-  | 'hot-reload'        // File change in development mode
-  | 'manual';           // Programmatic re-render trigger
+  | 'hot-reload' // File change in development mode
+  | 'manual'; // Programmatic re-render trigger
 
 /**
  * CReactEvents - Lifecycle event hooks for reactive system

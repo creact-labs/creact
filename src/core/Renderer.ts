@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-01: Renderer - JSX → Fiber transformation
 
 import { FiberNode, JSXElement, ReRenderReason, CloudDOMNode } from './types';
@@ -42,8 +73,6 @@ export class Renderer {
   // Structural change detection
   private previousStructures = new WeakMap<FiberNode, string>();
 
-
-
   /**
    * Render JSX to Fiber tree
    *
@@ -65,8 +94,6 @@ export class Renderer {
     });
   }
 
-
-
   /**
    * Recursively render a JSX element to a Fiber node
    *
@@ -75,7 +102,11 @@ export class Renderer {
    * @param siblingIndex - Sibling index for automatic key generation (default 0)
    * @returns Fiber node
    */
-  private renderElement(element: JSXElement, parentPath: string[], siblingIndex: number = 0): FiberNode {
+  private renderElement(
+    element: JSXElement,
+    parentPath: string[],
+    siblingIndex: number = 0
+  ): FiberNode {
     if (!element || typeof element !== 'object') {
       throw new Error('Invalid JSX element');
     }
@@ -213,7 +244,7 @@ export class Renderer {
 
     // Track sibling counts by component type for automatic key generation
     const siblingCounts = new Map<any, number>();
-    
+
     // Track which types have been warned about (only warn once per type per render)
     const warnedTypes = new Set<any>();
 
@@ -240,8 +271,8 @@ export class Renderer {
             const pathStr = parentPath.join('.');
             logger.warn(
               `Warning: Multiple children of type "${typeName}" ` +
-              `without explicit keys at path "${pathStr}". ` +
-              `Consider adding a "key" prop for better reconciliation.`
+                `without explicit keys at path "${pathStr}". ` +
+                `Consider adding a "key" prop for better reconciliation.`
             );
           }
 
@@ -256,7 +287,7 @@ export class Renderer {
 
   /**
    * Get a human-readable type name for warning messages
-   * 
+   *
    * @param type - Component type
    * @returns Type name string
    */
@@ -291,7 +322,7 @@ export class Renderer {
 
   /**
    * Set the RenderScheduler for selective re-rendering integration
-   * 
+   *
    * @param scheduler - RenderScheduler instance
    */
   setRenderScheduler(scheduler: RenderScheduler): void {
@@ -300,7 +331,7 @@ export class Renderer {
 
   /**
    * Set the ContextDependencyTracker for context reactivity
-   * 
+   *
    * @param tracker - ContextDependencyTracker instance
    */
   setContextDependencyTracker(tracker: any): void {
@@ -318,7 +349,7 @@ export class Renderer {
   /**
    * Handle context provider value changes
    * Called when a context provider's value prop changes
-   * 
+   *
    * @param contextId - Context identifier
    * @param newValue - New context value
    */
@@ -326,7 +357,10 @@ export class Renderer {
     if (this.contextDependencyTracker) {
       try {
         // Update context value and get affected fibers
-        const affectedFibers = this.contextDependencyTracker.updateContextValue(contextId, newValue);
+        const affectedFibers = this.contextDependencyTracker.updateContextValue(
+          contextId,
+          newValue
+        );
 
         // Schedule re-renders for affected components
         if (this.renderScheduler && affectedFibers.length > 0) {
@@ -343,7 +377,7 @@ export class Renderer {
   /**
    * Detect structural changes in a component
    * Compares the current structure with the previous render
-   * 
+   *
    * @param fiber - Fiber node to check for structural changes
    * @returns True if structural changes were detected
    */
@@ -377,7 +411,7 @@ export class Renderer {
   /**
    * Generate a structural signature for a fiber node
    * This captures the essential structure that affects CloudDOM generation
-   * 
+   *
    * @param fiber - Fiber node to generate signature for
    * @returns Structural signature string
    */
@@ -390,9 +424,9 @@ export class Renderer {
 
     // Include number and types of CloudDOM nodes (useInstance calls)
     if (fiber.cloudDOMNodes && fiber.cloudDOMNodes.length > 0) {
-      const nodeSignatures = fiber.cloudDOMNodes.map(node =>
-        `${node.construct?.name || 'unknown'}:${node.id}`
-      ).sort(); // Sort for consistent ordering
+      const nodeSignatures = fiber.cloudDOMNodes
+        .map((node) => `${node.construct?.name || 'unknown'}:${node.id}`)
+        .sort(); // Sort for consistent ordering
       parts.push(`nodes:[${nodeSignatures.join(',')}]`);
     } else {
       parts.push('nodes:[]');
@@ -400,9 +434,14 @@ export class Renderer {
 
     // Include number of children and their types
     if (fiber.children && fiber.children.length > 0) {
-      const childTypes = fiber.children.map(child =>
-        child.type?.name || (typeof child.type === 'symbol' ? 'fragment' : child.type) || 'unknown'
-      ).sort(); // Sort for consistent ordering
+      const childTypes = fiber.children
+        .map(
+          (child) =>
+            child.type?.name ||
+            (typeof child.type === 'symbol' ? 'fragment' : child.type) ||
+            'unknown'
+        )
+        .sort(); // Sort for consistent ordering
       parts.push(`children:[${childTypes.join(',')}]`);
     } else {
       parts.push('children:[]');
@@ -420,7 +459,7 @@ export class Renderer {
   /**
    * Check for structural changes and schedule re-renders if needed
    * Called during component re-execution
-   * 
+   *
    * @param fiber - Fiber node to check
    */
   private handleStructuralChanges(fiber: FiberNode): void {
@@ -432,7 +471,7 @@ export class Renderer {
 
       // Also check if any dependent components need re-rendering
       if (fiber.dependents) {
-        Array.from(fiber.dependents).forEach(dependent => {
+        Array.from(fiber.dependents).forEach((dependent) => {
           if (this.renderScheduler) {
             this.renderScheduler.schedule(dependent, 'structural-change');
           }
@@ -444,7 +483,7 @@ export class Renderer {
   /**
    * Handle structural changes between old and new fiber trees
    * Called during re-rendering to detect topology changes
-   * 
+   *
    * @param oldFiber - Previous fiber tree
    * @param newFiber - New fiber tree after re-render
    */
@@ -469,7 +508,6 @@ export class Renderer {
         // Trigger re-renders for affected components
         this.structuralChangeDetector.triggerStructuralReRenders(changes, this.renderScheduler);
       }
-
     } catch (error) {
       logger.error('Error handling structural changes:', error);
     }
@@ -477,7 +515,7 @@ export class Renderer {
 
   /**
    * Extract CloudDOM nodes from a fiber tree for structural comparison
-   * 
+   *
    * @param fiber - Fiber tree to extract CloudDOM from
    * @returns Array of CloudDOM nodes
    */
@@ -486,14 +524,14 @@ export class Renderer {
 
     const walkFiber = (currentFiber: FiberNode) => {
       // Check for cloudDOMNodes array
-      if ((currentFiber as any).cloudDOMNodes && Array.isArray((currentFiber as any).cloudDOMNodes)) {
+      if (
+        (currentFiber as any).cloudDOMNodes &&
+        Array.isArray((currentFiber as any).cloudDOMNodes)
+      ) {
         cloudDOMNodes.push(...(currentFiber as any).cloudDOMNodes);
       }
 
-      // Check for single cloudDOMNode
-      if (currentFiber.cloudDOMNode) {
-        cloudDOMNodes.push(currentFiber.cloudDOMNode);
-      }
+      // Legacy cloudDOMNode removed - only use cloudDOMNodes array
 
       // Recursively walk children
       if (currentFiber.children && currentFiber.children.length > 0) {
@@ -510,7 +548,7 @@ export class Renderer {
   /**
    * Re-render specific components with selective updates
    * This method re-executes only the specified components and their children
-   * 
+   *
    * @param components - Array of fiber nodes to re-render
    * @param reason - Reason for the re-render
    * @returns Updated root fiber node
@@ -544,7 +582,6 @@ export class Renderer {
         this.currentFiber = updatedRoot;
 
         return updatedRoot;
-
       } finally {
         // Clear context stacks to prevent memory leaks
         clearContextStacks();
@@ -555,7 +592,7 @@ export class Renderer {
   /**
    * Find components that depend on changed state/outputs
    * This method traverses the fiber tree to find dependent components
-   * 
+   *
    * @param changedFiber - Fiber node that changed
    * @returns Set of fiber nodes that depend on the changed fiber
    */
@@ -564,7 +601,7 @@ export class Renderer {
 
     // If the fiber has explicit dependents, add them
     if (changedFiber.dependents) {
-      Array.from(changedFiber.dependents).forEach(dependent => dependents.add(dependent));
+      Array.from(changedFiber.dependents).forEach((dependent) => dependents.add(dependent));
     }
 
     // Traverse the tree to find implicit dependencies
@@ -578,7 +615,7 @@ export class Renderer {
   /**
    * Track component dependencies during render
    * This builds the dependency graph for selective re-rendering
-   * 
+   *
    * @param components - Components being rendered
    */
   private trackDependenciesDuringRender(components: FiberNode[]): void {
@@ -599,7 +636,7 @@ export class Renderer {
   /**
    * Build dependency graph for a component
    * This analyzes the component's usage patterns to determine dependencies
-   * 
+   *
    * @param component - Component to analyze
    */
   private buildDependencyGraph(component: FiberNode): void {
@@ -629,7 +666,7 @@ export class Renderer {
 
     // Basic parent-child dependencies
     if (component.children) {
-      component.children.forEach(child => {
+      component.children.forEach((child) => {
         // Child depends on parent
         if (!child.dependencies) {
           child.dependencies = new Set();
@@ -648,7 +685,7 @@ export class Renderer {
   /**
    * Find the context provider fiber for a given context ID
    * This traverses up the fiber tree to find the provider
-   * 
+   *
    * @param contextId - Context identifier to find provider for
    * @returns Provider fiber node or null if not found
    */
@@ -667,14 +704,15 @@ export class Renderer {
 
   /**
    * Recursively search for a context provider in the fiber tree
-   * 
+   *
    * @param fiber - Current fiber to search
    * @param contextId - Context ID to find
    * @returns Provider fiber or null
    */
   private searchForProvider(fiber: FiberNode, contextId: symbol): FiberNode | null {
     // Check if this fiber is a provider for the context
-    const isProvider = typeof fiber.type === 'function' &&
+    const isProvider =
+      typeof fiber.type === 'function' &&
       (fiber.type as any)._isContextProvider &&
       (fiber.type as any)._contextId === contextId;
 
@@ -698,7 +736,7 @@ export class Renderer {
   /**
    * Perform selective re-render of specific components
    * Only re-executes components that need updates
-   * 
+   *
    * @param rootFiber - Root fiber node
    * @param componentsToReRender - Set of components that need re-rendering
    * @param reason - Reason for re-render
@@ -720,7 +758,7 @@ export class Renderer {
 
   /**
    * Recursively perform selective re-rendering
-   * 
+   *
    * @param fiber - Current fiber node
    * @param componentsToReRender - Set of components to re-render
    * @param reason - Reason for re-render
@@ -741,7 +779,7 @@ export class Renderer {
         fiber.reactiveState = {
           renderCount: 0,
           isDirty: false,
-          updatePending: false
+          updatePending: false,
         };
       }
 
@@ -757,7 +795,7 @@ export class Renderer {
 
     // Recursively process children
     if (fiber.children) {
-      fiber.children.forEach(child => {
+      fiber.children.forEach((child) => {
         const childPath = [...currentPath, child.path[child.path.length - 1]];
         this.selectiveReRenderRecursive(child, componentsToReRender, reason, childPath);
       });
@@ -766,7 +804,7 @@ export class Renderer {
 
   /**
    * Determine if a component should be re-rendered
-   * 
+   *
    * @param fiber - Fiber node to check
    * @param componentsToReRender - Set of components marked for re-rendering
    * @returns True if component should be re-rendered
@@ -797,7 +835,7 @@ export class Renderer {
 
   /**
    * Re-execute a component function
-   * 
+   *
    * @param fiber - Fiber node to re-execute
    * @param currentPath - Current path in the tree
    */
@@ -817,7 +855,6 @@ export class Renderer {
 
       // Check for structural changes after re-execution
       this.handleStructuralChanges(fiber);
-
     } finally {
       // Clean up context
       clearRenderContext();
@@ -826,7 +863,7 @@ export class Renderer {
 
   /**
    * Find the root component from a set of components
-   * 
+   *
    * @param components - Array of components
    * @returns Root component or null
    */
@@ -847,7 +884,7 @@ export class Renderer {
 
   /**
    * Recursively find dependent components
-   * 
+   *
    * @param currentFiber - Current fiber being examined
    * @param changedFiber - Fiber that changed
    * @param dependents - Set to collect dependents
@@ -864,17 +901,11 @@ export class Renderer {
 
     // Recursively check children
     if (currentFiber.children) {
-      currentFiber.children.forEach(child => {
+      currentFiber.children.forEach((child) => {
         this.findDependentsRecursive(child, changedFiber, dependents);
       });
     }
   }
-
-
-
-
-
-
 
   /**
    * Set StateBindingManager for context dependency tracker integration
@@ -885,7 +916,7 @@ export class Renderer {
 
   /**
    * Clone a fiber node for selective updates
-   * 
+   *
    * @param fiber - Fiber to clone
    * @returns Cloned fiber
    */
@@ -893,12 +924,14 @@ export class Renderer {
     return {
       ...fiber,
       props: { ...fiber.props },
-      children: fiber.children ? fiber.children.map(child => this.cloneFiberForUpdate(child)) : [],
+      children: fiber.children
+        ? fiber.children.map((child) => this.cloneFiberForUpdate(child))
+        : [],
       hooks: fiber.hooks ? [...fiber.hooks] : undefined,
       state: fiber.state ? { ...fiber.state } : undefined,
       reactiveState: fiber.reactiveState ? { ...fiber.reactiveState } : undefined,
       dependencies: fiber.dependencies ? new Set(fiber.dependencies) : undefined,
-      dependents: fiber.dependents ? new Set(fiber.dependents) : undefined
+      dependents: fiber.dependents ? new Set(fiber.dependents) : undefined,
     };
   }
 }

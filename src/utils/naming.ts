@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-01: Naming system for resource ID generation
 // This module provides utilities for generating resource IDs from Fiber paths
 
@@ -149,8 +180,8 @@ export function validateIdUniqueness(
 
     throw new Error(
       `Duplicate resource ID: '${id}'. ` +
-      `Each resource must have a unique ID within its scope. ` +
-      `Use the 'key' prop to differentiate components with the same name.${stackTrace}`
+        `Each resource must have a unique ID within its scope. ` +
+        `Use the 'key' prop to differentiate components with the same name.${stackTrace}`
     );
   }
 }
@@ -360,7 +391,9 @@ export function parseStateOutputKey(stateOutputKey: string): number {
   // Extract the numeric part after 'state'
   const match = stateOutputKey.match(/^state(\d+)$/);
   if (!match) {
-    throw new Error(`Invalid state output key format: ${stateOutputKey}. Expected format: 'state{N}'`);
+    throw new Error(
+      `Invalid state output key format: ${stateOutputKey}. Expected format: 'state{N}'`
+    );
   }
 
   // Convert from 1-based to 0-based indexing

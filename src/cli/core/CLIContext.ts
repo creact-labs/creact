@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * CLI Context - shared context for all CLI commands
  * Handles entry file loading and CReact instance creation
@@ -81,10 +112,32 @@ export class CLIContextManager {
 
     if (isTypeScript) {
       try {
-        require('ts-node/register');
-        if (verbose) logger.debug('TypeScript loader registered');
+        const { dirname } = require('path');
+        const entryDir = dirname(absoluteEntryPath);
+        const localTsConfig = resolve(entryDir, 'tsconfig.json');
+
+        // Use ts-node with explicit JSX configuration for CReact
+        require('ts-node').register({
+          project: existsSync(localTsConfig) ? localTsConfig : undefined,
+          transpileOnly: true, // Faster compilation, skip type checking (IDE handles that)
+          compilerOptions: {
+            module: 'commonjs',
+            target: 'es2020',
+            jsx: 'react',
+            jsxFactory: 'CReact.createElement',
+            jsxFragmentFactory: 'CReact.Fragment',
+          },
+        });
+        if (verbose) {
+          logger.debug(`TypeScript loader registered (ts-node)`);
+          if (existsSync(localTsConfig)) {
+            logger.debug(`Using tsconfig: ${localTsConfig}`);
+          }
+        }
       } catch (tsNodeError) {
-        throw new Error('TypeScript entry files require ts-node. Install with: npm install --save-dev ts-node');
+        throw new Error(
+          'TypeScript entry files require ts-node. Install with: npm install --save-dev ts-node'
+        );
       }
     }
 
@@ -98,7 +151,9 @@ export class CLIContextManager {
       entryModule = require(absoluteEntryPath);
       if (verbose) logger.debug('Entry module loaded successfully');
     } catch (loadError) {
-      throw new Error(`Could not load entry file: ${entryPath}\nError: ${(loadError as Error).message}`);
+      throw new Error(
+        `Could not load entry file: ${entryPath}\nError: ${(loadError as Error).message}`
+      );
     }
 
     // IMPORTANT: Get the CReact class from the entry module's require cache
@@ -118,7 +173,9 @@ export class CLIContextManager {
     }
 
     if (!CReactClass) {
-      throw new Error('Could not find CReact class in require cache. Entry file must import CReact.');
+      throw new Error(
+        'Could not find CReact class in require cache. Entry file must import CReact.'
+      );
     }
 
     // Debug: Check provider status
@@ -130,7 +187,9 @@ export class CLIContextManager {
 
     // Validate that providers are configured (they should be after loading entry file)
     if (!CReactClass.cloudProvider || !CReactClass.backendProvider) {
-      throw new Error('CReact providers must be configured in entry file before calling renderCloudDOM');
+      throw new Error(
+        'CReact providers must be configured in entry file before calling renderCloudDOM'
+      );
     }
 
     // Create a CLI instance using the same providers (React way)
@@ -152,7 +211,9 @@ export class CLIContextManager {
     }
 
     if (!cloudDOMPromise || typeof cloudDOMPromise.then !== 'function') {
-      throw new Error('Entry file must export a default Promise from CReact.renderCloudDOM() or a function that returns one');
+      throw new Error(
+        'Entry file must export a default Promise from CReact.renderCloudDOM() or a function that returns one'
+      );
     }
 
     // Await the CloudDOM promise to ensure providers are configured
@@ -170,7 +231,7 @@ export class CLIContextManager {
         instance: lastInstanceData.instance,
         stackName: lastInstanceData.stackName,
         cloudDOM,
-        entryPath
+        entryPath,
       };
     }
 

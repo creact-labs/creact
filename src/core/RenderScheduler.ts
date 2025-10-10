@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 import { FiberNode, ReRenderReason, CReactEvents } from './types';
 import { ErrorRecoveryManager } from './ErrorRecoveryManager';
 import { CircularDependencyError } from './errors';
@@ -8,7 +39,7 @@ const logger = LoggerFactory.getLogger('renderer');
 
 /**
  * RenderScheduler - Manages batched re-rendering of components
- * 
+ *
  * Provides:
  * - Batched re-rendering to avoid excessive renders
  * - Circular dependency detection
@@ -26,7 +57,10 @@ export class RenderScheduler {
   private errorRecoveryManager: ErrorRecoveryManager;
 
   // Error handling and recovery
-  private failedRenders = new Map<FiberNode, { count: number; lastFailure: number; error?: Error }>();
+  private failedRenders = new Map<
+    FiberNode,
+    { count: number; lastFailure: number; error?: Error }
+  >();
   private maxRetries = 3;
   private backoffMultiplier = 2;
   private baseBackoffMs = 100;
@@ -52,7 +86,7 @@ export class RenderScheduler {
       fiber.reactiveState = {
         renderCount: 0,
         isDirty: false,
-        updatePending: false
+        updatePending: false,
       };
     }
 
@@ -150,7 +184,6 @@ export class RenderScheduler {
 
           // Emit render complete event
           this.eventHooks?.onRenderComplete(fiber);
-
         } catch (error) {
           // Record failure
           this.recordFailure(fiber, error as Error);
@@ -171,7 +204,6 @@ export class RenderScheduler {
 
       // Clear render chain
       this.renderChain = [];
-
     } catch (error) {
       // Critical error - rollback all changes
       logger.error('Critical error during batch render, rolling back all changes');
@@ -223,7 +255,7 @@ export class RenderScheduler {
 
     for (const fiber of fibers) {
       if (this.hasCycle(fiber, visited, recursionStack)) {
-        const cyclePath = Array.from(recursionStack).map(f => f.path.join('.'));
+        const cyclePath = Array.from(recursionStack).map((f) => f.path.join('.'));
         throw new CircularDependencyError(
           `Circular dependency detected in re-render chain: ${cyclePath.join(' -> ')}`,
           cyclePath
@@ -233,7 +265,7 @@ export class RenderScheduler {
 
     // Check render chain depth
     if (this.renderChain.length > this.maxRenderDepth) {
-      const chainPath = this.renderChain.map(f => f.path.join('.')).join(' -> ');
+      const chainPath = this.renderChain.map((f) => f.path.join('.')).join(' -> ');
       throw new Error(`Maximum render depth exceeded (${this.maxRenderDepth}): ${chainPath}`);
     }
   }
@@ -241,7 +273,11 @@ export class RenderScheduler {
   /**
    * Check if a fiber has circular dependencies using DFS
    */
-  private hasCycle(fiber: FiberNode, visited: Set<FiberNode>, recursionStack: Set<FiberNode>): boolean {
+  private hasCycle(
+    fiber: FiberNode,
+    visited: Set<FiberNode>,
+    recursionStack: Set<FiberNode>
+  ): boolean {
     if (recursionStack.has(fiber)) {
       return true; // Back edge found - cycle detected
     }
@@ -344,7 +380,7 @@ export class RenderScheduler {
     this.renderChain = [];
 
     // Clear updatePending flags from all fibers
-    Array.from(this.pendingReRenders).forEach(fiber => {
+    Array.from(this.pendingReRenders).forEach((fiber) => {
       if (fiber.reactiveState) {
         fiber.reactiveState.updatePending = false;
         fiber.reactiveState.pendingContexts?.clear();
@@ -368,12 +404,12 @@ export class RenderScheduler {
   private createFiberSnapshots(fibers: FiberNode[]): Map<FiberNode, any> {
     const snapshots = new Map<FiberNode, any>();
 
-    fibers.forEach(fiber => {
+    fibers.forEach((fiber) => {
       snapshots.set(fiber, {
         hooks: fiber.hooks ? [...fiber.hooks] : undefined,
         state: fiber.state ? { ...fiber.state } : undefined,
         reactiveState: fiber.reactiveState ? { ...fiber.reactiveState } : undefined,
-        cloudDOMNodes: fiber.cloudDOMNodes ? [...fiber.cloudDOMNodes] : undefined
+        cloudDOMNodes: fiber.cloudDOMNodes ? [...fiber.cloudDOMNodes] : undefined,
       });
     });
 
@@ -386,7 +422,7 @@ export class RenderScheduler {
   private filterEligibleFibers(fibers: FiberNode[]): FiberNode[] {
     const now = Date.now();
 
-    return fibers.filter(fiber => {
+    return fibers.filter((fiber) => {
       const failureRecord = this.failedRenders.get(fiber);
 
       if (!failureRecord) {
@@ -395,7 +431,8 @@ export class RenderScheduler {
 
       if (failureRecord.count >= this.maxRetries) {
         // Check if enough time has passed for retry with backoff
-        const backoffTime = this.baseBackoffMs * Math.pow(this.backoffMultiplier, failureRecord.count - 1);
+        const backoffTime =
+          this.baseBackoffMs * Math.pow(this.backoffMultiplier, failureRecord.count - 1);
         const timeSinceLastFailure = now - failureRecord.lastFailure;
 
         if (timeSinceLastFailure < backoffTime) {
@@ -457,7 +494,7 @@ export class RenderScheduler {
       this.failedRenders.set(fiber, {
         count: 1,
         lastFailure: Date.now(),
-        error
+        error,
       });
     }
   }
@@ -477,7 +514,9 @@ export class RenderScheduler {
     successfulRenders: FiberNode[],
     fiberSnapshots: Map<FiberNode, any>
   ): Promise<void> {
-    logger.warn(`Partial failure: ${failedRenders.length} failed, ${successfulRenders.length} succeeded`);
+    logger.warn(
+      `Partial failure: ${failedRenders.length} failed, ${successfulRenders.length} succeeded`
+    );
 
     // Check if we should rollback successful renders due to dependencies
     const shouldRollback = this.shouldRollbackSuccessfulRenders(failedRenders, successfulRenders);
@@ -505,7 +544,7 @@ export class RenderScheduler {
       if (successfulFiber.dependencies) {
         const dependencyArray = Array.from(successfulFiber.dependencies);
         for (const dependency of dependencyArray) {
-          if (failedRenders.some(failed => failed.fiber === dependency)) {
+          if (failedRenders.some((failed) => failed.fiber === dependency)) {
             return true; // Successful fiber depends on failed fiber
           }
         }
@@ -547,7 +586,8 @@ export class RenderScheduler {
       const failureRecord = this.failedRenders.get(fiber);
 
       if (failureRecord && failureRecord.count < this.maxRetries) {
-        const backoffTime = this.baseBackoffMs * Math.pow(this.backoffMultiplier, failureRecord.count);
+        const backoffTime =
+          this.baseBackoffMs * Math.pow(this.backoffMultiplier, failureRecord.count);
 
         setTimeout(() => {
           logger.info(`Retrying failed render for ${fiber.path.join('.')}`);
@@ -565,14 +605,17 @@ export class RenderScheduler {
     fibersWithFailures: number;
     averageFailureCount: number;
   } {
-    const totalFailures = Array.from(this.failedRenders.values()).reduce((sum, record) => sum + record.count, 0);
+    const totalFailures = Array.from(this.failedRenders.values()).reduce(
+      (sum, record) => sum + record.count,
+      0
+    );
     const fibersWithFailures = this.failedRenders.size;
     const averageFailureCount = fibersWithFailures > 0 ? totalFailures / fibersWithFailures : 0;
 
     return {
       totalFailures,
       fibersWithFailures,
-      averageFailureCount
+      averageFailureCount,
     };
   }
 

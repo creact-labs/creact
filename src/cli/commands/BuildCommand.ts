@@ -1,10 +1,41 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * Build Command - builds CloudDOM from entry file
  */
 
 import { BaseCommand, CommandResult } from '../core/BaseCommand';
 import { CLIContextManager } from '../core/CLIContext';
-import { Spinner } from '../output';
+import { createOutputManager } from '../../utils/Output';
 import { LoggerFactory } from '../../utils/Logger';
 
 const logger = LoggerFactory.getLogger('cli');
@@ -19,95 +50,123 @@ export class BuildCommand extends BaseCommand {
   }
 
   async execute(): Promise<CommandResult> {
-    const spinner = new Spinner(this.json);
+    const output = createOutputManager({
+      json: this.json,
+      quiet: !!this.context.flags.quiet,
+      verbose: this.verbose,
+    });
 
     try {
       // Find entry file
+      logger.debug('BuildCommand: Starting execution');
       let entryPath: string;
       try {
         entryPath = CLIContextManager.findEntryFile(this.context.flags.entry);
-        this.logVerbose(`Using entry file: ${entryPath}`);
+        logger.debug(`BuildCommand: Entry file resolved to ${entryPath}`);
       } catch (error) {
-        return this.handleError(error as Error, 'Entry file resolution failed');
+        output.showError('Entry file resolution failed', {
+          cause: (error as Error).message,
+          stackTrace: this.verbose ? (error as Error).stack : undefined,
+        });
+        return { exitCode: 1 };
       }
 
       // Load entry file and create CLI instance
-      spinner.start('Loading entry file and configuring providers...');
-      
+      output.showInfo('Loading entry file and configuring providers...');
+
       let result;
       try {
         result = await CLIContextManager.createCLIInstance(entryPath, this.verbose);
-        this.logVerbose(`CloudDOM built with ${result.cloudDOM.length} resources`);
+        logger.debug(`BuildCommand: CloudDOM built with ${result.cloudDOM.length} resources`);
       } catch (error) {
-        spinner.fail('Failed to load entry file and configure providers');
-        return this.handleError(error as Error, 'Entry file loading failed');
+        output.showError('Failed to load entry file and configure providers', {
+          cause: (error as Error).message,
+          stackTrace: this.verbose ? (error as Error).stack : undefined,
+        });
+        return { exitCode: 1 };
       }
 
-      spinner.succeed('Entry file loaded and providers configured');
+      output.showSuccess('Entry file loaded and providers configured');
 
       // Success output
       const message = `Build complete: ${result.cloudDOM.length} resources`;
-      
+
       if (this.verbose && !this.json) {
-        this.printVerboseOutput(result);
+        this.printVerboseOutput(result, output);
       }
 
-      return this.handleSuccess(message, {
-        resourceCount: result.cloudDOM.length,
-        entryFile: entryPath,
-        stackName: result.stackName,
-        resources: result.cloudDOM.map((node: any) => ({
-          id: node.id,
-          type: node.construct?.name || 'Unknown',
-          path: node.path,
-        })),
-      });
+      output.showSuccess(message);
 
+      if (this.json) {
+        console.log(
+          JSON.stringify(
+            {
+              status: 'success',
+              resourceCount: result.cloudDOM.length,
+              entryFile: entryPath,
+              stackName: result.stackName,
+              resources: result.cloudDOM.map((node: any) => ({
+                id: node.id,
+                type: node.construct?.name || 'Unknown',
+                path: node.path,
+              })),
+            },
+            null,
+            2
+          )
+        );
+      }
+
+      return { exitCode: 0 };
     } catch (error) {
-      return this.handleError(error as Error, 'Build failed');
+      output.showError('Build failed', {
+        cause: (error as Error).message,
+        stackTrace: this.verbose ? (error as Error).stack : undefined,
+      });
+      return { exitCode: 1 };
     }
   }
 
-  private printVerboseOutput(result: any): void {
-    logger.info('\nCloudDOM Summary:');
+  private printVerboseOutput(result: any, output: any): void {
+    console.log('\nCloudDOM Summary:');
     const resourceCounts = this.countResources(result.cloudDOM);
-    
+
     if (Object.keys(resourceCounts).length === 0) {
-      logger.info('  No resources found');
+      console.log('  No resources found');
     } else {
       for (const [type, count] of Object.entries(resourceCounts)) {
-        logger.info(`  ${type}: ${count}`);
+        console.log(`  ${type}: ${count}`);
       }
     }
-    
+
     // Show first few resource IDs for debugging
     if (result.cloudDOM.length > 0) {
-      logger.info('\nResource IDs:');
+      console.log('\nResource IDs:');
       const sampleIds = result.cloudDOM.slice(0, 5).map((node: any) => node.id);
       sampleIds.forEach((id: string) => {
-        logger.info(`  • ${id}`);
+        console.log(`  • ${id}`);
       });
-      
+
       if (result.cloudDOM.length > 5) {
-        logger.info(`  ... and ${result.cloudDOM.length - 5} more`);
+        console.log(`  ... and ${result.cloudDOM.length - 5} more`);
       }
     }
   }
 
   private countResources(cloudDOM: any[]): Record<string, number> {
     const counts: Record<string, number> = {};
-    
+
     const walk = (nodes: any[]) => {
       for (const node of nodes) {
         const type = node.construct?.name || 'Unknown';
         counts[type] = (counts[type] || 0) + 1;
-        
+
         if (node.children && node.children.length > 0) {
           walk(node.children);
         }
       }
     };
-    
+
     walk(cloudDOM);
     return counts;
   }

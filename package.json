@@ -1,5 +1,5 @@
 {
-  "name": "@escambo/creact",
+  "name": "@creact-labs/creact",
   "version": "0.1.0",
   "description": "CReact - React for Infrastructure. Render JSX to CloudDOM.",
   "main": "dist/index.js",

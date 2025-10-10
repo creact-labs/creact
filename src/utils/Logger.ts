@@ -1,3 +1,49 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
+/**
+ * Logger - Internal debugging and diagnostics only
+ *
+ * IMPORTANT: This logger is for INTERNAL debugging only, not user-facing output.
+ * - All output goes to stderr (not stdout)
+ * - Controlled by --verbose flag or CREACT_DEBUG environment variable
+ * - For user-facing messages, use OutputManager (src/utils/Output.ts)
+ *
+ * Usage:
+ * - logger.debug() - Internal state tracking, algorithm steps
+ * - logger.info() - Internal lifecycle events (not user messages)
+ * - logger.warn() - Internal warnings
+ * - logger.error() - Internal errors with stack traces
+ */
+
 /**
  * Log levels in order of severity
  */
@@ -48,18 +94,13 @@ export class Logger {
   private readonly context: Record<string, any>;
   private readonly enabled: boolean;
 
-  constructor(
-    scope: LogScope,
-    config: LoggerConfig,
-    context: Record<string, any> = {}
-  ) {
+  constructor(scope: LogScope, config: LoggerConfig, context: Record<string, any> = {}) {
     this.scope = scope;
     this.config = config;
     this.context = context;
 
     // Check if this scope is enabled
-    this.enabled =
-      config.scopes.includes('*') || config.scopes.includes(scope);
+    this.enabled = config.scopes.includes('*') || config.scopes.includes(scope);
   }
 
   /**
@@ -116,19 +157,16 @@ export class Logger {
 
     // Format: [timestamp] [scope] [level] message
     const timestamp = new Date().toISOString();
-    const contextStr = Object.keys(this.context).length
-      ? ` ${JSON.stringify(this.context)}`
-      : '';
+    const contextStr = Object.keys(this.context).length ? ` ${JSON.stringify(this.context)}` : '';
 
     const formattedMessage = `[${timestamp}] [${this.scope}] [${level.toUpperCase()}]${contextStr} ${message}`;
 
-    // Output to appropriate console method
+    // Output to stderr (not stdout) for all log levels
+    // This ensures user-facing output (stdout) is separate from debug logs (stderr)
     switch (level) {
       case 'debug':
-        console.debug(formattedMessage, ...args);
-        break;
       case 'info':
-        console.info(formattedMessage, ...args);
+        console.error(formattedMessage, ...args);
         break;
       case 'warn':
         console.warn(formattedMessage, ...args);
@@ -195,10 +233,7 @@ export class LoggerFactory {
    * Supports --log=scope1,scope2 or --log=*
    * Supports --log-level=debug|info|warn|error
    */
-  static configureFromCLI(args: {
-    log?: string;
-    logLevel?: string;
-  }): void {
+  static configureFromCLI(args: { log?: string; logLevel?: string }): void {
     const config: Partial<LoggerConfig> = {};
 
     if (args.log) {

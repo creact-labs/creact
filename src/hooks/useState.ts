@@ -1,3 +1,34 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-02: useState hook for declarative output binding
 // This hook declares component outputs that persist across build/deploy cycles
 
@@ -147,19 +178,29 @@ export function useState<T = undefined>(
       if (creactInstance && creactInstance.hasHydrationData()) {
         // CRITICAL: The fiber path is the component path (e.g., 'web-app-stack')
         const fiberPath = currentFiber.path?.join('.') || '';
-        logger.debug(`🔍 Looking for hydration: component="${fiberPath}", hookIndex=${currentHookIndex}`);
+        logger.debug(
+          `🔍 Looking for hydration: component="${fiberPath}", hookIndex=${currentHookIndex}`
+        );
 
         // Try to get hydration from component path
         hydratedValue = creactInstance.getHydratedValueForComponent(fiberPath, currentHookIndex);
 
         if (hydratedValue !== undefined) {
-          logger.debug(`✅ HYDRATION SUCCESS for ${fiberPath}[${currentHookIndex}]:`, hydratedValue);
+          logger.debug(
+            `✅ HYDRATION SUCCESS for ${fiberPath}[${currentHookIndex}]:`,
+            hydratedValue
+          );
         } else {
           logger.debug(`❌ HYDRATION FAILED for ${fiberPath}[${currentHookIndex}]`);
-          logger.debug(`   Available hydration keys:`, creactInstance.getHydrationMapKeys?.() || 'N/A');
+          logger.debug(
+            `   Available hydration keys:`,
+            creactInstance.getHydrationMapKeys?.() || 'N/A'
+          );
         }
       } else {
-        logger.debug(`⚠️  No hydration data available (instance=${!!creactInstance}, hasData=${creactInstance?.hasHydrationData()})`);
+        logger.debug(
+          `⚠️  No hydration data available (instance=${!!creactInstance}, hasData=${creactInstance?.hasHydrationData()})`
+        );
       }
     } catch (error) {
       // Hydration is optional, continue with initial value if it fails
@@ -171,7 +212,9 @@ export function useState<T = undefined>(
     const finalValue = hydratedValue !== undefined ? hydratedValue : initialValue;
     currentFiber.hooks[currentHookIndex] = finalValue;
 
-    logger.debug(`📝 Initialized hook[${currentHookIndex}] = ${JSON.stringify(finalValue)} (hydrated=${hydratedValue !== undefined})`);
+    logger.debug(
+      `📝 Initialized hook[${currentHookIndex}] = ${JSON.stringify(finalValue)} (hydrated=${hydratedValue !== undefined})`
+    );
   }
 
   // Store the fiber and hook index for later access
@@ -210,7 +253,9 @@ export function useState<T = undefined>(
           return String(value);
         }
       };
-      logger.debug(`setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, isInternal=${isInternalUpdate}, fiber.id=${fiber.path?.join('.')}`);
+      logger.debug(
+        `setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, isInternal=${isInternalUpdate}, fiber.id=${fiber.path?.join('.')}`
+      );
     }
 
     // Only proceed if value actually changed
@@ -268,7 +313,9 @@ export function useState<T = undefined>(
       const queue = getReactiveUpdateQueue();
       queue.enqueue(fiber);
 
-      logger.debug(`Enqueued fiber ${fiber.path?.join('.')} for re-render (queue size: ${queue.size()})`);
+      logger.debug(
+        `Enqueued fiber ${fiber.path?.join('.')} for re-render (queue size: ${queue.size()})`
+      );
     }
   };
 

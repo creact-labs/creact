@@ -1,14 +1,56 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 /**
  * CLI Output Utilities
- * 
- * Provides colored output, spinners, and progress indicators for CLI commands.
- * Uses chalk for colors, ora for spinners, and cli-progress for progress bars.
+ *
+ * DEPRECATED: Most functions in this file are deprecated in favor of OutputManager.
+ * Use OutputManager (src/utils/Output.ts) for user-facing output instead.
+ *
+ * This file now only contains:
+ * - Color utilities (colors object)
+ * - Spinner, ProgressBar, MultiProgressBar classes (for backward compatibility)
+ *
+ * Deprecated functions (use OutputManager instead):
+ * - printSuccess() -> output.showSuccess()
+ * - printError() -> output.showError()
+ * - printInfo() -> output.showInfo()
+ * - printWarning() -> output.showWarning()
+ * - formatDiff() -> output.showPlanChanges()
  */
 
 import chalk from 'chalk';
 import ora, { Ora } from 'ora';
 import cliProgress from 'cli-progress';
-  import { LoggerFactory } from '../utils/Logger';
+import { LoggerFactory } from '../utils/Logger';
 
 const logger = LoggerFactory.getLogger('cli');
 
@@ -223,11 +265,14 @@ export class MultiProgressBar {
     this.isJsonMode = isJsonMode;
 
     if (!isJsonMode) {
-      this.multibar = new cliProgress.MultiBar({
-        clearOnComplete: false,
-        hideCursor: true,
-        format: '{name} |{bar}| {percentage}% | {value}/{total}',
-      }, cliProgress.Presets.shades_classic);
+      this.multibar = new cliProgress.MultiBar(
+        {
+          clearOnComplete: false,
+          hideCursor: true,
+          format: '{name} |{bar}| {percentage}% | {value}/{total}',
+        },
+        cliProgress.Presets.shades_classic
+      );
     }
   }
 
@@ -288,6 +333,7 @@ export class MultiProgressBar {
 
 /**
  * Format diff output with colors
+ * @deprecated Use OutputManager.showPlanChanges() and showPlanSummary() instead
  */
 export function formatDiff(changeSet: {
   creates: any[];
@@ -337,7 +383,11 @@ export function formatDiff(changeSet: {
   }
 
   // Summary
-  const total = changeSet.creates.length + changeSet.updates.length + changeSet.deletes.length + (changeSet.moves?.length || 0);
+  const total =
+    changeSet.creates.length +
+    changeSet.updates.length +
+    changeSet.deletes.length +
+    (changeSet.moves?.length || 0);
   lines.push(chalk.bold(`Total: ${total} changes\n`));
 
   return lines.join('\n');
@@ -378,58 +428,64 @@ export function formatResource(construct: string, id: string, status?: string): 
 
 /**
  * Print success message
+ * @deprecated Use OutputManager.showSuccess() instead
  */
 export function printSuccess(message: string): void {
-  logger.info(`${colors.checkmark} ${colors.success(message)}`);
+  console.log(`${colors.checkmark} ${colors.success(message)}`);
 }
 
 /**
  * Print error message
+ * @deprecated Use OutputManager.showError() instead
  */
 export function printError(message: string): void {
-  logger.error(`${colors.cross} ${colors.error(message)}`);
+  console.error(`${colors.cross} ${colors.error(message)}`);
 }
 
 /**
  * Print warning message
+ * @deprecated Use OutputManager.showWarning() instead
  */
 export function printWarning(message: string): void {
-  logger.warn(`${colors.warning('⚠')} ${colors.warning(message)}`);
+  console.log(`${colors.warning('⚠')} ${colors.warning(message)}`);
 }
 
 /**
  * Print info message
+ * @deprecated Use OutputManager.showInfo() instead
  */
 export function printInfo(message: string): void {
-  logger.info(`${colors.info('ℹ')} ${colors.info(message)}`);
+  console.log(`${colors.info('ℹ')} ${colors.info(message)}`);
 }
 
 /**
  * Print section header
+ * @deprecated Use OutputManager methods instead
  */
 export function printHeader(message: string): void {
-  logger.info(`\n${colors.highlight(message)}`);
-  logger.info(colors.dim('─'.repeat(message.length)));
+  console.log(`\n${colors.highlight(message)}`);
+  console.log(colors.dim('─'.repeat(message.length)));
 }
 
 /**
  * Print table
+ * @deprecated Use OutputManager methods instead
  */
 export function printTable(headers: string[], rows: string[][]): void {
   // Calculate column widths
   const widths = headers.map((header, i) => {
-    const maxRowWidth = Math.max(...rows.map(row => (row[i] || '').length));
+    const maxRowWidth = Math.max(...rows.map((row) => (row[i] || '').length));
     return Math.max(header.length, maxRowWidth);
   });
 
   // Print header
   const headerRow = headers.map((header, i) => header.padEnd(widths[i])).join('  ');
-  logger.info(colors.highlight(headerRow));
-  logger.info(colors.dim('─'.repeat(headerRow.length)));
+  console.log(colors.highlight(headerRow));
+  console.log(colors.dim('─'.repeat(headerRow.length)));
 
   // Print rows
-  rows.forEach(row => {
+  rows.forEach((row) => {
     const rowStr = row.map((cell, i) => (cell || '').padEnd(widths[i])).join('  ');
-    logger.info(rowStr);
+    console.log(rowStr);
   });
 }

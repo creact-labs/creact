@@ -1,8 +1,54 @@
+
+/**
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+
+ * you may not use this file except in compliance with the License.
+
+ * You may obtain a copy of the License at
+
+ *
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ *
+
+ * Unless required by applicable law or agreed to in writing, software
+
+ * distributed under the License is distributed on an "AS IS" BASIS,
+
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+ * See the License for the specific language governing permissions and
+
+ * limitations under the License.
+
+ *
+
+ * Copyright 2025 Daniel Coutinho Ribeiro
+
+ */
+
 // REQ-04: Provider interfaces for dependency injection
 // REQ-09: Lifecycle hooks for observability and error handling
 
 // Import CloudDOMNode from core types to avoid duplication
 import { CloudDOMNode } from '../core/types';
+
+/**
+ * OutputChangeEvent represents a provider output change notification
+ * Emitted when a resource's outputs become available or change
+ */
+export interface OutputChangeEvent {
+  /** CloudDOM node ID that changed */
+  nodeId: string;
+
+  /** New output values */
+  outputs: Record<string, any>;
+
+  /** Timestamp of the change */
+  timestamp: number;
+}
 
 /**
  * ICloudProvider defines the interface for cloud infrastructure providers.
@@ -83,4 +129,35 @@ export interface ICloudProvider {
    * @returns Promise that resolves when error handling completes
    */
   onError?(error: Error, cloudDOM: CloudDOMNode[]): Promise<void>;
+
+  /**
+   * Subscribe to output change events (optional - for event-driven reactivity)
+   * Providers can emit events when resource outputs become available
+   *
+   * This enables real-time reactivity without polling:
+   * - Provider emits when outputs are ready
+   * - Orchestrator subscribes and triggers re-renders
+   * - useEffect callbacks can react to specific output changes
+   *
+   * @param event - Event type to subscribe to
+   * @param handler - Callback function to handle the event
+   */
+  on?(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
+
+  /**
+   * Unsubscribe from output change events
+   *
+   * @param event - Event type to unsubscribe from
+   * @param handler - Callback function to remove
+   */
+  off?(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
+
+  /**
+   * Emit output change event (used by provider implementations)
+   * Internal method for providers to notify subscribers
+   *
+   * @param event - Event type
+   * @param change - Output change details
+   */
+  emit?(event: 'outputsChanged', change: OutputChangeEvent): void;
 }
