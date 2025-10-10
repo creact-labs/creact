@@ -1,298 +1,259 @@
-# CReact
+# CReact: Infrastructure as React Components
 
-**Infrastructure-as-Code with React patterns.**
+CReact brings React's component model to infrastructure deployment. Write infrastructure using JSX components that compile to cloud resources through a sophisticated reconciliation engine.
 
-Write infrastructure using JSX components. Dependencies flow through context and props. Deployments orchestrate themselves through reactive reconciliation.
+## The Paradigm Shift
 
----
+### What is a CReact App?
 
-## Why CReact Exists
+A CReact application is a React component tree that renders to cloud infrastructure instead of DOM elements.
 
-Infrastructure deployment has the same problems as UI rendering: managing state, resolving dependencies, coordinating lifecycles, and recovering from failures. React solved these problems for UI. CReact applies the same patterns to infrastructure.
+```tsx
+function InfrastructureApp() {
+  return (
+    <Database name="users-db">
+      <API name="users-api">
+        <Monitoring />
+      </API>
+    </Database>
+  );
+}
+```
 
-The key insight: **infrastructure is just another render target**. Instead of rendering to DOM, we render to CloudDOM - an intermediate representation that providers materialize into actual cloud resources.
+### What Does Running a CReact App Mean?
 
----
+Running a CReact app means deploying and maintaining cloud infrastructure through a continuous reactive process:
+
+1. **Initial Render**: Components create resource references
+2. **Deployment Waves**: Resources deploy as dependencies become available
+3. **Reactive Updates**: Components re-render when dependencies change
+4. **State Persistence**: Application state survives across deployments
+5. **Continuous Sync**: Infrastructure stays in sync with code changes
 
 ## Core Architecture
 
-CReact separates three concerns that traditional IaC tools mix together:
+### Provider System
 
-### 1. Infrastructure Definition (Your Code)
-
-Write components that declare what infrastructure you want:
+CReact works with any infrastructure platform through two provider interfaces:
 
 ```tsx
-function App() {
-  const vpc = useInstance(VPC, { cidr: '10.0.0.0/16' });
-  const db = useInstance(Database, { vpcId: vpc.outputs?.vpcId });
-  return <></>;
-}
-```
-
-### 2. State Storage (Backend Provider)
-
-State lives in a shared backend, independent of where you run deployments:
-
-```typescript
-interface IBackendProvider {
-  getState(stackName: string): Promise<CloudDOMState | null>;
-  saveState(stackName: string, state: CloudDOMState): Promise<void>;
-}
-```
-
-### 3. Resource Execution (Cloud Provider)
-
-Providers materialize CloudDOM nodes into actual resources:
-
-```typescript
+// Deploy resources to any cloud platform
 interface ICloudProvider {
-  materialize(nodes: CloudDOMNode[]): Promise<void>;
+  materialize(resources: CloudDOMNode[]): Promise<void>;
+}
+
+// Persist state across deployments
+interface IBackendProvider {
+  getState(stackName: string): Promise<any>;
+  saveState(stackName: string, state: any): Promise<void>;
 }
 ```
 
-**The separation is what makes CReact powerful:**
+### JSX to CloudDOM Compilation
 
-```
-Your Laptop          CI/CD Server        Teammate's Machine
-     │                    │                      │
-     └────────────────────┼──────────────────────┘
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │   Backend Provider    │
-              │  (Shared State: S3,   │
-              │   PostgreSQL, etc.)   │
-              └───────────────────────┘
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │   Cloud Provider      │
-              │  (AWS, GCP, K8s,      │
-              │   Terraform, etc.)    │
-              └───────────────────────┘
-```
-
-**Every deployment, from anywhere:**
-1. Load state from backend
-2. Render components to CloudDOM
-3. Diff old vs new CloudDOM
-4. Deploy only changes via provider
-5. Save updated state to backend
-
-**This means:**
-- Start deployment on laptop, continue from CI/CD
-- No state files to commit or sync
-- Team members see each other's changes automatically
-- Process crashes don't lose state
-- Test with mock providers, deploy with real ones
-
----
-
-## Quick Start
+CReact compiles JSX to an intermediate representation called CloudDOM:
 
 ```tsx
-import { CReact, createContext, useContext, useInstance } from '@creact-labs/creact';
+// JSX Input
+<VPC name="app-vpc" cidr="10.0.0.0/16" />
 
-// Define infrastructure as components
-const NetworkContext = createContext<{ vpcId?: string }>({});
-
-function NetworkStack({ children }) {
-  const vpc = useInstance(VPC, { name: 'vpc', cidr: '10.0.0.0/16' });
-  
-  return (
-    <NetworkContext.Provider value={{ vpcId: vpc.outputs?.vpcId }}>
-      {children}
-    </NetworkContext.Provider>
-  );
+// Compiles to CloudDOM
+{
+  id: "app-vpc",
+  construct: VPC,
+  props: { name: "app-vpc", cidr: "10.0.0.0/16" },
+  outputs: {}, // Populated after deployment
+  children: []
 }
+```
 
-function DatabaseStack() {
-  const { vpcId } = useContext(NetworkContext);
-  
-  const db = useInstance(Database, {
-    name: 'db',
-    vpcId, // Reactive: re-renders when VPC deploys
+## Hooks API
+
+### useInstance - Create Resources
+
+Creates cloud resources and provides access to their outputs:
+
+```tsx
+function DatabaseComponent() {
+  // Create database resource
+  const database = useInstance(Database, {
+    name: 'my-db',
+    engine: 'postgres'
   });
-  
+
+  // Access outputs after deployment
+  console.log(database.outputs?.endpoint); // "db.example.com:5432"
+
   return <></>;
 }
-
-function App() {
-  return (
-    <NetworkStack>
-      <DatabaseStack />
-    </NetworkStack>
-  );
-}
-
-// Configure providers
-CReact.cloudProvider = new AWSProvider();
-CReact.backendProvider = new S3BackendProvider({ bucket: 'my-state' });
-
-// Deploy
-export default async function () {
-  return CReact.renderCloudDOM(<App />, 'my-stack');
-}
 ```
 
-**Deploy:**
-```bash
-creact deploy --entry app.tsx
-```
+**Key Behavior**: If any prop value is `undefined`, creates a placeholder node that doesn't deploy. When dependencies become available, component re-renders and creates the real resource.
 
-**What happens:**
-```
-Cycle 1: Initial render
-  → VPC has no outputs yet
-  → VPC scheduled for deployment
+### useState - Persistent State
 
-Cycle 2: VPC deployed
-  → VPC outputs: { vpcId: "vpc-123" }
-  → NetworkContext updated
-  → DatabaseStack re-renders (context changed)
-  → Database scheduled with vpcId
-
-Cycle 3: Database deployed
-  → Database outputs: { endpoint: "db.rds.aws.com" }
-  → No more context changes
-  → Deployment complete
-```
-
----
-
-## Reactivity: How Dependencies Work
-
-CReact has three reactive mechanisms. All work the same way: **when outputs change, components re-render**.
-
-### Context-Based Reactivity
-
-Share outputs across components. Consumers re-render when context values change.
+Manages state that persists across deployments:
 
 ```tsx
-const NetworkContext = createContext<{ vpcId?: string }>({});
+function App() {
+  // State survives deployments (stored in backend)
+  const [deployCount, setDeployCount] = useState(0);
+  const [appVersion] = useState('1.0.0');
 
-function NetworkStack({ children }) {
-  const vpc = useInstance(VPC, { name: 'vpc' });
-  
-  // Provide outputs via context
+  // Update state (takes effect next deployment)
+  setDeployCount(prev => (prev || 0) + 1);
+
+  return <></>;
+}
+```
+
+**Advanced**: Can bind to provider outputs for reactivity:
+
+```tsx
+function DatabaseComponent() {
+  const db = useInstance(Database, { name: 'my-db' });
+
+  // This triggers re-renders when db.outputs.endpoint changes
+  const [endpoint, setEndpoint] = useState(db.outputs?.endpoint);
+
+  return <></>;
+}
+```
+
+### useContext - Share Dependencies
+
+Shares data between components with reactivity when containing outputs:
+
+```tsx
+const DatabaseContext = createContext<{ endpoint?: string }>({});
+
+function DatabaseProvider({ children }) {
+  const db = useInstance(Database, { name: 'my-db' });
+
   return (
-    <NetworkContext.Provider value={{ vpcId: vpc.outputs?.vpcId }}>
+    <DatabaseContext.Provider value={{
+      endpoint: db.outputs?.endpoint  // Makes context reactive
+    }}>
       {children}
-    </NetworkContext.Provider>
+    </DatabaseContext.Provider>
   );
 }
 
-function DatabaseStack() {
-  const { vpcId } = useContext(NetworkContext);
-  
-  // Re-renders when vpcId becomes available
-  const db = useInstance(Database, { vpcId });
+function ApiConsumer() {
+  const { endpoint } = useContext(DatabaseContext); // Re-renders when endpoint available
+
+  const api = useInstance(ApiGateway, {
+    dbUrl: endpoint  // Triggers re-render when endpoint changes
+  });
+
   return <></>;
 }
 ```
 
-**Use for:** Shared dependencies, deep component trees, cross-layer dependencies.
+## Reactivity Mechanisms
 
-### Props-Based Reactivity
+CReact implements multiple interconnected reactivity systems:
 
-Pass outputs as props. Children re-render when props change.
+1. **useState Binding**: `useState` can bind to provider outputs, triggering re-renders when outputs change
+2. **Context Dependency Tracking**: Contexts containing outputs trigger re-renders in consuming components
+3. **Output Change Detection**: Post-deployment effect system detects when provider outputs change
+4. **Selective Re-rendering**: Only components affected by changes re-render
 
-```tsx
-function Parent() {
-  const db = useInstance(Database, { name: 'db' });
-  
-  // Child re-renders when db.outputs.endpoint changes
-  return <Child dbUrl={db.outputs?.endpoint} />;
-}
+## Deployment Orchestration
 
-function Child({ dbUrl }: { dbUrl?: string }) {
-  // Re-renders when dbUrl prop changes
-  const api = useInstance(ApiGateway, { dbUrl });
-  return <></>;
-}
-```
-
-**Use for:** Parent-child relationships, explicit dependencies, reusable components.
-
-### State-Based Reactivity
-
-Bind state to outputs. Components using that state re-render when it changes.
+### Reactive Deployment Cycles
 
 ```tsx
-function MonitoringStack() {
-  const [endpoints, setEndpoints] = useState<string[]>([]);
-  
-  const api1 = useInstance(ApiGateway, { name: 'api-1' });
-  const api2 = useInstance(ApiGateway, { name: 'api-2' });
-  
-  // Bind state to outputs
-  setEndpoints([
-    api1.outputs?.endpoint,
-    api2.outputs?.endpoint,
-  ].filter(Boolean));
-  
-  // Re-renders when endpoints changes
-  const monitor = useInstance(Monitoring, { targets: endpoints });
-  return <></>;
-}
-```
-
-**Use for:** Aggregating outputs, transforming outputs, persistent metadata.
-
----
-
-## Multi-Layer Architecture
-
-Real infrastructure has complex dependencies. CReact handles them automatically:
-
-```tsx
-function App() {
+function MultiLayerApp() {
   return (
-    <NetworkStack>      {/* Layer 1: Foundation */}
-      <DataStack>       {/* Layer 2: Depends on Network */}
-        <StorageStack>  {/* Layer 3: Depends on Network */}
-          <ApiStack>    {/* Layer 4: Depends on all above */}
-            <ObservabilityStack /> {/* Layer 5: Depends on API */}
+    <NetworkStack>        {/* Layer 1: Deploy VPC first */}
+      <DatabaseStack>     {/* Layer 2: Deploy DB/cache when VPC ready */}
+        <StorageStack>    {/* Layer 3: Deploy S3/CDN when network ready */}
+          <ApiStack>      {/* Layer 4: Deploy APIs when all deps ready */}
+            <MonitoringStack /> {/* Layer 5: Deploy monitoring last */}
           </ApiStack>
         </StorageStack>
-      </DataStack>
+      </DatabaseStack>
     </NetworkStack>
   );
 }
 ```
 
-**Deployment sequence:**
-```
-Cycle 1: Network deploys
-  → VPC, Subnets, Security Groups
-  → NetworkContext updated
+**Deployment Flow**:
+1. **Initial Render**: All components create resource references
+2. **Wave 1**: Network resources deploy (no dependencies)
+3. **Wave 2**: Data resources deploy (depend on network outputs)
+4. **Wave 3**: Storage resources deploy (depend on network outputs)
+5. **Wave 4**: API resources deploy (depend on data + storage outputs)
+6. **Wave 5**: Monitoring resources deploy (depend on API outputs)
 
-Cycle 2: Data & Storage deploy (parallel)
-  → Database, Cache (use NetworkContext)
-  → S3, CloudFront (use NetworkContext)
-  → DataContext and StorageContext updated
+## Provider Implementation
 
-Cycle 3: API deploys
-  → Lambda, API Gateway (use all contexts)
-  → ApiContext updated
-
-Cycle 4: Observability deploys
-  → Monitoring, Backup (use ApiContext)
-
-Cycle 5: Complete
-  → No more output changes
-```
-
-**Example with all three reactive patterns:**
+### Cloud Provider Example
 
 ```tsx
-const NetworkContext = createContext<{ vpcId?: string }>({});
-const DataContext = createContext<{ dbUrl?: string }>({});
+class AWSProvider implements ICloudProvider {
+  async materialize(resources: CloudDOMNode[]): Promise<void> {
+    for (const resource of resources) {
+      if (resource.construct?.name === 'Database') {
+        const db = await this.createRDSInstance(resource.props);
+        resource.outputs = {
+          endpoint: db.endpoint,
+          connectionUrl: db.connectionString
+        };
+      }
+      // Handle other resource types...
+    }
+  }
+}
+```
 
-function NetworkStack({ children }) {
-  const vpc = useInstance(VPC, { name: 'vpc', cidr: '10.0.0.0/16' });
-  
+### Backend Provider Example
+
+```tsx
+class S3BackendProvider implements IBackendProvider {
+  async getState(stackName: string): Promise<any> {
+    const state = await this.s3.getObject({
+      Bucket: 'my-state-bucket',
+      Key: `${stackName}.json`
+    }).promise();
+
+    return JSON.parse(state.Body.toString());
+  }
+
+  async saveState(stackName: string, state: any): Promise<void> {
+    await this.s3.putObject({
+      Bucket: 'my-state-bucket',
+      Key: `${stackName}.json`,
+      Body: JSON.stringify(state)
+    }).promise();
+  }
+}
+```
+
+## Real-World Example
+
+Here's how the 5-layer enterprise application from the examples works:
+
+```tsx
+function EnterpriseApp() {
+  return (
+    <NetworkProvider>     {/* VPC, subnets, security groups */}
+      <DatabaseProvider>  {/* Database + cache */}
+        <StorageProvider> {/* S3 + CDN */}
+          <ApiProvider>   {/* APIs + load balancer */}
+            <MonitoringProvider /> {/* Analytics + backups */}
+          </ApiProvider>
+        </StorageProvider>
+      </DatabaseProvider>
+    </NetworkProvider>
+  );
+}
+
+// Each provider component:
+function NetworkProvider({ children }) {
+  const vpc = useInstance(VPC, { cidr: '10.0.0.0/16' });
+
   return (
     <NetworkContext.Provider value={{ vpcId: vpc.outputs?.vpcId }}>
       {children}
@@ -300,385 +261,45 @@ function NetworkStack({ children }) {
   );
 }
 
-function DataStack({ children }) {
-  const { vpcId } = useContext(NetworkContext); // Context reactivity
-  
-  const db = useInstance(Database, { name: 'db', vpcId });
-  
-  return (
-    <DataContext.Provider value={{ dbUrl: db.outputs?.endpoint }}>
-      {children}
-    </DataContext.Provider>
-  );
-}
-
-function ApiStack({ region }: { region: string }) { // Props reactivity
-  const { vpcId } = useContext(NetworkContext); // Context reactivity
-  const { dbUrl } = useContext(DataContext); // Context reactivity
-  
-  const [endpoints, setEndpoints] = useState<string[]>([]); // State reactivity
-  
-  const api = useInstance(ApiGateway, {
-    name: `api-${region}`,
-    vpcId,
-    dbUrl,
-  });
-  
-  setEndpoints(prev => [...(prev || []), api.outputs?.endpoint].filter(Boolean));
-  
-  return <></>;
-}
-
-function App() {
-  const regions = ['us-east-1', 'eu-west-1'];
-  
-  return (
-    <NetworkStack>
-      <DataStack>
-        {regions.map(region => (
-          <ApiStack key={region} region={region} />
-        ))}
-      </DataStack>
-    </NetworkStack>
-  );
-}
-```
-
----
-
-## Provider System
-
-CReact is provider-agnostic. The same infrastructure code works with any provider.
-
-### Backend Provider: Where State Lives
-
-```typescript
-// S3 backend
-CReact.backendProvider = new S3BackendProvider({ 
-  bucket: 'my-state',
-  region: 'us-east-1'
-});
-
-// PostgreSQL backend
-CReact.backendProvider = new PostgreSQLBackendProvider({
-  connectionString: 'postgresql://...'
-});
-
-// SQLite backend (local development)
-CReact.backendProvider = new SQLiteBackendProvider({
-  path: './state.db'
-});
-
-// In-memory backend (testing)
-CReact.backendProvider = new InMemoryBackendProvider();
-```
-
-**State structure:**
-```typescript
-interface CloudDOMState {
-  stackName: string;
-  lastDeployed: string;
-  nodes: CloudDOMNode[]; // Full infrastructure tree with outputs
-}
-
-interface CloudDOMNode {
-  id: string;
-  type: string;
-  props: Record<string, any>;
-  outputs?: Record<string, any>; // Populated by CloudProvider
-  children: CloudDOMNode[];
-}
-```
-
-### Cloud Provider: How Resources Deploy
-
-```typescript
-// AWS provider
-CReact.cloudProvider = new AWSProvider();
-
-// Kubernetes provider
-CReact.cloudProvider = new KubernetesProvider();
-
-// Terraform provider (wrap existing Terraform modules)
-CReact.cloudProvider = new TerraformProvider();
-
-// Docker provider
-CReact.cloudProvider = new DockerProvider();
-
-// Mock provider (testing)
-CReact.cloudProvider = new MockCloudProvider();
-```
-
-**Implementing a provider:**
-
-```typescript
-import { ICloudProvider, CloudDOMNode } from '@creact-labs/creact';
-
-export class CustomProvider implements ICloudProvider {
-  async materialize(nodes: CloudDOMNode[]): Promise<void> {
-    for (const node of nodes) {
-      // 1. Create the resource
-      const resource = await this.createResource(node.type, node.props);
-      
-      // 2. Populate outputs (this triggers reactivity)
-      node.outputs = {
-        id: resource.id,
-        endpoint: resource.endpoint,
-        // ... other outputs
-      };
-    }
-  }
-  
-  private async createResource(type: string, props: any): Promise<any> {
-    // Your deployment logic here
-    // Call cloud APIs, run Terraform, deploy to K8s, etc.
-  }
-}
-```
-
-**Mix and match:**
-
-```typescript
-// Deploy to AWS, store state in PostgreSQL
-CReact.cloudProvider = new AWSProvider();
-CReact.backendProvider = new PostgreSQLBackendProvider({ ... });
-
-// Deploy with Terraform, store state in S3
-CReact.cloudProvider = new TerraformProvider();
-CReact.backendProvider = new S3BackendProvider({ ... });
-
-// Test with mocks, no persistence
-CReact.cloudProvider = new MockCloudProvider();
-CReact.backendProvider = new InMemoryBackendProvider();
-```
-
----
-
-## API Reference
-
-### useInstance(Construct, props)
-
-Creates an infrastructure resource. Returns a node with `outputs` populated after deployment.
-
-```tsx
-const vpc = useInstance(VPC, {
-  name: 'app-vpc',
-  cidr: '10.0.0.0/16',
-});
-
-// Before deployment: vpc.outputs === undefined
-// After deployment: vpc.outputs === { vpcId: "vpc-123", ... }
-```
-
-### useState(initialValue)
-
-Persistent state that survives deployments. Reactive when bound to outputs.
-
-```tsx
-const [count, setCount] = useState(0);
-const [endpoints, setEndpoints] = useState<string[]>([]);
-
-// Not reactive (just metadata)
-setCount(prev => (prev || 0) + 1);
-
-// Reactive (bound to outputs)
-const api = useInstance(ApiGateway, { name: 'api' });
-setEndpoints([api.outputs?.endpoint].filter(Boolean));
-```
-
-### useContext(Context)
-
-Read values from context. Reactive when context contains outputs.
-
-```tsx
-const NetworkContext = createContext<{ vpcId?: string }>({});
-
-function Component() {
+function DatabaseProvider({ children }) {
   const { vpcId } = useContext(NetworkContext);
-  // Re-renders when vpcId changes
-  return <></>;
+
+  const db = useInstance(Database, { vpcId });
+  const cache = useInstance(Redis, { vpcId });
+
+  return (
+    <DatabaseContext.Provider value={{
+      dbUrl: db.outputs?.endpoint,
+      cacheUrl: cache.outputs?.endpoint
+    }}>
+      {children}
+    </DatabaseContext.Provider>
+  );
 }
 ```
 
-### createContext(defaultValue)
-
-Creates a context for sharing values across components.
-
-```tsx
-interface NetworkOutputs {
-  vpcId?: string;
-  subnetIds?: string[];
-}
-
-const NetworkContext = createContext<NetworkOutputs>({});
-```
-
----
-
-## CLI Commands
-
-```bash
-# Build CloudDOM without deploying
-creact build --entry app.tsx
-
-# Preview changes (like terraform plan)
-creact plan --entry app.tsx
-
-# Deploy infrastructure
-creact deploy --entry app.tsx
-
-# Hot reload development mode
-creact dev --entry app.tsx --auto-approve
-
-# Resume failed deployment
-creact deploy --entry app.tsx
-# Automatically resumes from checkpoint
-```
-
----
-
-## Development Workflow
-
-### Local Development
-
-```bash
-# Use SQLite backend for local state
-creact dev --entry app.tsx --auto-approve
-```
-
-File changes trigger incremental updates. Only modified resources redeploy.
-
-### Team Collaboration
-
-```typescript
-// Shared S3 backend
-CReact.backendProvider = new S3BackendProvider({ 
-  bucket: 'team-state',
-  region: 'us-east-1'
-});
-```
-
-All team members deploy to the same state. Changes are visible immediately.
-
-### CI/CD Integration
-
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy Infrastructure
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm install
-      - run: creact deploy --entry app.tsx
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-```
-
-State automatically loads from backend. No state files to manage.
-
-### Testing
-
-```typescript
-import { CReact, MockCloudProvider, InMemoryBackendProvider } from '@creact-labs/creact';
-
-describe('Infrastructure', () => {
-  beforeEach(() => {
-    CReact.cloudProvider = new MockCloudProvider();
-    CReact.backendProvider = new InMemoryBackendProvider();
-  });
-
-  it('should create VPC and Database', async () => {
-    const cloudDOM = await CReact.renderCloudDOM(<App />, 'test-stack');
-    
-    expect(cloudDOM.nodes).toHaveLength(2);
-    expect(cloudDOM.nodes[0].type).toBe('VPC');
-    expect(cloudDOM.nodes[1].type).toBe('Database');
-  });
-});
-```
-
----
-
-## Key Differences from React
-
-| Aspect | React | CReact |
-|--------|-------|--------|
-| **Render target** | DOM elements | Cloud resources |
-| **Render frequency** | Milliseconds | Minutes |
-| **Render cost** | Free (memory) | Expensive (cloud ops) |
-| **State persistence** | Session (memory) | Deployment (backend) |
-| **Re-render trigger** | State/props change | Output change |
-| **Reconciliation** | Virtual DOM diff | CloudDOM diff |
-| **Side effects** | useEffect | Provider lifecycle hooks |
-
----
-
-## Key Differences from Traditional IaC
-
-| Aspect | Terraform/Pulumi | CReact |
-|--------|------------------|--------|
-| **Dependencies** | Manual `depends_on` | Automatic (reactive) |
-| **State location** | Local or remote config | Always remote (backend) |
-| **Execution model** | Stateful process | Stateless process |
-| **Resumability** | Limited | Full (deploy from anywhere) |
-| **Component model** | Modules/functions | React components |
-| **Type safety** | HCL/YAML or runtime | Compile-time TypeScript |
-
----
-
-## Why CReact?
-
-**For React developers:** Use familiar patterns for infrastructure. Context, props, hooks - everything works like React.
-
-**For infrastructure teams:** Automatic dependency resolution. No more debugging `depends_on` chains.
-
-**For platform teams:** Provider-agnostic. Wrap Terraform, Kubernetes, or any tool. Same interface.
-
-**For everyone:** Deploy from anywhere. Start on laptop, continue from CI/CD. State is always consistent.
-
----
-
-## Installation
+## Installation & Usage
 
 ```bash
 npm install @creact-labs/creact
+
+# Deploy your infrastructure
+creact deploy --entry my-app.tsx
+
+# Development mode with hot reload
+creact dev --entry my-app.tsx --auto-approve
+
+# Preview changes
+creact plan --entry my-app.tsx
 ```
 
----
+## Key Advantages
 
-## Examples
+- **Declarative**: Describe what you want, not how to build it
+- **Reactive**: Automatic updates when dependencies change
+- **Composable**: Mix and match any infrastructure components
+- **Provider Agnostic**: Works with any cloud platform
+- **State Persistent**: Application state survives deployments
+- **Hot Reloadable**: Infrastructure changes with application changes
 
-See [examples/](./examples) for complete working examples:
-- Basic app with reactive context
-- Multi-region deployment
-- Multi-layer architecture
-- Custom providers
-
----
-
-## License
-
-Apache License 2.0
-
----
-
-## Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## Learn More
-
-- [Documentation](https://creact.dev/docs)
-- [API Reference](https://creact.dev/api)
-- [Architecture Guide](https://creact.dev/architecture)
+CReact brings the React revolution to infrastructure management.
