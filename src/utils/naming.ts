@@ -365,7 +365,7 @@ export function parseStateOutputKey(stateOutputKey: string): number {
 
   // Convert from 1-based to 0-based indexing
   const hookIndex = parseInt(match[1], 10) - 1;
-  
+
   if (hookIndex < 0) {
     throw new Error(`Invalid state output key: ${stateOutputKey}. Index must be positive.`);
   }

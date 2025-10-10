@@ -1,6 +1,9 @@
 // REQ-07: Validator - Fiber tree validation
 
 import { FiberNode } from './types';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('validator');
 
 /**
  * Validation error with component stack trace
@@ -114,10 +117,8 @@ export class Validator {
     const currentStack = [...componentStack, componentName];
 
     // Optional debug trace for development introspection
-    if (process.env.CREACT_DEBUG === 'true') {
-      const pathStr = node.path ? node.path.join('.') : 'unknown';
-      console.debug('[Validator] Validating', pathStr);
-    }
+    const pathStr = node.path ? node.path.join('.') : 'unknown';
+    logger.debug('Validating', pathStr);
 
     // REQ-07.4: Circular dependency detection
     const pathKey = node.path ? node.path.join('.') : '';

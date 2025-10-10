@@ -1,5 +1,8 @@
 import { FiberNode, CloudDOMNode, CReactEvents, ReRenderReason } from './types';
 import { generateResourceId } from '../utils/naming';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('clouddom');
 
 /**
  * Structural change types for CloudDOM topology changes
@@ -352,9 +355,7 @@ export class StructuralChangeDetector {
       }
     }
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[StructuralChangeDetector] Detected ${changes.length} structural changes:`, changes);
-    }
+    logger.debug(`Detected ${changes.length} structural changes:`, changes);
   }
 
   /**
@@ -377,9 +378,7 @@ export class StructuralChangeDetector {
       renderScheduler.schedule(fiber, 'structural-change' as ReRenderReason);
     }
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[StructuralChangeDetector] Scheduled re-renders for ${affectedFibers.size} fibers due to structural changes`);
-    }
+    logger.debug(`Scheduled re-renders for ${affectedFibers.size} fibers due to structural changes`);
   }
 
   /**

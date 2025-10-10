@@ -8,6 +8,9 @@ import {
 import { FiberNode } from '../core/types';
 import { generateBindingKey } from '../utils/naming';
 import { getProviderOutputTrackerInstance } from './useInstance';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
 
 /**
  * Effect function type - runs after deployment (supports async)
@@ -68,8 +71,8 @@ interface EffectHook {
  *
  *   // Runs on every deploy, cleanup on destroy
  *   useEffect(() => {
- *     console.log('Database deployed');
- *     return () => console.log('Database destroyed');
+ *     logger.info('Database deployed');
+ *     return () => logger.info('Database destroyed');
  *   });
  *
  *   // Runs when db.outputs.connectionUrl changes
@@ -109,7 +112,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
       outputTracker.startAccessTracking(currentFiber);
       
       if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useEffect] Started access tracking for dependency evaluation`);
+        logger.debug(`Started access tracking for dependency evaluation`);
       }
     }
     // REQ-5.3, 5.4: Access dependencies to trigger proxy tracking
@@ -130,9 +133,9 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
       });
       
       if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useEffect] Tracked ${trackedOutputs.size} output accesses during dependency evaluation`);
+        logger.debug(`Tracked ${trackedOutputs.size} output accesses during dependency evaluation`);
         if (trackedOutputs.size > 0) {
-          console.debug(`[useEffect] Tracked outputs: ${Array.from(trackedOutputs).join(', ')}`);
+          logger.debug(`Tracked outputs: ${Array.from(trackedOutputs).join(', ')}`);
         }
       }
     }
@@ -158,7 +161,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
           boundOutputs.add(bindingKey);
 
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Detected provider output dependency: ${bindingKey}`);
+            logger.debug(`Detected provider output dependency: ${bindingKey}`);
           }
         }
         // Check if dependency is a CloudDOM output reference
@@ -167,7 +170,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
           boundOutputs.add(bindingKey);
 
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Detected CloudDOM output dependency: ${bindingKey}`);
+            logger.debug(`Detected CloudDOM output dependency: ${bindingKey}`);
           }
         }
         // Check if dependency is a CloudDOM node (from useInstance)
@@ -176,7 +179,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
           referencedNodes.add(nodeId);
           
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Detected CloudDOM node reference: ${nodeId}`);
+            logger.debug(`Detected CloudDOM node reference: ${nodeId}`);
           }
         }
       }
@@ -198,7 +201,7 @@ export function useEffect(effect: EffectCallback, deps?: DependencyList): void {
     }
 
     if (process.env.CREACT_DEBUG === 'true' && boundOutputs.size > 0) {
-      console.debug(`[useEffect] Bound to ${boundOutputs.size} output patterns: ${Array.from(boundOutputs).join(', ')}`);
+      logger.debug(`Bound to ${boundOutputs.size} output patterns: ${Array.from(boundOutputs).join(', ')}`);
     }
   }
 
@@ -320,7 +323,7 @@ function registerEffectWithReactiveSystem(
   });
 
   if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useEffect] Registered effect ${effectIndex} with reactive system for outputs: ${bindingKeys.join(', ')}`);
+    logger.debug(`Registered effect ${effectIndex} with reactive system for outputs: ${bindingKeys.join(', ')}`);
   }
 }
 
@@ -353,7 +356,7 @@ function hasEffectDependenciesChanged(
     for (const boundOutputKey of current.boundOutputs) {
       if (changedOutputs.has(boundOutputKey)) {
         if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[useEffect] Effect dependency changed: ${boundOutputKey}`);
+          logger.debug(`Effect dependency changed: ${boundOutputKey}`);
         }
         return true;
       }
@@ -392,22 +395,22 @@ function hasEffectDependenciesChanged(
  */
 export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
   if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useEffect] executeEffects called for fiber: ${fiber.path?.join('.')}`);
-    console.debug(`[useEffect] Fiber has effects: ${!!(fiber.effects)}, length: ${fiber.effects?.length || 0}`);
+    logger.debug(`executeEffects called for fiber: ${fiber.path?.join('.')}`);
+    logger.debug(`Fiber has effects: ${!!(fiber.effects)}, length: ${fiber.effects?.length || 0}`);
     if (changedOutputs && changedOutputs.size > 0) {
-      console.debug(`[useEffect] Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
+      logger.debug(`Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
     }
   }
 
   if (!fiber.effects || !Array.isArray(fiber.effects)) {
     if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[useEffect] No effects found for fiber: ${fiber.path?.join('.')}`);
+      logger.debug(`No effects found for fiber: ${fiber.path?.join('.')}`);
     }
     return;
   }
 
   if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useEffect] Executing ${fiber.effects.length} effects for fiber: ${fiber.path?.join('.')}`);
+    logger.debug(`Executing ${fiber.effects.length} effects for fiber: ${fiber.path?.join('.')}`);
   }
 
   for (let i = 0; i < fiber.effects.length; i++) {
@@ -415,7 +418,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
 
     if (!effectHook) {
       if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useEffect] Effect ${i} is null/undefined`);
+        logger.debug(`Effect ${i} is null/undefined`);
       }
       continue;
     }
@@ -423,11 +426,9 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
     // Check if effect should run based on dependencies and output changes
     const shouldRun = hasEffectDependenciesChanged(effectHook, fiber.previousEffects?.[i], changedOutputs);
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[useEffect] Effect ${i} should run: ${shouldRun}`);
-      if (effectHook.boundOutputs && effectHook.boundOutputs.size > 0) {
-        console.debug(`[useEffect] Effect ${i} bound to outputs: ${Array.from(effectHook.boundOutputs).join(', ')}`);
-      }
+    logger.debug(`Effect ${i} should run: ${shouldRun}`);
+    if (effectHook.boundOutputs && effectHook.boundOutputs.size > 0) {
+      logger.debug(`Effect ${i} bound to outputs: ${Array.from(effectHook.boundOutputs).join(', ')}`);
     }
 
     if (shouldRun) {
@@ -435,19 +436,19 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
       if (effectHook.cleanup) {
         try {
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Running cleanup for effect ${i}`);
+            logger.debug(`Running cleanup for effect ${i}`);
           }
           effectHook.cleanup();
           effectHook.cleanup = undefined; // Clear cleanup after running
         } catch (error) {
-          console.error('[useEffect] Cleanup error:', error);
+          logger.error('Cleanup error:', error);
         }
       }
 
       // Run the effect with async support and tracing
       try {
         if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[useEffect] Running effect ${effectHook.effectId || i}`);
+          logger.debug(`Running effect ${effectHook.effectId || i}`);
         }
         
         const result = effectHook.callback();
@@ -459,10 +460,10 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
               effectHook.cleanup = cleanup;
             }
             if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[useEffect] Async effect ${effectHook.effectId || i} completed successfully`);
+              logger.debug(`Async effect ${effectHook.effectId || i} completed successfully`);
             }
           }).catch(error => {
-            console.error(`[useEffect] Async effect ${effectHook.effectId || i} error:`, error);
+            logger.error(`Async effect ${effectHook.effectId || i} error:`, error);
           });
         } else {
           // Handle sync effects
@@ -470,7 +471,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
             effectHook.cleanup = result;
           }
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Sync effect ${effectHook.effectId || i} completed successfully`);
+            logger.debug(`Sync effect ${effectHook.effectId || i} completed successfully`);
           }
         }
         
@@ -482,7 +483,7 @@ export function executeEffects(fiber: any, changedOutputs?: Set<string>): void {
           effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
         }
       } catch (error) {
-        console.error(`[useEffect] Effect ${effectHook.effectId || i} error:`, error);
+        logger.error(`Effect ${effectHook.effectId || i} error:`, error);
       }
     }
   }
@@ -505,8 +506,8 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
   }
 
   if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useEffect] Executing effects on output change for fiber: ${fiber.path?.join('.')}`);
-    console.debug(`[useEffect] Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
+    logger.debug(`Executing effects on output change for fiber: ${fiber.path?.join('.')}`);
+    logger.debug(`Changed outputs: ${Array.from(changedOutputs).join(', ')}`);
   }
 
   for (let i = 0; i < fiber.effects.length; i++) {
@@ -529,19 +530,19 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
         if (effectHook.cleanup) {
           try {
             if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[useEffect] Running cleanup for reactive effect ${i}`);
+              logger.debug(`Running cleanup for reactive effect ${i}`);
             }
             effectHook.cleanup();
             effectHook.cleanup = undefined;
           } catch (error) {
-            console.error('[useEffect] Reactive cleanup error:', error);
+            logger.error('Reactive cleanup error:', error);
           }
         }
 
         // Run the reactive effect with async support and tracing
         try {
           if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[useEffect] Running reactive effect ${effectHook.effectId || i}`);
+            logger.debug(`Running reactive effect ${effectHook.effectId || i}`);
           }
           
           const result = effectHook.callback();
@@ -553,10 +554,10 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
                 effectHook.cleanup = cleanup;
               }
               if (process.env.CREACT_DEBUG === 'true') {
-                console.debug(`[useEffect] Async reactive effect ${effectHook.effectId || i} completed successfully`);
+                logger.debug(`Async reactive effect ${effectHook.effectId || i} completed successfully`);
               }
             }).catch(error => {
-              console.error(`[useEffect] Async reactive effect ${effectHook.effectId || i} error:`, error);
+              logger.error(`Async reactive effect ${effectHook.effectId || i} error:`, error);
             });
           } else {
             // Handle sync reactive effects
@@ -564,7 +565,7 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
               effectHook.cleanup = result;
             }
             if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[useEffect] Sync reactive effect ${effectHook.effectId || i} completed successfully`);
+              logger.debug(`Sync reactive effect ${effectHook.effectId || i} completed successfully`);
             }
           }
 
@@ -574,7 +575,7 @@ export function executeEffectsOnOutputChange(fiber: any, changedOutputs: Set<str
             effectHook.lastDepsHash = generateDependencyHash(effectHook.deps);
           }
         } catch (error) {
-          console.error(`[useEffect] Reactive effect ${effectHook.effectId || i} error:`, error);
+          logger.error(`Reactive effect ${effectHook.effectId || i} error:`, error);
         }
       }
     }
@@ -597,7 +598,7 @@ export function cleanupEffects(fiber: any): void {
       try {
         effectHook.cleanup();
       } catch (error) {
-        console.error('[useEffect] Cleanup error:', error);
+        logger.error('Cleanup error:', error);
       }
     }
   }

@@ -11,6 +11,9 @@ import {
   requireHookContext,
   incrementHookIndex,
 } from './context';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
 
 // Global ProviderOutputTracker instance
 let providerOutputTracker: ProviderOutputTracker | null = null;
@@ -69,9 +72,7 @@ function createEnhancedNode(node: CloudDOMNode, fiber: any): CloudDOMNode {
                 const tracker = getProviderOutputTracker();
                 tracker.trackOutputRead(target.id, outputKey, fiber);
 
-                if (process.env.CREACT_DEBUG === 'true') {
-                  console.debug(`[useInstance] Tracked output read: ${target.id}.${outputKey} = ${currentValue}`);
-                }
+                logger.debug(`Tracked output read: ${target.id}.${outputKey} = ${currentValue}`);
               }
 
               // REQ-2.2: Return undefined gracefully if not populated
@@ -177,8 +178,8 @@ const constructCallCounts = new WeakMap<any, Map<any, number>>();
  *
  * // Usage with event callbacks
  * <MyDatabase 
- *   onDeploy={(ctx) => console.log('Database deployed:', ctx.resourceId)}
- *   onError={(ctx, err) => console.error('Database failed:', err)}
+ *   onDeploy={(ctx) => logger.info('Database deployed:', ctx.resourceId)}
+ *   onError={(ctx, err) => logger.error('Database failed:', err)}
  * />
  *
  * // Without event callbacks (normal usage)
@@ -287,14 +288,14 @@ export function useInstance<T = any>(
   };
 
   // Restore outputs from previous state if available
-  console.log(`[useInstance] Checking for outputs: ${resourceId}, map has ${previousOutputsMap?.size || 0} entries`);
+  logger.debug(`Checking for outputs: ${resourceId}, map has ${previousOutputsMap?.size || 0} entries`);
   if (previousOutputsMap && previousOutputsMap.has(resourceId)) {
     node.outputs = { ...previousOutputsMap.get(resourceId)! };
-    console.log(`[useInstance] ✓ Restored outputs for: ${resourceId}`, node.outputs);
+    logger.debug(`✓ Restored outputs for: ${resourceId}`, node.outputs);
   } else {
-    console.log(`[useInstance] ✗ No outputs found for: ${resourceId}`);
+    logger.debug(`✗ No outputs found for: ${resourceId}`);
     if (previousOutputsMap) {
-      console.log(`[useInstance]   Available keys:`, Array.from(previousOutputsMap.keys()));
+      logger.debug(`  Available keys:`, Array.from(previousOutputsMap.keys()));
     }
   }
 
@@ -314,10 +315,8 @@ export function useInstance<T = any>(
   const enhancedNode = createEnhancedNode(node, currentFiber);
 
   // Debug logging
-  if (process.env.CREACT_DEBUG === 'true') {
-    console.debug(`[useInstance] Created and tracked instance: ${resourceId}`);
-    console.debug(`[useInstance] Node outputs at creation: ${JSON.stringify(node.outputs || {})}`);
-  }
+  logger.debug(`Created and tracked instance: ${resourceId}`);
+  logger.debug(`Node outputs at creation: ${JSON.stringify(node.outputs || {})}`);
 
   // Return reference to the enhanced node
   // This allows components to reference the resource and its outputs
@@ -378,12 +377,10 @@ export function updateNodeOutputs(nodeId: string, newOutputs: Record<string, any
     // Process the changes and get affected fibers
     const affectedFibers = outputTracker.processOutputChanges(changes);
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[useInstance] Output changes detected for ${nodeId}:`, {
-        changes: changes.length,
-        affectedFibers: affectedFibers.size
-      });
-    }
+    logger.debug(`Output changes detected for ${nodeId}:`, {
+      changes: changes.length,
+      affectedFibers: affectedFibers.size
+    });
 
     // Note: The actual re-rendering will be handled by the RenderScheduler
     // when it's integrated with the CReact main orchestrator

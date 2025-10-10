@@ -1,4 +1,7 @@
 import { FiberNode, CloudDOMNode, CReactEvents, OutputChange } from './types';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
 
 /**
  * Access tracking session for dependency analysis
@@ -481,9 +484,7 @@ export class ProviderOutputTracker {
       isActive: true
     });
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[ProviderOutputTracker] Started access tracking for ${fiber.path.join('.')}`);
-    }
+    logger.debug(`Started access tracking for ${fiber.path.join('.')}`);
   }
 
   /**
@@ -502,9 +503,7 @@ export class ProviderOutputTracker {
     session.isActive = false;
     this.activeSessions.delete(fiber);
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[ProviderOutputTracker] Ended access tracking for ${fiber.path.join('.')}, tracked ${session.trackedOutputs.size} outputs`);
-    }
+    logger.debug(`Ended access tracking for ${fiber.path.join('.')}, tracked ${session.trackedOutputs.size} outputs`);
 
     return session.trackedOutputs;
   }
@@ -524,9 +523,7 @@ export class ProviderOutputTracker {
       const bindingKey = `${nodeId}.${outputKey}`;
       session.trackedOutputs.add(bindingKey);
 
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[ProviderOutputTracker] Tracked output read: ${bindingKey} by ${fiber.path.join('.')}`);
-      }
+      logger.debug(`Tracked output read: ${bindingKey} by ${fiber.path.join('.')}`);
     }
   }
 

@@ -13,6 +13,9 @@ import {
 import { getNodeName } from '../utils/naming';
 import { RenderScheduler } from './RenderScheduler';
 import { ContextDependencyTracker } from './ContextDependencyTracker';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('renderer');
 
 /**
  * Renderer transforms JSX into a Fiber tree
@@ -235,7 +238,7 @@ export class Renderer {
             warnedTypes.add(child.type);
             const typeName = this.getTypeName(child.type);
             const pathStr = parentPath.join('.');
-            console.warn(
+            logger.warn(
               `Warning: Multiple children of type "${typeName}" ` +
               `without explicit keys at path "${pathStr}". ` +
               `Consider adding a "key" prop for better reconciliation.`
@@ -332,7 +335,7 @@ export class Renderer {
           });
         }
       } catch (error) {
-        console.warn('[Renderer] Context provider value change handling failed:', error);
+        logger.warn('Context provider value change handling failed:', error);
       }
     }
   }
@@ -362,10 +365,10 @@ export class Renderer {
     // Compare structures
     const hasChanged = previousStructure !== currentStructure;
 
-    if (hasChanged && process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[Renderer] Structural change detected in ${fiber.path.join('.')}:`);
-      console.debug(`  Previous: ${previousStructure}`);
-      console.debug(`  Current:  ${currentStructure}`);
+    if (hasChanged) {
+      logger.debug(`Structural change detected in ${fiber.path.join('.')}:`);
+      logger.debug(`  Previous: ${previousStructure}`);
+      logger.debug(`  Current:  ${currentStructure}`);
     }
 
     return hasChanged;
@@ -468,7 +471,7 @@ export class Renderer {
       }
 
     } catch (error) {
-      console.error('[Renderer] Error handling structural changes:', error);
+      logger.error('Error handling structural changes:', error);
     }
   }
 

@@ -13,6 +13,9 @@ import { StateBindingManager } from '../core/StateBindingManager';
 import { generateBindingKey } from '../utils/naming';
 import { FiberNode } from '../core/types';
 import { getReactiveUpdateQueue } from '../core/ReactiveUpdateQueue';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
 import { getCReactInstance } from '../core/CReact';
 
 // Global StateBindingManager instance
@@ -144,33 +147,31 @@ export function useState<T = undefined>(
       if (creactInstance && creactInstance.hasHydrationData()) {
         // CRITICAL: The fiber path is the component path (e.g., 'web-app-stack')
         const fiberPath = currentFiber.path?.join('.') || '';
-        console.log(`[useState] 🔍 Looking for hydration: component="${fiberPath}", hookIndex=${currentHookIndex}`);
-        
+        logger.debug(`🔍 Looking for hydration: component="${fiberPath}", hookIndex=${currentHookIndex}`);
+
         // Try to get hydration from component path
         hydratedValue = creactInstance.getHydratedValueForComponent(fiberPath, currentHookIndex);
 
         if (hydratedValue !== undefined) {
-          console.log(`[useState] ✅ HYDRATION SUCCESS for ${fiberPath}[${currentHookIndex}]:`, hydratedValue);
+          logger.debug(`✅ HYDRATION SUCCESS for ${fiberPath}[${currentHookIndex}]:`, hydratedValue);
         } else {
-          console.log(`[useState] ❌ HYDRATION FAILED for ${fiberPath}[${currentHookIndex}]`);
-          console.log(`[useState]    Available hydration keys:`, creactInstance.getHydrationMapKeys?.() || 'N/A');
+          logger.debug(`❌ HYDRATION FAILED for ${fiberPath}[${currentHookIndex}]`);
+          logger.debug(`   Available hydration keys:`, creactInstance.getHydrationMapKeys?.() || 'N/A');
         }
       } else {
-        console.log(`[useState] ⚠️  No hydration data available (instance=${!!creactInstance}, hasData=${creactInstance?.hasHydrationData()})`);
+        logger.debug(`⚠️  No hydration data available (instance=${!!creactInstance}, hasData=${creactInstance?.hasHydrationData()})`);
       }
     } catch (error) {
       // Hydration is optional, continue with initial value if it fails
-      console.warn('[useState] ⚠️  Hydration check failed:', error);
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug('[useState] Stack:', (error as Error).stack);
-      }
+      logger.warn('⚠️  Hydration check failed:', error);
+      logger.debug('Stack:', (error as Error).stack);
     }
 
     // Use hydrated value if available, otherwise use initial value
     const finalValue = hydratedValue !== undefined ? hydratedValue : initialValue;
     currentFiber.hooks[currentHookIndex] = finalValue;
-    
-    console.log(`[useState] 📝 Initialized hook[${currentHookIndex}] = ${JSON.stringify(finalValue)} (hydrated=${hydratedValue !== undefined})`);
+
+    logger.debug(`📝 Initialized hook[${currentHookIndex}] = ${JSON.stringify(finalValue)} (hydrated=${hydratedValue !== undefined})`);
   }
 
   // Store the fiber and hook index for later access
@@ -209,14 +210,12 @@ export function useState<T = undefined>(
           return String(value);
         }
       };
-      console.debug(`[useState] setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, isInternal=${isInternalUpdate}, fiber.id=${fiber.path?.join('.')}`);
+      logger.debug(`setState called: hookIdx=${hookIdx}, oldValue=${safeStringify(oldValue)}, newValue=${safeStringify(newValue)}, isInternal=${isInternalUpdate}, fiber.id=${fiber.path?.join('.')}`);
     }
 
     // Only proceed if value actually changed
     if (oldValue === newValue) {
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useState] No change detected, skipping update`);
-      }
+      logger.debug(`No change detected, skipping update`);
       return; // No change, skip update
     }
 
@@ -245,21 +244,15 @@ export function useState<T = undefined>(
             newValue
           );
 
-          if (process.env.CREACT_DEBUG === 'true') {
-            const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
-            console.debug(`[useState] Auto-bound state to output: ${bindingKey}`);
-          } 
+          const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
+          logger.debug(`Auto-bound state to output: ${bindingKey}`);
         } else {
-          if (process.env.CREACT_DEBUG === 'true') {
-            const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
-            console.debug(`[useState] Skipped re-binding already bound state: ${bindingKey}`);
-          }
+          const bindingKey = generateBindingKey(outputInfo.nodeId, outputInfo.outputKey);
+          logger.debug(`Skipped re-binding already bound state: ${bindingKey}`);
         }
       }
     } else {
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useState] Skipped binding check for internal update`);
-      }
+      logger.debug(`Skipped binding check for internal update`);
     }
 
     // REQ-4.4: Mark fiber as dirty and enqueue for re-render
@@ -275,9 +268,7 @@ export function useState<T = undefined>(
       const queue = getReactiveUpdateQueue();
       queue.enqueue(fiber);
 
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[useState] Enqueued fiber ${fiber.path?.join('.')} for re-render (queue size: ${queue.size()})`);
-      }
+      logger.debug(`Enqueued fiber ${fiber.path?.join('.')} for re-render (queue size: ${queue.size()})`);
     }
   };
 

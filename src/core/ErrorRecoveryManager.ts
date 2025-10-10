@@ -1,5 +1,8 @@
 import { FiberNode, ReRenderReason, CReactEvents } from './types';
 import { ReactiveError, ReRenderError, StateUpdateError, ContextPropagationError, CircularDependencyError } from './errors';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('runtime');
 
 /**
  * Recovery strategy for different types of errors
@@ -105,7 +108,7 @@ export class ErrorRecoveryManager {
 
       return true;
     } catch (error) {
-      console.warn(`Failed to rollback component ${fiber.path.join('.')}:`, error);
+      logger.warn(`Failed to rollback component ${fiber.path.join('.')}:`, error);
       return false;
     }
   }
@@ -148,7 +151,7 @@ export class ErrorRecoveryManager {
       // This method just validates that we have a snapshot to rollback to
       return true;
     } catch (error) {
-      console.warn(`Failed to rollback context ${String(contextId)}:`, error);
+      logger.warn(`Failed to rollback context ${String(contextId)}:`, error);
       return false;
     }
   }

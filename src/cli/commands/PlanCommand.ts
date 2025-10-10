@@ -7,6 +7,9 @@ import { CLIContextManager } from '../core/CLIContext';
 import { Spinner, formatDiff } from '../output';
 import { resolve } from 'path';
 import { Reconciler } from '../../core/Reconciler';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 export class PlanCommand extends BaseCommand {
   getName(): string {
@@ -128,19 +131,19 @@ export class PlanCommand extends BaseCommand {
   }
 
   private printDiff(changeSet: any): void {
-    console.log(formatDiff(changeSet));
+    logger.info(formatDiff(changeSet));
   }
 
   private printVerboseOutput(changeSet: any): void {
-    console.log('\nDeployment Order:');
+    logger.info('\nDeployment Order:');
     changeSet.deploymentOrder.forEach((nodeId: string, index: number) => {
-      console.log(`  ${String(index + 1).padStart(2)}. ${nodeId}`);
+      logger.info(`  ${String(index + 1).padStart(2)}. ${nodeId}`);
     });
     
     if (changeSet.parallelBatches.length > 1) {
-      console.log('\nParallel Batches:');
+      logger.info('\nParallel Batches:');
       changeSet.parallelBatches.forEach((batch: string[], index: number) => {
-        console.log(`  Batch ${index + 1}: ${batch.join(', ')}`);
+        logger.info(`  Batch ${index + 1}: ${batch.join(', ')}`);
       });
     }
   }

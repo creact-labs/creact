@@ -4,6 +4,9 @@
 import { CloudDOMNode, ChangeSet } from './types';
 import { IBackendProvider } from '../providers/IBackendProvider';
 import { DeploymentError, DeploymentErrorData } from './errors';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('state-machine');
 
 /**
  * DeploymentStatus represents the lifecycle state of a deployment
@@ -139,7 +142,7 @@ export interface StateMachineEventPayload {
  *
  * // Listen to events
  * stateMachine.on('checkpoint', (state) => {
- *   console.log(`Checkpoint: ${state.checkpoint}`);
+ *   logger.info(`Checkpoint: ${state.checkpoint}`);
  * });
  *
  * // Start deployment (acquires lock)
@@ -254,7 +257,7 @@ export class StateMachine {
         handler(payload);
       } catch (error) {
         // Don't let listener errors break state machine
-        console.error(`Error in StateMachine event handler for ${event}:`, error);
+        logger.error(`Error in StateMachine event handler for ${event}:`, error);
       }
     }
   }
@@ -285,16 +288,16 @@ export class StateMachine {
       try {
         // Renew the lock with the same TTL
         await this.backendProvider.acquireLock!(stackName, holder, ttl);
-        console.debug(`[StateMachine] Lock renewed for stack: ${stackName}`);
+        logger.debug(`Lock renewed for stack: ${stackName}`);
       } catch (error) {
-        console.error(`[StateMachine] Failed to renew lock for ${stackName}:`, error);
+        logger.error(`Failed to renew lock for ${stackName}:`, error);
         // Stop renewal on failure to prevent spam
         this.stopLockRenewal(stackName);
       }
     }, renewalInterval);
 
     this.lockRenewalTimers.set(stackName, timer);
-    console.debug(`[StateMachine] Lock auto-renewal started for stack: ${stackName} (interval: ${renewalInterval}ms)`);
+    logger.debug(`Lock auto-renewal started for stack: ${stackName} (interval: ${renewalInterval}ms)`);
   }
 
   /**
@@ -309,7 +312,7 @@ export class StateMachine {
     if (timer) {
       clearInterval(timer);
       this.lockRenewalTimers.delete(stackName);
-      console.debug(`[StateMachine] Lock auto-renewal stopped for stack: ${stackName}`);
+      logger.debug(`Lock auto-renewal stopped for stack: ${stackName}`);
     }
   }
 
@@ -422,7 +425,7 @@ export class StateMachine {
       await this.backendProvider.appendAuditLog(stackName, entry);
     } catch (err) {
       // Don't fail deployment if audit logging fails
-      console.error(`Failed to append audit log for ${stackName}:`, err);
+      logger.error(`Failed to append audit log for ${stackName}:`, err);
     }
   }
 
@@ -458,7 +461,7 @@ export class StateMachine {
       await this.backendProvider.saveSnapshot(stackName, snapshot);
     } catch (err) {
       // Don't fail deployment if snapshot fails
-      console.error(`Failed to save snapshot for ${stackName}:`, err);
+      logger.error(`Failed to save snapshot for ${stackName}:`, err);
     }
   }
 
@@ -502,13 +505,13 @@ export class StateMachine {
       const lockTTL = this.options.lockTTL ?? 600;
       try {
         await this.backendProvider.acquireLock(stackName, user, lockTTL);
-        
+
         // Start auto-renewal to prevent lock expiration during long deployments
         this.startLockRenewal(stackName, user, lockTTL);
       } catch (error) {
         throw new DeploymentError(
           `Failed to acquire lock for stack ${stackName}. ` +
-            `Another deployment may be in progress.`,
+          `Another deployment may be in progress.`,
           {
             message: `Failed to acquire lock for stack ${stackName}`,
             code: 'LOCK_ACQUISITION_FAILED',
@@ -554,7 +557,7 @@ export class StateMachine {
         try {
           await this.backendProvider.releaseLock(stackName);
         } catch (releaseError) {
-          console.error(`Failed to release lock after error:`, releaseError);
+          logger.error(`Failed to release lock after error:`, releaseError);
         }
       }
       throw error;
@@ -588,7 +591,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot update checkpoint for stack in ${state.status} state. ` +
-          `Checkpoints can only be updated during APPLYING state.`,
+        `Checkpoints can only be updated during APPLYING state.`,
         {
           message: `Cannot update checkpoint for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_CHECKPOINT',
@@ -658,7 +661,7 @@ export class StateMachine {
       try {
         await this.backendProvider.releaseLock(stackName);
       } catch (error) {
-        console.error(`Failed to release lock for ${stackName}:`, error);
+        logger.error(`Failed to release lock for ${stackName}:`, error);
       }
     }
 
@@ -720,7 +723,7 @@ export class StateMachine {
       try {
         await this.backendProvider.releaseLock(stackName);
       } catch (releaseError) {
-        console.error(`Failed to release lock for ${stackName}:`, releaseError);
+        logger.error(`Failed to release lock for ${stackName}:`, releaseError);
       }
     }
 
@@ -784,7 +787,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot resume deployment for stack in ${state.status} state. ` +
-          `Only APPLYING deployments can be resumed.`,
+        `Only APPLYING deployments can be resumed.`,
         {
           message: `Cannot resume deployment for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_RESUME',
@@ -866,7 +869,7 @@ export class StateMachine {
       try {
         await this.backendProvider.releaseLock(stackName);
       } catch (error) {
-        console.error(`Failed to release lock for ${stackName}:`, error);
+        logger.error(`Failed to release lock for ${stackName}:`, error);
       }
     }
 
@@ -942,11 +945,11 @@ export class StateMachine {
    */
   async getCheckpointInfo(stackName: string): Promise<
     | {
-        checkpoint: number;
-        resourceId?: string;
-        totalResources: number;
-        percentComplete: number;
-      }
+      checkpoint: number;
+      resourceId?: string;
+      totalResources: number;
+      percentComplete: number;
+    }
     | undefined
   > {
     const state = await this.getState(stackName);

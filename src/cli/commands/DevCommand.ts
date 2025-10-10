@@ -10,6 +10,9 @@ import { resolve, dirname } from 'path';
 import { createInterface } from 'readline';
 import { Reconciler, getTotalChanges } from '../../core/Reconciler';
 import { getReactiveUpdateQueue } from '../../core/ReactiveUpdateQueue';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 interface DevState {
   lastCloudDOM: any[] | null;
@@ -57,11 +60,11 @@ export class DevCommand extends BaseCommand {
       }
 
       // Show mode information
-      console.log('🚀 Starting CReact development mode...');
-      console.log(`📋 Mode: ${this.autoApprove ? colors.warning('Auto-approve') : colors.info('Manual approval')}`);
+      logger.info('🚀 Starting CReact development mode...');
+      logger.info(`📋 Mode: ${this.autoApprove ? colors.warning('Auto-approve') : colors.info('Manual approval')}`);
 
       if (!this.autoApprove) {
-        console.log('� tTip: Use --auto-approve to automatically deploy changes');
+        logger.info('� tTip: Use --auto-approve to automatically deploy changes');
       }
 
       // Start file watching BEFORE initial deploy
@@ -72,11 +75,11 @@ export class DevCommand extends BaseCommand {
       await this.performInitialDeploy(entryPath, spinner);
 
       // Keep process alive
-      console.log('👀 Watching for changes... (Press Ctrl+C to stop)');
+      logger.info('👀 Watching for changes... (Press Ctrl+C to stop)');
 
       // Handle graceful shutdown
       process.on('SIGINT', () => {
-        console.log('\n👋 Stopping development mode...');
+        logger.info('\n👋 Stopping development mode...');
         this.stopWatching();
         process.exit(0);
       });
@@ -112,21 +115,21 @@ export class DevCommand extends BaseCommand {
  
       // Debug: Log the changeset structure with node IDs
       if (this.verbose) {
-        console.log('\n🔍 Debug: ChangeSet structure:');
-        console.log(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
-        console.log(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
-        console.log(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
-        console.log(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
-        console.log(`  moves: ${changeSet.moves.length}`);
+        logger.info('\n🔍 Debug: ChangeSet structure:');
+        logger.info(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
+        logger.info(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
+        logger.info(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
+        logger.info(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
+        logger.info(`  moves: ${changeSet.moves.length}`);
         
         if (changeSet.moves.length > 0) {
-          console.log('\n  Move details:');
+          logger.info('\n  Move details:');
           changeSet.moves.forEach((move: any) => {
-            console.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
+            logger.info(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
           });
         }
         
-        console.log(`  Total changes: ${totalChanges}`);
+        logger.info(`  Total changes: ${totalChanges}`);
       }
 
       // Store state for future comparisons
@@ -143,11 +146,11 @@ export class DevCommand extends BaseCommand {
       spinner.succeed(`📋 Changes detected: ${totalChanges} changes`);
 
       // Show diff
-      console.log(formatDiff(changeSet));
+      logger.info(formatDiff(changeSet));
 
       if (this.autoApprove) {
         // Auto-approve mode: deploy immediately
-        console.log(colors.warning('🚀 Auto-approving changes...'));
+        logger.info(colors.warning('🚀 Auto-approving changes...'));
         await this.deployChanges(result, spinner);
       } else {
         // Manual approval mode: ask user
@@ -156,16 +159,16 @@ export class DevCommand extends BaseCommand {
         if (shouldDeploy) {
           await this.deployChanges(result, spinner);
         } else {
-          console.log(colors.info('⏭️  Deployment skipped'));
+          logger.info(colors.info('⏭️  Deployment skipped'));
         }
       }
 
     } catch (error) {
       spinner.fail('❌ Initial deployment failed');
-      console.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`);
 
       if (this.verbose && (error as Error).stack) {
-        console.error((error as Error).stack);
+        logger.error((error as Error).stack);
       }
     }
   }
@@ -195,24 +198,24 @@ export class DevCommand extends BaseCommand {
 
       // Debug: Show outputs comparison and changeset structure
       if (this.verbose && this.state.lastCloudDOM) {
-        console.log("\n🔍 Debug: Comparing outputs...");
+        logger.info("\n🔍 Debug: Comparing outputs...");
         this.debugOutputs(this.state.lastCloudDOM, result.cloudDOM);
         
-        console.log('\n🔍 Debug: ChangeSet structure:');
-        console.log(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
-        console.log(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
-        console.log(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
-        console.log(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
-        console.log(`  moves: ${changeSet.moves.length}`);
+        logger.info('\n🔍 Debug: ChangeSet structure:');
+        logger.info(`  creates: ${changeSet.creates.length}`, changeSet.creates.map((n: any) => n.id));
+        logger.info(`  updates: ${changeSet.updates.length}`, changeSet.updates.map((n: any) => n.id));
+        logger.info(`  deletes: ${changeSet.deletes.length}`, changeSet.deletes.map((n: any) => n.id));
+        logger.info(`  replacements: ${changeSet.replacements.length}`, changeSet.replacements.map((n: any) => n.id));
+        logger.info(`  moves: ${changeSet.moves.length}`);
         
         if (changeSet.moves.length > 0) {
-          console.log('\n  Move details:');
+          logger.info('\n  Move details:');
           changeSet.moves.forEach((move: any) => {
-            console.log(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
+            logger.info(`    ${move.nodeId}: "${move.from}" → "${move.to}"`);
           });
         }
         
-        console.log(`\n🔍 Total changes: ${totalChanges}`);
+        logger.info(`\n🔍 Total changes: ${totalChanges}`);
       }
 
       // Always update state to preserve reactive changes
@@ -227,11 +230,11 @@ export class DevCommand extends BaseCommand {
       spinner.succeed(`📋 Changes detected: ${totalChanges} changes`);
 
       // Show diff
-      console.log(formatDiff(changeSet));
+      logger.info(formatDiff(changeSet));
 
       if (this.autoApprove) {
         // Auto-approve mode: deploy immediately
-        console.log(colors.warning('🚀 Auto-approving changes...'));
+        logger.info(colors.warning('🚀 Auto-approving changes...'));
         await this.deployChanges(result, spinner);
       } else {
         // Manual approval mode: ask user
@@ -240,16 +243,16 @@ export class DevCommand extends BaseCommand {
         if (shouldDeploy) {
           await this.deployChanges(result, spinner);
         } else {
-          console.log(colors.info('⏭️  Changes skipped'));
+          logger.info(colors.info('⏭️  Changes skipped'));
         }
       }
 
     } catch (error) {
       spinner.fail('❌ Hot reload failed');
-      console.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`);
 
       if (this.verbose && (error as Error).stack) {
-        console.error((error as Error).stack);
+        logger.error((error as Error).stack);
       }
     }
   }
@@ -262,7 +265,7 @@ export class DevCommand extends BaseCommand {
       
       while (hasMoreChanges) {
         if (deploymentCycle > 1) {
-          console.log(`\n🔄 Reactive deployment cycle #${deploymentCycle}`);
+          logger.info(`\n🔄 Reactive deployment cycle #${deploymentCycle}`);
         }
         
         spinner.start('Deploying changes...');
@@ -278,8 +281,8 @@ export class DevCommand extends BaseCommand {
         const reactiveInfo = await result.instance.getReactiveDeploymentInfo(result.stackName);
         
         if (reactiveInfo) {
-          console.log(`\n📋 Reactive changes detected: ${getTotalChanges(reactiveInfo.changeSet)} changes`);
-          console.log(formatDiff(reactiveInfo.changeSet));
+          logger.info(`\n📋 Reactive changes detected: ${getTotalChanges(reactiveInfo.changeSet)} changes`);
+          logger.info(formatDiff(reactiveInfo.changeSet));
           
           // Ask for approval (unless auto-approve is enabled)
           let shouldContinue = this.autoApprove;
@@ -287,7 +290,7 @@ export class DevCommand extends BaseCommand {
           if (!this.autoApprove) {
             shouldContinue = await this.promptForApproval();
           } else {
-            console.log(colors.warning('🚀 Auto-approving reactive changes...'));
+            logger.info(colors.warning('🚀 Auto-approving reactive changes...'));
           }
           
           if (shouldContinue) {
@@ -295,7 +298,7 @@ export class DevCommand extends BaseCommand {
             result.cloudDOM = reactiveInfo.cloudDOM;
             deploymentCycle++;
           } else {
-            console.log(colors.info('⏭️  Reactive changes skipped'));
+            logger.info(colors.info('⏭️  Reactive changes skipped'));
             hasMoreChanges = false;
           }
         } else {
@@ -305,10 +308,10 @@ export class DevCommand extends BaseCommand {
 
     } catch (error) {
       spinner.fail('❌ Deployment failed');
-      console.error(`Error: ${(error as Error).message}`);
+      logger.error(`Error: ${(error as Error).message}`);
 
       if (this.verbose && (error as Error).stack) {
-        console.error((error as Error).stack);
+        logger.error((error as Error).stack);
       }
     }
   }
@@ -335,7 +338,7 @@ export class DevCommand extends BaseCommand {
         const response = answer.toLowerCase().trim();
 
         if (response === 'a' || response === 'auto') {
-          console.log(colors.warning('🔄 Switching to auto-approve mode'));
+          logger.info(colors.warning('🔄 Switching to auto-approve mode'));
           this.autoApprove = true;
           resolve(true);
         } else if (response === 'y' || response === 'yes') {
@@ -360,16 +363,16 @@ export class DevCommand extends BaseCommand {
       entryDir,    // Watch the directory containing the entry file (e.g., examples/basic-app/)
     ];
 
-    console.log('\n📂 File Watcher Configuration:');
-    console.log(`  CWD: ${process.cwd()}`);
-    console.log(`  Entry file: ${entryPath}`);
-    console.log(`  Absolute entry: ${absoluteEntryPath}`);
-    console.log(`  Watching: ${entryDir}`);
-    console.log('');
+    logger.info('\n📂 File Watcher Configuration:');
+    logger.info(`  CWD: ${process.cwd()}`);
+    logger.info(`  Entry file: ${entryPath}`);
+    logger.info(`  Absolute entry: ${absoluteEntryPath}`);
+    logger.info(`  Watching: ${entryDir}`);
+    logger.info('');
 
     watchPaths.forEach(watchPath => {
       try {
-        console.log(`👁️  Watching (recursive): ${watchPath}`);
+        logger.info(`👁️  Watching (recursive): ${watchPath}`);
 
         watch(watchPath, { recursive: true }, (eventType, filename) => {
           if (!filename) {
@@ -384,43 +387,43 @@ export class DevCommand extends BaseCommand {
           const fullPath = resolve(watchPath, filename);
 
           if (this.verbose) {
-            console.log(`\n🔔 File event detected:`);
-            console.log(`  Event: ${eventType}`);
-            console.log(`  Filename: ${filename}`);
-            console.log(`  Watch path: ${watchPath}`);
-            console.log(`  Full path: ${fullPath}`);
+            logger.info(`\n🔔 File event detected:`);
+            logger.info(`  Event: ${eventType}`);
+            logger.info(`  Filename: ${filename}`);
+            logger.info(`  Watch path: ${watchPath}`);
+            logger.info(`  Full path: ${fullPath}`);
           }
 
           // Debounce file changes
           if (this.watchTimeout) {
             clearTimeout(this.watchTimeout);
             if (this.verbose) {
-              console.log(`  ⏱️  Debouncing (clearing previous timeout)`);
+              logger.info(`  ⏱️  Debouncing (clearing previous timeout)`);
             }
           }
 
           this.watchTimeout = setTimeout(() => {
             // Skip hot reload if we don't have initial state yet
             if (!this.state.lastCloudDOM) {
-              console.log(`\n⏭️  Skipping hot reload - waiting for initial deployment to complete`);
+              logger.info(`\n⏭️  Skipping hot reload - waiting for initial deployment to complete`);
               return;
             }
 
             // Cancel any pending prompts
             if (this.currentReadline) {
-              console.log('\n🔄 New changes detected, canceling previous prompt...');
+              logger.info('\n🔄 New changes detected, canceling previous prompt...');
               this.currentReadline.close();
               this.currentReadline = null;
             }
 
-            console.log(`\n📝 File changed: ${colors.dim(filename)} (${eventType})`);
+            logger.info(`\n📝 File changed: ${colors.dim(filename)} (${eventType})`);
             this.performHotReload(entryPath, spinner);
           }, 300); // Slightly longer debounce for hot reload
         });
 
-        console.log(`  ✓ Started watching successfully\n`);
+        logger.info(`  ✓ Started watching successfully\n`);
       } catch (error) {
-        console.warn(`  ✗ Warning: Could not watch ${watchPath}: ${(error as Error).message}\n`);
+        logger.warn(`  ✗ Warning: Could not watch ${watchPath}: ${(error as Error).message}\n`);
       }
     });
   }
@@ -483,9 +486,9 @@ export class DevCommand extends BaseCommand {
         const currOutputs = currNode.outputs || {};
 
         if (JSON.stringify(prevOutputs) !== JSON.stringify(currOutputs)) {
-          console.log(`📊 ${colors.highlight(id)} outputs changed:`);
-          console.log(`  Previous: ${JSON.stringify(prevOutputs)}`);
-          console.log(`  Current:  ${JSON.stringify(currOutputs)}`);
+          logger.info(`📊 ${colors.highlight(id)} outputs changed:`);
+          logger.info(`  Previous: ${JSON.stringify(prevOutputs)}`);
+          logger.info(`  Current:  ${JSON.stringify(currOutputs)}`);
         }
       }
     }
@@ -524,13 +527,13 @@ export class DevCommand extends BaseCommand {
 
       if (queueSize === 0) {
         if (this.verbose) {
-          console.log('🔄 No pending reactive updates to process');
+          logger.info('🔄 No pending reactive updates to process');
         }
         return;
       }
 
       if (this.verbose) {
-        console.log(`🔄 Processing ${queueSize} pending reactive updates...`);
+        logger.info(`🔄 Processing ${queueSize} pending reactive updates...`);
       }
 
       // Process all pending updates by re-rendering affected fibers
@@ -540,7 +543,7 @@ export class DevCommand extends BaseCommand {
         return;
       }
 
-      console.log(`🔄 Processing ${affectedFibers.length} reactive state updates`);
+      logger.info(`🔄 Processing ${affectedFibers.length} reactive state updates`);
 
       // Re-render each affected fiber to update CloudDOM
       for (const fiber of affectedFibers) {
@@ -548,7 +551,7 @@ export class DevCommand extends BaseCommand {
           // Re-execute the component function to update its outputs
           if (fiber.type && typeof fiber.type === 'function') {
             if (this.verbose) {
-              console.log(`  ↻ Re-rendering: ${fiber.path?.join('.') || 'unknown'}`);
+              logger.info(`  ↻ Re-rendering: ${fiber.path?.join('.') || 'unknown'}`);
             }
 
             // The component will re-execute and useState will return updated values
@@ -560,7 +563,7 @@ export class DevCommand extends BaseCommand {
             // which has been updated by setState calls
           }
         } catch (error) {
-          console.warn(`Warning: Failed to re-render fiber ${fiber.path?.join('.')}: ${(error as Error).message}`);
+          logger.warn(`Warning: Failed to re-render fiber ${fiber.path?.join('.')}: ${(error as Error).message}`);
         }
       }
 
@@ -571,17 +574,17 @@ export class DevCommand extends BaseCommand {
           instance.cloudDOMBuilder.syncFiberStateToCloudDOM(instance.lastFiberTree, cloudDOM);
 
           if (this.verbose) {
-            console.log('✅ Synced reactive state updates to CloudDOM');
+            logger.info('✅ Synced reactive state updates to CloudDOM');
           }
         } catch (error) {
-          console.warn(`Warning: Failed to sync state to CloudDOM: ${(error as Error).message}`);
+          logger.warn(`Warning: Failed to sync state to CloudDOM: ${(error as Error).message}`);
         }
       }
 
     } catch (error) {
-      console.warn(`Warning: Failed to process reactive updates: ${(error as Error).message}`);
+      logger.warn(`Warning: Failed to process reactive updates: ${(error as Error).message}`);
       if (this.verbose && (error as Error).stack) {
-        console.error((error as Error).stack);
+        logger.error((error as Error).stack);
       }
     }
   }

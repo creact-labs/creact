@@ -21,6 +21,9 @@ import { ProviderOutputTracker } from './ProviderOutputTracker';
 import { ContextDependencyTracker } from './ContextDependencyTracker';
 import { ErrorRecoveryManager } from './ErrorRecoveryManager';
 import { StructuralChangeDetector } from './StructuralChangeDetector';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('runtime');
 
 /**
  * Configuration for CReact orchestrator
@@ -168,9 +171,7 @@ export class CReact {
    * @param message - Message to log
    */
   private log(message: string): void {
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[CReact] ${message}`);
-    }
+    logger.debug(message);
   }
 
   /**
@@ -406,7 +407,7 @@ export class CReact {
     try {
       return await this.build(jsx);
     } catch (error) {
-      console.error('[CReact] Build failed:', error);
+      logger.error('Build failed:', error);
       return [];
     }
   }
@@ -508,13 +509,13 @@ export class CReact {
 
     // Use single source of truth for checking changes
     if (!hasChanges(changeSet)) {
-      console.log('[CReact] No changes detected. Deployment skipped.');
+      logger.info('No changes detected. Deployment skipped.');
       this.log('No resources to deploy');
       return;
     }
 
-    console.log(
-      `[CReact] Changes detected: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes`
+    logger.info(
+      `Changes detected: ${changeSet.creates.length} creates, ${changeSet.updates.length} updates, ${changeSet.deletes.length} deletes`
     );
     this.log(`Deployment order: ${changeSet.deploymentOrder.length} resources`);
 
@@ -590,7 +591,7 @@ export class CReact {
       // Execute post-deployment effects with reactive output synchronization
       this.log('Executing post-deployment effects with reactive sync');
       if (this.lastFiberTree) {
-        console.log('[CReact] Executing post-deployment effects...');
+        logger.info('Executing post-deployment effects...');
 
         // Integrate with post-deployment effects and output sync
         const affectedFibers = await this.cloudDOMBuilder.integrateWithPostDeploymentEffects(
@@ -613,7 +614,7 @@ export class CReact {
             ? affectedFibers
             : [this.lastFiberTree];
 
-          console.log(`[CReact] Triggering re-renders for ${fibersToReRender.length} affected components (${hasActualChanges ? 'output changes detected' : 'state changes detected'})`);
+          logger.info(`Triggering re-renders for ${fibersToReRender.length} affected components (${hasActualChanges ? 'output changes detected' : 'state changes detected'})`);
 
           // REQ-7.4, 7.5: Schedule re-renders with proper batching and deduplication
           fibersToReRender.forEach(fiber => {
@@ -623,8 +624,8 @@ export class CReact {
           // CRITICAL: Update previousOutputsMap with current CloudDOM outputs
           // This allows useInstance to access outputs during re-render
           const outputsMap = this.buildOutputsMap(cloudDOM);
-          console.log('[CReact] Updating previousOutputsMap for re-render with latest outputs');
-          console.log(`[CReact] OutputsMap has ${outputsMap.size} entries:`, Array.from(outputsMap.keys()));
+          logger.debug('Updating previousOutputsMap for re-render with latest outputs');
+          logger.debug(`OutputsMap has ${outputsMap.size} entries:`, Array.from(outputsMap.keys()));
           setPreviousOutputs(outputsMap);
 
           // Execute the scheduled re-renders
@@ -637,8 +638,8 @@ export class CReact {
           const reactiveChangeSet = this.reconciler.reconcile(cloudDOM, updatedCloudDOM);
 
           if (hasChanges(reactiveChangeSet)) {
-            console.log(`[CReact] Re-render produced new changes: ${reactiveChangeSet.creates.length} creates, ${reactiveChangeSet.updates.length} updates`);
-            console.log('[CReact] Reactive changes detected - will need another deployment cycle');
+            logger.info(`Re-render produced new changes: ${reactiveChangeSet.creates.length} creates, ${reactiveChangeSet.updates.length} updates`);
+            logger.info('Reactive changes detected - will need another deployment cycle');
 
             // Store the CloudDOM BEFORE re-render for diff comparison
             this.preReactiveCloudDOM = JSON.parse(JSON.stringify(cloudDOM));
@@ -650,30 +651,30 @@ export class CReact {
             this.hasReactiveChanges = true;
             this.reactiveCloudDOM = updatedCloudDOM;
 
-            console.log('[CReact] Post-deployment effects and reactive sync completed');
-            console.log('[CReact] Deployment complete (reactive changes pending)');
+            logger.info('Post-deployment effects and reactive sync completed');
+            logger.info('Deployment complete (reactive changes pending)');
             return;
           } else {
-            console.log('[CReact] Re-render produced no new changes');
+            logger.info('Re-render produced no new changes');
             // Update the stored CloudDOM with reactive changes
             cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
           }
         } else {
-          console.log(`[CReact] No output or state changes detected, skipping re-render`);
+          logger.debug(`No output or state changes detected, skipping re-render`);
         }
 
         // Save the updated CloudDOM state with new outputs
-        console.log('[CReact] Saving updated state with new outputs...');
+        logger.debug('Saving updated state with new outputs...');
         await this.stateMachine.updateCloudDOM(stackName, cloudDOM);
 
-        console.log('[CReact] Post-deployment effects and reactive sync completed');
+        logger.info('Post-deployment effects and reactive sync completed');
       } else {
-        console.log('[CReact] No fiber tree found for effects execution');
+        logger.warn('No fiber tree found for effects execution');
       }
 
-      console.log('[CReact] Deployment complete');
+      logger.info('Deployment complete');
     } catch (error) {
-      console.error('[CReact] Deployment failed:', error);
+      logger.error('Deployment failed:', error);
 
       // Trigger onError event callbacks for all resources
       await CloudDOMEventBus.triggerEventCallbacksRecursive(cloudDOM, 'error', error as Error);
@@ -721,7 +722,7 @@ export class CReact {
         this.log(`No previous state found for stack: ${stackName}`);
       }
     } catch (error) {
-      console.warn(`[CReact] Failed to load state for hydration: ${(error as Error).message}`);
+      logger.warn(`Failed to load state for hydration: ${(error as Error).message}`);
       // Continue without hydration - this is not a fatal error
     }
   }
@@ -764,7 +765,7 @@ export class CReact {
 
         // Validate path
         if (!componentPath) {
-          console.warn(`[CReact] Invalid component path for hydration:`, node.path);
+          logger.warn(`Invalid component path for hydration:`, node.path);
           continue;
         }
 
@@ -780,9 +781,9 @@ export class CReact {
             // Only set if not already set (first node from component wins)
             if (!CReact.hydrationMap.has(componentPath)) {
               CReact.hydrationMap.set(componentPath, stateValues);
-              console.log(`[CReact] Prepared hydration for component "${componentPath}" (from node "${node.path.join('.')}"): ${JSON.stringify(stateValues)}`);
-            } else if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[CReact] Skipping duplicate hydration for component "${componentPath}" (already set from another node)`);
+              logger.debug(`Prepared hydration for component "${componentPath}" (from node "${node.path.join('.')}"): ${JSON.stringify(stateValues)}`);
+            } else {
+              logger.debug(`Skipping duplicate hydration for component "${componentPath}" (already set from another node)`);
             }
           }
         }
@@ -795,13 +796,10 @@ export class CReact {
 
     extractStateOutputs(previousCloudDOM);
 
-    console.log(`[CReact] Hydration prepared: ${CReact.hydrationMap.size} components with state`);
-    console.log(`[CReact] Hydration map keys:`, Array.from(CReact.hydrationMap.keys()));
-    console.log(`[CReact] This instance is global: ${this === CReact.globalInstance}`);
-
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[CReact] Full hydration map:`, Object.fromEntries(CReact.hydrationMap));
-    }
+    logger.debug(`Hydration prepared: ${CReact.hydrationMap.size} components with state`);
+    logger.debug(`Hydration map keys:`, Array.from(CReact.hydrationMap.keys()));
+    logger.debug(`This instance is global: ${this === CReact.globalInstance}`);
+    logger.debug(`Full hydration map:`, Object.fromEntries(CReact.hydrationMap));
   }
 
   /**
@@ -833,17 +831,13 @@ export class CReact {
    * @returns Hydrated value or undefined if not found
    */
   getHydratedValueForComponent(componentPath: string, hookIndex: number): any {
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[CReact] getHydratedValueForComponent: path="${componentPath}", hookIndex=${hookIndex}`);
-      console.debug(`[CReact] Available hydration keys:`, Array.from(CReact.hydrationMap.keys()));
-    }
+    logger.debug(`getHydratedValueForComponent: path="${componentPath}", hookIndex=${hookIndex}`);
+    logger.debug(`Available hydration keys:`, Array.from(CReact.hydrationMap.keys()));
 
     // Try exact match first (should work now with path mapping fix)
     const exactMatch = this.getHydratedValue(componentPath, hookIndex);
     if (exactMatch !== undefined) {
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[CReact] ✅ Found exact match for "${componentPath}"[${hookIndex}]:`, exactMatch);
-      }
+      logger.debug(`✅ Found exact match for "${componentPath}"[${hookIndex}]:`, exactMatch);
       return exactMatch;
     }
 
@@ -851,15 +845,13 @@ export class CReact {
     // This handles edge cases where path mapping might not work as expected
     for (const [nodePath, values] of CReact.hydrationMap.entries()) {
       if (nodePath.startsWith(componentPath + '.') && hookIndex < values.length) {
-        console.log(`[CReact] ✅ Found hydration in child node: ${nodePath} for component: ${componentPath}`);
+        logger.debug(`✅ Found hydration in child node: ${nodePath} for component: ${componentPath}`);
         return values[hookIndex];
       }
     }
 
     // No match found
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[CReact] ❌ No hydration found for "${componentPath}"[${hookIndex}]`);
-    }
+    logger.debug(`❌ No hydration found for "${componentPath}"[${hookIndex}]`);
 
     return undefined;
   }
@@ -871,7 +863,7 @@ export class CReact {
    */
   hasHydrationData(): boolean {
     const hasData = CReact.hydrationMap.size > 0;
-    console.log(`[CReact.hasHydrationData] size=${CReact.hydrationMap.size}, hasData=${hasData}, instance=${this === CReact.globalInstance ? 'GLOBAL' : 'OTHER'}`);
+    logger.debug(`hasHydrationData: size=${CReact.hydrationMap.size}, hasData=${hasData}, instance=${this === CReact.globalInstance ? 'GLOBAL' : 'OTHER'}`);
     return hasData;
   }
 
@@ -888,10 +880,8 @@ export class CReact {
    * Clear hydration data after rendering is complete
    */
   clearHydration(): void {
-    console.log(`[CReact.clearHydration] Clearing ${CReact.hydrationMap.size} entries`);
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.log('[CReact.clearHydration] Stack trace:', new Error().stack);
-    }
+    logger.debug(`clearHydration: Clearing ${CReact.hydrationMap.size} entries`);
+    logger.debug('clearHydration: Stack trace:', new Error().stack);
     CReact.hydrationMap.clear();
     this.log('Hydration data cleared');
   }
@@ -920,7 +910,7 @@ export class CReact {
 
       return state;
     } catch (error) {
-      console.warn('[CReact] Failed to serialize reactive state:', error);
+      logger.warn('Failed to serialize reactive state:', error);
       return null;
     }
   }
@@ -945,7 +935,7 @@ export class CReact {
 
       this.log('Reactive state restored from hot reload');
     } catch (error) {
-      console.warn('[CReact] Failed to restore reactive state:', error);
+      logger.warn('Failed to restore reactive state:', error);
     }
   }
 
@@ -1061,9 +1051,7 @@ export class CReact {
 
         // REQ-7.1, 7.3: undefined → value IS a change (initial deployment scenario)
         if (previousValue !== currentValue) {
-          if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[CReact] Output changed: ${nodeId}.${outputKey} (${previousValue} → ${currentValue})`);
-          }
+          logger.debug(`Output changed: ${nodeId}.${outputKey} (${previousValue} → ${currentValue})`);
           return true;
         }
       }
@@ -1071,9 +1059,7 @@ export class CReact {
       // Check for removed outputs
       for (const outputKey of Object.keys(previousOutputs)) {
         if (!(outputKey in currentOutputs)) {
-          if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[CReact] Output removed: ${nodeId}.${outputKey}`);
-          }
+          logger.debug(`Output removed: ${nodeId}.${outputKey}`);
           return true;
         }
       }
@@ -1082,9 +1068,7 @@ export class CReact {
     // Check for new nodes with outputs
     for (const [nodeId, currentOutputs] of currentMap) {
       if (!previousMap.has(nodeId) && Object.keys(currentOutputs).length > 0) {
-        if (process.env.CREACT_DEBUG === 'true') {
-          console.debug(`[CReact] New node with outputs: ${nodeId}`);
-        }
+        logger.debug(`New node with outputs: ${nodeId}`);
         return true;
       }
     }

@@ -3,6 +3,9 @@
  */
 
 import { CLIContext, CLIFlags } from './CLIContext';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 /**
  * Simple argument parser for CLI commands
@@ -71,7 +74,7 @@ export class ArgumentParser {
    * Show help message
    */
   static showHelp(): void {
-    console.log(`
+    logger.info(`
 CReact CLI - Infrastructure as Code with JSX
 
 Usage:

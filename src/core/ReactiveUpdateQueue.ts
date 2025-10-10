@@ -8,6 +8,10 @@
  * REQ-4.4: Fiber dirty tracking for state-driven re-renders
  */
 
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
+
 import { FiberNode } from './types';
 
 /**
@@ -26,17 +30,13 @@ class ReactiveUpdateQueue {
   enqueue(fiber: FiberNode): void {
     if (this.isProcessing) {
       // Don't enqueue during processing to avoid infinite loops
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug(`[ReactiveUpdateQueue] Skipping enqueue during processing: ${fiber.path?.join('.')}`);
-      }
+      logger.debug(`Skipping enqueue during processing: ${fiber.path?.join('.')}`);
       return;
     }
 
     this.dirtyFibers.add(fiber);
     
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[ReactiveUpdateQueue] Enqueued fiber: ${fiber.path?.join('.')} (queue size: ${this.dirtyFibers.size})`);
-    }
+    logger.debug(`Enqueued fiber: ${fiber.path?.join('.')} (queue size: ${this.dirtyFibers.size})`);
   }
 
   /**
@@ -47,9 +47,7 @@ class ReactiveUpdateQueue {
    */
   flush(): FiberNode[] {
     if (this.isProcessing) {
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.debug('[ReactiveUpdateQueue] Already processing, returning empty array');
-      }
+      logger.debug('Already processing, returning empty array');
       return [];
     }
 
@@ -58,9 +56,7 @@ class ReactiveUpdateQueue {
     this.dirtyFibers.clear();
     this.isProcessing = false;
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug(`[ReactiveUpdateQueue] Flushed ${fibers.length} dirty fibers`);
-    }
+    logger.debug(`Flushed ${fibers.length} dirty fibers`);
 
     return fibers;
   }
@@ -92,9 +88,7 @@ class ReactiveUpdateQueue {
     this.dirtyFibers.clear();
     this.isProcessing = false;
     
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.debug('[ReactiveUpdateQueue] Queue cleared');
-    }
+    logger.debug('Queue cleared');
   }
 }
 

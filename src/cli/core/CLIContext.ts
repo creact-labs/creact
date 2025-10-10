@@ -7,6 +7,9 @@ import { resolve, extname } from 'path';
 import { existsSync } from 'fs';
 import { CReact } from '../../core/CReact';
 import { CloudDOMNode } from '../../core/types';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 export interface CLIFlags {
   entry?: string;
@@ -79,7 +82,7 @@ export class CLIContextManager {
     if (isTypeScript) {
       try {
         require('ts-node/register');
-        if (verbose) console.log('[CLI] TypeScript loader registered');
+        if (verbose) logger.debug('TypeScript loader registered');
       } catch (tsNodeError) {
         throw new Error('TypeScript entry files require ts-node. Install with: npm install --save-dev ts-node');
       }
@@ -87,13 +90,13 @@ export class CLIContextManager {
 
     // Clear require cache to allow reloading
     delete require.cache[absoluteEntryPath];
-    if (verbose) console.log('[CLI] Cleared module cache');
+    if (verbose) logger.debug('Cleared module cache');
 
     // Load the entry module - this configures the providers
     let entryModule;
     try {
       entryModule = require(absoluteEntryPath);
-      if (verbose) console.log('[CLI] Entry module loaded successfully');
+      if (verbose) logger.debug('Entry module loaded successfully');
     } catch (loadError) {
       throw new Error(`Could not load entry file: ${entryPath}\nError: ${(loadError as Error).message}`);
     }
@@ -109,7 +112,7 @@ export class CLIContextManager {
     for (const [modulePath, cachedModule] of Object.entries(require.cache)) {
       if (modulePath.includes('CReact') && cachedModule?.exports?.CReact) {
         CReactClass = cachedModule.exports.CReact;
-        if (verbose) console.log('[CLI] Found CReact in require cache:', modulePath);
+        if (verbose) logger.debug('Found CReact in require cache:', modulePath);
         break;
       }
     }
@@ -120,9 +123,9 @@ export class CLIContextManager {
 
     // Debug: Check provider status
     if (verbose) {
-      console.log('[CLI] Checking providers after module load:');
-      console.log('[CLI]   cloudProvider:', !!CReactClass.cloudProvider);
-      console.log('[CLI]   backendProvider:', !!CReactClass.backendProvider);
+      logger.debug('Checking providers after module load:');
+      logger.debug('  cloudProvider:', !!CReactClass.cloudProvider);
+      logger.debug('  backendProvider:', !!CReactClass.backendProvider);
     }
 
     // Validate that providers are configured (they should be after loading entry file)

@@ -2,6 +2,9 @@
 // Handles CloudDOM event callbacks without coupling to CloudDOMBuilder
 
 import { CloudDOMNode, CloudDOMEventContext, CloudDOMEventCallbacks } from './types';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('clouddom');
 
 /**
  * CloudDOM Event Bus - Centralized event system for deployment lifecycle
@@ -66,8 +69,8 @@ export class CloudDOMEventBus {
       }
     } catch (callbackError) {
       // Don't let callback errors break deployment
-      console.error(
-        `[CloudDOMEventBus] Event callback failed for ${node.id} (${phase}):`, 
+      logger.error(
+        `Event callback failed for ${node.id} (${phase}):`, 
         callbackError
       );
     }

@@ -3,6 +3,9 @@
  */
 
 import { CLIContext, CLIFlags } from './CLIContext';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 export interface CommandResult {
   exitCode: number;
@@ -42,7 +45,7 @@ export abstract class BaseCommand {
    */
   protected logVerbose(message: string): void {
     if (this.verbose) {
-      console.log(`[${this.getName()}] ${message}`);
+      logger.debug(`[${this.getName()}] ${message}`);
     }
   }
 
@@ -51,7 +54,7 @@ export abstract class BaseCommand {
    */
   protected outputJson(data: any): boolean {
     if (this.json) {
-      console.log(JSON.stringify(data, null, 2));
+      logger.info(JSON.stringify(data, null, 2));
       return true;
     }
     return false;
@@ -71,9 +74,9 @@ export abstract class BaseCommand {
       return { exitCode: 1 };
     }
 
-    console.error(`Error: ${message}`);
+    logger.error(`Error: ${message}`);
     if (this.verbose && error.stack) {
-      console.error(error.stack);
+      logger.error(error.stack);
     }
 
     return { exitCode: 1, message };
@@ -91,7 +94,7 @@ export abstract class BaseCommand {
       return { exitCode: 0 };
     }
 
-    console.log(message);
+    logger.info(message);
     return { exitCode: 0, message, data };
   }
 }

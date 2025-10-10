@@ -7,6 +7,9 @@
 
 import type { CLIContext } from './core/CLIContext';
 import { colors } from './output';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 
 
@@ -18,7 +21,7 @@ import { colors } from './output';
  */
 export function logVerbose(message: string, verbose: boolean = false): void {
   if (verbose || process.env.CREACT_VERBOSE === 'true') {
-    console.log(colors.dim(`[verbose] ${message}`));
+    logger.debug(colors.dim(`[verbose] ${message}`));
   }
 }
 
@@ -48,7 +51,7 @@ export function formatError(error: Error, verbose: boolean = false): string {
  */
 export function outputJson(data: any, ctx: CLIContext): boolean {
   if (ctx.flags.json) {
-    console.log(JSON.stringify(data, null, 2));
+    logger.info(JSON.stringify(data, null, 2));
     return true;
   }
   return false;

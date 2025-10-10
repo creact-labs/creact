@@ -12,6 +12,9 @@
  */
 
 import { ArgumentParser, CommandRegistry } from './core';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 const VERSION = '0.1.0';
 
@@ -31,14 +34,14 @@ async function main(): Promise<void> {
     }
 
     if (context.flags.version || context.flags.V) {
-      console.log(`CReact CLI v${VERSION}`);
+      logger.info(`CReact CLI v${VERSION}`);
       process.exit(0);
     }
 
     // Validate command exists
     if (!CommandRegistry.hasCommand(commandName)) {
-      console.error(`Error: Unknown command '${commandName}'`);
-      console.error('');
+      logger.error(`Error: Unknown command '${commandName}'`);
+      logger.error('');
       ArgumentParser.showHelp();
       process.exit(1);
     }
@@ -52,10 +55,10 @@ async function main(): Promise<void> {
 
   } catch (error) {
     // Handle unexpected errors
-    console.error(`Fatal error: ${(error as Error).message}`);
+    logger.error(`Fatal error: ${(error as Error).message}`);
     
     if (process.env.CREACT_DEBUG === 'true') {
-      console.error((error as Error).stack);
+      logger.error((error as Error).stack);
     }
     
     process.exit(1);
@@ -64,13 +67,13 @@ async function main(): Promise<void> {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled promise rejection:', reason);
+  logger.error('Unhandled promise rejection:', reason);
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught exception:', error);
+  logger.error('Uncaught exception:', error);
   process.exit(1);
 });
 

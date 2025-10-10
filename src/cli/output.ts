@@ -8,6 +8,9 @@
 import chalk from 'chalk';
 import ora, { Ora } from 'ora';
 import cliProgress from 'cli-progress';
+  import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 /**
  * Color utilities for consistent CLI output
@@ -59,7 +62,7 @@ export class Spinner {
   start(message: string): void {
     if (this.isJsonMode) {
       // In JSON mode, just log without spinner
-      console.error(`[info] ${message}`);
+      logger.info(`[info] ${message}`);
       return;
     }
 
@@ -74,7 +77,7 @@ export class Spinner {
    */
   update(message: string): void {
     if (this.isJsonMode) {
-      console.error(`[info] ${message}`);
+      logger.info(`[info] ${message}`);
       return;
     }
 
@@ -88,7 +91,7 @@ export class Spinner {
    */
   succeed(message?: string): void {
     if (this.isJsonMode) {
-      console.error(`[success] ${message || 'Done'}`);
+      logger.info(`[success] ${message || 'Done'}`);
       return;
     }
 
@@ -103,7 +106,7 @@ export class Spinner {
    */
   fail(message?: string): void {
     if (this.isJsonMode) {
-      console.error(`[error] ${message || 'Failed'}`);
+      logger.error(`[error] ${message || 'Failed'}`);
       return;
     }
 
@@ -118,7 +121,7 @@ export class Spinner {
    */
   warn(message?: string): void {
     if (this.isJsonMode) {
-      console.error(`[warning] ${message || 'Warning'}`);
+      logger.warn(`[warning] ${message || 'Warning'}`);
       return;
     }
 
@@ -160,7 +163,7 @@ export class ProgressBar {
     this.current = startValue;
 
     if (this.isJsonMode) {
-      console.error(`[progress] ${message || 'Starting'} (0/${total})`);
+      logger.info(`[progress] ${message || 'Starting'} (0/${total})`);
       return;
     }
 
@@ -181,7 +184,7 @@ export class ProgressBar {
     this.current = value;
 
     if (this.isJsonMode) {
-      console.error(`[progress] ${status || 'Processing'} (${value}/${this.total})`);
+      logger.info(`[progress] ${status || 'Processing'} (${value}/${this.total})`);
       return;
     }
 
@@ -233,7 +236,7 @@ export class MultiProgressBar {
    */
   add(name: string, total: number, startValue: number = 0): void {
     if (this.isJsonMode) {
-      console.error(`[progress] ${name}: 0/${total}`);
+      logger.info(`[progress] ${name}: 0/${total}`);
       return;
     }
 
@@ -377,36 +380,36 @@ export function formatResource(construct: string, id: string, status?: string): 
  * Print success message
  */
 export function printSuccess(message: string): void {
-  console.log(`${colors.checkmark} ${colors.success(message)}`);
+  logger.info(`${colors.checkmark} ${colors.success(message)}`);
 }
 
 /**
  * Print error message
  */
 export function printError(message: string): void {
-  console.error(`${colors.cross} ${colors.error(message)}`);
+  logger.error(`${colors.cross} ${colors.error(message)}`);
 }
 
 /**
  * Print warning message
  */
 export function printWarning(message: string): void {
-  console.warn(`${colors.warning('⚠')} ${colors.warning(message)}`);
+  logger.warn(`${colors.warning('⚠')} ${colors.warning(message)}`);
 }
 
 /**
  * Print info message
  */
 export function printInfo(message: string): void {
-  console.log(`${colors.info('ℹ')} ${colors.info(message)}`);
+  logger.info(`${colors.info('ℹ')} ${colors.info(message)}`);
 }
 
 /**
  * Print section header
  */
 export function printHeader(message: string): void {
-  console.log(`\n${colors.highlight(message)}`);
-  console.log(colors.dim('─'.repeat(message.length)));
+  logger.info(`\n${colors.highlight(message)}`);
+  logger.info(colors.dim('─'.repeat(message.length)));
 }
 
 /**
@@ -421,12 +424,12 @@ export function printTable(headers: string[], rows: string[][]): void {
 
   // Print header
   const headerRow = headers.map((header, i) => header.padEnd(widths[i])).join('  ');
-  console.log(colors.highlight(headerRow));
-  console.log(colors.dim('─'.repeat(headerRow.length)));
+  logger.info(colors.highlight(headerRow));
+  logger.info(colors.dim('─'.repeat(headerRow.length)));
 
   // Print rows
   rows.forEach(row => {
     const rowStr = row.map((cell, i) => (cell || '').padEnd(widths[i])).join('  ');
-    console.log(rowStr);
+    logger.info(rowStr);
   });
 }

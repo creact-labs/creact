@@ -2,6 +2,9 @@ import { FiberNode, ReRenderReason, CReactEvents } from './types';
 import { ErrorRecoveryManager } from './ErrorRecoveryManager';
 import { CircularDependencyError } from './errors';
 import { getCReactInstance } from './CReact';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('renderer');
 
 /**
  * RenderScheduler - Manages batched re-rendering of components
@@ -40,7 +43,7 @@ export class RenderScheduler {
   schedule(fiber: FiberNode, reason: ReRenderReason, contextId?: symbol): void {
     // Rate limiting check
     if (this.isRateLimited(fiber)) {
-      console.warn(`Rate limiting re-render for component at path: ${fiber.path.join('.')}`);
+      logger.warn(`Rate limiting re-render for component at path: ${fiber.path.join('.')}`);
       return;
     }
 
@@ -118,7 +121,7 @@ export class RenderScheduler {
       const eligibleFibers = this.filterEligibleFibers(fibers);
 
       if (eligibleFibers.length === 0) {
-        console.warn('[RenderScheduler] All fibers filtered out due to repeated failures');
+        logger.warn('All fibers filtered out due to repeated failures');
         return;
       }
 
@@ -157,7 +160,7 @@ export class RenderScheduler {
           this.eventHooks?.onError(error as Error, fiber);
 
           // Continue with other fibers (error isolation)
-          console.warn(`[RenderScheduler] Fiber render failed: ${fiber.path.join('.')}, continuing with others`);
+          logger.warn(`Fiber render failed: ${fiber.path.join('.')}, continuing with others`);
         }
       }
 
@@ -171,7 +174,7 @@ export class RenderScheduler {
 
     } catch (error) {
       // Critical error - rollback all changes
-      console.error('[RenderScheduler] Critical error during batch render, rolling back all changes');
+      logger.error('Critical error during batch render, rolling back all changes');
       await this.rollbackAllChanges(fiberSnapshots);
 
       this.eventHooks?.onError(error as Error);
@@ -191,7 +194,7 @@ export class RenderScheduler {
       const creact = getCReactInstance();
 
       if (!creact) {
-        console.warn('[RenderScheduler] No CReact instance available for re-rendering');
+        logger.warn('No CReact instance available for re-rendering');
         return;
       }
 
@@ -206,7 +209,7 @@ export class RenderScheduler {
         }
       }
     } catch (error) {
-      console.error('[RenderScheduler] Failed to execute re-renders:', error);
+      logger.error('Failed to execute re-renders:', error);
       throw error;
     }
   }
@@ -396,7 +399,7 @@ export class RenderScheduler {
         const timeSinceLastFailure = now - failureRecord.lastFailure;
 
         if (timeSinceLastFailure < backoffTime) {
-          console.warn(`[RenderScheduler] Fiber ${fiber.path.join('.')} still in backoff period`);
+          logger.warn(`Fiber ${fiber.path.join('.')} still in backoff period`);
           return false;
         }
       }
@@ -414,7 +417,7 @@ export class RenderScheduler {
       const creact = getCReactInstance();
 
       if (!creact) {
-        console.warn('[RenderScheduler] No CReact instance available for re-rendering');
+        logger.warn('No CReact instance available for re-rendering');
         return;
       }
 
@@ -426,7 +429,7 @@ export class RenderScheduler {
       if (renderer && renderer.reRenderComponents) {
         renderer.reRenderComponents([fiber], 'manual');
       } else {
-        console.warn('[RenderScheduler] Renderer not available for selective re-rendering');
+        logger.warn('Renderer not available for selective re-rendering');
       }
 
       // Update render count
@@ -435,7 +438,7 @@ export class RenderScheduler {
         fiber.reactiveState.isDirty = false;
       }
     } catch (error) {
-      console.error('[RenderScheduler] Failed to execute re-render for fiber:', fiber.path.join('.'), error);
+      logger.error('Failed to execute re-render for fiber:', fiber.path.join('.'), error);
       throw error;
     }
   }
@@ -474,16 +477,16 @@ export class RenderScheduler {
     successfulRenders: FiberNode[],
     fiberSnapshots: Map<FiberNode, any>
   ): Promise<void> {
-    console.warn(`[RenderScheduler] Partial failure: ${failedRenders.length} failed, ${successfulRenders.length} succeeded`);
+    logger.warn(`Partial failure: ${failedRenders.length} failed, ${successfulRenders.length} succeeded`);
 
     // Check if we should rollback successful renders due to dependencies
     const shouldRollback = this.shouldRollbackSuccessfulRenders(failedRenders, successfulRenders);
 
     if (shouldRollback) {
-      console.warn('[RenderScheduler] Rolling back successful renders due to dependency failures');
+      logger.warn('Rolling back successful renders due to dependency failures');
       await this.rollbackFibers(successfulRenders, fiberSnapshots);
     } else {
-      console.info('[RenderScheduler] Continuing with partial success (graceful degradation)');
+      logger.info('Continuing with partial success (graceful degradation)');
     }
 
     // Schedule retry for failed renders with backoff
@@ -547,7 +550,7 @@ export class RenderScheduler {
         const backoffTime = this.baseBackoffMs * Math.pow(this.backoffMultiplier, failureRecord.count);
 
         setTimeout(() => {
-          console.info(`[RenderScheduler] Retrying failed render for ${fiber.path.join('.')}`);
+          logger.info(`Retrying failed render for ${fiber.path.join('.')}`);
           this.schedule(fiber, 'manual'); // Retry with manual reason
         }, backoffTime);
       }

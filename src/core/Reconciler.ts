@@ -4,6 +4,9 @@
 import { CloudDOMNode } from './types';
 import { deepEqual } from '../utils/deepEqual';
 import { ReconciliationError } from './errors';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('reconciler');
 
 /**
  * Type representing a construct (function, class, or string)
@@ -236,13 +239,10 @@ export class Reconciler {
    * Includes timestamps for async reconciliation tracing.
    */
   private log(message: string | Record<string, any>): void {
-    if (process.env.CREACT_DEBUG === '1' || process.env.CREACT_DEBUG === 'true') {
-      const time = new Date().toISOString();
-      if (typeof message === 'string') {
-        console.debug(`[${time}] [Reconciler] ${message}`);
-      } else {
-        console.debug(`[${time}] [Reconciler]`, JSON.stringify(message, null, 2));
-      }
+    if (typeof message === 'string') {
+      logger.debug(message);
+    } else {
+      logger.debug(JSON.stringify(message, null, 2));
     }
   }
 
@@ -698,12 +698,10 @@ export class Reconciler {
     const currType = current.constructType || this.getConstructName(current.construct);
     
     if (prevType !== currType) {
-      if (process.env.CREACT_DEBUG === 'true') {
-        console.log(`[Reconciler] Construct type mismatch for ${current.id}:`, {
-          previousType: prevType,
-          currentType: currType,
-        });
-      }
+      logger.debug(`Construct type mismatch for ${current.id}:`, {
+        previousType: prevType,
+        currentType: currType,
+      });
       return 'replacement';
     }
 
@@ -711,15 +709,13 @@ export class Reconciler {
     const prevHash = ((previous as any)._propHash ??= this.computeShallowHash(previous.props));
     const currHash = ((current as any)._propHash ??= this.computeShallowHash(current.props));
 
-    if (process.env.CREACT_DEBUG === 'true') {
-      console.log(`[Reconciler] Hash comparison for ${current.id}:`, {
-        prevHash,
-        currHash,
-        match: prevHash === currHash,
-        prevProps: previous.props,
-        currProps: current.props,
-      });
-    }
+    logger.debug(`Hash comparison for ${current.id}:`, {
+      prevHash,
+      currHash,
+      match: prevHash === currHash,
+      prevProps: previous.props,
+      currProps: current.props,
+    });
 
     // Fast path: if hashes match, props are identical (skip deep equality)
     if (prevHash === currHash) {

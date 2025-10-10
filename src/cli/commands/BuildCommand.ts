@@ -5,6 +5,9 @@
 import { BaseCommand, CommandResult } from '../core/BaseCommand';
 import { CLIContextManager } from '../core/CLIContext';
 import { Spinner } from '../output';
+import { LoggerFactory } from '../../utils/Logger';
+
+const logger = LoggerFactory.getLogger('cli');
 
 export class BuildCommand extends BaseCommand {
   getName(): string {
@@ -66,27 +69,27 @@ export class BuildCommand extends BaseCommand {
   }
 
   private printVerboseOutput(result: any): void {
-    console.log('\nCloudDOM Summary:');
+    logger.info('\nCloudDOM Summary:');
     const resourceCounts = this.countResources(result.cloudDOM);
     
     if (Object.keys(resourceCounts).length === 0) {
-      console.log('  No resources found');
+      logger.info('  No resources found');
     } else {
       for (const [type, count] of Object.entries(resourceCounts)) {
-        console.log(`  ${type}: ${count}`);
+        logger.info(`  ${type}: ${count}`);
       }
     }
     
     // Show first few resource IDs for debugging
     if (result.cloudDOM.length > 0) {
-      console.log('\nResource IDs:');
+      logger.info('\nResource IDs:');
       const sampleIds = result.cloudDOM.slice(0, 5).map((node: any) => node.id);
       sampleIds.forEach((id: string) => {
-        console.log(`  • ${id}`);
+        logger.info(`  • ${id}`);
       });
       
       if (result.cloudDOM.length > 5) {
-        console.log(`  ... and ${result.cloudDOM.length - 5} more`);
+        logger.info(`  ... and ${result.cloudDOM.length - 5} more`);
       }
     }
   }

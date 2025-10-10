@@ -1,5 +1,8 @@
 import { FiberNode, OutputBinding, OutputChange } from './types';
 import { generateBindingKey, parseBindingKey } from '../utils/naming';
+import { LoggerFactory } from '../utils/Logger';
+
+const logger = LoggerFactory.getLogger('hooks');
 
 /**
  * StateBindingManager - Manages automatic binding between component state and provider outputs
@@ -102,19 +105,15 @@ export class StateBindingManager {
             binding.lastUpdate = Date.now();
             affectedFibers.push(fiber);
             
-            if (process.env.CREACT_DEBUG === 'true') {
-              console.debug(`[StateBindingManager] Updated bound state via internal setState: ${bindingKey}`);
-            }
+            logger.debug(`Updated bound state via internal setState: ${bindingKey}`);
           } catch (error) {
-            console.error(`[StateBindingManager] Error calling internal setState for ${bindingKey}:`, error);
+            logger.error(`Error calling internal setState for ${bindingKey}:`, error);
             // REQ-4.5: Fallback to direct hook update if callback fails
             this.fallbackDirectUpdate(fiber, hookIndex, newValue, binding, affectedFibers);
           }
         } else {
           // REQ-4.5: Fallback to direct hook update if callback not available
-          if (process.env.CREACT_DEBUG === 'true') {
-            console.debug(`[StateBindingManager] No setState callback found, using direct update: ${bindingKey}`);
-          }
+          logger.debug(`No setState callback found, using direct update: ${bindingKey}`);
           this.fallbackDirectUpdate(fiber, hookIndex, newValue, binding, affectedFibers);
         }
       }
@@ -186,7 +185,7 @@ export class StateBindingManager {
 
         affectedFibers.forEach(fiber => allAffectedFibers.add(fiber));
       } catch (err) {
-        console.warn(
+        logger.warn(
           `Error updating bound state for ${change.nodeId}.${change.outputKey}:`, 
           err
         );
