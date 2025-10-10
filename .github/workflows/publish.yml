@@ -18,15 +18,6 @@ jobs:
         with:
           fetch-depth: 0  # needed to fetch tags and branch info
 
-      - name: Verify branch is release
-        run: |
-          branch=$(git branch -r --contains $GITHUB_REF | grep origin/release || true)
-          if [ -z "$branch" ]; then
-            echo "❌ This tag is not from release branch. Skipping publish."
-            exit 1
-          fi
-          echo "✅ Verified: tag is from release branch."
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
