@@ -83,11 +83,175 @@ function DatabaseStack() {
 
 This creates a **self-orchestrating deployment system**. No dependency graphs to maintain. No topological sorting to debug. Dependencies flow naturally through the component tree.
 
+### 4. State-Execution Separation: Crash Recovery and Resumability
+
+Most IaC tools couple state with execution. If the process crashes mid-deployment, you're left with partial infrastructure and unclear state. CReact **separates state persistence from execution** through two distinct provider interfaces.
+
+**The insight:** State and execution are orthogonal concerns. State should persist independently of the execution process.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    CReact Core Engine                    │
+│  (Rendering, Reconciliation, Orchestration)              │
+└────────────────┬────────────────────┬────────────────────┘
+                 │                    │
+                 ▼                    ▼
+    ┌────────────────────┐  ┌────────────────────┐
+    │  ICloudProvider    │  │ IBackendProvider   │
+    │  (Execution)       │  │ (State)            │
+    └────────────────────┘  └────────────────────┘
+             │                       │
+             ▼                       ▼
+    ┌────────────────────┐  ┌────────────────────┐
+    │  Cloud Resources   │  │  Persistent State  │
+    │  (AWS, K8s, etc)   │  │  (S3, SQLite, etc) │
+    └────────────────────┘  └────────────────────┘
+```
+
+**ICloudProvider: Execution Interface**
+
+Handles resource materialization. Stateless and idempotent.
+
+```typescript
+interface ICloudProvider {
+  // Deploy resources and populate outputs
+  materialize(nodes: CloudDOMNode[]): Promise<void>;
+  
+  // Optional lifecycle hooks
+  preDeploy?(cloudDOM: CloudDOMNode[]): Promise<void>;
+  postDeploy?(cloudDOM: CloudDOMNode[], outputs: any): Promise<void>;
+  onError?(error: Error, cloudDOM: CloudDOMNode[]): Promise<void>;
+}
+```
+
+**Key properties:**
+- **Stateless:** Provider doesn't track deployment state
+- **Idempotent:** Can be called multiple times safely
+- **Output-focused:** Only job is to materialize resources and return outputs
+- **No orchestration logic:** Doesn't decide what to deploy or when
+
+**IBackendProvider: State Interface**
+
+Handles state persistence. Completely independent of cloud operations.
+
+```typescript
+interface IBackendProvider {
+  // Save/load CloudDOM state
+  saveState(stackName: string, state: CloudDOMState): Promise<void>;
+  getState(stackName: string): Promise<CloudDOMState | null>;
+  
+  // Optional: Distributed locking for concurrent deployments
+  acquireLock?(stackName: string, timeout: number): Promise<boolean>;
+  releaseLock?(stackName: string): Promise<void>;
+}
+```
+
+**Key properties:**
+- **Cloud-agnostic:** Doesn't know about AWS, Azure, or any cloud
+- **Execution-agnostic:** Doesn't know about deployment logic
+- **Pure storage:** Just reads/writes CloudDOM state
+- **Optional locking:** Prevents concurrent deployments to same stack
+
+**What this separation enables:**
+
+**1. Crash Recovery**
+```bash
+# Deployment crashes mid-way
+$ creact deploy
+Deploying VPC... ✓
+Deploying Database... ✗ Process killed
+
+# State is persisted, resume from checkpoint
+$ creact deploy
+Resuming from checkpoint...
+VPC already deployed (skipping)
+Deploying Database... ✓
+```
+
+**2. Mix-and-Match Providers**
+```typescript
+// Deploy to AWS, store state in S3
+CReact.cloudProvider = new AWSProvider();
+CReact.backendProvider = new S3BackendProvider({ bucket: 'state' });
+
+// Deploy to Kubernetes, store state in PostgreSQL
+CReact.cloudProvider = new KubernetesProvider();
+CReact.backendProvider = new PostgreSQLBackendProvider({ connectionString: '...' });
+
+// Wrap Terraform, store state locally
+CReact.cloudProvider = new TerraformProvider();
+CReact.backendProvider = new SQLiteBackendProvider({ path: './state.db' });
+```
+
+**3. State Inspection Without Cloud Access**
+```typescript
+// Read state without cloud credentials
+const backend = new S3BackendProvider({ bucket: 'state' });
+const state = await backend.getState('my-stack');
+console.log(state.resources); // Inspect deployed resources
+```
+
+**4. Multi-Cloud Orchestration**
+```typescript
+// Deploy to multiple clouds, single state backend
+const multiCloudProvider = new MultiCloudProvider({
+  aws: new AWSProvider(),
+  gcp: new GCPProvider(),
+  k8s: new KubernetesProvider(),
+});
+
+CReact.cloudProvider = multiCloudProvider;
+CReact.backendProvider = new S3BackendProvider({ bucket: 'state' });
+```
+
+**5. Testing Without Cloud Resources**
+```typescript
+// Test infrastructure code without deploying
+CReact.cloudProvider = new MockCloudProvider(); // Simulates deployment
+CReact.backendProvider = new InMemoryBackendProvider(); // No persistence
+
+const cloudDOM = await CReact.renderCloudDOM(<App />, 'test-stack');
+expect(cloudDOM.nodes).toHaveLength(5);
+```
+
+**State structure:**
+```typescript
+interface CloudDOMState {
+  stackName: string;
+  version: string;
+  lastDeployed: string;
+  nodes: CloudDOMNode[]; // Full infrastructure tree
+  checkpoints: Checkpoint[]; // For crash recovery
+}
+
+interface CloudDOMNode {
+  id: string;
+  type: string;
+  props: Record<string, any>;
+  outputs?: Record<string, any>; // Populated by CloudProvider
+  children: CloudDOMNode[];
+}
+```
+
+The backend stores the **entire CloudDOM tree** with outputs. On next deployment:
+1. Load previous CloudDOM from backend
+2. Render new CloudDOM from components
+3. Reconciler diffs old vs new
+4. CloudProvider deploys only changes
+5. Backend saves updated CloudDOM
+
+This architecture means:
+- **CReact core** handles orchestration logic (when to deploy, dependency ordering)
+- **CloudProvider** handles execution (how to deploy)
+- **BackendProvider** handles persistence (where to store state)
+
+Each concern is isolated, testable, and swappable.
+
 ---
 
 ## Why This Works
 
-These three insights combine to create a system that is:
+These four insights combine to create a system that is:
 
 **Declarative:** Define what you want, not how to deploy it
 ```tsx
@@ -119,6 +283,24 @@ CReact.cloudProvider = new KubernetesProvider();
 // No depends_on needed - reactivity handles it
 const vpc = useInstance(VPC, { name: 'vpc' });
 const db = useInstance(Database, { vpcId: vpc.outputs?.vpcId });
+```
+
+**Resumable:** State-execution separation enables crash recovery
+```bash
+# Process crashes mid-deployment
+$ creact deploy
+Deploying... ✗ Killed
+
+# Resume from checkpoint
+$ creact deploy
+Resuming from checkpoint... ✓
+```
+
+**Testable:** Mock providers enable testing without cloud resources
+```typescript
+CReact.cloudProvider = new MockCloudProvider();
+CReact.backendProvider = new InMemoryBackendProvider();
+// Test infrastructure logic without deploying
 ```
 
 **Type-Safe:** TypeScript ensures correctness at compile time
