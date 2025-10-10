@@ -281,8 +281,6 @@ function DatabaseProvider({ children }) {
 ## Installation & Usage
 
 ```bash
-npm install @creact-labs/creact
-
 # Deploy your infrastructure
 creact deploy --entry my-app.tsx
 
@@ -293,13 +291,3 @@ creact dev --entry my-app.tsx --auto-approve
 creact plan --entry my-app.tsx
 ```
 
-## Key Advantages
-
-- **Declarative**: Describe what you want, not how to build it
-- **Reactive**: Automatic updates when dependencies change
-- **Composable**: Mix and match any infrastructure components
-- **Provider Agnostic**: Works with any cloud platform
-- **State Persistent**: Application state survives deployments
-- **Hot Reloadable**: Infrastructure changes with application changes
-
-CReact brings the React revolution to infrastructure management.
