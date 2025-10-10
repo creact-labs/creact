@@ -43,17 +43,17 @@ export class CLIContextManager {
    */
   static findEntryFile(specifiedPath?: string): string {
     let entryPath = specifiedPath || 'index.ts';
-    
+
     // If default index.ts doesn't exist, try other common entry files
     if (entryPath === 'index.ts' && !existsSync(resolve(process.cwd(), entryPath))) {
       const alternatives = ['index.tsx', 'index.js', 'index.jsx', 'app.ts', 'app.tsx'];
-      
+
       for (const alt of alternatives) {
         if (existsSync(resolve(process.cwd(), alt))) {
           return alt;
         }
       }
-      
+
       throw new Error(`Entry file not found: ${entryPath}. Tried: ${alternatives.join(', ')}`);
     }
 
@@ -75,7 +75,7 @@ export class CLIContextManager {
     // Handle TypeScript files
     const fileExtension = extname(entryPath);
     const isTypeScript = ['.ts', '.tsx'].includes(fileExtension);
-    
+
     if (isTypeScript) {
       try {
         require('ts-node/register');
@@ -98,8 +98,32 @@ export class CLIContextManager {
       throw new Error(`Could not load entry file: ${entryPath}\nError: ${(loadError as Error).message}`);
     }
 
-    // Now get the CReact class - providers should be configured by the entry file
-    const CReactClass = CReact;
+    // IMPORTANT: Get the CReact class from the entry module's require cache
+    // This ensures we use the same instance that the entry file configured
+    // The entry file imports CReact, which gets cached in require.cache
+    // We need to find that cached module and use its CReact instance
+
+    let CReactClass: typeof CReact | null = null;
+
+    // Look through require.cache to find the CReact module that was loaded
+    for (const [modulePath, cachedModule] of Object.entries(require.cache)) {
+      if (modulePath.includes('CReact') && cachedModule?.exports?.CReact) {
+        CReactClass = cachedModule.exports.CReact;
+        if (verbose) console.log('[CLI] Found CReact in require cache:', modulePath);
+        break;
+      }
+    }
+
+    if (!CReactClass) {
+      throw new Error('Could not find CReact class in require cache. Entry file must import CReact.');
+    }
+
+    // Debug: Check provider status
+    if (verbose) {
+      console.log('[CLI] Checking providers after module load:');
+      console.log('[CLI]   cloudProvider:', !!CReactClass.cloudProvider);
+      console.log('[CLI]   backendProvider:', !!CReactClass.backendProvider);
+    }
 
     // Validate that providers are configured (they should be after loading entry file)
     if (!CReactClass.cloudProvider || !CReactClass.backendProvider) {
@@ -117,10 +141,15 @@ export class CLIContextManager {
     // Get the JSX element from the entry module
     // We need to extract the JSX element that was passed to renderCloudDOM
     // For now, we'll get it from the default export promise, but we need the JSX
-    const cloudDOMPromise = entryModule.default;
+    let cloudDOMPromise = entryModule.default;
+
+    // If default export is a function, call it to get the promise
+    if (typeof cloudDOMPromise === 'function') {
+      cloudDOMPromise = cloudDOMPromise();
+    }
 
     if (!cloudDOMPromise || typeof cloudDOMPromise.then !== 'function') {
-      throw new Error('Entry file must export a default Promise from CReact.renderCloudDOM()');
+      throw new Error('Entry file must export a default Promise from CReact.renderCloudDOM() or a function that returns one');
     }
 
     // Await the CloudDOM promise to ensure providers are configured
@@ -134,11 +163,11 @@ export class CLIContextManager {
     const lastInstanceData = CReactClass.getLastInstance();
     if (lastInstanceData) {
       // Use the same instance that built the CloudDOM
-      return { 
-        instance: lastInstanceData.instance, 
-        stackName: lastInstanceData.stackName, 
-        cloudDOM, 
-        entryPath 
+      return {
+        instance: lastInstanceData.instance,
+        stackName: lastInstanceData.stackName,
+        cloudDOM,
+        entryPath
       };
     }
 

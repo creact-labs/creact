@@ -235,9 +235,10 @@ export function useInstance<T = any>(
   }
 
   // Generate ID from key or construct type
+  // Priority: explicit key from useInstance props > component fiber key > auto-generated
   let id: string;
   if (key !== undefined) {
-    // Use explicit key if provided
+    // Use explicit key if provided in useInstance props
     id = String(key);
   } else {
     // Auto-generate ID from construct type name (kebab-case)
@@ -256,6 +257,11 @@ export function useInstance<T = any>(
       id = `${constructName}-${count}`;
     } else {
       id = constructName;
+    }
+    
+    // If component has a key (from JSX), prepend it to make resources unique per component instance
+    if (currentFiber.key) {
+      id = `${currentFiber.key}-${id}`;
     }
   }
 
@@ -281,9 +287,15 @@ export function useInstance<T = any>(
   };
 
   // Restore outputs from previous state if available
+  console.log(`[useInstance] Checking for outputs: ${resourceId}, map has ${previousOutputsMap?.size || 0} entries`);
   if (previousOutputsMap && previousOutputsMap.has(resourceId)) {
     node.outputs = { ...previousOutputsMap.get(resourceId)! };
     console.log(`[useInstance] ✓ Restored outputs for: ${resourceId}`, node.outputs);
+  } else {
+    console.log(`[useInstance] ✗ No outputs found for: ${resourceId}`);
+    if (previousOutputsMap) {
+      console.log(`[useInstance]   Available keys:`, Array.from(previousOutputsMap.keys()));
+    }
   }
 
   // Attach node to current Fiber

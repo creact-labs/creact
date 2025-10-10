@@ -256,14 +256,52 @@ export class DevCommand extends BaseCommand {
 
   private async deployChanges(result: any, spinner: Spinner): Promise<void> {
     try {
-      spinner.start('Deploying changes...');
+      // Reactive deployment loop - continue until no more changes
+      let deploymentCycle = 1;
+      let hasMoreChanges = true;
+      
+      while (hasMoreChanges) {
+        if (deploymentCycle > 1) {
+          console.log(`\n🔄 Reactive deployment cycle #${deploymentCycle}`);
+        }
+        
+        spinner.start('Deploying changes...');
 
-      await result.instance.deploy(result.cloudDOM, result.stackName, 'dev-user');
+        await result.instance.deploy(result.cloudDOM, result.stackName, 'dev-user');
 
-      // Update state with reactive preservation
-      this.updateStateAfterDeployment(result);
+        // Update state with reactive preservation
+        this.updateStateAfterDeployment(result);
 
-      spinner.succeed(`✅ Deployment complete: ${result.cloudDOM.length} resources`);
+        spinner.succeed(`✅ Deployment complete: ${result.cloudDOM.length} resources`);
+
+        // Check if reactive changes were detected
+        const reactiveInfo = await result.instance.getReactiveDeploymentInfo(result.stackName);
+        
+        if (reactiveInfo) {
+          console.log(`\n📋 Reactive changes detected: ${getTotalChanges(reactiveInfo.changeSet)} changes`);
+          console.log(formatDiff(reactiveInfo.changeSet));
+          
+          // Ask for approval (unless auto-approve is enabled)
+          let shouldContinue = this.autoApprove;
+          
+          if (!this.autoApprove) {
+            shouldContinue = await this.promptForApproval();
+          } else {
+            console.log(colors.warning('🚀 Auto-approving reactive changes...'));
+          }
+          
+          if (shouldContinue) {
+            // Update result.cloudDOM for next cycle
+            result.cloudDOM = reactiveInfo.cloudDOM;
+            deploymentCycle++;
+          } else {
+            console.log(colors.info('⏭️  Reactive changes skipped'));
+            hasMoreChanges = false;
+          }
+        } else {
+          hasMoreChanges = false;
+        }
+      }
 
     } catch (error) {
       spinner.fail('❌ Deployment failed');

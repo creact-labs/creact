@@ -21,20 +21,20 @@ interface AccessTrackingSession {
 interface ConsolidatedHookContext {
   // Single context for all hooks - unified fiber reference
   currentFiber: FiberNode | null;
-  
+
   // Separate indices per hook type to avoid conflicts
   stateHookIndex: number;
   effectHookIndex: number;
   contextHookIndex: number;
   instanceHookIndex: number;
-  
+
   // Context stacks for useContext
   contextStacks: Map<symbol, any[]>;
-  
+
   // useInstance specific context
   currentPath: string[];
   previousOutputsMap: Map<string, Record<string, any>> | null;
-  
+
   // Access tracking for output dependency analysis
   accessTrackingSessions: Map<FiberNode, AccessTrackingSession>;
 }
@@ -45,26 +45,33 @@ interface ConsolidatedHookContext {
 const hookContextStorage = new AsyncLocalStorage<ConsolidatedHookContext>();
 
 /**
+ * Module-level previousOutputsMap that persists across context creations
+ * This is necessary because runWithHookContext creates fresh contexts,
+ * but we need to preserve outputs set by setPreviousOutputs() for re-renders
+ */
+let globalPreviousOutputsMap: Map<string, Record<string, any>> | null = null;
+
+/**
  * Create a new consolidated hook context
  */
 function createConsolidatedHookContext(): ConsolidatedHookContext {
   return {
     // Single fiber reference for all hooks
     currentFiber: null,
-    
+
     // Separate indices per hook type
     stateHookIndex: 0,
     effectHookIndex: 0,
     contextHookIndex: 0,
     instanceHookIndex: 0,
-    
+
     // Context stacks
     contextStacks: new Map<symbol, any[]>(),
-    
+
     // useInstance context
     currentPath: [],
-    previousOutputsMap: null,
-    
+    previousOutputsMap: globalPreviousOutputsMap, // Use global map
+
     // Access tracking
     accessTrackingSessions: new Map<FiberNode, AccessTrackingSession>(),
   };
@@ -111,7 +118,7 @@ export function runWithHookContext<T>(fn: () => T): T {
  */
 export function incrementHookIndex(hookType: 'state' | 'effect' | 'context' | 'instance' = 'state'): number {
   const context = requireHookContext();
-  
+
   switch (hookType) {
     case 'state':
       const stateIndex = context.stateHookIndex;
@@ -247,6 +254,18 @@ export function clearContextStacks(): void {
   }
 }
 
+/**
+ * Clear the global previous outputs map
+ * Called for test isolation and cleanup
+ */
+export function clearPreviousOutputs(): void {
+  globalPreviousOutputsMap = null;
+  const context = getHookContextSafe();
+  if (context) {
+    context.previousOutputsMap = null;
+  }
+}
+
 // ============================================================================
 // useInstance Support Functions
 // ============================================================================
@@ -256,6 +275,10 @@ export function clearContextStacks(): void {
  * Called by CReact before rendering
  */
 export function setPreviousOutputs(outputsMap: Map<string, Record<string, any>> | null): void {
+  // Set the global map so it persists across context creations
+  globalPreviousOutputsMap = outputsMap;
+
+  // Also update current context if available
   const context = getHookContextSafe();
   if (context) {
     context.previousOutputsMap = outputsMap;
@@ -305,14 +328,14 @@ export function startAccessTracking(fiber: FiberNode): void {
 export function endAccessTracking(fiber: FiberNode): Set<string> {
   const context = requireHookContext();
   const session = context.accessTrackingSessions.get(fiber);
-  
+
   if (!session) {
     return new Set();
   }
-  
+
   session.isActive = false;
   context.accessTrackingSessions.delete(fiber);
-  
+
   return session.trackedOutputs;
 }
 
@@ -322,7 +345,7 @@ export function endAccessTracking(fiber: FiberNode): Set<string> {
 export function trackOutputAccess(fiber: FiberNode, bindingKey: string): void {
   const context = getHookContextSafe();
   if (!context) return;
-  
+
   const session = context.accessTrackingSessions.get(fiber);
   if (session?.isActive) {
     session.trackedOutputs.add(bindingKey);

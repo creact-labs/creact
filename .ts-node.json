@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "CReact.createElement",
+    "jsxFragmentFactory": "CReact.Fragment"
+  },
+  "files": true,
+  "transpileOnly": false
+}

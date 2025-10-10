@@ -107,6 +107,11 @@ export class CReact {
   private errorRecoveryManager: ErrorRecoveryManager;
   private structuralChangeDetector: StructuralChangeDetector;
 
+  // Reactive deployment tracking
+  private hasReactiveChanges: boolean = false;
+  private reactiveCloudDOM: CloudDOMNode[] | null = null;
+  private preReactiveCloudDOM: CloudDOMNode[] | null = null; // CloudDOM before re-render
+
   /**
    * Constructor receives all dependencies via config (dependency injection)
    *
@@ -429,6 +434,43 @@ export class CReact {
   }
 
   /**
+   * Get reactive deployment information if changes are pending
+   * Returns null if no reactive changes detected
+   * 
+   * This encapsulates the logic for checking reactive changes and computing diffs,
+   * keeping separation of concerns between core and CLI layers.
+   * 
+   * @param stackName - Stack name to compute diff against
+   * @returns Reactive deployment info with CloudDOM and ChangeSet, or null
+   */
+  async getReactiveDeploymentInfo(stackName: string): Promise<{
+    cloudDOM: CloudDOMNode[];
+    changeSet: any;
+  } | null> {
+    if (!this.hasReactiveChanges || !this.reactiveCloudDOM || !this.preReactiveCloudDOM) {
+      return null;
+    }
+
+    // Compute diff between pre-reactive and post-reactive CloudDOM
+    // This shows what NEW resources were created by the re-render
+    const changeSet = this.reconciler.reconcile(this.preReactiveCloudDOM, this.reactiveCloudDOM);
+
+    return {
+      cloudDOM: this.reactiveCloudDOM,
+      changeSet
+    };
+  }
+
+  /**
+   * Clear reactive changes flag (called after deployment)
+   */
+  private clearReactiveChanges(): void {
+    this.hasReactiveChanges = false;
+    this.reactiveCloudDOM = null;
+    this.preReactiveCloudDOM = null;
+  }
+
+  /**
    * Deploy CloudDOM to cloud provider using StateMachine
    *
    * Pipeline: validate → compute diff → start deployment → materialize → checkpoint → complete
@@ -448,6 +490,9 @@ export class CReact {
     stackName: string = 'default',
     user: string = 'system'
   ): Promise<void> {
+    // Clear reactive changes flag at start of deployment
+    this.clearReactiveChanges();
+
     // REQ-07.6: Validate before deploying
     const currentFiber = this.renderer.getCurrentFiber();
     if (currentFiber) {
@@ -575,14 +620,44 @@ export class CReact {
             this.scheduleReRender(fiber, 'output-update');
           });
 
+          // CRITICAL: Update previousOutputsMap with current CloudDOM outputs
+          // This allows useInstance to access outputs during re-render
+          const outputsMap = this.buildOutputsMap(cloudDOM);
+          console.log('[CReact] Updating previousOutputsMap for re-render with latest outputs');
+          console.log(`[CReact] OutputsMap has ${outputsMap.size} entries:`, Array.from(outputsMap.keys()));
+          setPreviousOutputs(outputsMap);
+
           // Execute the scheduled re-renders
           const updatedFiber = this.renderer.reRenderComponents(fibersToReRender, 'output-update');
 
           // Build updated CloudDOM from re-rendered components
           const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
 
-          // Update the stored CloudDOM with reactive changes
-          cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
+          // Check if the re-render produced new resources to deploy
+          const reactiveChangeSet = this.reconciler.reconcile(cloudDOM, updatedCloudDOM);
+
+          if (hasChanges(reactiveChangeSet)) {
+            console.log(`[CReact] Re-render produced new changes: ${reactiveChangeSet.creates.length} creates, ${reactiveChangeSet.updates.length} updates`);
+            console.log('[CReact] Reactive changes detected - will need another deployment cycle');
+
+            // Store the CloudDOM BEFORE re-render for diff comparison
+            this.preReactiveCloudDOM = JSON.parse(JSON.stringify(cloudDOM));
+
+            // Update the CloudDOM with reactive changes
+            cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
+
+            // Store flag indicating reactive changes need deployment
+            this.hasReactiveChanges = true;
+            this.reactiveCloudDOM = updatedCloudDOM;
+
+            console.log('[CReact] Post-deployment effects and reactive sync completed');
+            console.log('[CReact] Deployment complete (reactive changes pending)');
+            return;
+          } else {
+            console.log('[CReact] Re-render produced no new changes');
+            // Update the stored CloudDOM with reactive changes
+            cloudDOM.splice(0, cloudDOM.length, ...updatedCloudDOM);
+          }
         } else {
           console.log(`[CReact] No output or state changes detected, skipping re-render`);
         }
@@ -719,7 +794,7 @@ export class CReact {
     };
 
     extractStateOutputs(previousCloudDOM);
- 
+
     console.log(`[CReact] Hydration prepared: ${CReact.hydrationMap.size} components with state`);
     console.log(`[CReact] Hydration map keys:`, Array.from(CReact.hydrationMap.keys()));
     console.log(`[CReact] This instance is global: ${this === CReact.globalInstance}`);
@@ -898,7 +973,7 @@ export class CReact {
           const stateValues = Object.keys(node.state)
             .sort() // Sort to ensure state1, state2, state3... order
             .map(key => node.state![key]);
-          
+
           if (stateValues.length > 0) {
             stateOutputs.set(node.id, stateValues);
           }

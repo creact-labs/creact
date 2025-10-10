@@ -1,65 +1,79 @@
 /**
- * Infrastructure Constructs
+ * Infrastructure Construct Definitions
  * 
- * These are the building blocks for your infrastructure.
- * Each construct represents a cloud resource type.
+ * These are TypeScript classes that represent infrastructure resources.
+ * They act as "types" or "schemas" for the resources you want to create.
+ * 
+ * In a real application, these would come from:
+ * - @aws-cdk/aws-* packages for AWS
+ * - @pulumi/* packages for Pulumi
+ * - Custom construct libraries
+ * 
+ * The MockCloudProvider knows how to materialize these into realistic outputs.
  */
 
-export class VPC {
-  constructor(public props: {
-    name: string;
-    cidr?: string;
-    region?: string;
-  }) {}
+// Compute
+export class ECSCluster {
+  constructor(public props: any) {}
 }
 
-export class Subnet {
-  constructor(public props: {
-    name: string;
-    vpcId: string;
-    cidr?: string;
-    region?: string;
-  }) {}
-}
-
-export class Database {
-  constructor(public props: {
-    name: string;
-    host?: string;
-    port?: number;
-    username?: string;
-    subnetId?: string;
-  }) {}
-}
-
-export class ApiGateway {
-  constructor(public props: {
-    name: string;
-    stage?: string;
-  }) {}
+export class ECSService {
+  constructor(public props: any) {}
 }
 
 export class Lambda {
-  constructor(public props: {
-    name: string;
-    runtime?: string;
-    handler?: string;
-    code?: string;
-  }) {}
+  constructor(public props: any) {}
 }
 
+// Database & Cache
+export class RDSInstance {
+  constructor(public props: any) {}
+}
+
+export class ElastiCache {
+  constructor(public props: any) {}
+}
+
+// Storage
 export class S3Bucket {
-  constructor(public props: {
-    name: string;
-    region?: string;
-    versioning?: boolean;
-  }) {}
+  constructor(public props: any) {}
+}
+
+// Networking
+export class VPC {
+  constructor(public props: any) {}
+}
+
+export class Subnet {
+  constructor(public props: any) {}
+}
+
+export class SecurityGroup {
+  constructor(public props: any) {}
 }
 
 export class LoadBalancer {
-  constructor(public props: {
-    name: string;
-    subnets?: string[];
-    vpcId?: string;
-  }) {}
+  constructor(public props: any) {}
+}
+
+// API & CDN
+export class ApiGateway {
+  constructor(public props: any) {}
+}
+
+export class CloudFront {
+  constructor(public props: any) {}
+}
+
+// Monitoring
+export class CloudWatch {
+  constructor(public props: any) {}
+}
+
+export class Analytics {
+  constructor(public props: any) {}
+}
+
+export class Backup {
+  constructor(public props: any) {}
 }
