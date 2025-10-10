@@ -233,6 +233,24 @@ export interface ChangeSet {
 }
 
 /**
+ * Get filtered deployment order containing only resources that need deployment
+ * (creates, updates, replacements) - excludes unchanged resources
+ * 
+ * @param changeSet - The change set to filter
+ * @returns Array of resource IDs that need deployment, in dependency order
+ */
+export function getResourcesToDeploy(changeSet: ChangeSet): string[] {
+  const resourcesToDeploy = new Set([
+    ...changeSet.creates.map(n => n.id),
+    ...changeSet.updates.map(n => n.id),
+    ...changeSet.replacements.map(n => n.id),
+  ]);
+
+  // Filter deployment order to maintain dependency ordering
+  return changeSet.deploymentOrder.filter(id => resourcesToDeploy.has(id));
+}
+
+/**
  * DependencyGraph represents resource dependencies for deployment ordering
  *
  * Maps node ID → array of dependency IDs

@@ -46,6 +46,7 @@ import {
   FiberNode,
   ReRenderReason,
   CReactEvents,
+  getResourcesToDeploy,
 } from './types';
 import { CloudDOMEventBus } from './EventBus';
 import { setPreviousOutputs, setProviderOutputTracker } from '../hooks/useInstance';
@@ -655,10 +656,15 @@ export class CReact {
       }
 
       // Deploy resources in order with checkpoints
+      // Only deploy resources that have changes (creates, updates, replacements)
+      const filteredDeploymentOrder = getResourcesToDeploy(changeSet);
+
       this.log('Deploying resources with checkpoints');
-      for (let i = 0; i < changeSet.deploymentOrder.length; i++) {
-        const resourceId = changeSet.deploymentOrder[i];
-        this.log(`Deploying resource ${i + 1}/${changeSet.deploymentOrder.length}: ${resourceId}`);
+      this.log(`Total resources: ${changeSet.deploymentOrder.length}, Resources to deploy: ${filteredDeploymentOrder.length}`);
+
+      for (let i = 0; i < filteredDeploymentOrder.length; i++) {
+        const resourceId = filteredDeploymentOrder[i];
+        this.log(`Deploying resource ${i + 1}/${filteredDeploymentOrder.length}: ${resourceId}`);
 
         // Find the resource node
         const resourceNode = this.findNodeById(cloudDOM, resourceId);

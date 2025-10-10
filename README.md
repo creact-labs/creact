@@ -2,6 +2,93 @@
 
 CReact brings React's component model to infrastructure deployment. Write infrastructure using JSX components that compile to cloud resources through a sophisticated reconciliation engine.
 
+## Example: Reactive Multi-Layer Deployment
+
+Watch CReact deploy a complex 5-layer enterprise application with automatic dependency resolution and reactive updates:
+
+```bash
+$ creact dev --entry reactive-app.tsx --auto-approve
+
+Starting CReact development mode...
+Building initial state...
+Changes detected: 2 changes
+
+Planning changes for stack: optimized-reactive-app-stack
+──────────────────────────────────────────────────
++ 2 to create
+  + Analytics (Kinesis stream for API analytics)
+  + VPC (Network foundation)
+
+Plan: 2 to add, 0 to change, 0 to destroy
+Auto-approving changes...
+
+Applying changes...
+[MockCloud] ✅ All resources materialized
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed
+Duration: 0.3s
+
+Reactive changes detected
++ 6 to create
+  + S3Bucket (Asset storage)
+  + SecurityGroup (Network security)
+  + Subnet × 4 (Multi-AZ subnets)
+
+Plan: 6 to add, 0 to change, 0 to destroy
+Reactive deployment cycle #2
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed
+Duration: 0.1s
+
+Reactive changes detected
++ 4 to create
+  + ElastiCache (Redis cluster)
+  + CloudFront (CDN distribution)
+  + LoadBalancer (Application load balancer)
+  + RDSInstance (PostgreSQL database)
+
+Reactive deployment cycle #3
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed
+Duration: 0.5s
+
+Reactive changes detected
++ 4 to create
+  + Lambda × 3 (Regional API handlers: us-east-1, eu-west-1, ap-southeast-1)
+  + Backup (Database backup vault)
+
+Reactive deployment cycle #4
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed
+Duration: 0.5s
+
+Reactive changes detected
++ 3 to create
+  + ApiGateway × 3 (Regional API endpoints)
+
+Reactive deployment cycle #5
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed
+Duration: 0.4s
+
+Reactive changes detected
++ 3 to create
+  + CloudWatch × 3 (Regional monitoring dashboards)
+
+Reactive deployment cycle #6
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed
+Duration: 0.4s
+
+✅ Deployment complete: 22 resources across 6 reactive cycles
+Watching for changes... (Press Ctrl+C to stop)
+```
+
+**What just happened?**
+
+1. **Layer 1**: VPC and Analytics deployed first (no dependencies)
+2. **Layer 2**: Subnets and security groups deployed (depend on VPC)
+3. **Layer 3**: Database, cache, storage, and load balancer deployed (depend on network)
+4. **Layer 4**: Lambda functions deployed (depend on database + storage)
+5. **Layer 5**: API Gateways deployed (depend on Lambda functions)
+6. **Layer 6**: Monitoring deployed (depend on APIs)
+
+CReact automatically detected dependencies, orchestrated deployment order, and triggered reactive updates as outputs became available. All from a single JSX component tree.
+
 ## The Paradigm Shift
 
 ### What is a CReact App?
