@@ -234,8 +234,18 @@ export class Renderer {
       return [];
     }
 
-    // Normalize to array
-    const childArray = Array.isArray(children) ? children : [children];
+    // Debug logging for array handling
+    if (Array.isArray(children) && children.length > 0) {
+      const hasNestedArrays = children.some(child => Array.isArray(child));
+      if (hasNestedArrays) {
+        logger.debug(`[renderChildren] Nested arrays detected at ${parentPath.join('.')}`);
+        logger.debug(`  Before flat: ${children.length} items`);
+        logger.debug(`  After flat: ${children.flat().length} items`);
+      }
+    }
+
+    // Normalize to array and flatten nested arrays (handles .map() results)
+    const childArray = Array.isArray(children) ? children.flat() : [children];
 
     // Filter out null/undefined/boolean values
     const validChildren = childArray.filter(
