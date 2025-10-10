@@ -1,7 +1,4 @@
 # CReact
-
-**Universal Creation Runtime**
-
 React for Infrastructure. Write cloud resources using JSX.
 
 ## What is CReact?
