@@ -6,6 +6,133 @@ CReact brings React's component model to infrastructure deployment. Define cloud
 
 ---
 
+## Core Insights
+
+CReact is built on three fundamental insights that make reactive infrastructure feasible and provider-agnostic:
+
+### 1. Infrastructure is a Render Target, Not a Special Case
+
+React proved that UI rendering is just a function: `UI = f(state)`. CReact extends this to infrastructure: `Infrastructure = f(state)`.
+
+The key insight: **any system with dependencies, lifecycle, and state can use React's reconciliation model**. Infrastructure resources are nodes in a tree, just like DOM elements. Dependencies flow through the tree via context and props, just like UI components.
+
+```tsx
+// UI rendering
+<div className={theme}>
+  <Button onClick={handler} />
+</div>
+
+// Infrastructure rendering
+<NetworkStack cidr="10.0.0.0/16">
+  <Database vpcId={vpc.outputs?.vpcId} />
+</NetworkStack>
+```
+
+Both are component trees. Both have dependencies. Both need reconciliation. The only difference is the materialization target.
+
+### 2. CloudDOM: The Universal Intermediate Representation
+
+React uses a Virtual DOM to decouple components from browser APIs. CReact uses **CloudDOM** to decouple infrastructure definitions from cloud provider APIs.
+
+```
+JSX Components → Fiber Tree → CloudDOM → Provider → Cloud Resources
+```
+
+CloudDOM is a provider-agnostic representation of infrastructure intent. It contains:
+- Resource type and configuration
+- Dependency relationships
+- Output placeholders (populated after deployment)
+- Metadata for reconciliation
+
+**This separation is what makes CReact provider-agnostic.** Your infrastructure code never touches AWS, Azure, or GCP APIs directly. Providers implement a simple interface: materialize CloudDOM nodes and populate outputs.
+
+```typescript
+interface ICloudProvider {
+  materialize(nodes: CloudDOMNode[]): Promise<void>;
+}
+```
+
+Want to support a new cloud? Implement one interface. Want to wrap Terraform? Implement one interface. Want to deploy to Kubernetes? Same interface.
+
+### 3. Output-Driven Reactivity: The Deployment Loop
+
+Traditional IaC tools require you to manually declare dependencies (`depends_on`). CReact makes dependencies automatic through **output-driven reactivity**.
+
+**The insight:** Infrastructure dependencies are just data dependencies. When a resource deploys, its outputs become available. Components consuming those outputs automatically re-render.
+
+```tsx
+function DatabaseStack() {
+  const { vpcId } = useContext(NetworkContext); // undefined initially
+  
+  const db = useInstance(Database, {
+    name: 'db',
+    vpcId, // Can't deploy until vpcId is available
+  });
+  
+  return <></>;
+}
+```
+
+**Deployment loop:**
+1. Render all components (outputs undefined)
+2. Deploy resources with no dependencies
+3. Outputs populated → contexts/props/state updated
+4. Components with changed dependencies re-render
+5. Deploy newly-ready resources
+6. Repeat until stable (no output changes)
+
+This creates a **self-orchestrating deployment system**. No dependency graphs to maintain. No topological sorting to debug. Dependencies flow naturally through the component tree.
+
+---
+
+## Why This Works
+
+These three insights combine to create a system that is:
+
+**Declarative:** Define what you want, not how to deploy it
+```tsx
+<Database vpcId={vpc.outputs?.vpcId} />
+// CReact figures out when and how to deploy
+```
+
+**Composable:** Build complex infrastructure from simple components
+```tsx
+<NetworkStack>
+  <DataStack>
+    <ApiStack />
+  </DataStack>
+</NetworkStack>
+```
+
+**Provider-Agnostic:** CloudDOM decouples intent from implementation
+```typescript
+// Same infrastructure code works with any provider
+CReact.cloudProvider = new AWSProvider();
+// or
+CReact.cloudProvider = new TerraformProvider();
+// or
+CReact.cloudProvider = new KubernetesProvider();
+```
+
+**Self-Orchestrating:** Output-driven reactivity handles dependencies automatically
+```tsx
+// No depends_on needed - reactivity handles it
+const vpc = useInstance(VPC, { name: 'vpc' });
+const db = useInstance(Database, { vpcId: vpc.outputs?.vpcId });
+```
+
+**Type-Safe:** TypeScript ensures correctness at compile time
+```tsx
+// TypeScript catches mismatched outputs
+const vpc = useInstance(VPC, { name: 'vpc' });
+const db = useInstance(Database, {
+  vpcId: vpc.outputs?.vpcId, // ✓ Type-safe
+  // vpcId: vpc.outputs?.wrongField, // ✗ Compile error
+});
+```
+
+---
+
 ## Core Concept
 
 Infrastructure deployment shares fundamental challenges with UI rendering: state management, dependency resolution, lifecycle coordination, and error recovery. CReact applies React's proven architectural patterns to solve these problems in infrastructure.
