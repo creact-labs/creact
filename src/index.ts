@@ -36,6 +36,9 @@
 export { CReact, JSXElement } from './jsx';
 export type { FC, PropsWithChildren } from './jsx.d';
 
+// Re-export JSX type definitions for consumers
+import './jsx.d';
+
 // Core classes
 import { CReact as CReactClass } from './core/CReact';
 export { CReact as CReactCore, CReactConfig } from './core/CReact';

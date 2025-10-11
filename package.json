@@ -4,6 +4,11 @@
   "description": "CReact - React for Infrastructure. Render JSX to CloudDOM.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "jsx": ["dist/jsx.d.ts"]
+    }
+  },
   "bin": {
     "creact": "./dist/cli/index.js"
   },
