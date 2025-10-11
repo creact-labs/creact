@@ -1,3 +1,6 @@
+
+NOTE: !!! THIS IS A EXPERIMENT OF THOUGHT NOT A PRODUCTION READY PRODUCT !!!
+
 # CReact 
 
 ![creact](https://i.postimg.cc/8P66GnT3/banner.jpg)
