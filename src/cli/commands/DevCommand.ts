@@ -146,9 +146,6 @@ export class DevCommand extends BaseCommand {
       try {
         const backendState = await result.instance.getBackendProvider().getState(result.stackName);
         previousCloudDOM = backendState?.cloudDOM || [];
-        logger.debug(
-          `DevCommand: Previous CloudDOM loaded with ${previousCloudDOM.length} resources`
-        );
       } catch (error) {
         logger.debug(`DevCommand: Could not load previous state: ${(error as Error).message}`);
       }
@@ -212,9 +209,21 @@ export class DevCommand extends BaseCommand {
         `DevCommand: Hot reload CloudDOM built with ${result.cloudDOM.length} resources`
       );
 
+      // Load drift-corrected state for comparison
+      let previousCloudDOM = this.state.lastCloudDOM;
+      try {
+        const backendState = await result.instance.getBackendProvider().getState(result.stackName);
+        previousCloudDOM = backendState?.cloudDOM || this.state.lastCloudDOM;
+        logger.debug(
+          `DevCommand: Comparing against drift-corrected state with ${previousCloudDOM?.length || 0} resources`
+        );
+      } catch (error) {
+        logger.debug(`DevCommand: Using cached state for comparison: ${(error as Error).message}`);
+      }
+
       // Compute diff using Reconciler
       const reconciler = new Reconciler();
-      const changeSet = reconciler.reconcile(this.state.lastCloudDOM, result.cloudDOM);
+      const changeSet = reconciler.reconcile(previousCloudDOM, result.cloudDOM);
       const totalChanges = getTotalChanges(changeSet);
 
       logger.debug(`DevCommand: Hot reload total changes: ${totalChanges}`);

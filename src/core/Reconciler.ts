@@ -744,6 +744,14 @@ export class Reconciler {
       return 'replacement';
     }
 
+    // DRIFT DETECTION: If previous node has no outputs, it needs redeployment
+    // This happens when drift detection clears outputs for dead resources
+    // Treat as update to trigger redeployment
+    if (!previous.outputs || Object.keys(previous.outputs).length === 0) {
+      logger.debug(`Node ${current.id} has no outputs (drift detected) - needs redeployment`);
+      return 'update';
+    }
+
     // Hash-based diff acceleration: compute or reuse cached hashes
     const prevHash = ((previous as any)._propHash ??= this.computeShallowHash(previous.props));
     const currHash = ((current as any)._propHash ??= this.computeShallowHash(current.props));
