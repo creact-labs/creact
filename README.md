@@ -18,6 +18,10 @@ function App() {
   );
 }
 ```
+## What its not
+
+- terraform/pulumi/cdk replacement
+- react wrapper
 
 ## Getting started
 
