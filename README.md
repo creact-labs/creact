@@ -21,7 +21,9 @@ function App() {
 
 ## Demos
 
-Multi env Landing page -> https://github.com/creact-labs/creact-app-demo-multi-env-web-server
+[Blank App Template](https://github.com/creact-labs/creact-blank-app-template)  
+[Multi env local landing page](https://github.com/creact-labs/creact-app-demo-multi-env-web-server)
+
 
 ## Installation & Usage
 
