@@ -192,7 +192,8 @@ export class CReact {
     this.renderer.setStructuralChangeDetector(this.structuralChangeDetector);
     this.cloudDOMBuilder.setReactiveComponents(
       this.stateBindingManager,
-      this.providerOutputTracker
+      this.providerOutputTracker,
+      this.contextDependencyTracker
     );
     this.contextDependencyTracker.setStateBindingManager(this.stateBindingManager);
 
@@ -715,21 +716,23 @@ export class CReact {
           previousCloudDOM
         );
 
-        // REQ-7.1, 7.2, 7.3: Check if outputs actually changed (including undefined → value)
-        const hasActualChanges = this.hasActualOutputChanges(previousCloudDOM, cloudDOM);
-
-        // CRITICAL: If state outputs changed but no provider output bindings triggered,
-        // we still need to re-render to display updated state in the component
-        const needsReRender = hasActualChanges || affectedFibers.length > 0;
+        // CRITICAL: Only re-render if there are actually affected fibers
+        // If outputs changed but no fibers are bound to those outputs, skip re-render
+        console.log(`[BUG DEBUG] affectedFibers.length = ${affectedFibers.length}`);
+        if (affectedFibers.length > 0) {
+          console.log(`[BUG DEBUG] affectedFibers paths:`, affectedFibers.map(f => f.path?.join('.')));
+        } else {
+          console.log('[BUG DEBUG] No affected fibers - should NOT re-render!');
+        }
+        
+        const needsReRender = affectedFibers.length > 0;
 
         if (needsReRender) {
-          // If no fibers were affected by provider outputs, but state changed,
-          // re-render the root component to display updated state
-          const fibersToReRender =
-            affectedFibers.length > 0 ? affectedFibers : [this.lastFiberTree];
+          // Re-render only the affected components
+          const fibersToReRender = affectedFibers;
 
-          this.log(
-            `Triggering re-renders for ${fibersToReRender.length} affected components (${hasActualChanges ? 'output changes detected' : 'state changes detected'})`
+          logger.info(
+            `Triggering re-renders for ${fibersToReRender.length} affected components`
           );
 
           // REQ-7.4, 7.5: Schedule re-renders with proper batching and deduplication
@@ -748,7 +751,8 @@ export class CReact {
           const updatedFiber = this.renderer.reRenderComponents(fibersToReRender, 'output-update');
 
           // Build updated CloudDOM from re-rendered components
-          const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber);
+          // CRITICAL FIX: Pass previousCloudDOM to preserve non-re-rendered nodes
+          const updatedCloudDOM = await this.cloudDOMBuilder.build(updatedFiber, cloudDOM);
 
           // Check if the re-render produced new resources to deploy
           const reactiveChangeSet = this.reconciler.reconcile(cloudDOM, updatedCloudDOM);

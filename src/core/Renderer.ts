@@ -569,33 +569,28 @@ export class Renderer {
     }
 
     return runWithHookContext(() => {
-      try {
-        // Find the root component to determine the full tree structure
-        const rootComponent = this.findRootComponent(components);
+      // Find the root component to determine the full tree structure
+      const rootComponent = this.findRootComponent(components);
 
-        if (!rootComponent) {
-          throw new Error('[Renderer] Could not determine root component for re-rendering');
-        }
-
-        // Track dependencies during re-render
-        this.trackDependenciesDuringRender(components);
-
-        // Selectively re-render the components
-        const updatedRoot = this.selectiveReRender(rootComponent, new Set(components), reason);
-
-        // Detect structural changes if this is a structural re-render
-        if (reason === 'structural-change' && this.structuralChangeDetector) {
-          this.handleStructuralChangesComparison(rootComponent, updatedRoot);
-        }
-
-        // Update current fiber reference
-        this.currentFiber = updatedRoot;
-
-        return updatedRoot;
-      } finally {
-        // Clear context stacks to prevent memory leaks
-        clearContextStacks();
+      if (!rootComponent) {
+        throw new Error('[Renderer] Could not determine root component for re-rendering');
       }
+
+      // Track dependencies during re-render
+      this.trackDependenciesDuringRender(components);
+
+      // Selectively re-render the components
+      const updatedRoot = this.selectiveReRender(rootComponent, new Set(components), reason);
+
+      // Detect structural changes if this is a structural re-render
+      if (reason === 'structural-change' && this.structuralChangeDetector) {
+        this.handleStructuralChangesComparison(rootComponent, updatedRoot);
+      }
+
+      // Update current fiber reference
+      this.currentFiber = updatedRoot;
+
+      return updatedRoot;
     });
   }
 
@@ -781,7 +776,8 @@ export class Renderer {
     currentPath: string[]
   ): void {
     // Check if this component needs re-rendering
-    const needsReRender = this.shouldReRenderComponent(fiber, componentsToReRender);
+    // Match by path instead of object identity (fibers are cloned)
+    const needsReRender = this.shouldReRenderComponentByPath(fiber, componentsToReRender);
 
     if (needsReRender) {
       // Update reactive state
@@ -810,6 +806,28 @@ export class Renderer {
         this.selectiveReRenderRecursive(child, componentsToReRender, reason, childPath);
       });
     }
+  }
+
+  /**
+   * Check if component should re-render by matching paths
+   * This works with cloned fibers where object identity doesn't match
+   *
+   * @param fiber - Current fiber to check
+   * @param componentsToReRender - Set of original fibers to re-render
+   * @returns True if this fiber's path matches any in the set
+   */
+  private shouldReRenderComponentByPath(fiber: FiberNode, componentsToReRender: Set<FiberNode>): boolean {
+    // Match by path (works with cloned fibers)
+    const fiberPath = fiber.path?.join('.') || '';
+    
+    for (const componentToReRender of componentsToReRender) {
+      const targetPath = componentToReRender.path?.join('.') || '';
+      if (fiberPath === targetPath) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -850,6 +868,9 @@ export class Renderer {
    * @param currentPath - Current path in the tree
    */
   private reExecuteComponent(fiber: FiberNode, currentPath: string[]): void {
+    // CRITICAL: Restore context stack from parent providers before re-executing
+    this.restoreContextStackForFiber(fiber);
+
     // Set up rendering context
     setRenderContext(fiber, fiber.path);
     resetConstructCounts(fiber);
@@ -872,24 +893,178 @@ export class Renderer {
   }
 
   /**
+   * Restore context stack for a fiber by traversing parent providers
+   * This ensures useContext() gets the correct values during re-renders
+   *
+   * @param fiber - Fiber node to restore context for
+   */
+  private restoreContextStackForFiber(fiber: FiberNode): void {
+    // Find all ancestor providers up to the root
+    const ancestorProviders = this.findAncestorProviders(fiber);
+
+    // Push context values onto the stack in order (root to leaf)
+    for (const providerFiber of ancestorProviders) {
+      const contextId = (providerFiber.type as any)._contextId;
+      const contextValue = providerFiber.props.value;
+      pushContextValue(contextId, contextValue);
+    }
+  }
+
+  /**
+   * Find all ancestor context providers for a fiber
+   * Returns providers in order from root to the fiber's parent
+   *
+   * @param fiber - Fiber node to find ancestors for
+   * @returns Array of provider fibers (root to leaf order)
+   */
+  private findAncestorProviders(fiber: FiberNode): FiberNode[] {
+    if (!this.currentFiber) {
+      return [];
+    }
+
+    const providers: FiberNode[] = [];
+    this.findAncestorProvidersRecursive(this.currentFiber, fiber, providers, []);
+    return providers;
+  }
+
+  /**
+   * Recursively search for ancestor providers
+   *
+   * @param currentFiber - Current fiber being examined
+   * @param targetFiber - Target fiber we're looking for ancestors of
+   * @param providers - Array to collect providers
+   * @param path - Current path of provider fibers
+   * @returns True if targetFiber was found in this subtree
+   */
+  private findAncestorProvidersRecursive(
+    currentFiber: FiberNode,
+    targetFiber: FiberNode,
+    providers: FiberNode[],
+    path: FiberNode[]
+  ): boolean {
+    // Check if we found the target by comparing paths (works with cloned fibers)
+    const currentPath = currentFiber.path?.join('.') || '';
+    const targetPath = targetFiber.path?.join('.') || '';
+    
+    if (currentPath === targetPath) {
+      // Add all providers in the path
+      providers.push(...path);
+      return true;
+    }
+
+    // Check if this is a provider
+    const isProvider =
+      typeof currentFiber.type === 'function' && (currentFiber.type as any)._isContextProvider;
+
+    // Search children
+    if (currentFiber.children) {
+      for (const child of currentFiber.children) {
+        // Add this fiber to path if it's a provider
+        const newPath = isProvider ? [...path, currentFiber] : path;
+        
+        if (this.findAncestorProvidersRecursive(child, targetFiber, providers, newPath)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Find the root component from a set of components
+   *
+   * CRITICAL FIX: Find common ancestor instead of just shortest path
+   * When multiple components have the same path length (e.g., multi-environment apps),
+   * we need to find their common ancestor, not just pick the first one.
    *
    * @param components - Array of components
    * @returns Root component or null
    */
   private findRootComponent(components: FiberNode[]): FiberNode | null {
-    // Find the component with the shortest path (closest to root)
-    let rootComponent: FiberNode | null = null;
-    let shortestPathLength = Infinity;
-
-    for (const component of components) {
-      if (component.path.length < shortestPathLength) {
-        shortestPathLength = component.path.length;
-        rootComponent = component;
-      }
+    if (components.length === 0) return null;
+    if (components.length === 1) {
+      // Single component - traverse up to find actual root
+      return this.findActualRoot(components[0]);
     }
 
-    return rootComponent;
+    // Find common ancestor by comparing paths
+    const paths = components.map(c => c.path || []);
+    const commonPath = this.findCommonPathPrefix(paths);
+    
+    // Find the fiber at the common path
+    return this.findFiberByPath(this.currentFiber, commonPath);
+  }
+
+  /**
+   * Find common path prefix among multiple paths
+   *
+   * @param paths - Array of path arrays
+   * @returns Common prefix path
+   */
+  private findCommonPathPrefix(paths: string[][]): string[] {
+    if (paths.length === 0) return [];
+    
+    const shortest = paths.reduce((a, b) => a.length <= b.length ? a : b);
+    const commonPath: string[] = [];
+    
+    for (let i = 0; i < shortest.length; i++) {
+      const segment = shortest[i];
+      if (paths.every(path => path[i] === segment)) {
+        commonPath.push(segment);
+      } else {
+        break;
+      }
+    }
+    
+    return commonPath;
+  }
+
+  /**
+   * Find fiber by path in the fiber tree
+   *
+   * @param fiber - Root fiber to search from
+   * @param targetPath - Path to find
+   * @returns Fiber at path or null
+   */
+  private findFiberByPath(fiber: FiberNode | null, targetPath: string[]): FiberNode | null {
+    if (!fiber) return null;
+    
+    const fiberPath = fiber.path?.join('.') || '';
+    const target = targetPath.join('.');
+    
+    if (fiberPath === target) return fiber;
+    
+    if (fiber.children) {
+      for (const child of fiber.children) {
+        const result = this.findFiberByPath(child, targetPath);
+        if (result) return result;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Find actual root by traversing up the fiber tree
+   *
+   * @param fiber - Starting fiber
+   * @returns Root fiber
+   */
+  private findActualRoot(fiber: FiberNode): FiberNode {
+    // Traverse up to find the actual root
+    let current = fiber;
+    while (current.path && current.path.length > 1) {
+      // Try to find parent in currentFiber tree
+      const parentPath = current.path.slice(0, -1);
+      const parent = this.findFiberByPath(this.currentFiber, parentPath);
+      if (parent) {
+        current = parent;
+      } else {
+        break;
+      }
+    }
+    return current;
   }
 
   /**
@@ -942,6 +1117,8 @@ export class Renderer {
       reactiveState: fiber.reactiveState ? { ...fiber.reactiveState } : undefined,
       dependencies: fiber.dependencies ? new Set(fiber.dependencies) : undefined,
       dependents: fiber.dependents ? new Set(fiber.dependents) : undefined,
+      cloudDOMNodes: (fiber as any).cloudDOMNodes ? [...(fiber as any).cloudDOMNodes] : undefined,
+      effectBindings: fiber.effectBindings ? new Map(fiber.effectBindings) : undefined,
     };
   }
 }

@@ -5,7 +5,7 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
-
+*.db
 examples
         "\"$f.tmp\""
 # CReact persistence directory
