@@ -19,9 +19,19 @@ function App() {
 }
 ```
 
+## Getting started
+
+Clone [Blank App Template](https://github.com/creact-labs/creact-blank-app-template)  
+
+Run
+
+```bash
+# Deploy your infrastructure
+creact deploy --entry my-app.tsx
+```
+
 ## Demos
 
-[Blank App Template](https://github.com/creact-labs/creact-blank-app-template)  
 [Multi env local landing page](https://github.com/creact-labs/creact-app-demo-multi-env-web-server)
 
 
