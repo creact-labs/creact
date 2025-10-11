@@ -21,6 +21,7 @@ function App() {
 ## What its not
 
 - terraform/pulumi/cdk replacement
+- crossplane replacement 
 - react wrapper
 
 ## Getting started
