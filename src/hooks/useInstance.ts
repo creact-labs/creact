@@ -33,7 +33,7 @@
 // This hook registers infrastructure resources in the CloudDOM during rendering
 
 import { CloudDOMNode, CloudDOMEventCallbacks } from '../core/types';
-import { generateResourceId, toKebabCase } from '../utils/naming';
+import { generateResourceId, toKebabCase, getNodeName } from '../utils/naming';
 import { ProviderOutputTracker } from '../core/ProviderOutputTracker';
 import {
   setRenderContext,
@@ -81,15 +81,29 @@ export function getProviderOutputTrackerInstance(): ProviderOutputTracker {
  * This node won't be included in CloudDOM but allows the component to continue rendering
  * All output accesses return undefined
  *
+ * Uses the same ID generation logic as real nodes for proper reconciliation tracking
+ *
  * @internal
  */
-function createPlaceholderNode(): CloudDOMNode {
+function createPlaceholderNode(
+  construct: any,
+  currentPath: string[],
+  key: string | number | undefined,
+  currentFiber: any,
+  props: Record<string, any>
+): CloudDOMNode {
+  // Generate ID using same logic as real nodes (use existing naming utilities)
+  const id = getNodeName(construct, props, key);
+
+  const fullPath = [...currentPath, id];
+  const resourceId = generateResourceId(fullPath);
+
   const placeholderNode: CloudDOMNode = {
-    id: '__placeholder__',
-    path: ['__placeholder__'],
-    construct: class Placeholder {},
-    constructType: 'Placeholder',
-    props: {},
+    id: resourceId,
+    path: fullPath,
+    construct,
+    constructType: construct.name || 'UnknownConstruct',
+    props: props,
     children: [],
     outputs: {},
   };
@@ -293,7 +307,8 @@ export function useInstance<T = any>(
     // Don't attach anything to fiber - this resource will be skipped entirely
     // Return a placeholder node that won't be included in CloudDOM
     // The proxy will return undefined for all output accesses
-    return createPlaceholderNode();
+    // Use the same ID generation logic as real nodes for proper reconciliation tracking
+    return createPlaceholderNode(construct, currentPath, key, currentFiber, restProps);
   }
 
   // Remove undefined values from props to match JSON serialization behavior
@@ -325,36 +340,9 @@ export function useInstance<T = any>(
     eventCallbacks.onDestroy = componentProps.onDestroy;
   }
 
-  // Generate ID from key or construct type
-  // Priority: explicit key from useInstance props > component fiber key > auto-generated
-  let id: string;
-  if (key !== undefined) {
-    // Use explicit key if provided in useInstance props
-    id = String(key);
-  } else {
-    // Auto-generate ID from construct type name (kebab-case)
-    const constructName = toKebabCase(construct.name);
-
-    // Track call count for this construct type in this component
-    if (!constructCallCounts.has(currentFiber)) {
-      constructCallCounts.set(currentFiber, new Map());
-    }
-    const counts = constructCallCounts.get(currentFiber)!;
-    const count = counts.get(construct) || 0;
-    counts.set(construct, count + 1);
-
-    // Append index if multiple calls with same type
-    if (count > 0) {
-      id = `${constructName}-${count}`;
-    } else {
-      id = constructName;
-    }
-
-    // If component has a key (from JSX), prepend it to make resources unique per component instance
-    if (currentFiber.key) {
-      id = `${currentFiber.key}-${id}`;
-    }
-  }
+  // Generate ID using getNodeName for consistency with placeholder nodes
+  // This ensures placeholder and real nodes have matching IDs for proper reconciliation
+  const id = getNodeName(construct, restProps, key);
 
   // Generate full resource ID from current path
   // Example: ['registry', 'service'] + 'bucket' → 'registry.service.bucket'

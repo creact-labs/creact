@@ -392,3 +392,4 @@ export function getAccessTrackingSession(fiber: FiberNode): AccessTrackingSessio
   const context = getHookContextSafe();
   return context?.accessTrackingSessions.get(fiber);
 }
+

@@ -95,6 +95,9 @@ export interface FiberNode {
       registeredAt: number;
     }
   >;
+
+  /** Context stack snapshot at the time this component was rendered */
+  contextSnapshot?: Map<symbol, any[]>;
 }
 
 /**

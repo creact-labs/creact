@@ -15,17 +15,49 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "infrastructure",
+    "infrastructure-as-code",
+    "iac",
     "jsx",
     "react",
     "cloud",
-    "terraform"
+    "terraform",
+    "aws",
+    "kubernetes",
+    "devops",
+    "deployment",
+    "orchestration",
+    "clouddom",
+    "reconciler",
+    "reactive",
+    "pulumi",
+    "cdk",
+    "helm",
+    "multi-cloud",
+    "declarative"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creact-labs/creact.git"
+  },
+  "homepage": "https://github.com/creact-labs/creact",
+  "bugs": {
+    "url": "https://github.com/creact-labs/creact/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/better-sqlite3": "^7.6.13",

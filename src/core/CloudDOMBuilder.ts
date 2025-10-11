@@ -36,6 +36,7 @@ import { ICloudProvider } from '../providers/ICloudProvider';
 import { generateResourceId, normalizePath as normalizePathUtil } from '../utils/naming';
 import { StateBindingManager } from './StateBindingManager';
 import { ProviderOutputTracker } from './ProviderOutputTracker';
+import { ContextDependencyTracker } from './ContextDependencyTracker';
 import { getReactiveUpdateQueue } from './ReactiveUpdateQueue';
 import { LoggerFactory } from '../utils/Logger';
 
@@ -70,6 +71,11 @@ export class CloudDOMBuilder {
    * Provider output tracker for instance-output binding
    */
   private providerOutputTracker?: ProviderOutputTracker;
+
+  /**
+   * Context dependency tracker for context reactivity
+   */
+  private contextDependencyTracker?: ContextDependencyTracker;
 
   /**
    * Track existing nodes to handle re-render scenarios
@@ -119,13 +125,16 @@ export class CloudDOMBuilder {
    *
    * @param stateBindingManager - State binding manager instance
    * @param providerOutputTracker - Provider output tracker instance
+   * @param contextDependencyTracker - Context dependency tracker instance (optional)
    */
   setReactiveComponents(
     stateBindingManager: StateBindingManager,
-    providerOutputTracker: ProviderOutputTracker
+    providerOutputTracker: ProviderOutputTracker,
+    contextDependencyTracker?: ContextDependencyTracker
   ): void {
     this.stateBindingManager = stateBindingManager;
     this.providerOutputTracker = providerOutputTracker;
+    this.contextDependencyTracker = contextDependencyTracker;
   }
 
   /**
@@ -137,12 +146,16 @@ export class CloudDOMBuilder {
    *
    * Supports async lifecycle hooks for validation and provider preparation.
    *
+   * CRITICAL FIX: Preserves nodes from previousCloudDOM that weren't re-rendered.
+   * This prevents node loss during selective re-renders (e.g., multi-environment apps).
+   *
    * REQ-01: Transform Fiber → CloudDOM
    *
    * @param fiber - Root Fiber node
+   * @param previousCloudDOM - Optional previous CloudDOM for incremental builds
    * @returns Promise resolving to array of CloudDOM nodes (top-level resources)
    */
-  async build(fiber: FiberNode): Promise<CloudDOMNode[]> {
+  async build(fiber: FiberNode, previousCloudDOM?: CloudDOMNode[]): Promise<CloudDOMNode[]> {
     if (!fiber) {
       throw new Error('[CloudDOMBuilder] Cannot build CloudDOM from null Fiber tree');
     }
@@ -164,6 +177,22 @@ export class CloudDOMBuilder {
     // Collect all CloudDOM nodes from the Fiber tree
     const cloudDOMNodes: CloudDOMNode[] = [];
     this.collectCloudDOMNodes(fiber, cloudDOMNodes);
+
+    // CRITICAL FIX: If we have previous CloudDOM and this is an incremental build,
+    // preserve nodes that aren't in the current fiber tree
+    if (previousCloudDOM && previousCloudDOM.length > 0) {
+      const currentNodeIds = new Set(cloudDOMNodes.map(n => n.id));
+      
+      // Find nodes from previous CloudDOM that aren't in current build
+      const preservedNodes = this.flattenCloudDOM(previousCloudDOM).filter(
+        node => !currentNodeIds.has(node.id)
+      );
+      
+      if (preservedNodes.length > 0) {
+        logger.info(`[CloudDOMBuilder] Preserving ${preservedNodes.length} nodes from previous CloudDOM that weren't re-rendered`);
+        cloudDOMNodes.push(...preservedNodes);
+      }
+    }
 
     // Validate collected nodes
     this.validateCloudDOMNodes(cloudDOMNodes);
@@ -199,17 +228,40 @@ export class CloudDOMBuilder {
   }
 
   /**
+   * Flatten CloudDOM tree into a flat array of all nodes
+   *
+   * @param nodes - Root CloudDOM nodes
+   * @returns Flattened array of all nodes
+   */
+  private flattenCloudDOM(nodes: CloudDOMNode[]): CloudDOMNode[] {
+    const flattened: CloudDOMNode[] = [];
+    
+    const walk = (nodeList: CloudDOMNode[]) => {
+      for (const node of nodeList) {
+        flattened.push(node);
+        if (node.children && node.children.length > 0) {
+          walk(node.children);
+        }
+      }
+    };
+    
+    walk(nodes);
+    return flattened;
+  }
+
+  /**
    * Build CloudDOM tree with error handling for CLI/CI environments
    *
    * Provides a safer entrypoint that handles errors gracefully without
    * crashing the entire process. Useful for CI/CD pipelines.
    *
    * @param fiber - Root Fiber node
+   * @param previousCloudDOM - Optional previous CloudDOM for incremental builds
    * @returns Promise resolving to array of CloudDOM nodes, or empty array on error
    */
-  async buildSafe(fiber: FiberNode): Promise<CloudDOMNode[]> {
+  async buildSafe(fiber: FiberNode, previousCloudDOM?: CloudDOMNode[]): Promise<CloudDOMNode[]> {
     try {
-      return await this.build(fiber);
+      return await this.build(fiber, previousCloudDOM);
     } catch (error) {
       logger.error('Build failed:', error);
       return [];
@@ -245,10 +297,19 @@ export class CloudDOMBuilder {
           }
 
           collected.push(cloudNode);
+          
+          logger.debug(`Collected CloudDOM node: ${cloudNode.id} from fiber: ${fiber.path?.join('.')}`);
         } else {
           const nodeId = (cloudNode as any)?.id ?? 'unknown';
           logger.warn(`Skipping invalid CloudDOM node: ${nodeId}`);
         }
+      }
+    } else {
+      // CRITICAL FIX: If this fiber has no cloudDOMNodes but has children,
+      // it might be a component that wasn't re-executed during selective re-rendering.
+      // Log this for debugging purposes.
+      if (fiber.children && fiber.children.length > 0) {
+        logger.debug(`Fiber ${fiber.path?.join('.')} has no cloudDOMNodes but has ${fiber.children.length} children`);
       }
     }
 
@@ -440,6 +501,11 @@ export class CloudDOMBuilder {
    * @returns True if node is a valid CloudDOM node
    */
   private isValidCloudNode(node: any): node is CloudDOMNode {
+    // Filter out placeholder nodes - they shouldn't be deployed
+    if (node?.id?.includes?.('__placeholder__') || node?.constructType === 'Placeholder') {
+      return false;
+    }
+
     return (
       typeof node?.id === 'string' &&
       Array.isArray(node?.path) &&
@@ -1109,32 +1175,11 @@ export class CloudDOMBuilder {
    * 2. Have children that are Context.Provider components
    */
   private findContextValueCreators(fiber: FiberNode, affectedFibers: FiberNode[]): void {
-    // Check if this fiber uses outputs (has cloudDOMNodes)
-    const usesOutputs = (fiber as any).cloudDOMNodes && (fiber as any).cloudDOMNodes.length > 0;
-
-    // Check if this fiber has Context.Provider children
-    const hasProviderChild =
-      fiber.children &&
-      fiber.children.some(
-        (child) => typeof child.type === 'function' && (child.type as any)._isContextProvider
-      );
-
-    logger.info(`[Context Reactivity] Checking fiber: ${fiber.path?.join('.')}`);
-    logger.info(`  Uses outputs: ${usesOutputs}`);
-    logger.info(`  Has provider child: ${hasProviderChild}`);
-
-    if (usesOutputs && hasProviderChild) {
-      // This component creates context values from outputs - needs re-render
-      logger.info(`[Context Reactivity] ✓ Found context value creator: ${fiber.path?.join('.')}`);
-      logger.info(`  Has ${(fiber as any).cloudDOMNodes?.length || 0} output dependencies`);
-
-      // Add to affected fibers for re-rendering
-      if (!affectedFibers.includes(fiber)) {
-        affectedFibers.push(fiber);
-      }
-    }
-
-    // Recursively process children
+    // IMPORTANT: Don't automatically mark context value creators as affected
+    // Only mark them if their specific outputs changed (handled by ProviderOutputTracker)
+    // This prevents unnecessary re-renders that lose context values from parent providers
+    
+    // Recursively process children only (don't mark anything as affected)
     if (fiber.children && fiber.children.length > 0) {
       for (const child of fiber.children) {
         this.findContextValueCreators(child, affectedFibers);
