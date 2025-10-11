@@ -29,15 +29,14 @@
 
  */
 
+/// <reference path="./jsx.d.ts" />
+
 // CReact - Infrastructure as Code with JSX
 // Main entry point for the library
 
 // JSX support
 export { CReact, JSXElement } from './jsx';
 export type { FC, PropsWithChildren } from './jsx.d';
-
-// Re-export JSX type definitions for consumers
-import './jsx.d';
 
 // Core classes
 import { CReact as CReactClass } from './core/CReact';
