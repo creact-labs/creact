@@ -724,7 +724,7 @@ export class CReact {
         } else {
           console.log('[BUG DEBUG] No affected fibers - should NOT re-render!');
         }
-        
+
         const needsReRender = affectedFibers.length > 0;
 
         if (needsReRender) {
@@ -843,10 +843,10 @@ export class CReact {
         error instanceof DeploymentError
           ? error
           : new DeploymentError((error as Error).message, {
-              message: (error as Error).message,
-              code: 'DEPLOYMENT_FAILED',
-              stack: (error as Error).stack,
-            });
+            message: (error as Error).message,
+            code: 'DEPLOYMENT_FAILED',
+            stack: (error as Error).stack,
+          });
 
       await this.stateMachine.failDeployment(stackName, deploymentError);
 
@@ -1402,9 +1402,31 @@ export class CReact {
     (CReact as any)._lastElement = element;
     (CReact as any)._lastStackName = stackName;
 
+    // Initialize providers if they have an initialize method
+    if (CReact.cloudProvider.initialize) {
+      await CReact.cloudProvider.initialize();
+    }
+    if (CReact.backendProvider.initialize) {
+      await CReact.backendProvider.initialize();
+    }
+
     // CRITICAL: Load previous state from backend before rendering
     // This enables useState to hydrate from persisted state
     await instance.loadStateForHydration(stackName);
+
+    // CRITICAL: Detect and fix drift before rendering
+    // This ensures state matches reality and prevents stale deployments
+    const driftResult = await instance.stateMachine.detectAndFixDrift(stackName, CReact.cloudProvider);
+
+    // If drift was detected and fixed, reload state to get updated outputs
+    if (driftResult.resourcesFixed > 0) {
+      logger.debug(`Reloading state after fixing ${driftResult.resourcesFixed} drifted resources`);
+      // Clear existing hydration data and reload with fresh state
+      const freshState = await instance.stateMachine.getState(stackName);
+      if (freshState?.cloudDOM) {
+        instance.prepareHydration(freshState.cloudDOM, true); // clearExisting = true
+      }
+    }
 
     // Build and return CloudDOM
     return instance.build(element, stackName);

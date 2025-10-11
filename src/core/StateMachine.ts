@@ -542,7 +542,7 @@ export class StateMachine {
       } catch (error) {
         throw new DeploymentError(
           `Failed to acquire lock for stack ${stackName}. ` +
-            `Another deployment may be in progress.`,
+          `Another deployment may be in progress.`,
           {
             message: `Failed to acquire lock for stack ${stackName}`,
             code: 'LOCK_ACQUISITION_FAILED',
@@ -622,7 +622,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot update checkpoint for stack in ${state.status} state. ` +
-          `Checkpoints can only be updated during APPLYING state.`,
+        `Checkpoints can only be updated during APPLYING state.`,
         {
           message: `Cannot update checkpoint for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_CHECKPOINT',
@@ -818,7 +818,7 @@ export class StateMachine {
     if (state.status !== 'APPLYING') {
       throw new DeploymentError(
         `Cannot resume deployment for stack in ${state.status} state. ` +
-          `Only APPLYING deployments can be resumed.`,
+        `Only APPLYING deployments can be resumed.`,
         {
           message: `Cannot resume deployment for stack in ${state.status} state`,
           code: 'INVALID_STATE_FOR_RESUME',
@@ -974,11 +974,11 @@ export class StateMachine {
    */
   async getCheckpointInfo(stackName: string): Promise<
     | {
-        checkpoint: number;
-        resourceId?: string;
-        totalResources: number;
-        percentComplete: number;
-      }
+      checkpoint: number;
+      resourceId?: string;
+      totalResources: number;
+      percentComplete: number;
+    }
     | undefined
   > {
     const state = await this.getState(stackName);
@@ -1041,5 +1041,126 @@ export class StateMachine {
       await this.rollback(stackName);
       return { action: 'rolled_back' };
     }
+  }
+
+  /**
+   * Detect and fix drift in deployed resources
+   * 
+   * Checks if resources in the backend state still match reality.
+   * If drift is detected, refreshes the state to reflect actual cloud state.
+   * 
+   * This is called automatically during state load to ensure state accuracy.
+   * 
+   * @param stackName - Stack name to check for drift
+   * @param cloudProvider - Cloud provider with drift detection capabilities
+   * @returns Promise resolving to drift detection results
+   */
+  async detectAndFixDrift(
+    stackName: string,
+    cloudProvider: import('../providers/ICloudProvider').ICloudProvider
+  ): Promise<{
+    driftDetected: boolean;
+    driftResults: import('../providers/ICloudProvider').DriftDetectionResult[];
+    resourcesFixed: number;
+  }> {
+    const state = await this.getState(stackName);
+    if (!state?.cloudDOM) {
+      return { driftDetected: false, driftResults: [], resourcesFixed: 0 };
+    }
+
+    logger.debug(`Detecting drift for stack: ${stackName}`);
+    const driftResults: import('../providers/ICloudProvider').DriftDetectionResult[] = [];
+    let resourcesFixed = 0;
+
+    for (const node of state.cloudDOM) {
+      // Skip nodes without outputs (not yet deployed)
+      if (!node.outputs) {
+        continue;
+      }
+
+      // Detect drift (required method)
+      const result = await cloudProvider.detectDrift(node);
+      driftResults.push(result);
+
+      if (result.hasDrifted) {
+        logger.info(`Drift detected: ${node.id} - ${result.driftDescription || 'State mismatch'}`);
+
+        // Refresh state to fix drift (required method)
+        logger.debug(`Refreshing state for: ${node.id}`);
+        await cloudProvider.refreshState(node);
+        resourcesFixed++;
+      }
+    }
+
+    // If any drift was detected, clear outputs for drifted resources and their children
+    // With the "one useInstance per component" constraint, dependencies = nesting
+    // So clearing a drifted node + its children ensures complete redeployment
+    if (resourcesFixed > 0) {
+      const driftedNodeIds = new Set(
+        driftResults.filter(r => r.hasDrifted).map(r => r.nodeId)
+      );
+
+      logger.info(`Clearing outputs for ${driftedNodeIds.size} drifted resources and their children`);
+
+      // Clear outputs for drifted nodes and all their descendants
+      const clearDriftedOutputs = (nodes: CloudDOMNode[]) => {
+        for (const node of nodes) {
+          const isDrifted = driftedNodeIds.has(node.id);
+
+          if (isDrifted && node.outputs) {
+            logger.debug(`Clearing outputs for drifted resource: ${node.id}`);
+            node.outputs = undefined;
+          }
+
+          // If this node is drifted, clear all its children too
+          if (node.children) {
+            if (isDrifted) {
+              // Clear all children of drifted nodes
+              const clearAllChildren = (childNodes: CloudDOMNode[]) => {
+                for (const child of childNodes) {
+                  if (child.outputs) {
+                    logger.debug(`Clearing outputs for child of drifted resource: ${child.id}`);
+                    child.outputs = undefined;
+                  }
+                  if (child.children) {
+                    clearAllChildren(child.children);
+                  }
+                }
+              };
+              clearAllChildren(node.children);
+            } else {
+              // Continue searching for drifted nodes in children
+              clearDriftedOutputs(node.children);
+            }
+          }
+        }
+      };
+
+      clearDriftedOutputs(state.cloudDOM);
+    }
+
+    // If drift was detected and state was refreshed, save updated state
+    const driftDetected = driftResults.some(r => r.hasDrifted);
+    if (driftDetected && resourcesFixed > 0) {
+      logger.info(`Saving refreshed state after fixing ${resourcesFixed} drifted resources`);
+      await this.withRetry(() =>
+        this.backendProvider.saveState(stackName, {
+          ...state,
+          cloudDOM: state.cloudDOM,
+          timestamp: Date.now(),
+        })
+      );
+
+      // Log drift detection to audit trail
+      await this.logAction(stackName, 'checkpoint', state);
+    }
+
+    if (driftDetected) {
+      logger.info(`Drift detection complete: ${driftResults.filter(r => r.hasDrifted).length} resources drifted, ${resourcesFixed} fixed`);
+    } else {
+      logger.debug('No drift detected');
+    }
+
+    return { driftDetected, driftResults, resourcesFixed };
   }
 }

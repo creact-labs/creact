@@ -51,6 +51,29 @@ export interface OutputChangeEvent {
 }
 
 /**
+ * DriftDetectionResult represents the result of checking if a resource has drifted
+ */
+export interface DriftDetectionResult {
+  /** Resource ID that was checked */
+  nodeId: string;
+
+  /** Whether the resource has drifted from expected state */
+  hasDrifted: boolean;
+
+  /** Expected state from CloudDOM */
+  expectedState?: Record<string, any>;
+
+  /** Actual state from cloud provider */
+  actualState?: Record<string, any>;
+
+  /** Human-readable description of the drift */
+  driftDescription?: string;
+
+  /** Timestamp of the check */
+  timestamp: number;
+}
+
+/**
  * ICloudProvider defines the interface for cloud infrastructure providers.
  * Implementations materialize CloudDOM trees into actual cloud resources.
  *
@@ -160,4 +183,73 @@ export interface ICloudProvider {
    * @param change - Output change details
    */
   emit?(event: 'outputsChanged', change: OutputChangeEvent): void;
+
+  /**
+   * Detect drift for a specific resource (REQUIRED)
+   * 
+   * Compares the expected state (from CloudDOM) with the actual state
+   * (from the cloud provider) to detect if the resource has drifted.
+   * 
+   * This is called by CReact automatically during:
+   * - Every state load (to detect stale state)
+   * - Plan command (to show drift before deployment)
+   * - Deploy command (to ensure state accuracy)
+   * 
+   * Providers MUST implement this to ensure state accuracy.
+   * 
+   * @param node - CloudDOM node representing expected state
+   * @returns Promise resolving to drift detection result
+   * 
+   * @example
+   * ```typescript
+   * async detectDrift(node: CloudDOMNode): Promise<DriftDetectionResult> {
+   *   // For resources without outputs, no drift possible
+   *   if (!node.outputs) {
+   *     return { nodeId: node.id, hasDrifted: false, timestamp: Date.now() };
+   *   }
+   * 
+   *   const actualState = await this.getActualResourceState(node.id);
+   *   const hasDrifted = !this.statesMatch(node.outputs, actualState);
+   *   
+   *   return {
+   *     nodeId: node.id,
+   *     hasDrifted,
+   *     expectedState: node.outputs,
+   *     actualState,
+   *     driftDescription: hasDrifted ? 'Resource no longer exists' : undefined,
+   *     timestamp: Date.now(),
+   *   };
+   * }
+   * ```
+   */
+  detectDrift(node: CloudDOMNode): Promise<DriftDetectionResult>;
+
+  /**
+   * Refresh resource state from actual cloud provider (REQUIRED)
+   * 
+   * Queries the actual state of a resource and updates the node's outputs
+   * to reflect reality. This is the mechanism for fixing drift.
+   * 
+   * Called automatically by CReact when drift is detected.
+   * 
+   * Providers MUST implement this to enable automatic drift recovery.
+   * 
+   * @param node - CloudDOM node to refresh
+   * @returns Promise resolving when refresh is complete (node.outputs updated)
+   * 
+   * @example
+   * ```typescript
+   * async refreshState(node: CloudDOMNode): Promise<void> {
+   *   const actualState = await this.getActualResourceState(node.id);
+   *   if (actualState) {
+   *     // Resource exists - update outputs to match reality
+   *     node.outputs = actualState;
+   *   } else {
+   *     // Resource doesn't exist - clear outputs to force redeployment
+   *     node.outputs = undefined;
+   *   }
+   * }
+   * ```
+   */
+  refreshState(node: CloudDOMNode): Promise<void>;
 }

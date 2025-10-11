@@ -49,7 +49,7 @@ export { CloudDOMBuilder } from './core/CloudDOMBuilder';
 export { FiberNode, CloudDOMNode } from './core/types';
 
 // Provider interfaces
-export { ICloudProvider } from './providers/ICloudProvider';
+export { ICloudProvider, DriftDetectionResult, OutputChangeEvent } from './providers/ICloudProvider';
 export { IBackendProvider } from './providers/IBackendProvider';
 
 // Hooks

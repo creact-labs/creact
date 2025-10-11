@@ -286,6 +286,43 @@ export function useInstance<T = any>(
   // Get hook index for this useInstance call (instance-specific)
   const hookIndex = incrementHookIndex('instance');
 
+  // CONSTRAINT: Only one useInstance per component
+  // This simplifies dependency tracking and drift recovery
+  if (hookIndex > 0) {
+    const componentName = currentFiber.type?.name || 'Anonymous';
+    throw new Error(
+      `[CReact Constraint] Only one useInstance call is allowed per component.\n\n` +
+      `Component: ${componentName}\n` +
+      `Path: ${currentPath.join('.')}\n\n` +
+      `This constraint ensures:\n` +
+      `  1. Clear resource dependencies (parent-child nesting)\n` +
+      `  2. Simpler drift recovery (clear drifted node + children)\n` +
+      `  3. Better component composition\n\n` +
+      `Solution: Split your component into multiple components, one per resource.\n\n` +
+      `Example:\n` +
+      `  ❌ function Stack() {\n` +
+      `       const db = useInstance(Database, {...});\n` +
+      `       const api = useInstance(API, {...});  // Error!\n` +
+      `     }\n\n` +
+      `  ✅ function Stack() {\n` +
+      `       return (\n` +
+      `         <>\n` +
+      `           <PrimaryDatabase />\n` +
+      `           <ApiServer />\n` +
+      `         </>\n` +
+      `       );\n` +
+      `     }\n` +
+      `     function PrimaryDatabase() {\n` +
+      `       const db = useInstance(Database, {...});\n` +
+      `       return <></>;\n` +
+      `     }\n` +
+      `     function ApiServer() {\n` +
+      `       const api = useInstance(API, {...});\n` +
+      `       return <></>;\n` +
+      `     }\n`
+    );
+  }
+
   // Extract key from props (React-like)
   const { key, ...restProps } = props;
 
