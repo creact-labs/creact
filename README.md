@@ -26,8 +26,7 @@ Clone [Blank App Template](https://github.com/creact-labs/creact-blank-app-templ
 Run
 
 ```bash
-# Deploy your infrastructure
-creact deploy --entry my-app.tsx
+npm run dev
 ```
 
 ## Demos
