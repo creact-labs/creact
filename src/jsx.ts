@@ -98,3 +98,94 @@ export namespace CReact {
     children?: any;
   }) => JSXElement;
 }
+
+/**
+ * Global JSX namespace declarations
+ *
+ * These declarations tell TypeScript how to validate JSX syntax and component props.
+ * By including them in this file (not a separate .d.ts), they are automatically
+ * included in the compiled output and available to package consumers.
+ */
+declare global {
+  namespace JSX {
+    /**
+     * The type returned by JSX expressions
+     */
+    interface Element extends JSXElement {}
+
+    /**
+     * Intrinsic elements (HTML-like elements)
+     * Empty for CReact - we only support component elements
+     */
+    interface IntrinsicElements {
+      // CReact doesn't support HTML elements, only components
+    }
+
+    /**
+     * Defines which prop contains children
+     * This allows TypeScript to understand the children prop
+     */
+    interface ElementChildrenAttribute {
+      children: {};
+    }
+
+    /**
+     * Base attributes available on all elements (including key)
+     * This applies to all JSX elements, both intrinsic and component-based
+     *
+     * IMPORTANT: This makes 'key' available on ALL JSX elements,
+     * including function components, without needing to add it to props
+     */
+    interface IntrinsicAttributes {
+      key?: string | number;
+    }
+
+    /**
+     * Attributes available on class components
+     */
+    interface IntrinsicClassAttributes<T> {
+      key?: string | number;
+    }
+
+    /**
+     * Tell TypeScript how to extract props from a component type
+     * This is critical for making LibraryManagedAttributes work
+     */
+    interface ElementAttributesProperty {
+      props: {};
+    }
+
+    /**
+     * Augment LibraryManagedAttributes to properly handle key prop
+     *
+     * This tells TypeScript that when checking JSX element props:
+     * 1. Take the component's declared props (P)
+     * 2. Make key optional (it's in IntrinsicAttributes but shouldn't be required)
+     * 3. Allow key to be passed even if not in component props
+     *
+     * We use Omit to remove 'key' from P if it exists, then add it back as optional
+     */
+    type LibraryManagedAttributes<C, P> =
+      // Remove key from P if it exists, then add IntrinsicAttributes (which includes optional key)
+      Omit<P, 'key'> & IntrinsicAttributes;
+  }
+}
+
+/**
+ * Type helper for component props with children
+ */
+export interface PropsWithChildren {
+  children?: JSX.Element | JSX.Element[];
+}
+
+/**
+ * Type helper for functional components
+ * Note: key is handled by JSX.IntrinsicAttributes and doesn't need to be in props
+ */
+export type FC<P = Record<string, unknown>> = (props: P & PropsWithChildren) => JSX.Element | null;
+
+/**
+ * Type helper for component props that includes JSX attributes (like key)
+ * Use this when defining component prop types to allow key prop
+ */
+export type ComponentProps<P = Record<string, unknown>> = P & JSX.IntrinsicAttributes;
