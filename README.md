@@ -3,8 +3,7 @@ NOTE: !!! THIS IS A EXPERIMENT OF THOUGHT NOT A PRODUCTION READY PRODUCT !!!
 
 # CReact 
 
-
-Write your cloud architecture in JSX
+![creact](https://i.postimg.cc/8P66GnT3/banner.jpg)
 
 ```tsx
 function App() {
