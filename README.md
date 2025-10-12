@@ -18,15 +18,173 @@ function App() {
   );
 }
 ```
-## what it is
+## What it is
 
-- universal reactive runtime for declarative systems
+- Universal reactive runtime for declarative systems
 
 ## What its not
 
-- terraform/pulumi/cdk replacement
-- crossplane replacement 
-- react wrapper
+- Terraform/pulumi/cdk replacement
+- Crossplane replacement 
+- React wrapper
+
+## Example Applications
+
+```typescript
+function ProductionDeployment() {
+  const [healthScore, setHealthScore] = useState(100);
+  const [errorRate, setErrorRate] = useState(0);
+  const [deploymentStatus, setDeploymentStatus] = useState('stable');
+  
+  return (
+    <>
+      <HealthMonitor 
+        onHealthChange={setHealthScore}
+        onErrorRateChange={setErrorRate}
+        onStatusChange={setDeploymentStatus}
+      />
+      
+      {/* Automatic rollback if deployment goes bad */}
+      {errorRate > 5 && deploymentStatus === 'deploying' && (
+        <AutomaticRollback 
+          strategy="blue-green"
+          preserveLogs={true}
+          alertSlack="#devops-alerts"
+        />
+      )}
+      
+      {/* Scale up during deployments for zero downtime */}
+      {deploymentStatus === 'deploying' && (
+        <DeploymentScaling>
+          <ExtraCapacity factor={1.5} />
+          <LoadBalancer strategy="gradual-shift" />
+          <DatabaseMigration mode="zero-downtime" />
+        </DeploymentScaling>
+      )}
+      
+      {/* Auto-scaling based on real metrics */}
+      <AutoScaler 
+        minInstances={2}
+        maxInstances={healthScore < 80 ? 10 : 5}
+        scaleOnCPU={70}
+        scaleOnMemory={80}
+        scaleOnErrorRate={2}
+      />
+    </>
+  );
+}
+```
+
+```typescript
+function TemporalBusinessApp() {
+  const [timeOfDay, setTimeOfDay] = useState(getCurrentHour());
+  const [dayOfWeek, setDayOfWeek] = useState(getCurrentDay());
+  const [marketHours, setMarketHours] = useState(false);
+  const [seasonality, setSeasonality] = useState(getCurrentSeason());
+  
+  return (
+    <>
+      <TimeAwareScheduler 
+        onTimeChange={setTimeOfDay}
+        onMarketStatusChange={setMarketHours}
+        onSeasonChange={setSeasonality}
+      />
+      
+      {/* Business hours = high performance */}
+      {timeOfDay >= 9 && timeOfDay <= 17 && dayOfWeek !== 'weekend' ? (
+        <BusinessHoursInfrastructure>
+          <TradingEngine performance="maximum" />
+          <CustomerSupport agents={50} />
+          <RealtimeAnalytics enabled={true} />
+          <BackupServices disabled={true} /> {/* No maintenance during business */}
+        </BusinessHoursInfrastructure>
+      ) : (
+        <OffHoursOptimization>
+          <TradingEngine performance="minimal" />
+          <MaintenanceWindow>
+            <DatabaseOptimization />
+            <SecurityScanning />
+            <BackupOperations />
+            <ModelRetraining />
+          </MaintenanceWindow>
+        </OffHoursOptimization>
+      )}
+      
+      {/* Market hours = trading infrastructure */}
+      {marketHours && (
+        <TradingInfrastructure>
+          <HighFrequencyTrading latency="microsecond" />
+          <MarketDataFeeds sources="all-exchanges" />
+          <RiskManagement realtime={true} />
+        </TradingInfrastructure>
+      )}
+      
+      {/* Holiday season = e-commerce scaling */}
+      {seasonality === 'holiday-season' && (
+        <HolidayScaling>
+          <InventoryManagement mode="aggressive-stocking" />
+          <PaymentProcessing capacity="10x" />
+          <FraudDetection sensitivity="maximum" />
+          <CustomerService staff="holiday-surge" />
+        </HolidayScaling>
+      )}
+    </>
+  );
+}
+```
+
+
+```typescript
+function OpportunisticAIPlatform() {
+  const [spotPrices, setSpotPrices] = useState({});
+  const [workloadQueue, setWorkloadQueue] = useState([]);
+  const [globalCapacity, setGlobalCapacity] = useState({});
+  
+  return (
+    <>
+      <CloudMarketScanner 
+        providers={["aws", "gcp", "azure", "digital-ocean"]}
+        onPriceUpdate={setSpotPrices}
+        onCapacityUpdate={setGlobalCapacity}
+      />
+      
+      <WorkloadOrchestrator 
+        queue={workloadQueue}
+        onNewJob={(job) => setWorkloadQueue(q => [...q, job])}
+      />
+      
+      {/* AI training that chases the cheapest compute globally */}
+      {workloadQueue.map(job => (
+        <AITrainingJob 
+          key={job.id}
+          job={job}
+          provider={findCheapestProvider(spotPrices, job.requirements)}
+          onComplete={(result) => {
+            // Automatically deploys model to edge locations
+          }}
+        />
+      ))}
+      
+      {/* Opportunistic batch processing */}
+      {spotPrices.aws?.gpu < 0.50 && (
+        <BatchProcessor 
+          provider="aws"
+          instanceType="p3.8xlarge"
+          maxSpend={100}
+          onPriceIncrease="migrate-to-cheaper"
+        />
+      )}
+      
+      {/* Global model serving that follows the sun */}
+      <GlobalModelServing 
+        models={completedModels}
+        strategy="lowest-latency"
+        failover="multi-cloud"
+      />
+    </>
+  );
+}
+```
 
 ## Getting started
 
