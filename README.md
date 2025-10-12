@@ -18,15 +18,6 @@ function App() {
   );
 }
 ```
-## What it is
-
-- Universal reactive runtime for declarative systems
-
-## What its not
-
-- Terraform/pulumi/cdk replacement
-- Crossplane replacement 
-- React wrapper
 
 ## Example Applications
 
@@ -185,6 +176,16 @@ function OpportunisticAIPlatform() {
   );
 }
 ```
+
+## What it is
+
+- Universal reactive runtime for declarative systems
+
+## What its not
+
+- Terraform/pulumi/cdk replacement
+- Crossplane replacement 
+- React wrapper
 
 ## Getting started
 
