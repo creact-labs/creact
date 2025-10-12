@@ -52,3 +52,11 @@ creact dev --entry my-app.tsx --auto-approve
 creact plan --entry my-app.tsx
 ```
 
+# Related Work
+
+CReact’s model relates to several prior paradigms:
+
+- **Functional Reactive Programming (FRP):** Elliott & Hudak, 1997  
+- **Autonomic Computing / MAPE-K:** Kephart & Chess, IBM 2003  
+- **Model-Driven Synchronization:** Diskin et al., ICMT 2011  
+- **Self-Adaptive Systems:** Brun et al., SEAMS 2009  
