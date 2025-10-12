@@ -1,11 +1,11 @@
 
 NOTE: !!! THIS IS A EXPERIMENT OF THOUGHT NOT A PRODUCTION READY PRODUCT !!!
 
-# CReact - a Universal Reactive Runtime for Declaritive Systems
+## CReact - a Universal Reactive Runtime for Declaritive Systems
 
 ![creact](https://i.postimg.cc/8P66GnT3/banner.jpg)
 
-## Example Applications
+### Example Applications
 
 ```tsx
 function ProductionDeployment() {
@@ -163,17 +163,17 @@ function OpportunisticAIPlatform() {
 }
 ```
 
-## What it is
+### What it is
 
 - Universal reactive runtime for declarative systems
 
-## What its not
+### What its not
 
 - Terraform/pulumi/cdk replacement
 - Crossplane replacement 
 - React wrapper
 
-## Getting started
+### Getting started
 
 Clone [Blank App Template](https://github.com/creact-labs/creact-blank-app-template)  
 
@@ -183,12 +183,12 @@ Run
 npm run dev
 ```
 
-## Demos
+### Demos
 
 [Multi env local landing page](https://github.com/creact-labs/creact-app-demo-multi-env-web-server)
 
 
-## Installation & Usage
+### Installation & Usage
 
 ```bash
 # Deploy your infrastructure
@@ -201,7 +201,7 @@ creact dev --entry my-app.tsx --auto-approve
 creact plan --entry my-app.tsx
 ```
 
-# Reference
+### Reference
 
 - **Functional Reactive Programming (FRP):** Elliott & Hudak, 1997  
 - **Autonomic Computing / MAPE-K:** Kephart & Chess, IBM 2003  
