@@ -1,23 +1,9 @@
 
 NOTE: !!! THIS IS A EXPERIMENT OF THOUGHT NOT A PRODUCTION READY PRODUCT !!!
 
-# CReact 
+# CReact - a Universal Reactive Runtime for Declaritive Systems
 
 ![creact](https://i.postimg.cc/8P66GnT3/banner.jpg)
-
-```tsx
-function App() {
-  return (
-    <VPC name="prod-vpc">
-      <Database name="users-db">
-        <API name="users-api">
-          <Monitoring />
-        </API>
-      </Database>
-    </VPC>
-  );
-}
-```
 
 ## Example Applications
 
