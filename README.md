@@ -30,7 +30,7 @@ function App() {
 
 ## Example Applications
 
-```typescript
+```tsx
 function ProductionDeployment() {
   const [healthScore, setHealthScore] = useState(100);
   const [errorRate, setErrorRate] = useState(0);
@@ -75,7 +75,7 @@ function ProductionDeployment() {
 }
 ```
 
-```typescript
+```tsx
 function TemporalBusinessApp() {
   const [timeOfDay, setTimeOfDay] = useState(getCurrentHour());
   const [dayOfWeek, setDayOfWeek] = useState(getCurrentDay());
@@ -134,7 +134,7 @@ function TemporalBusinessApp() {
 ```
 
 
-```typescript
+```tsx
 function OpportunisticAIPlatform() {
   const [spotPrices, setSpotPrices] = useState({});
   const [workloadQueue, setWorkloadQueue] = useState([]);
