@@ -18,6 +18,10 @@ function App() {
   );
 }
 ```
+## what it is
+
+- universal reactive runtime for declarative systems
+
 ## What its not
 
 - terraform/pulumi/cdk replacement
