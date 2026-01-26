@@ -31,6 +31,10 @@ export function useInstance(construct, props) {
             cleanedProps[k] = v;
         }
     }
+    // Generate reconcile key (stable across different component trees)
+    const constructType = construct.name || 'Unknown';
+    const instanceName = props.name ?? props.key ?? 'default';
+    const reconcileKey = `${constructType}:${instanceName}`;
     // Create or get existing node
     let node = nodeRegistry.get(nodeId);
     if (!node) {
@@ -38,10 +42,11 @@ export function useInstance(construct, props) {
             id: nodeId,
             path: fullPath,
             construct,
-            constructType: construct.name || 'Unknown',
+            constructType,
             props: cleanedProps,
             outputSignals: new Map(),
             children: [],
+            reconcileKey,
         };
         nodeRegistry.set(nodeId, node);
     }
@@ -50,7 +55,7 @@ export function useInstance(construct, props) {
         node.props = cleanedProps;
     }
     // Attach to fiber
-    fiber.instanceNode = node;
+    fiber.instanceNodes.push(node);
     // Return proxy where each property access returns a signal accessor
     return new Proxy({}, {
         get(_, key) {

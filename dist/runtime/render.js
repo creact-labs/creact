@@ -86,6 +86,8 @@ function executeComponent(fiber, type, props) {
     const prevPath = currentPath;
     currentFiber = fiber;
     currentPath = fiber.path;
+    // Clear instance nodes before re-executing component
+    fiber.instanceNodes = [];
     try {
         // Execute component
         const result = type(props);
@@ -131,16 +133,20 @@ function getNodeName(type, props, key) {
 }
 /**
  * Collect all instance nodes from fiber tree
+ * Returns cloned nodes to ensure returned arrays are independent snapshots
  */
 export function collectInstanceNodes(fiber) {
     const nodes = [];
     function walk(f) {
-        if (f.instanceNode) {
-            // Also attach store if present
-            if (f.store) {
-                f.instanceNode.store = f.store;
-            }
-            nodes.push(f.instanceNode);
+        for (const instanceNode of f.instanceNodes) {
+            // Clone the node to create an independent snapshot
+            // (outputSignals are not cloned - they're internal reactive state)
+            const snapshot = {
+                ...instanceNode,
+                // Deep clone the store so it's independent between runs
+                store: f.store ? JSON.parse(JSON.stringify(f.store)) : undefined,
+            };
+            nodes.push(snapshot);
         }
         for (const child of f.children) {
             walk(child);

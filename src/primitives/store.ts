@@ -73,11 +73,14 @@ export function prepareHydration(previousNodes: any[]): void {
 
 /**
  * Hydrate store from previous cycle
+ * Returns a deep clone to ensure previous and current stores are independent
  */
 function hydrateStore<T>(fiberPath?: string[]): T | undefined {
   if (!fiberPath) return undefined;
   const key = fiberPath.join('.');
-  return hydrationMap.get(key);
+  const stored = hydrationMap.get(key);
+  // Deep clone to ensure independence between runs
+  return stored ? JSON.parse(JSON.stringify(stored)) : undefined;
 }
 
 /**

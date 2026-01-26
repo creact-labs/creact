@@ -18,6 +18,8 @@ export interface InstanceNode {
   outputSignals: Map<string, [Accessor<any>, Setter<any>]>;
   children: InstanceNode[];
   store?: any;
+  /** Stable key for reconciliation, based on construct type + instance name */
+  reconcileKey: string;
 }
 
 // Registry of all instance nodes by ID
@@ -63,6 +65,11 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
     }
   }
 
+  // Generate reconcile key (stable across different component trees)
+  const constructType = construct.name || 'Unknown';
+  const instanceName = props.name ?? props.key ?? 'default';
+  const reconcileKey = `${constructType}:${instanceName}`;
+
   // Create or get existing node
   let node = nodeRegistry.get(nodeId);
   if (!node) {
@@ -70,10 +77,11 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
       id: nodeId,
       path: fullPath,
       construct,
-      constructType: construct.name || 'Unknown',
+      constructType,
       props: cleanedProps,
       outputSignals: new Map(),
       children: [],
+      reconcileKey,
     };
     nodeRegistry.set(nodeId, node);
   } else {
@@ -82,7 +90,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   }
 
   // Attach to fiber
-  fiber.instanceNode = node;
+  fiber.instanceNodes.push(node);
 
   // Return proxy where each property access returns a signal accessor
   return new Proxy({} as OutputAccessors<O>, {

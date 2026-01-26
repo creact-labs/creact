@@ -14,6 +14,8 @@ export interface InstanceNode {
     outputSignals: Map<string, [Accessor<any>, Setter<any>]>;
     children: InstanceNode[];
     store?: any;
+    /** Stable key for reconciliation, based on construct type + instance name */
+    reconcileKey: string;
 }
 /**
  * Output accessor type - each property is a signal accessor

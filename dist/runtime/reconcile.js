@@ -3,16 +3,19 @@
  */
 /**
  * Reconcile previous and current instance nodes
+ * Uses reconcileKey (construct type + instance name) for matching,
+ * allowing reconciliation across different component tree structures
  */
 export function reconcile(previous, current) {
-    const prevMap = new Map(previous.map((n) => [n.id, n]));
-    const currMap = new Map(current.map((n) => [n.id, n]));
+    // Use reconcileKey for matching (stable across different component trees)
+    const prevMap = new Map(previous.map((n) => [n.reconcileKey, n]));
+    const currMap = new Map(current.map((n) => [n.reconcileKey, n]));
     const creates = [];
     const updates = [];
     const deletes = [];
     // Find creates and updates
     for (const node of current) {
-        const prev = prevMap.get(node.id);
+        const prev = prevMap.get(node.reconcileKey);
         if (!prev) {
             creates.push(node);
         }
@@ -22,7 +25,7 @@ export function reconcile(previous, current) {
     }
     // Find deletes
     for (const node of previous) {
-        if (!currMap.has(node.id)) {
+        if (!currMap.has(node.reconcileKey)) {
             deletes.push(node);
         }
     }
@@ -66,8 +69,9 @@ export function deepEqual(a, b) {
 }
 /**
  * Check if there are new nodes that weren't in previous
+ * Uses reconcileKey for matching consistency with reconcile()
  */
 export function hasNewNodes(previous, current) {
-    const prevIds = new Set(previous.map((n) => n.id));
-    return current.some((n) => !prevIds.has(n.id));
+    const prevKeys = new Set(previous.map((n) => n.reconcileKey));
+    return current.some((n) => !prevKeys.has(n.reconcileKey));
 }

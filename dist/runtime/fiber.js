@@ -11,5 +11,6 @@ export function createFiber(type, props, path, key) {
         children: [],
         path,
         key,
+        instanceNodes: [],
     };
 }

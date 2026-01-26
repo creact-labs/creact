@@ -12,8 +12,8 @@ export interface Fiber {
   path: string[];
   key?: string | number;
 
-  // Instance binding (from useInstance)
-  instanceNode?: InstanceNode;
+  // Instance bindings (from useInstance) - supports multiple instances per component
+  instanceNodes: InstanceNode[];
 
   // Store (from createStore)
   store?: any;
@@ -37,5 +37,6 @@ export function createFiber(
     children: [],
     path,
     key,
+    instanceNodes: [],
   };
 }

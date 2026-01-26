@@ -9,7 +9,7 @@ export interface Fiber {
     children: Fiber[];
     path: string[];
     key?: string | number;
-    instanceNode?: InstanceNode;
+    instanceNodes: InstanceNode[];
     store?: any;
     computation?: Computation<void>;
 }

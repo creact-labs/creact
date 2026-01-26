@@ -52,7 +52,7 @@ export async function run(rootElement, provider, previousNodes, options = {}) {
         }
     }
     if (iteration >= maxIterations) {
-        console.warn(`CReact: Reached max iterations (${maxIterations}). Possible infinite loop.`);
+        console.warn(`CReact: Max iterations (${maxIterations}) reached. Possible infinite loop.`);
     }
     return currentNodes;
 }

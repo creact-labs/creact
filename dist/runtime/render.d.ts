@@ -16,6 +16,7 @@ export declare function getCurrentPath(): string[];
 export declare function renderFiber(element: any, path: string[]): Fiber;
 /**
  * Collect all instance nodes from fiber tree
+ * Returns cloned nodes to ensure returned arrays are independent snapshots
  */
 export declare function collectInstanceNodes(fiber: Fiber): any[];
 /**

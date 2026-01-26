@@ -1,6 +1,6 @@
 # CReact v2
 
-Universal reactive runtime inspired by SolidJS.
+Universal reactive runtime
 
 ## Quick Start
 
@@ -86,6 +86,4 @@ const provider = createMockProvider({
 run(createElement(App, {}), provider);
 ```
 
-## Architecture
-
-See [PLAN.md](./PLAN.md) for detailed implementation plan.
+#
