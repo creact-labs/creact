@@ -1,4 +1,0 @@
-/**
- * JSX Type Definitions
- */
-export {};
