@@ -3,23 +3,46 @@
  */
 import type { InstanceNode } from '../primitives/instance.js';
 /**
+ * Event emitted when provider detects output changes
+ */
+export interface OutputChangeEvent {
+    resourceName: string;
+    outputs: Record<string, any>;
+    timestamp: number;
+}
+/**
  * Provider interface - implement this to connect to any backend
  */
 export interface Provider {
+    /** Initialize provider (async setup) */
+    initialize?(): Promise<void>;
     /**
-     * Apply/materialize an instance node
-     * Returns outputs that will be injected as reactive signals
+     * Materialize nodes into cloud resources.
+     *
+     * Providers should call node.setOutputs() when outputs are available.
+     * This triggers reactive updates - dependent components re-render automatically.
+     *
+     * For sync providers: call node.setOutputs() immediately
+     * For async providers: call node.setOutputs() in the async callback
+     *
+     * Returns a Promise that resolves when all resources are materialized.
      */
-    apply(node: InstanceNode): Promise<Record<string, any>>;
-    /**
-     * Destroy/cleanup an instance node
-     */
+    materialize(nodes: InstanceNode[]): Promise<void>;
+    /** Destroy a node */
     destroy(node: InstanceNode): Promise<void>;
+    /** Lifecycle hooks */
+    preDeploy?(nodes: InstanceNode[]): Promise<void>;
+    postDeploy?(nodes: InstanceNode[], outputs: Record<string, any>): Promise<void>;
+    onError?(error: Error, nodes: InstanceNode[]): Promise<void>;
+    /** Event system (required for continuous runtime) */
+    on(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
+    off(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
+    stop(): void;
 }
 /**
  * Create a mock provider for testing
  */
 export declare function createMockProvider(handlers?: Partial<{
-    apply: (node: InstanceNode) => Promise<Record<string, any>> | Record<string, any>;
+    materialize: (nodes: InstanceNode[]) => Promise<void> | void;
     destroy: (node: InstanceNode) => Promise<void> | void;
 }>): Provider;

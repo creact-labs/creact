@@ -9,6 +9,28 @@ export interface JSXElement {
 }
 
 /**
+ * JSX namespace for TypeScript
+ * Handles key and children automatically - no need to declare in component props
+ */
+export namespace JSX {
+  export type Element = JSXElement;
+
+  export interface IntrinsicElements {
+    [elemName: string]: any;
+  }
+
+  // key is handled automatically by JSX, not passed to component
+  export interface IntrinsicAttributes {
+    key?: string | number;
+  }
+
+  // children is handled automatically by JSX
+  export interface ElementChildrenAttribute {
+    children: {};
+  }
+}
+
+/**
  * Create a JSX element
  */
 export function createElement(

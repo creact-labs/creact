@@ -12,6 +12,8 @@ export interface Fiber {
     instanceNodes: InstanceNode[];
     store?: any;
     computation?: Computation<void>;
+    incomingResourcePath?: string[];
+    hasPlaceholderInstance?: boolean;
 }
 /**
  * Create a new fiber

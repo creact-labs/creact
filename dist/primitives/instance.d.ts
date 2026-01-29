@@ -14,9 +14,26 @@ export interface InstanceNode {
     outputSignals: Map<string, [Accessor<any>, Setter<any>]>;
     children: InstanceNode[];
     store?: any;
-    /** Stable key for reconciliation, based on construct type + instance name */
-    reconcileKey: string;
+    outputs?: Record<string, any>;
+    /** Update outputs reactively - triggers dependent re-renders via signals */
+    setOutputs(outputs: Record<string, any>): void;
 }
+/**
+ * Serialized node shape (from backend.ts) - only what we need for hydration
+ */
+interface SerializedNodeForHydration {
+    id: string;
+    outputs?: Record<string, any>;
+}
+/**
+ * Prepare output hydration from serialized nodes
+ * Called by runtime BEFORE rendering to restore outputs
+ */
+export declare function prepareOutputHydration(serializedNodes: SerializedNodeForHydration[]): void;
+/**
+ * Clear output hydration map
+ */
+export declare function clearOutputHydration(): void;
 /**
  * Output accessor type - each property is a signal accessor
  */
@@ -47,3 +64,9 @@ export declare function getAllNodes(): InstanceNode[];
  * @internal
  */
 export declare function clearNodeRegistry(): void;
+/**
+ * Clear node ownership (call at start of each render pass)
+ * @internal
+ */
+export declare function clearNodeOwnership(): void;
+export {};

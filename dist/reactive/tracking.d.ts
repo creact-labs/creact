@@ -30,6 +30,9 @@ export declare function cleanComputation(comp: Computation<any>): void;
 export declare function untrack<T>(fn: () => T): T;
 /**
  * Batch multiple updates into one flush
+ *
+ * Uses synchronous batching - all dependent re-renders happen
+ * immediately when the outermost batch completes.
  */
 export declare function batch<T>(fn: () => T): T;
 /**

@@ -20,6 +20,14 @@ export interface Fiber {
 
   // Effect computation (component body)
   computation?: Computation<void>;
+
+  // Resource path at fiber creation (only components with useInstance contribute)
+  // Used to restore correct resource path during reactive re-renders
+  incomingResourcePath?: string[];
+
+  // Set when useInstance was called but returned a placeholder (undefined props)
+  // Used to ensure resource path is properly popped even without a real node
+  hasPlaceholderInstance?: boolean;
 }
 
 /**

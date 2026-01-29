@@ -7,6 +7,9 @@ import { pushContext, popContext } from '../primitives/context.js';
 // Current render context
 let currentFiber = null;
 let currentPath = [];
+// Resource path - only components with useInstance contribute to this
+// This makes wrapper components (without useInstance) transparent
+let resourcePath = [];
 /**
  * Get current fiber (for hooks)
  */
@@ -18,6 +21,31 @@ export function getCurrentFiber() {
  */
 export function getCurrentPath() {
     return [...currentPath];
+}
+/**
+ * Get current resource path (for useInstance)
+ * Only components with useInstance contribute to this path
+ */
+export function getCurrentResourcePath() {
+    return [...resourcePath];
+}
+/**
+ * Push a segment to resource path (called by useInstance)
+ */
+export function pushResourcePath(segment) {
+    resourcePath.push(segment);
+}
+/**
+ * Pop a segment from resource path (called after component with instance renders)
+ */
+export function popResourcePath() {
+    resourcePath.pop();
+}
+/**
+ * Reset resource path (called at start of render)
+ */
+export function resetResourcePath() {
+    resourcePath = [];
 }
 /**
  * Render a JSX element to a Fiber
@@ -60,6 +88,8 @@ export function renderFiber(element, path) {
     }
     // Handle function components
     if (typeof type === 'function') {
+        // Capture incoming resource path for reactive re-renders
+        fiber.incomingResourcePath = [...resourcePath];
         // Create computation for this component
         const computation = {
             fn: () => executeComponent(fiber, type, { ...restProps, children }),
@@ -79,6 +109,23 @@ export function renderFiber(element, path) {
     return fiber;
 }
 /**
+ * Recursively clean up computations from a fiber tree
+ * This prevents stale computations from observing signals after re-render
+ * and ensures queued computations won't run (by marking them CLEAN)
+ */
+function cleanupFiberTree(fibers) {
+    for (const fiber of fibers) {
+        if (fiber.computation) {
+            cleanComputation(fiber.computation);
+            // Mark as CLEAN (0) so it won't run if already queued in batch
+            fiber.computation.state = 0;
+        }
+        if (fiber.children.length > 0) {
+            cleanupFiberTree(fiber.children);
+        }
+    }
+}
+/**
  * Execute a component function
  */
 function executeComponent(fiber, type, props) {
@@ -86,8 +133,18 @@ function executeComponent(fiber, type, props) {
     const prevPath = currentPath;
     currentFiber = fiber;
     currentPath = fiber.path;
-    // Clear instance nodes before re-executing component
+    // Restore resource path for reactive re-renders
+    // This ensures components see the correct resource path even when
+    // re-executing independently (not from root)
+    resourcePath = [...(fiber.incomingResourcePath ?? [])];
+    // Clean up old children's computations before re-rendering
+    // This prevents stale computations from observing signals
+    if (fiber.children.length > 0) {
+        cleanupFiberTree(fiber.children);
+    }
+    // Clear instance nodes and placeholder flag before re-executing component
     fiber.instanceNodes = [];
+    fiber.hasPlaceholderInstance = false;
     try {
         // Execute component
         const result = type(props);
@@ -95,6 +152,11 @@ function executeComponent(fiber, type, props) {
         fiber.children = renderChildren(result, fiber.path);
     }
     finally {
+        // If this component had useInstance (real or placeholder), pop its resource path segment
+        // (useInstance pushes a segment so children see it in their resource path)
+        if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
+            popResourcePath();
+        }
         currentFiber = prevFiber;
         currentPath = prevPath;
     }

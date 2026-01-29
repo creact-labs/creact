@@ -12,6 +12,9 @@ export let Listener: Computation<any> | null = null;
 const queue: Computation<any>[] = [];
 let pending = false;
 
+// Batch depth counter for synchronous batching
+let batchDepth = 0;
+
 /**
  * Set the current listener (computation being executed)
  */
@@ -34,7 +37,9 @@ export function getListener(): Computation<any> | null {
 export function scheduleComputation(comp: Computation<any>): void {
   queue.push(comp);
 
-  if (!pending) {
+  // Only trigger async flush if NOT in a batch
+  // When inside a batch, computations are flushed synchronously at batch end
+  if (batchDepth === 0 && !pending) {
     pending = true;
     queueMicrotask(flushQueue);
   }
@@ -124,17 +129,28 @@ export function untrack<T>(fn: () => T): T {
 
 /**
  * Batch multiple updates into one flush
+ *
+ * Uses synchronous batching - all dependent re-renders happen
+ * immediately when the outermost batch completes.
  */
 export function batch<T>(fn: () => T): T {
-  const prevPending = pending;
-  pending = true;
+  batchDepth++;
 
   try {
     return fn();
   } finally {
-    pending = prevPending;
-    if (!pending && queue.length) {
-      flushQueue();
+    batchDepth--;
+    if (batchDepth === 0) {
+      // Flush synchronously - all updates happen NOW
+      while (queue.length) {
+        const comp = queue.shift()!;
+        if (comp.state === 1) {
+          // Still STALE
+          runComputation(comp);
+        }
+      }
+      // Clear pending flag since we just flushed
+      pending = false;
     }
   }
 }
