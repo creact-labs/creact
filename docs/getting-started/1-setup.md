@@ -13,7 +13,7 @@ We're building an AI agent you can chat with in the browser. It searches Wikiped
 ```bash
 mkdir agent && cd agent
 npm init -y
-npm install creact openai express dotenv
+npm install @creact-labs/creact openai express dotenv
 npm install -D typescript @types/node @types/express
 ```
 
@@ -53,7 +53,7 @@ The `public/` folder holds the chat page. The provider serves it.
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "jsx": "react-jsx",
-    "jsxImportSource": "creact",
+    "jsxImportSource": "@creact-labs/creact",
     "strict": true,
     "esModuleInterop": true
   }

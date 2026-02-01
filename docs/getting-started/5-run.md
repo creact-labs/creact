@@ -4,7 +4,7 @@ The entry point sets up CReact and keeps it running:
 
 ```tsx
 // src/app.tsx
-import { CReact, renderCloudDOM } from 'creact';
+import { CReact, renderCloudDOM } from '@creact-labs/creact';
 import { App } from './components/App';
 import { Provider } from './providers/Provider';
 

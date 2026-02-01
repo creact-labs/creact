@@ -6,7 +6,7 @@ Each component wraps a construct and uses render props to pass outputs down. Thi
 
 ```tsx
 // src/components/App.tsx
-import { useInstance, type OutputAccessors } from 'creact';
+import { useInstance, type OutputAccessors } from '@creact-labs/creact';
 import { ChatModel, type ChatModelOutputs } from '../constructs/ChatModel';
 import { Memory, type MemoryOutputs } from '../constructs/Memory';
 import { Tool, type ToolOutputs } from '../constructs/Tool';

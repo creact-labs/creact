@@ -8,7 +8,7 @@ CReact calls `materialize()` with a list of construct instances. The provider lo
 // src/providers/Provider.ts
 import 'dotenv/config';
 import { EventEmitter } from 'events';
-import type { Provider as IProvider, InstanceNode } from 'creact';
+import type { Provider as IProvider, InstanceNode } from '@creact-labs/creact';
 import OpenAI from 'openai';
 import express, { type Express, type Response } from 'express';
 import path from 'path';

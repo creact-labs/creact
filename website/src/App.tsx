@@ -63,10 +63,6 @@ const App: Component = () => {
         <div class="contact">
           <p class="contact-name">Daniel Coutinho Ribeiro</p>
           <div class="contact-links">
-            <a href="https://www.linkedin.com/in/daniel-ribeiro-981a23114/" class="contact-link" target="_blank" rel="noopener">
-              LinkedIn
-            </a>
-            <span class="contact-separator">·</span>
             <a href="https://github.com/drn1996" class="contact-link" target="_blank" rel="noopener">
               GitHub
             </a>
