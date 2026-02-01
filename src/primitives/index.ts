@@ -1,11 +1,11 @@
-export { createContext, useContext, type Context } from './context.js';
-export { createStore, type SetStoreFunction } from './store.js';
+export { type Context, createContext, useContext } from './context';
 export {
-  useInstance,
-  fillInstanceOutputs,
-  getNodeById,
-  getAllNodes,
   clearNodeRegistry,
+  fillInstanceOutputs,
+  getAllNodes,
+  getNodeById,
   type InstanceNode,
   type OutputAccessors,
-} from './instance.js';
+  useInstance,
+} from './instance';
+export { createStore, type SetStoreFunction } from './store';

@@ -1,12 +1,12 @@
-export { createSignal, type Signal, type Computation, type Accessor, type Setter } from './signal.js';
-export { createEffect, onCleanup } from './effect.js';
+export { createEffect, onCleanup } from './effect';
+export { type Accessor, type Computation, createSignal, type Setter, type Signal } from './signal';
 export {
   batch,
-  untrack,
+  cleanComputation,
   flushSync,
   getListener,
-  setListener,
   runComputation,
-  cleanComputation,
   scheduleComputation,
-} from './tracking.js';
+  setListener,
+  untrack,
+} from './tracking';

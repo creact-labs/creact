@@ -1,2 +1,2 @@
-export { createElement, Fragment, jsx, jsxs, jsxDEV, type JSXElement } from './jsx-runtime.js';
-export type { JSX } from './types.js';
+export { createElement, Fragment, type JSXElement, jsx, jsxDEV, jsxs } from './jsx-runtime';
+export type { JSX } from './types';

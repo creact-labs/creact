@@ -2,13 +2,13 @@
  * Backend interface - abstracts state persistence
  *
  * The Backend enables:
- * - Resume from crash (checkpoint)
+ * - Resume from crash (nodes with outputs are treated as deployed)
  * - Incremental deploys (only changed resources)
  * - State hydration (createStore values restored)
  * - Drift detection (compare expected vs actual)
  */
 
-import type { InstanceNode } from '../primitives/instance.js';
+import type { InstanceNode } from '../primitives/instance';
 
 /**
  * Resource deployment state
@@ -27,8 +27,8 @@ export interface ChangeSet {
   creates: InstanceNode[];
   updates: InstanceNode[];
   deletes: InstanceNode[];
-  deploymentOrder: string[];      // Topologically sorted node IDs
-  parallelBatches: string[][];    // Groups that can be deployed in parallel
+  deploymentOrder: string[]; // Topologically sorted node IDs
+  parallelBatches: string[][]; // Groups that can be deployed in parallel
 }
 
 /**
@@ -38,9 +38,12 @@ export interface SerializedNode {
   id: string;
   path: string[];
   constructType: string;
+  // biome-ignore lint/suspicious/noExplicitAny: props are user-defined with arbitrary types
   props: Record<string, any>;
+  // biome-ignore lint/suspicious/noExplicitAny: outputs are provider-returned with arbitrary types
   outputs?: Record<string, any>;
   state?: ResourceState;
+  // biome-ignore lint/suspicious/noExplicitAny: store contains user-defined state
   store?: any;
 }
 
@@ -48,13 +51,12 @@ export interface SerializedNode {
  * Deployment state - persisted by backend
  */
 export interface DeploymentState {
-  // All nodes with their serialized state
+  // All nodes with their serialized state (outputs updated as nodes complete)
   nodes: SerializedNode[];
 
   // Deployment lifecycle
   status: DeploymentStatus;
-  checkpoint?: number;        // Resume point (index in deploymentOrder)
-  changeSet?: ChangeSet;      // Pending changes
+  applyingNodeId?: string; // Node currently being applied (for crash recovery)
 
   // Metadata
   stackName: string;
@@ -62,7 +64,8 @@ export interface DeploymentState {
   user?: string;
 
   // For createStore hydration
-  storeValues?: Record<string, any>;  // path → store state
+  // biome-ignore lint/suspicious/noExplicitAny: store values are user-defined with arbitrary types
+  storeValues?: Record<string, any>; // path → store state
 }
 
 /**
@@ -70,8 +73,14 @@ export interface DeploymentState {
  */
 export interface AuditLogEntry {
   timestamp: number;
-  action: 'deploy_start' | 'deploy_complete' | 'deploy_failed' | 'resource_applied' | 'resource_destroyed';
+  action:
+    | 'deploy_start'
+    | 'deploy_complete'
+    | 'deploy_failed'
+    | 'resource_applied'
+    | 'resource_destroyed';
   nodeId?: string;
+  // biome-ignore lint/suspicious/noExplicitAny: audit log details can contain arbitrary data
   details?: Record<string, any>;
   user?: string;
 }
@@ -127,6 +136,7 @@ export interface Backend {
  */
 export function serializeNode(node: InstanceNode): SerializedNode {
   // Extract current output values from signals
+  // biome-ignore lint/suspicious/noExplicitAny: outputs are provider-returned with arbitrary types
   const outputs: Record<string, any> = {};
   for (const [key, [read]] of node.outputSignals) {
     const value = read();

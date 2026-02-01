@@ -1,0 +1,161 @@
+# 5. Run
+
+The entry point sets up CReact and keeps it running:
+
+```tsx
+// src/app.tsx
+import { CReact, renderCloudDOM } from 'creact';
+import { App } from './components/App';
+import { Provider } from './providers/Provider';
+
+const provider = new Provider();
+CReact.provider = provider;
+
+export default async function main() {
+  await renderCloudDOM(<App />, 'agent');
+
+  // Re-render when provider emits changes
+  provider.on('change', async () => {
+    await renderCloudDOM(<App />, 'agent');
+  });
+
+  console.log('Agent running at http://localhost:3000');
+}
+```
+
+When the provider emits `change` (a new chat message arrived), CReact re-renders. The component tree sees the pending message and runs the agent.
+
+## The chat page
+
+```html
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .message {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 1rem;
+    }
+    .user {
+      background: #3b82f6;
+      margin-left: auto;
+    }
+    .assistant {
+      background: #1e293b;
+    }
+    #input-area {
+      padding: 1rem;
+      background: #1e293b;
+      display: flex;
+      gap: 0.5rem;
+    }
+    #input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 1rem;
+    }
+    #input:focus { outline: none; }
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div id="messages"></div>
+  <div id="input-area">
+    <input type="text" id="input" placeholder="Ask something..." autofocus>
+    <button id="send">Send</button>
+  </div>
+  <script>
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
+
+    function addMessage(text, role) {
+      const div = document.createElement('div');
+      div.className = 'message ' + role;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, 'user');
+      input.value = '';
+      send.disabled = true;
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        addMessage(data.response, 'assistant');
+      } catch (err) {
+        addMessage('Error: ' + err.message, 'assistant');
+      }
+
+      send.disabled = false;
+      input.focus();
+    }
+
+    send.onclick = sendMessage;
+    input.onkeydown = (e) => e.key === 'Enter' && sendMessage();
+  </script>
+</body>
+</html>
+```
+
+## Run it
+
+```bash
+creact src/app.tsx
+```
+
+Open http://localhost:3000 in your browser. Ask a question. The agent searches Wikipedia and responds.
+
+## What's happening
+
+1. Browser sends POST /chat with your message
+2. Provider stores it in `pending`, emits `change`
+3. CReact re-renders the component tree
+4. `chat.pending()` now returns the message
+5. Agent component renders, calls OpenAI
+6. If OpenAI wants to search, ToolExec runs Wikipedia query
+7. Agent gets results, generates response
+8. ChatResponse sends it back to the browser
+9. `pending` clears, tree returns to waiting state
+
+Every step is a construct. The flow is visible in the JSX tree.

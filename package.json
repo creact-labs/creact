@@ -1,41 +1,78 @@
 {
-  "name": "creact",
-  "version": "2.0.0-alpha.0",
-  "description": "Universal reactive runtime",
-  "type": "module",
+  "name": "@creact-labs/creact",
+  "version": "0.2.0",
+  "description": "Declarative universal reactive runtime",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": {
-    "creact": "./dist/cli.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./jsx/jsx-runtime": {
-      "types": "./dist/jsx/jsx-runtime.d.ts",
-      "import": "./dist/jsx/jsx-runtime.js"
-    },
-    "./jsx/jsx-dev-runtime": {
-      "types": "./dist/jsx/jsx-dev-runtime.d.ts",
-      "import": "./dist/jsx/jsx-dev-runtime.js"
+  "typesVersions": {
+    "*": {
+      "jsx": [
+        "dist/jsx.d.ts"
+      ]
     }
   },
-  "files": [
-    "dist"
-  ],
+  "bin": {
+    "creact": "./dist/cli/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "test": "vitest --run",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
+  "keywords": [
+    "reactive",
+    "declarative",
+    "runtime",
+    "jsx",
+    "ai-agents",
+    "automation",
+    "orchestration",
+    "workflow",
+    "infrastructure-as-code",
+    "cloud",
+    "devops",
+    "deployment",
+    "reconciler",
+    "multi-cloud"
+  ],
+  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creact-labs/creact.git"
+  },
+  "homepage": "https://github.com/creact-labs/creact",
+  "bugs": {
+    "url": "https://github.com/creact-labs/creact/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
     "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "typescript-eslint": "^8.45.0",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "tsx": "^4.20.6"
   }
 }

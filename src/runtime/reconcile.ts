@@ -8,7 +8,7 @@
  * - Parallel batches for concurrent deployment
  */
 
-import type { InstanceNode } from '../primitives/instance.js';
+import type { InstanceNode } from '../primitives/instance';
 
 /**
  * Dependency graph
@@ -61,9 +61,9 @@ export function buildDependencyGraph(nodes: InstanceNode[]): DependencyGraph {
 
         if (nodeIds.has(parentId)) {
           // Add dependency: node depends on parent
-          dependencies.get(node.id)!.push(parentId);
+          dependencies.get(node.id)?.push(parentId);
           // Add dependent: parent has node as dependent
-          dependents.get(parentId)!.push(node.id);
+          dependents.get(parentId)?.push(node.id);
           break; // Only direct parent dependency
         }
       }
@@ -78,10 +78,7 @@ export function buildDependencyGraph(nodes: InstanceNode[]): DependencyGraph {
  *
  * Returns node IDs in deployment order (dependencies first)
  */
-export function topologicalSort(
-  nodeIds: string[],
-  graph: DependencyGraph
-): string[] {
+export function topologicalSort(nodeIds: string[], graph: DependencyGraph): string[] {
   const result: string[] = [];
   const inDegree = new Map<string, number>();
   const queue: string[] = [];
@@ -139,7 +136,7 @@ export function topologicalSort(
  */
 export function computeParallelBatches(
   deploymentOrder: string[],
-  graph: DependencyGraph
+  graph: DependencyGraph,
 ): string[][] {
   const batches: string[][] = [];
   const deployed = new Set<string>();
@@ -152,7 +149,8 @@ export function computeParallelBatches(
     // Find the latest batch that contains a dependency
     let batchIndex = 0;
     for (let i = 0; i < batches.length; i++) {
-      if (batches[i].some((id) => relevantDeps.includes(id))) {
+      const batch = batches[i];
+      if (batch?.some((id) => relevantDeps.includes(id))) {
         batchIndex = i + 1;
       }
     }
@@ -162,7 +160,7 @@ export function computeParallelBatches(
       batches.push([]);
     }
 
-    batches[batchIndex].push(nodeId);
+    batches[batchIndex]?.push(nodeId);
     deployed.add(nodeId);
   }
 
@@ -173,10 +171,7 @@ export function computeParallelBatches(
  * Reconcile previous and current instance nodes
  * Uses path-based id for matching - each node has unique position in tree
  */
-export function reconcile(
-  previous: InstanceNode[],
-  current: InstanceNode[]
-): ChangeSet {
+export function reconcile(previous: InstanceNode[], current: InstanceNode[]): ChangeSet {
   // Use path-based id for matching (unique per position in tree)
   const prevMap = new Map(previous.map((n) => [n.id, n]));
   const currMap = new Map(current.map((n) => [n.id, n]));
@@ -224,29 +219,33 @@ export function reconcile(
 /**
  * Deep equality check
  */
-export function deepEqual(a: any, b: any): boolean {
+export function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (typeof a !== typeof b) return false;
 
   if (typeof a === 'object') {
-    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    // Type guard: both are objects at this point
+    const objA = a as Record<string, unknown>;
+    const objB = b as Record<string, unknown>;
 
-    if (Array.isArray(a)) {
-      if (a.length !== b.length) return false;
-      for (let i = 0; i < a.length; i++) {
-        if (!deepEqual(a[i], b[i])) return false;
+    if (Array.isArray(objA) !== Array.isArray(objB)) return false;
+
+    if (Array.isArray(objA) && Array.isArray(objB)) {
+      if (objA.length !== objB.length) return false;
+      for (let i = 0; i < objA.length; i++) {
+        if (!deepEqual(objA[i], objB[i])) return false;
       }
       return true;
     }
 
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
+    const keysA = Object.keys(objA);
+    const keysB = Object.keys(objB);
     if (keysA.length !== keysB.length) return false;
 
     for (const key of keysA) {
-      if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
-      if (!deepEqual(a[key], b[key])) return false;
+      if (!Object.hasOwn(objB, key)) return false;
+      if (!deepEqual(objA[key], objB[key])) return false;
     }
     return true;
   }

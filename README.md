@@ -1,89 +1,89 @@
-# CReact v2
+# CReact
 
-Universal reactive runtime
+**Declarative universal reactive runtime.**
 
-## Quick Start
+## Install
 
 ```bash
-cd new
-
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Run tests once
-npm run test:run
-
-# Type check
-npm run typecheck
-
-# Build
-npm run build
+npm install creact
 ```
 
-## Primitives
+## Quick Example
 
-| Primitive | Purpose |
-|-----------|---------|
-| `useInstance(construct, props)` | Bind to provider, get reactive outputs |
-| `createStore(initial)` | Persistent storage (non-reactive) |
-| `createContext(default?)` | Create context |
-| `useContext(ctx)` | Read context value |
-| `createEffect(fn)` | Run when tracked outputs change |
+```tsx
+// tsconfig.json: "jsxImportSource": "creact"
 
-## Example
+import { CReact, renderCloudDOM, useInstance } from 'creact';
 
-```typescript
-import { useInstance, createStore, createContext, useContext, createEffect, run, createMockProvider, createElement } from 'creact';
+// Define constructs
+class ChatModel {
+  constructor(public props: { model: string }) {}
+}
 
-class Database {}
-class ApiServer {}
+class Memory {
+  constructor(public props: {}) {}
+}
 
-const ConfigContext = createContext({ env: 'dev' });
+// Define components
+function Model({ model, children }) {
+  const out = useInstance(ChatModel, { model });
+  return children(out);
+}
 
-function App() {
-  const [config, setConfig] = createStore({ retries: 3 });
-  const db = useInstance<{ url: string; status: string }>(Database, { name: 'main' });
+function Mem({ children }) {
+  const out = useInstance(Memory, {});
+  return children(out);
+}
 
-  createEffect(() => {
-    if (db.status() === 'ready') {
-      console.log('Database ready at:', db.url());
-    }
-  });
-
-  return createElement(
-    ConfigContext.Provider,
-    { value: config },
-    db.status() === 'ready' && createElement(Services, { db })
+function App({ prompt }) {
+  return (
+    <Model model="gpt-4">
+      {(model) => (
+        <Mem>
+          {(memory) => (
+            <Agent
+              prompt={prompt}
+              modelId={model.id()}
+              messages={memory.messages()}
+            />
+          )}
+        </Mem>
+      )}
+    </Model>
   );
 }
 
-function Services({ db }) {
-  const config = useContext(ConfigContext);
-  const api = useInstance<{ endpoint: string }>(ApiServer, {
-    database: db.url(),
-    retries: config.retries
-  });
+// Run
+CReact.provider = new AgentProvider();
+CReact.backend = new FileBackend({ directory: '.state' });
 
-  return api.endpoint() && createElement(Client, { url: api.endpoint() });
-}
-
-// Run with a provider
-const provider = createMockProvider({
-  apply: (node) => {
-    if (node.constructType === 'Database') {
-      return { url: 'postgres://localhost', status: 'ready' };
-    }
-    if (node.constructType === 'ApiServer') {
-      return { endpoint: 'http://localhost:3000' };
-    }
-    return {};
-  }
-});
-
-run(createElement(App, {}), provider);
+await renderCloudDOM(<App prompt="Hello" />, 'agent');
 ```
 
-#
+## The Four Pillars
+
+**Declarative** — Describe what you want, not how to get it.
+
+**Universal** — Works for AI agents, cloud infrastructure, APIs, anything.
+
+**Reactive** — Automatically responds when things change.
+
+**Runtime** — Keeps running continuously, handles events, recovers from crashes.
+
+## Documentation
+
+### Getting Started
+
+- [Tutorial: Build an AI Agent](./docs/getting-started/1-setup.md)
+
+### Concepts
+
+- [Thinking in CReact](./docs/concepts/thinking-in-creact.md) — The mental model
+- [Constructs](./docs/concepts/constructs.md) — Your building blocks
+- [Components](./docs/concepts/components.md) — Composing with JSX
+- [Reactivity](./docs/concepts/reactivity.md) — When things change
+- [Providers](./docs/concepts/providers.md) — Connecting to the real world
+
+## License
+
+Apache-2.0

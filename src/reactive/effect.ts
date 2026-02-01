@@ -2,13 +2,13 @@
  * createEffect - run side effects when dependencies change
  */
 
-import type { Computation } from './signal.js';
-import { runComputation, getListener } from './tracking.js';
+import type { Computation } from './signal';
+import { getListener, runComputation } from './tracking';
 
 /**
  * Create a reactive effect that runs when dependencies change
  */
-export function createEffect(fn: () => void | (() => void)): void {
+export function createEffect(fn: () => undefined | (() => void)): void {
   const computation: Computation<void> = {
     fn: () => {
       const cleanup = fn();

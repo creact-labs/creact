@@ -3,7 +3,7 @@
  * Inspired by SolidJS createSignal
  */
 
-import { getListener, scheduleComputation } from './tracking.js';
+import { getListener, scheduleComputation } from './tracking';
 
 /**
  * Signal state - holds value and tracks observers
@@ -51,7 +51,7 @@ export function createSignal<T>(initial?: T): [Accessor<T>, Setter<T>] {
         listener.sourceSlots = [sSlot];
       } else {
         listener.sources.push(signal);
-        listener.sourceSlots!.push(sSlot);
+        listener.sourceSlots?.push(sSlot);
       }
 
       // Signal tracks this listener
@@ -60,7 +60,7 @@ export function createSignal<T>(initial?: T): [Accessor<T>, Setter<T>] {
         signal.observerSlots = [listener.sources.length - 1];
       } else {
         signal.observers.push(listener);
-        signal.observerSlots!.push(listener.sources.length - 1);
+        signal.observerSlots?.push(listener.sources.length - 1);
       }
     }
 

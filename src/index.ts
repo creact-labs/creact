@@ -2,59 +2,53 @@
  * CReact - Universal Reactive Runtime
  */
 
+// JSX
+export { createElement, Fragment, jsx, jsxs } from './jsx/jsx-runtime';
+export { createContext, useContext } from './primitives/context';
 // Primitives
-export { useInstance } from './primitives/instance.js';
-export { createStore } from './primitives/store.js';
-export { createContext, useContext } from './primitives/context.js';
-
+export { useInstance } from './primitives/instance';
+export { createStore } from './primitives/store';
+export type {
+  AuditLogEntry,
+  Backend,
+  ChangeSet,
+  DeploymentState,
+  DeploymentStatus,
+  ResourceState,
+  SerializedNode,
+} from './provider/backend';
+// Backend
+export { serializeNode, serializeNodes } from './provider/backend';
+export type { OutputChangeEvent, Provider } from './provider/interface';
+// Provider
+export { createMockProvider } from './provider/interface';
 // Reactive
-export { createEffect, onCleanup } from './reactive/effect.js';
-export { batch, untrack } from './reactive/tracking.js';
-export { createSignal } from './reactive/signal.js';
-
-// Runtime
-export { CReact, resetRuntime, renderCloudDOM, run, runWithBackend } from './runtime/run.js';
-export type { CReactOptions } from './runtime/run.js';
-export { StateMachine } from './runtime/state-machine.js';
-export type { StateMachineOptions } from './runtime/state-machine.js';
-
+export { createEffect, onCleanup } from './reactive/effect';
+export { createSignal } from './reactive/signal';
+export { batch, untrack } from './reactive/tracking';
+export type { DependencyGraph } from './runtime/reconcile';
 // Reconciler
 export {
-  reconcile,
-  hasNewNodes,
   buildDependencyGraph,
-  topologicalSort,
   computeParallelBatches,
-} from './runtime/reconcile.js';
-export type { DependencyGraph } from './runtime/reconcile.js';
-
-// Provider
-export { createMockProvider } from './provider/interface.js';
-export type { Provider, OutputChangeEvent } from './provider/interface.js';
-
-// Backend
-export { serializeNode, serializeNodes } from './provider/backend.js';
-export type {
-  Backend,
-  DeploymentState,
-  SerializedNode,
-  ResourceState,
-  DeploymentStatus,
-  AuditLogEntry,
-  ChangeSet,
-} from './provider/backend.js';
-
-// JSX
-export { createElement, Fragment, jsx, jsxs } from './jsx/jsx-runtime.js';
+  hasNewNodes,
+  reconcile,
+  topologicalSort,
+} from './runtime/reconcile';
+export type { CReactOptions } from './runtime/run';
+// Runtime
+export { CReact, renderCloudDOM, resetRuntime, run, runWithBackend } from './runtime/run';
+export type { StateMachineOptions } from './runtime/state-machine';
+export { StateMachine } from './runtime/state-machine';
 
 // Types
 export type {
   Accessor,
-  Setter,
+  Context,
   Fiber,
   InstanceNode,
-  OutputAccessors,
-  Context,
-  SetStoreFunction,
   JSXElement,
-} from './types.js';
+  OutputAccessors,
+  SetStoreFunction,
+  Setter,
+} from './types';

@@ -2,13 +2,13 @@
  * Provider interface - abstracts the execution environment
  */
 
-import type { InstanceNode } from '../primitives/instance.js';
+import type { InstanceNode } from '../primitives/instance';
 
 /**
  * Event emitted when provider detects output changes
  */
 export interface OutputChangeEvent {
-  resourceName: string;  // Cloud resource identity (e.g., "creact-environments")
+  resourceName: string; // Cloud resource identity (e.g., "creact-environments")
   outputs: Record<string, any>;
   timestamp: number;
 }
@@ -54,7 +54,7 @@ export function createMockProvider(
   handlers: Partial<{
     materialize: (nodes: InstanceNode[]) => Promise<void> | void;
     destroy: (node: InstanceNode) => Promise<void> | void;
-  }> = {}
+  }> = {},
 ): Provider {
   const eventHandlers = new Map<string, Set<(change: OutputChangeEvent) => void>>();
 
@@ -78,7 +78,7 @@ export function createMockProvider(
       if (!eventHandlers.has(event)) {
         eventHandlers.set(event, new Set());
       }
-      eventHandlers.get(event)!.add(handler);
+      eventHandlers.get(event)?.add(handler);
     },
     off(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void) {
       eventHandlers.get(event)?.delete(handler);

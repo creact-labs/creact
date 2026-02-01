@@ -2,18 +2,20 @@
  * Store - persistent state (non-reactive)
  */
 
-import { getCurrentFiber } from '../runtime/render.js';
+import { getCurrentFiber } from '../runtime/render';
 
 // Hydration map for restoring state across cycles
-let hydrationMap: Map<string, any> = new Map();
+// biome-ignore lint/suspicious/noExplicitAny: stores hold user-defined state of any type
+const hydrationMap: Map<string, any> = new Map();
 
 export type SetStoreFunction<T> = {
   <K extends keyof T>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void;
   <K1 extends keyof T, K2 extends keyof T[K1]>(
     k1: K1,
     k2: K2,
-    value: T[K1][K2] | ((prev: T[K1][K2]) => T[K1][K2])
+    value: T[K1][K2] | ((prev: T[K1][K2]) => T[K1][K2]),
   ): void;
+  // biome-ignore lint/suspicious/noExplicitAny: rest args for deep path updates
   (...args: any[]): void;
 };
 
@@ -32,6 +34,7 @@ export function createStore<T extends object>(initial: T): [T, SetStoreFunction<
     fiber.store = state;
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: rest args for deep path updates
   function setStore(...args: any[]): void {
     updatePath(state, args);
   }
@@ -42,6 +45,7 @@ export function createStore<T extends object>(initial: T): [T, SetStoreFunction<
 /**
  * Update a nested path in an object
  */
+// biome-ignore lint/suspicious/noExplicitAny: operates on arbitrary nested objects
 function updatePath(obj: any, args: any[]): void {
   if (args.length === 2) {
     const [key, value] = args;
@@ -59,6 +63,7 @@ function updatePath(obj: any, args: any[]): void {
  * Prepare hydration from previous nodes
  * @internal
  */
+// biome-ignore lint/suspicious/noExplicitAny: accepts serialized nodes with arbitrary structure
 export function prepareHydration(previousNodes: any[]): void {
   hydrationMap.clear();
 
@@ -86,9 +91,12 @@ function hydrateStore<T>(fiberPath?: string[]): T | undefined {
 /**
  * Flatten nested nodes
  */
+// biome-ignore lint/suspicious/noExplicitAny: operates on serialized nodes with arbitrary structure
 function flattenNodes(nodes: any[]): any[] {
+  // biome-ignore lint/suspicious/noExplicitAny: accumulates serialized nodes
   const result: any[] = [];
 
+  // biome-ignore lint/suspicious/noExplicitAny: serialized node structure
   function walk(node: any): void {
     result.push(node);
     if (node.children) {

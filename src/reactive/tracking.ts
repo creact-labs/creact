@@ -3,7 +3,7 @@
  * Inspired by SolidJS signal.ts
  */
 
-import type { Computation, Signal } from './signal.js';
+import type { Computation, Signal } from './signal';
 
 // Currently executing computation (for dependency tracking)
 export let Listener: Computation<any> | null = null;
@@ -86,21 +86,27 @@ export function runComputation(comp: Computation<any>): void {
  */
 export function cleanComputation(comp: Computation<any>): void {
   // Remove from all sources' observer lists
-  if (comp.sources) {
+  if (comp.sources && comp.sourceSlots) {
     while (comp.sources.length) {
+      // biome-ignore lint/style/noNonNullAssertion: length check guarantees pop() returns value
       const source: Signal<any> = comp.sources.pop()!;
-      const index = comp.sourceSlots!.pop()!;
+      // biome-ignore lint/style/noNonNullAssertion: length check guarantees pop() returns value
+      const index = comp.sourceSlots.pop()!;
 
       // Swap-and-pop removal from source.observers
-      if (source.observers?.length) {
+      if (source.observers?.length && source.observerSlots) {
+        // biome-ignore lint/style/noNonNullAssertion: length check guarantees pop() returns value
         const last = source.observers.pop()!;
-        const lastSlot = source.observerSlots!.pop()!;
+        // biome-ignore lint/style/noNonNullAssertion: length check guarantees pop() returns value
+        const lastSlot = source.observerSlots.pop()!;
 
         if (index < source.observers.length) {
           // Move last item to fill the hole
           source.observers[index] = last;
+          // biome-ignore lint/style/noNonNullAssertion: observerSlots exists when observers exists
           source.observerSlots![index] = lastSlot;
           // Update the moved item's reference
+          // biome-ignore lint/style/noNonNullAssertion: sourceSlots exists for active computations
           last.sourceSlots![lastSlot] = index;
         }
       }
@@ -143,6 +149,7 @@ export function batch<T>(fn: () => T): T {
     if (batchDepth === 0) {
       // Flush synchronously - all updates happen NOW
       while (queue.length) {
+        // biome-ignore lint/style/noNonNullAssertion: length check guarantees shift() returns value
         const comp = queue.shift()!;
         if (comp.state === 1) {
           // Still STALE

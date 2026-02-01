@@ -2,4 +2,4 @@
  * JSX Dev Runtime - re-exports from jsx-runtime for development mode
  */
 
-export { jsx, jsxs, jsx as jsxDEV, Fragment } from './jsx-runtime.js';
+export { Fragment, jsx, jsx as jsxDEV, jsxs } from './jsx-runtime';

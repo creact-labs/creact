@@ -9,8 +9,8 @@
  * Uses tsx under the hood to execute TypeScript/TSX files.
  */
 
-import { spawn } from 'child_process';
-import { resolve } from 'path';
+import { spawn } from 'node:child_process';
+import { resolve } from 'node:path';
 
 function showHelp() {
   console.log(`
@@ -52,17 +52,24 @@ async function main() {
     process.exit(0);
   }
 
-  // Parse --watch / -w flag
+  // Parse --watch / -w flag and get entrypoint
   let watch = false;
-  let entrypointArg = args[0];
+  let entrypointArg: string;
 
-  if (args[0] === '--watch' || args[0] === '-w') {
+  const firstArg = args[0];
+  if (firstArg === '--watch' || firstArg === '-w') {
     watch = true;
-    entrypointArg = args[1];
-    if (!entrypointArg) {
+    const arg = args[1];
+    if (!arg) {
       console.error('Error: --watch requires an entrypoint');
       process.exit(1);
     }
+    entrypointArg = arg;
+  } else if (firstArg) {
+    entrypointArg = firstArg;
+  } else {
+    showHelp();
+    process.exit(0);
   }
 
   const entrypoint = resolve(process.cwd(), entrypointArg);

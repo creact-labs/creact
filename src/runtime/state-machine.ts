@@ -7,14 +7,7 @@
  * - Resume capability from crash
  */
 
-import type {
-  Backend,
-  DeploymentState,
-  ChangeSet,
-  ResourceState,
-  SerializedNode,
-  AuditLogEntry,
-} from '../provider/backend.js';
+import type { Backend, DeploymentState, ResourceState, SerializedNode } from '../provider/backend';
 
 export interface StateMachineOptions {
   user?: string;
@@ -30,7 +23,7 @@ export class StateMachine {
 
   constructor(
     private backend: Backend,
-    options: StateMachineOptions = {}
+    options: StateMachineOptions = {},
   ) {
     this.options = options;
   }
@@ -73,14 +66,12 @@ export class StateMachine {
    */
   async startDeployment(
     stackName: string,
-    changeSet: ChangeSet,
-    nodes: SerializedNode[]
+    nodes: SerializedNode[],
+    changeStats?: { creates: number; updates: number; deletes: number },
   ): Promise<void> {
     const state: DeploymentState = {
       nodes,
       status: 'applying',
-      changeSet,
-      checkpoint: -1,
       stackName,
       lastDeployedAt: Date.now(),
       user: this.options.user,
@@ -93,22 +84,48 @@ export class StateMachine {
         timestamp: Date.now(),
         action: 'deploy_start',
         user: this.options.user,
-        details: {
-          creates: changeSet.creates.length,
-          updates: changeSet.updates.length,
-          deletes: changeSet.deletes.length,
-        },
+        details: changeStats,
       });
     }
   }
 
   /**
-   * Update checkpoint during deployment (for crash recovery)
+   * Update a node's outputs in persisted state (for crash recovery)
+   * This is the real checkpoint - nodes with outputs are considered deployed
    */
-  async updateCheckpoint(stackName: string, index: number): Promise<void> {
+  async updateNodeOutputs(
+    stackName: string,
+    nodeId: string,
+    outputs: Record<string, any>,
+  ): Promise<void> {
     const state = await this.backend.getState(stackName);
     if (state) {
-      state.checkpoint = index;
+      const node = state.nodes.find((n) => n.id === nodeId);
+      if (node) {
+        node.outputs = outputs;
+        await this.backend.saveState(stackName, state);
+      }
+    }
+  }
+
+  /**
+   * Mark a node as currently being applied (for crash recovery)
+   */
+  async markApplying(stackName: string, nodeId: string): Promise<void> {
+    const state = await this.backend.getState(stackName);
+    if (state) {
+      state.applyingNodeId = nodeId;
+      await this.backend.saveState(stackName, state);
+    }
+  }
+
+  /**
+   * Clear the applying marker after successful apply
+   */
+  async clearApplying(stackName: string): Promise<void> {
+    const state = await this.backend.getState(stackName);
+    if (state) {
+      state.applyingNodeId = undefined;
       await this.backend.saveState(stackName, state);
     }
   }
@@ -119,7 +136,7 @@ export class StateMachine {
   async recordResourceApplied(
     stackName: string,
     nodeId: string,
-    outputs: Record<string, any>
+    outputs: Record<string, any>,
   ): Promise<void> {
     this.setResourceState(nodeId, 'deployed');
 
@@ -157,8 +174,6 @@ export class StateMachine {
     const state: DeploymentState = {
       nodes,
       status: 'deployed',
-      checkpoint: undefined,
-      changeSet: undefined,
       stackName,
       lastDeployedAt: Date.now(),
       user: this.options.user,
@@ -201,20 +216,15 @@ export class StateMachine {
    */
   async canResume(stackName: string): Promise<boolean> {
     const state = await this.backend.getState(stackName);
-    return state?.status === 'applying' && state.checkpoint !== undefined;
+    return state?.status === 'applying';
   }
 
   /**
-   * Get resume point for a failed deployment
+   * Get the node that was being applied when crash occurred
    */
-  async getResumePoint(
-    stackName: string
-  ): Promise<{ checkpoint: number; changeSet: ChangeSet } | null> {
+  async getInterruptedNodeId(stackName: string): Promise<string | null> {
     const state = await this.backend.getState(stackName);
-    if (state?.status === 'applying' && state.changeSet && state.checkpoint !== undefined) {
-      return { checkpoint: state.checkpoint, changeSet: state.changeSet };
-    }
-    return null;
+    return state?.applyingNodeId ?? null;
   }
 
   /**

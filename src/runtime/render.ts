@@ -2,11 +2,11 @@
  * Render - transform JSX to Fiber tree
  */
 
-import type { Fiber } from './fiber.js';
-import { createFiber } from './fiber.js';
-import { runComputation, cleanComputation } from '../reactive/tracking.js';
-import type { Computation } from '../reactive/signal.js';
-import { pushContext, popContext } from '../primitives/context.js';
+import { popContext, pushContext } from '../primitives/context';
+import type { Computation } from '../reactive/signal';
+import { cleanComputation, runComputation } from '../reactive/tracking';
+import type { Fiber } from './fiber';
+import { createFiber } from './fiber';
 
 // Current render context
 let currentFiber: Fiber | null = null;
@@ -153,6 +153,7 @@ function cleanupFiberTree(fibers: Fiber[]): void {
 /**
  * Execute a component function
  */
+// biome-ignore lint/complexity/noBannedTypes: JSX component types are dynamically resolved at runtime
 function executeComponent(fiber: Fiber, type: Function, props: Record<string, any>): void {
   const prevFiber = currentFiber;
   const prevPath = currentPath;
@@ -216,7 +217,7 @@ function renderChildren(children: any, parentPath: string[]): Fiber[] {
 /**
  * Get node name from type and props
  */
-function getNodeName(type: any, props: Record<string, any>, key?: string | number): string {
+function getNodeName(type: any, _props: Record<string, any>, key?: string | number): string {
   if (key !== undefined) {
     return String(key);
   }

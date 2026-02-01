@@ -2,9 +2,9 @@
  * useInstance - bind to a provider and get reactive outputs
  */
 
-import { createSignal, type Accessor, type Setter } from '../reactive/signal.js';
-import { batch } from '../reactive/tracking.js';
-import { getCurrentFiber, getCurrentResourcePath, pushResourcePath } from '../runtime/render.js';
+import { type Accessor, createSignal, type Setter } from '../reactive/signal';
+import { batch } from '../reactive/tracking';
+import { getCurrentFiber, getCurrentResourcePath, pushResourcePath } from '../runtime/render';
 
 /**
  * Instance node - represents something materialized by provider
@@ -18,7 +18,7 @@ export interface InstanceNode {
   outputSignals: Map<string, [Accessor<any>, Setter<any>]>;
   children: InstanceNode[];
   store?: any;
-  outputs?: Record<string, any>;  // Legacy: Provider sets this during materialize
+  outputs?: Record<string, any>; // Legacy: Provider sets this during materialize
   /** Update outputs reactively - triggers dependent re-renders via signals */
   setOutputs(outputs: Record<string, any>): void;
 }
@@ -30,7 +30,7 @@ const nodeRegistry = new Map<string, InstanceNode>();
 const nodeOwnership = new Map<string, any>();
 
 // Output hydration map - populated before render to restore outputs from previous run
-let outputHydrationMap = new Map<string, Record<string, any>>();
+const outputHydrationMap = new Map<string, Record<string, any>>();
 
 /**
  * Serialized node shape (from backend.ts) - only what we need for hydration
@@ -74,8 +74,8 @@ export type OutputAccessors<O> = {
  */
 function createPlaceholderProxy<O>(): OutputAccessors<O> {
   return new Proxy({} as OutputAccessors<O>, {
-    get(_, key: string) {
-      return () => undefined;  // All outputs return undefined
+    get(_target, _key: string) {
+      return () => undefined; // All outputs return undefined
     },
   });
 }
@@ -85,7 +85,7 @@ function createPlaceholderProxy<O>(): OutputAccessors<O> {
  */
 export function useInstance<O extends Record<string, any> = Record<string, any>>(
   construct: any,
-  props: Record<string, any>
+  props: Record<string, any>,
 ): OutputAccessors<O> {
   const fiber = getCurrentFiber();
 
@@ -98,15 +98,15 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
     throw new Error(
       'useInstance can only be called once per component. ' +
-      'Use child components for additional resources:\n\n' +
-      '  function MyStack() {\n' +
-      '    const db = useInstance(Database, { name: "main" });\n' +
-      '    return <Cache dbUrl={db.url()} />;\n' +
-      '  }\n\n' +
-      '  function Cache({ dbUrl }) {\n' +
-      '    useInstance(CacheService, { db: dbUrl });\n' +
-      '    return null;\n' +
-      '  }'
+        'Use child components for additional resources:\n\n' +
+        '  function MyStack() {\n' +
+        '    const db = useInstance(Database, { name: "main" });\n' +
+        '    return <Cache dbUrl={db.url()} />;\n' +
+        '  }\n\n' +
+        '  function Cache({ dbUrl }) {\n' +
+        '    useInstance(CacheService, { db: dbUrl });\n' +
+        '    return null;\n' +
+        '  }',
     );
   }
 
@@ -139,10 +139,10 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   if (existingOwner && existingOwner !== fiber) {
     throw new Error(
       `Multiple instances of ${constructType} at the same level require unique keys.\n` +
-      `Add a key prop to differentiate them:\n\n` +
-      `  {items.map((item) => (\n` +
-      `    <MyResource key={item.id} ... />\n` +
-      `  ))}`
+        `Add a key prop to differentiate them:\n\n` +
+        `  {items.map((item) => (\n` +
+        `    <MyResource key={item.id} ... />\n` +
+        `  ))}`,
     );
   }
   nodeOwnership.set(nodeId, fiber);
@@ -206,14 +206,15 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   return new Proxy({} as OutputAccessors<O>, {
     get(_, key: string) {
       // Lazily create signal for this output
-      if (!node!.outputSignals.has(key)) {
-        node!.outputSignals.set(key, createSignal<any>());
+      if (!node.outputSignals.has(key)) {
+        node.outputSignals.set(key, createSignal<any>());
       }
-      const [read] = node!.outputSignals.get(key)!;
+      // biome-ignore lint/style/noNonNullAssertion: we just ensured the key exists above
+      const [read] = node.outputSignals.get(key)!;
 
       // Return wrapper that auto-unwraps accessors
       return () => {
-        const value = read();  // Read from signal (tracks it)
+        const value = read(); // Read from signal (tracks it)
         // If provider returned an accessor, call it (tracks provider's signal)
         if (typeof value === 'function') {
           return value();
@@ -262,7 +263,7 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
     for (const [key, value] of Object.entries(outputs)) {
       if (node.outputSignals.has(key)) {
         const [, write] = node.outputSignals.get(key)!;
-        write(value);  // Write value (plain or accessor) to signal
+        write(value); // Write value (plain or accessor) to signal
       } else {
         node.outputSignals.set(key, createSignal(value));
       }

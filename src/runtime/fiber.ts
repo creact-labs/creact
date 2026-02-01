@@ -2,8 +2,8 @@
  * Fiber - intermediate representation of component tree
  */
 
-import type { Computation } from '../reactive/signal.js';
-import type { InstanceNode } from '../primitives/instance.js';
+import type { InstanceNode } from '../primitives/instance';
+import type { Computation } from '../reactive/signal';
 
 export interface Fiber {
   type: any;
@@ -37,7 +37,7 @@ export function createFiber(
   type: any,
   props: Record<string, any>,
   path: string[],
-  key?: string | number
+  key?: string | number,
 ): Fiber {
   return {
     type,

@@ -9,19 +9,25 @@
  * 5. When events arrive -> updates affected fibers -> re-renders -> applies new changes
  */
 
-import type { InstanceNode } from '../primitives/instance.js';
-import type { Provider, OutputChangeEvent } from '../provider/interface.js';
-import type { Backend, SerializedNode, DeploymentState } from '../provider/backend.js';
-import { serializeNodes } from '../provider/backend.js';
-import type { Fiber } from './fiber.js';
-import type { ChangeSet } from './reconcile.js';
-import { renderFiber, collectInstanceNodes, resetResourcePath } from './render.js';
-import { reconcile, buildDependencyGraph, topologicalSort, computeParallelBatches } from './reconcile.js';
-import { fillInstanceOutputs, clearNodeRegistry, getNodeById, prepareOutputHydration, clearOutputHydration, clearNodeOwnership } from '../primitives/instance.js';
-import { prepareHydration, clearHydration } from '../primitives/store.js';
-import { clearContextStacks } from '../primitives/context.js';
+import { clearContextStacks } from '../primitives/context';
+import type { InstanceNode } from '../primitives/instance';
+import {
+  clearNodeOwnership,
+  clearNodeRegistry,
+  clearOutputHydration,
+  fillInstanceOutputs,
+  getNodeById,
+  prepareOutputHydration,
+} from '../primitives/instance';
+import { clearHydration, prepareHydration } from '../primitives/store';
+import type { Backend, DeploymentState } from '../provider/backend';
+import { serializeNodes } from '../provider/backend';
+import type { OutputChangeEvent, Provider } from '../provider/interface';
+import type { Fiber } from './fiber';
+import { buildDependencyGraph, reconcile, topologicalSort } from './reconcile';
+import { collectInstanceNodes, renderFiber, resetResourcePath } from './render';
 // flushSync no longer needed - batch() flushes synchronously
-import { StateMachine } from './state-machine.js';
+import { StateMachine } from './state-machine';
 
 export interface CReactOptions {
   maxIterations?: number;
@@ -92,6 +98,15 @@ export class CReact {
       previousNodes = stackNameOrPrevious;
     }
 
+    // Check for interrupted deployment - just log it, normal reconciliation handles resume
+    // Nodes with outputs are treated as "same", nodes without are (re)created
+    if (this.stackName && (await this.stateMachine.canResume(this.stackName))) {
+      const interruptedNode = await this.stateMachine.getInterruptedNodeId(this.stackName);
+      console.log(
+        `[CReact] Resuming interrupted deployment${interruptedNode ? ` (interrupted at: ${interruptedNode})` : ''}`,
+      );
+    }
+
     // Load previous state from backend if available
     if (this.instanceBackend && this.stackName && !previousNodes) {
       const prevState = await this.stateMachine?.getPreviousState(this.stackName);
@@ -103,7 +118,11 @@ export class CReact {
         // Prepare output hydration for useInstance
         prepareOutputHydration(prevState.nodes);
         // Use previous nodes for reconciliation
-        previousNodes = prevState.nodes as any;
+        // Filter to nodes WITH outputs (completed deployment)
+        // Nodes without outputs (crashed mid-deploy) will be treated as "creates"
+        previousNodes = prevState.nodes.filter(
+          (n) => n.outputs && Object.keys(n.outputs).length > 0,
+        ) as any;
       }
     } else if (previousNodes) {
       prepareHydration(previousNodes);
@@ -151,7 +170,7 @@ export class CReact {
       if (this.stackName) {
         await this.stateMachine.completeDeployment(
           this.stackName,
-          serializeNodes(this.currentNodes)
+          serializeNodes(this.currentNodes),
         );
       }
       return;
@@ -159,11 +178,11 @@ export class CReact {
 
     // Start deployment tracking
     if (this.stackName) {
-      await this.stateMachine.startDeployment(
-        this.stackName,
-        changes,
-        serializeNodes(this.currentNodes)
-      );
+      await this.stateMachine.startDeployment(this.stackName, serializeNodes(this.currentNodes), {
+        creates: changes.creates.length,
+        updates: changes.updates.length,
+        deletes: changes.deletes.length,
+      });
     }
 
     try {
@@ -187,15 +206,18 @@ export class CReact {
       // Materialize creates and updates in deployment order
       // With synchronous batching, fillInstanceOutputs triggers re-renders
       // immediately - new nodes appear in registry right after each materialize
-      for (let i = 0; i < changes.deploymentOrder.length; i++) {
-        const nodeId = changes.deploymentOrder[i];
-
+      for (const nodeId of changes.deploymentOrder) {
         // Get current node state from registry (reflects signal updates from prior materializes)
         const node = getNodeById(nodeId);
 
         if (!node) continue;
 
         this.stateMachine.setResourceState(nodeId, 'applying');
+
+        // Mark this node as being applied (for crash recovery)
+        if (this.stackName) {
+          await this.stateMachine.markApplying(this.stackName, nodeId);
+        }
 
         // Materialize - provider calls node.setOutputs() when outputs are available
         // For sync providers: setOutputs() is called immediately, triggers reactive updates
@@ -208,19 +230,20 @@ export class CReact {
 
         this.stateMachine.setResourceState(nodeId, 'deployed');
         if (this.stackName) {
+          await this.stateMachine.clearApplying(this.stackName);
+          await this.stateMachine.updateNodeOutputs(this.stackName, nodeId, outputs);
           await this.stateMachine.recordResourceApplied(this.stackName, nodeId, outputs);
-          await this.stateMachine.updateCheckpoint(this.stackName, i);
         }
       }
 
       // Re-collect nodes - new nodes are already created thanks to synchronous batching
       const newNodes = collectInstanceNodes(this.rootFiber!);
-      const hasNewNodes = newNodes.some(n => !this.currentNodes.some(p => p.id === n.id));
+      const hasNewNodes = newNodes.some((n) => !this.currentNodes.some((p) => p.id === n.id));
 
       if (hasNewNodes) {
         const prevNodes = this.currentNodes;
         this.currentNodes = newNodes;
-        await this.applyChanges(prevNodes);  // Recurse for new nodes
+        await this.applyChanges(prevNodes); // Recurse for new nodes
       } else {
         this.currentNodes = newNodes;
 
@@ -228,7 +251,7 @@ export class CReact {
         if (this.stackName) {
           await this.stateMachine.completeDeployment(
             this.stackName,
-            serializeNodes(this.currentNodes)
+            serializeNodes(this.currentNodes),
           );
         }
       }
@@ -237,7 +260,7 @@ export class CReact {
       if (this.stackName) {
         await this.stateMachine.failDeployment(
           this.stackName,
-          error instanceof Error ? error : new Error(String(error))
+          error instanceof Error ? error : new Error(String(error)),
         );
       }
       throw error;
@@ -252,8 +275,10 @@ export class CReact {
    * and apply any new nodes.
    */
   protected async handleOutputChange(change: OutputChangeEvent): Promise<void> {
-    // Find node by resource name (props.name) - constructs use name as cloud resource identifier
-    const node = this.currentNodes.find(n => n.props.name === change.resourceName);
+    // Find node by resource name (props.name) or node.id
+    const node = this.currentNodes.find(
+      (n) => n.props.name === change.resourceName || n.id === change.resourceName
+    );
     if (!node) {
       console.warn(`[CReact] No node found for resource: ${change.resourceName}`);
       return;
@@ -373,7 +398,7 @@ export async function run(
   rootElement: any,
   provider: Provider,
   previousNodes?: InstanceNode[],
-  options?: CReactOptions
+  options?: CReactOptions,
 ): Promise<InstanceNode[]> {
   const backend = new SimpleInMemoryBackend();
   const runtime = new CReact(provider, backend, options);
@@ -389,7 +414,7 @@ export async function runWithBackend(
   provider: Provider,
   backend: Backend,
   stackName: string,
-  options?: CReactOptions
+  options?: CReactOptions,
 ): Promise<InstanceNode[]> {
   const runtime = new CReact(provider, backend, options);
   await runtime.run(rootElement, stackName);

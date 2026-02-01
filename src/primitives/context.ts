@@ -5,10 +5,12 @@
 export interface Context<T> {
   id: symbol;
   defaultValue: T | undefined;
+  // biome-ignore lint/suspicious/noExplicitAny: Provider accepts any JSX children and returns JSX element
   Provider: (props: { value: T; children: any }) => any;
 }
 
 // Stack of values per context ID
+// biome-ignore lint/suspicious/noExplicitAny: context values can be any type
 const contextStacks = new Map<symbol, any[]>();
 
 /**
@@ -17,6 +19,7 @@ const contextStacks = new Map<symbol, any[]>();
 export function createContext<T>(defaultValue?: T): Context<T> {
   const id = Symbol('context');
 
+  // biome-ignore lint/suspicious/noExplicitAny: Provider accepts any JSX children
   const Provider = (props: { value: T; children: any }) => {
     return {
       type: Provider,

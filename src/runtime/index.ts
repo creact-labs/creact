@@ -1,4 +1,10 @@
-export { createFiber, type Fiber } from './fiber.js';
-export { renderFiber, collectInstanceNodes, getCurrentFiber, getCurrentPath, cleanupFiber } from './render.js';
-export { reconcile, deepEqual, hasNewNodes, type ChangeSet } from './reconcile.js';
-export { run, resetRuntime, CReact, type CReactOptions } from './run.js';
+export { createFiber, type Fiber } from './fiber';
+export { type ChangeSet, deepEqual, hasNewNodes, reconcile } from './reconcile';
+export {
+  cleanupFiber,
+  collectInstanceNodes,
+  getCurrentFiber,
+  getCurrentPath,
+  renderFiber,
+} from './render';
+export { CReact, type CReactOptions, resetRuntime, run } from './run';

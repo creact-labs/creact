@@ -26,6 +26,7 @@ export namespace JSX {
 
   // children is handled automatically by JSX
   export interface ElementChildrenAttribute {
+    // biome-ignore lint/complexity/noBannedTypes: {} is required by JSX spec for children attribute
     children: {};
   }
 }
