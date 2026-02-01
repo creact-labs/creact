@@ -2,25 +2,22 @@ name: 📦 Publish to npm
 
 on:
   push:
-    branches:
-      - release
     tags:
       - 'v*'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # needed to fetch tags and branch info
+          fetch-depth: 0
 
-      - name: Verify branch is release
+      - name: Verify tag is from release branch
         run: |
-          branch=$(git branch -r --contains $GITHUB_REF | grep origin/release || true)
+          branch=$(git branch -r --contains ${{ github.ref }} | grep origin/release || true)
           if [ -z "$branch" ]; then
             echo "❌ This tag is not from release branch. Skipping publish."
             exit 1
