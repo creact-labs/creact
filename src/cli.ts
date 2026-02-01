@@ -47,7 +47,11 @@ Example entrypoint:
 }
 
 async function runEntrypoint(entrypoint: string) {
-  const module = await tsImport(pathToFileURL(entrypoint).href, import.meta.url);
+  const url = pathToFileURL(entrypoint).href;
+  // FIXME: Cache-busting causes memory leak as old modules stay in V8 cache.
+  // Acceptable for dev watch mode, but consider worker threads for long sessions.
+  const cacheBustUrl = `${url}?t=${Date.now()}`;
+  const module = await tsImport(cacheBustUrl, import.meta.url);
   if (typeof module.default === 'function') {
     await module.default();
   }
