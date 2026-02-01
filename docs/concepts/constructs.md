@@ -22,7 +22,7 @@ class S3Bucket {
 }
 ```
 
-The construct itself does nothing. The provider interprets it and makes it real.
+The construct itself does nothing. The provider executes it.
 
 ## Using Constructs
 
