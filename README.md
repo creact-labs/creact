@@ -1,64 +1,81 @@
 # CReact
 
-**Declarative universal reactive runtime.**
+**Declarative reactive runtime for AI agents, cloud infrastructure, and automation.**
+
+Build complex workflows with JSX. Describe *what* you want — CReact figures out *how*.
 
 ## Install
 
 ```bash
-npm install creact
+npm install @creact-labs/creact
 ```
 
-## Quick Example
+## Example: AI Content Pipeline
+
+A workflow that generates blog posts and publishes to multiple channels — all reactive and declarative:
 
 ```tsx
-// tsconfig.json: "jsxImportSource": "creact"
+import { CReact, renderCloudDOM, useInstance, createSignal } from '@creact-labs/creact';
 
-import { CReact, renderCloudDOM, useInstance } from 'creact';
-
-// Define constructs
-class ChatModel {
-  constructor(public props: { model: string }) {}
+// 🤖 AI generates content from a topic
+function AIWriter({ topic, children }) {
+  const content = useInstance(OpenAICompletion, {
+    model: 'gpt-4',
+    prompt: `Write a blog post about: ${topic}`,
+  });
+  return children(content);
 }
 
-class Memory {
-  constructor(public props: {}) {}
+// 📝 Publish to your blog
+function BlogPost({ title, content }) {
+  return useInstance(WordPressPost, { title, content, status: 'published' });
 }
 
-// Define components
-function Model({ model, children }) {
-  const out = useInstance(ChatModel, { model });
-  return children(out);
+// 🐦 Share on social
+function Tweet({ content }) {
+  return useInstance(TwitterPost, { 
+    text: content.summary(),
+    thread: true,
+  });
 }
 
-function Mem({ children }) {
-  const out = useInstance(Memory, {});
-  return children(out);
+// 💬 Notify your team
+function SlackNotify({ channel, message }) {
+  return useInstance(SlackMessage, { channel, text: message });
 }
 
-function App({ prompt }) {
+// 🔗 Compose the pipeline
+function ContentPipeline({ topic }) {
   return (
-    <Model model="gpt-4">
-      {(model) => (
-        <Mem>
-          {(memory) => (
-            <Agent
-              prompt={prompt}
-              modelId={model.id()}
-              messages={memory.messages()}
-            />
-          )}
-        </Mem>
+    <AIWriter topic={topic}>
+      {(content) => (
+        <>
+          <BlogPost title={content.title()} content={content.body()} />
+          <Tweet content={content} />
+          <SlackNotify 
+            channel="#content" 
+            message={`✨ New post published: ${content.title()}`} 
+          />
+        </>
       )}
-    </Model>
+    </AIWriter>
   );
 }
 
-// Run
-CReact.provider = new AgentProvider();
-CReact.backend = new FileBackend({ directory: '.state' });
-
-await renderCloudDOM(<App prompt="Hello" />, 'agent');
+// Run it
+await renderCloudDOM(<ContentPipeline topic="Why CReact changes everything" />);
 ```
+
+**Change the topic → everything updates.** The blog post regenerates, tweet updates, Slack notifies.
+
+## Why CReact?
+
+| Traditional Approach | CReact |
+|---------------------|--------|
+| Imperative scripts that break | Declarative specs that reconcile |
+| Manual dependency tracking | Automatic reactive updates |
+| Scattered state across files | Single source of truth |
+| Hard to test and reason about | Composable, testable components |
 
 ## The Four Pillars
 
@@ -72,17 +89,12 @@ await renderCloudDOM(<App prompt="Hello" />, 'agent');
 
 ## Documentation
 
-### Getting Started
-
 - [Tutorial: Build an AI Agent](./docs/getting-started/1-setup.md)
-
-### Concepts
-
-- [Thinking in CReact](./docs/concepts/thinking-in-creact.md) — The mental model
-- [Constructs](./docs/concepts/constructs.md) — Your building blocks
-- [Components](./docs/concepts/components.md) — Composing with JSX
-- [Reactivity](./docs/concepts/reactivity.md) — When things change
-- [Providers](./docs/concepts/providers.md) — Connecting to the real world
+- [Thinking in CReact](./docs/concepts/thinking-in-creact.md)
+- [Constructs](./docs/concepts/constructs.md)
+- [Components](./docs/concepts/components.md)
+- [Reactivity](./docs/concepts/reactivity.md)
+- [Providers](./docs/concepts/providers.md)
 
 ## License
 
