@@ -9,8 +9,10 @@
  * Uses tsx under the hood to execute TypeScript/TSX files.
  */
 
-import { spawn } from 'node:child_process';
-import { resolve } from 'node:path';
+import { tsImport } from 'tsx/esm/api';
+import { watch } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 function showHelp() {
   console.log(`
@@ -44,6 +46,13 @@ Example entrypoint:
 `);
 }
 
+async function runEntrypoint(entrypoint: string) {
+  const module = await tsImport(pathToFileURL(entrypoint).href, import.meta.url);
+  if (typeof module.default === 'function') {
+    await module.default();
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
 
@@ -53,12 +62,12 @@ async function main() {
   }
 
   // Parse --watch / -w flag and get entrypoint
-  let watch = false;
+  let watchMode = false;
   let entrypointArg: string;
 
   const firstArg = args[0];
   if (firstArg === '--watch' || firstArg === '-w') {
-    watch = true;
+    watchMode = true;
     const arg = args[1];
     if (!arg) {
       console.error('Error: --watch requires an entrypoint');
@@ -74,25 +83,20 @@ async function main() {
 
   const entrypoint = resolve(process.cwd(), entrypointArg);
 
-  // Build tsx command
-  const tsxArgs = watch ? ['tsx', 'watch', entrypoint] : ['tsx', entrypoint];
+  // Initial run
+  await runEntrypoint(entrypoint);
 
-  // Spawn tsx to run the entrypoint
-  const child = spawn('npx', tsxArgs, {
-    stdio: 'inherit',
-    cwd: process.cwd(),
-    shell: true,
-  });
-
-  child.on('error', (error) => {
-    console.error('Error running CReact application:');
-    console.error(error.message);
-    process.exit(1);
-  });
-
-  child.on('exit', (code) => {
-    process.exit(code ?? 0);
-  });
+  // Watch mode: async iterator keeps process alive
+  if (watchMode) {
+    console.log('Watching for changes...');
+    const watcher = watch(dirname(entrypoint), { recursive: true });
+    for await (const event of watcher) {
+      if (event.filename?.match(/\.(tsx?|jsx?)$/)) {
+        console.log(`\nRestarting...`);
+        await runEntrypoint(entrypoint);
+      }
+    }
+  }
 }
 
 main();
