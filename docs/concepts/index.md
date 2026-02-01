@@ -1,22 +1,20 @@
 # What is CReact?
 
-CReact is a **declarative universal reactive runtime**.
+CReact is a declarative reactive runtime.
 
-Think n8n, but in code. Think React, but for anything.
-
-## The Four Pillars
+## Core Properties
 
 ### Declarative
-Describe **what** you want, not **how** to get it. Write JSX that represents your system's desired state, and CReact makes it happen.
+Describe what you want, not how to get it.
 
 ### Universal
-Works for AI agents, cloud infrastructure, APIs, webhooks, IoT devices, and anything else you can imagine. Write once, run anywhere.
+Works for AI agents, cloud infrastructure, APIs, webhooks, IoT devices.
 
 ### Reactive
-Automatically responds when things change. No polling, no manual refresh. When outputs change, dependent resources update automatically.
+When outputs change, dependent resources update automatically.
 
 ### Runtime
-Keeps running continuously, not a one-shot deployment. Handles events, recovers from crashes, and adapts to external changes.
+Runs continuously. Handles events, recovers from crashes.
 
 ## Next Steps
 

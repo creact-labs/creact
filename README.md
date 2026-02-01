@@ -1,100 +1,60 @@
+<p align="center">
+  <img src="https://img.shields.io/npm/v/@creact-labs/creact" alt="npm version" />
+  <img src="https://img.shields.io/npm/l/@creact-labs/creact" alt="license" />
+</p>
+
 # CReact
 
-**Declarative reactive runtime for AI agents, cloud infrastructure, and automation.**
+What if you could generate SEO-optimized product pages by researching competitors automatically?
 
-Build complex workflows with JSX. Describe *what* you want — CReact figures out *how*.
+```tsx
+<FormTrigger fields={['productTitle']}>
+  {(form) => (
+    <GoogleSearch query={`intitle:"${form.productTitle()}" pricing OR features`}>
+      {(results) => (
+        <ExtractText items={results.items()} fields={['title', 'snippet']}>
+          {(extracted) => (
+            <GeminiCompletion prompt={`Generate SEO meta and product description:\n${extracted.text()}`}>
+              {(content) => (
+                <>
+                  <ParseSections text={content.output()} format="seo,product">
+                    {(parsed) => (
+                      <GoogleSheetAppend doc="catalog" row={parsed.fields()} />
+                    )}
+                  </ParseSections>
 
-## Install
+                  <SlackMessage channel="#products" text={`New: ${form.productTitle()}`} />
+                </>
+              )}
+            </GeminiCompletion>
+          )}
+        </ExtractText>
+      )}
+    </GoogleSearch>
+  )}
+</FormTrigger>
+```
+
+Form → Search → Extract → AI → branches to Sheets and Slack. Each construct is one action.
 
 ```bash
 npm install @creact-labs/creact
 ```
 
-## Example: AI Content Pipeline
+## How it works
 
-A workflow that generates blog posts and publishes to multiple channels — all reactive and declarative:
+**Constructs** define what you want (props) and what you get (outputs).
 
-```tsx
-import { CReact, renderCloudDOM, useInstance, createSignal } from '@creact-labs/creact';
+**Components** compose constructs with JSX. Dependencies flow through render props.
 
-// 🤖 AI generates content from a topic
-function AIWriter({ topic, children }) {
-  const content = useInstance(OpenAICompletion, {
-    model: 'gpt-4',
-    prompt: `Write a blog post about: ${topic}`,
-  });
-  return children(content);
-}
+**Providers** execute constructs against real infrastructure (AWS, Terraform, APIs).
 
-// 📝 Publish to your blog
-function BlogPost({ title, content }) {
-  return useInstance(WordPressPost, { title, content, status: 'published' });
-}
-
-// 🐦 Share on social
-function Tweet({ content }) {
-  return useInstance(TwitterPost, { 
-    text: content.summary(),
-    thread: true,
-  });
-}
-
-// 💬 Notify your team
-function SlackNotify({ channel, message }) {
-  return useInstance(SlackMessage, { channel, text: message });
-}
-
-// 🔗 Compose the pipeline
-function ContentPipeline({ topic }) {
-  return (
-    <AIWriter topic={topic}>
-      {(content) => (
-        <>
-          <BlogPost title={content.title()} content={content.body()} />
-          <Tweet content={content} />
-          <SlackNotify 
-            channel="#content" 
-            message={`✨ New post published: ${content.title()}`} 
-          />
-        </>
-      )}
-    </AIWriter>
-  );
-}
-
-// Run it
-await renderCloudDOM(<ContentPipeline topic="Why CReact changes everything" />);
-```
-
-**Change the topic → everything updates.** The blog post regenerates, tweet updates, Slack notifies.
-
-## Why CReact?
-
-| Traditional Approach | CReact |
-|---------------------|--------|
-| Imperative scripts that break | Declarative specs that reconcile |
-| Manual dependency tracking | Automatic reactive updates |
-| Scattered state across files | Single source of truth |
-| Hard to test and reason about | Composable, testable components |
-
-## The Four Pillars
-
-**Declarative** — Describe what you want, not how to get it.
-
-**Universal** — Works for AI agents, cloud infrastructure, APIs, anything.
-
-**Reactive** — Automatically responds when things change.
-
-**Runtime** — Keeps running continuously, handles events, recovers from crashes.
+**Backends** persist state for crash recovery and incremental updates.
 
 ## Documentation
 
-- [Tutorial: Build an AI Agent](./docs/getting-started/1-setup.md)
-- [Thinking in CReact](./docs/concepts/thinking-in-creact.md)
-- [Constructs](./docs/concepts/constructs.md)
-- [Components](./docs/concepts/components.md)
-- [Reactivity](./docs/concepts/reactivity.md)
-- [Providers](./docs/concepts/providers.md)
+- [Tutorial](./docs/getting-started/1-setup.md) — Build an AI agent with Wikipedia search
+- [Concepts](./docs/concepts/index.md) — Core mental model
 
 ## License
 

@@ -1,8 +1,6 @@
 # 4. Components
 
-Components compose constructs using JSX.
-
-Each component wraps a construct and uses render props to pass outputs down. This creates a tree where child components can access parent outputs.
+Components compose constructs using JSX. Each component wraps a construct and uses render props to pass outputs down.
 
 ```tsx
 // src/components/App.tsx
@@ -179,7 +177,7 @@ function Agent({ prompt, modelId, memoryId, toolIds, messages, onResponse }: {
 }
 ```
 
-Now wire everything together. The App starts the server, waits for messages, runs the agent, sends responses:
+Now wire everything together:
 
 ```tsx
 export function App() {

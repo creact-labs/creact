@@ -41,8 +41,7 @@ await renderCloudDOM(<App />, 'my-stack');
 
 ```tsx
 function Counter() {
-  const [count, setCount] = createStore('counter', 0);
-  // After restart, count is restored to previous value
+  const [state, setState] = createStore({ count: 0 });
 }
 ```
 
@@ -75,5 +74,5 @@ interface Backend {
 
 ## Next Steps
 
-- [Providers](./providers.md) - Learn how providers execute constructs
-- [Reactivity](./reactivity.md) - Understand how changes propagate
+- [Providers](./providers.md)
+- [Reactivity](./reactivity.md)

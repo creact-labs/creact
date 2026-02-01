@@ -1,8 +1,32 @@
-# 3. Provider
+# 2. Provider & Backend
 
-The provider is where constructs become real.
+## Backend
 
-CReact calls `materialize()` with a list of construct instances. The provider looks at each one, does the work, and sets outputs.
+The backend persists deployment state for crash recovery and incremental updates.
+
+For this tutorial, we'll use a simple in-memory backend:
+
+```ts
+// src/providers/InMemoryBackend.ts
+import type { Backend, DeploymentState } from '@creact-labs/creact';
+
+export class InMemoryBackend implements Backend {
+  private states = new Map<string, DeploymentState>();
+
+  async getState(stackName: string): Promise<DeploymentState | null> {
+    return this.states.get(stackName) || null;
+  }
+
+  async saveState(stackName: string, state: DeploymentState): Promise<void> {
+    this.states.set(stackName, state);
+  }
+}
+```
+
+
+## Provider
+
+CReact calls `materialize()` with construct instances. The provider executes them and sets outputs.
 
 ```ts
 // src/providers/Provider.ts
@@ -40,14 +64,14 @@ export class Provider extends EventEmitter implements IProvider {
     for (const node of nodes) {
       switch (node.constructType) {
         case 'ChatModel': {
-          const id = node.resourceName;
+          const id = node.id;
           models.set(id, { model: node.props.model });
           node.setOutputs({ id });
           break;
         }
 
         case 'Memory': {
-          const id = node.resourceName;
+          const id = node.id;
           if (!memories.has(id)) {
             memories.set(id, { messages: [] });
           }
@@ -57,7 +81,7 @@ export class Provider extends EventEmitter implements IProvider {
         }
 
         case 'Tool': {
-          const id = node.resourceName;
+          const id = node.id;
           tools.set(id, {
             name: node.props.name,
             description: node.props.description
@@ -73,7 +97,6 @@ export class Provider extends EventEmitter implements IProvider {
           const model = models.get(modelId);
           if (!model) break;
 
-          // Convert to OpenAI format
           const openaiTools = toolIds
             .map((id: string) => tools.get(id))
             .filter(Boolean)
@@ -132,7 +155,7 @@ export class Provider extends EventEmitter implements IProvider {
         }
 
         case 'HttpServer': {
-          const id = node.resourceName;
+          const id = node.id;
           const { port, staticDir } = node.props;
 
           if (!servers.has(id)) {
@@ -156,7 +179,7 @@ export class Provider extends EventEmitter implements IProvider {
         }
 
         case 'ChatHandler': {
-          const id = node.resourceName;
+          const id = node.id;
           const { serverId, path: routePath } = node.props;
 
           const server = servers.get(serverId);
@@ -172,8 +195,12 @@ export class Provider extends EventEmitter implements IProvider {
               handler.pending = { id: messageId, content: req.body.message };
               handler.waitingRes = res;
 
-              // Trigger re-render
-              this.emit('change');
+              // Trigger re-render via CReact's event system
+              this.emit('outputsChanged', {
+                resourceName: id,
+                outputs: { pending: handler.pending },
+                timestamp: Date.now(),
+              });
             });
           }
 
@@ -189,7 +216,6 @@ export class Provider extends EventEmitter implements IProvider {
           const handler = handlers.get(handlerId);
           if (!handler?.waitingRes) break;
 
-          // Only respond if this is for the current pending message
           if (handler.pending?.id === messageId) {
             handler.waitingRes.json({ response: content });
             handler.pending = null;
@@ -208,14 +234,14 @@ export class Provider extends EventEmitter implements IProvider {
 }
 ```
 
-The new constructs form a cycle:
+## How it works
 
 1. **HttpServer** starts Express, serves the chat page
 2. **ChatHandler** sets up POST /chat, stores incoming messages
-3. When a message arrives, provider emits `change` → CReact re-renders
+3. When a message arrives, provider emits `outputsChanged` → CReact re-renders
 4. The component tree sees `pending`, runs the Agent
-5. **ChatResponse** sends the response, clears the pending state
+5. **ChatResponse** sends the response back
 
 ---
 
-Next: [4. Components](./4-components.md)
+Next: [3. Constructs](./3-constructs.md)

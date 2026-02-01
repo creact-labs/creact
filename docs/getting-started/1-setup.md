@@ -1,12 +1,15 @@
 # Tutorial: AI Agent with Wikipedia
 
-We're building an AI agent you can chat with in the browser. It searches Wikipedia to answer your questions.
+Build a chat agent that searches Wikipedia.
 
-**What you'll learn:**
+## What you'll learn
 
-1. **Constructs** - Data shapes. Like TypeScript interfaces that the provider knows how to handle.
-2. **Provider** - The engine. Takes constructs and does the actual work (API calls, HTTP server, etc).
-3. **Components** - Composition. JSX that wires constructs together.
+CReact has four core pieces:
+
+1. **Provider** - The engine. Executes constructs and handles external events.
+2. **Backend** - State persistence. Saves deployment state for crash recovery.
+3. **Constructs** - Data shapes. What you want (props) and what you get (outputs).
+4. **Components** - Composition. JSX that wires constructs together.
 
 ## Setup
 
@@ -17,7 +20,7 @@ npm install @creact-labs/creact openai express dotenv
 npm install -D typescript @types/node @types/express
 ```
 
-You need one API key:
+Create `.env` with your OpenAI key:
 
 ```
 OPENAI_API_KEY=sk-...
@@ -30,19 +33,20 @@ Get it from https://platform.openai.com/api-keys
 ```
 agent/
 ├── src/
-│   ├── constructs/      # What things ARE
-│   ├── components/      # How things COMPOSE
-│   ├── providers/       # How things RUN
-│   └── app.tsx          # Entry point
+│   ├── providers/
+│   │   ├── Provider.ts       # Executes constructs
+│   │   └── InMemoryBackend.ts # Persists state
+│   ├── constructs/           # Data shapes
+│   ├── components/           # JSX composition
+│   └── app.tsx               # Entry point
 ├── public/
-│   └── index.html       # Chat UI
+│   └── index.html            # Chat UI
 ├── .env
+├── package.json
 └── tsconfig.json
 ```
 
-Three folders, three concepts. Constructs define shape. Components define structure. Provider defines behavior.
-
-The `public/` folder holds the chat page. The provider serves it.
+## Configuration
 
 `tsconfig.json`:
 
@@ -60,6 +64,17 @@ The `public/` folder holds the chat page. The provider serves it.
 }
 ```
 
+`package.json` scripts:
+
+```json
+{
+  "scripts": {
+    "start": "creact src/app.tsx",
+    "dev": "creact --watch src/app.tsx"
+  }
+}
+```
+
 ---
 
-Next: [2. Constructs](./2-constructs.md)
+Next: [2. Provider & Backend](./2-provider.md)

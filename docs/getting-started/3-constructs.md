@@ -1,10 +1,6 @@
-# 2. Constructs
+# 3. Constructs
 
-A construct is a class with props and outputs. That's all.
-
-The props say what you want. The outputs say what you got. The provider does the work in between.
-
-Think of constructs like order forms. You fill in what you want (props), hand it to the kitchen (provider), and get back your meal (outputs).
+A construct is a class with props (input) and outputs (result).
 
 ## ChatModel
 
@@ -24,9 +20,6 @@ export class ChatModel {
   constructor(public props: ChatModelProps) {}
 }
 ```
-
-Props: "I want gpt-4o-mini"
-Outputs: "Here's an ID you can reference"
 
 ## Memory
 
@@ -53,8 +46,6 @@ export class Memory {
 }
 ```
 
-Outputs include the actual messages so components can read them.
-
 ## Tool
 
 Register a tool the model can call.
@@ -74,8 +65,6 @@ export class Tool {
   constructor(public props: ToolProps) {}
 }
 ```
-
-The model sees the name and description. It decides when to call it.
 
 ## Completion
 
@@ -105,8 +94,6 @@ export class Completion {
 }
 ```
 
-This is the core. You give it messages and tools. It returns either content (a response) or toolCalls (the model wants to use a tool).
-
 ## ToolExec
 
 Execute a tool call.
@@ -126,8 +113,6 @@ export class ToolExec {
   constructor(public props: ToolExecProps) {}
 }
 ```
-
-The provider knows how to run the actual tool (Wikipedia search in our case).
 
 ## AddMessage
 
@@ -171,8 +156,6 @@ export class HttpServer {
 }
 ```
 
-The provider starts Express. If `staticDir` is set, it serves files from there.
-
 ## ChatHandler
 
 Handle incoming chat messages.
@@ -199,8 +182,6 @@ export class ChatHandler {
 }
 ```
 
-When a message arrives via HTTP, it shows up in `pending`. The component tree sees it and renders the Agent.
-
 ## ChatResponse
 
 Send a response back to the client.
@@ -222,8 +203,6 @@ export class ChatResponse {
 }
 ```
 
-This completes the HTTP request. The browser receives the agent's response.
-
 ---
 
-Next: [3. Provider](./3-provider.md)
+Next: [4. Components](./4-components.md)

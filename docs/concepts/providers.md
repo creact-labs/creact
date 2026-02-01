@@ -1,15 +1,37 @@
 # Providers
 
-Providers are the execution engine. They make constructs real.
+Providers execute constructs.
 
 ## The Interface
 
 ```tsx
+/**
+ * Event emitted when provider detects output changes
+ */
+interface OutputChangeEvent {
+  resourceName: string;
+  outputs: Record<string, any>;
+  timestamp: number;
+}
+
 interface Provider {
+  /** Initialize provider (async setup) */
+  initialize?(): Promise<void>;
+
+  /** Materialize nodes into cloud resources */
   materialize(nodes: InstanceNode[]): Promise<void>;
+
+  /** Destroy a node */
   destroy(node: InstanceNode): Promise<void>;
-  on(event: 'outputsChanged', handler: Function): void;
-  off(event: 'outputsChanged', handler: Function): void;
+
+  /** Lifecycle hooks */
+  preDeploy?(nodes: InstanceNode[]): Promise<void>;
+  postDeploy?(nodes: InstanceNode[], outputs: Record<string, any>): Promise<void>;
+  onError?(error: Error, nodes: InstanceNode[]): Promise<void>;
+
+  /** Event system (required for continuous runtime) */
+  on(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
+  off(event: 'outputsChanged', handler: (change: OutputChangeEvent) => void): void;
   stop(): void;
 }
 ```
@@ -53,6 +75,7 @@ dynamodb.on('change', async (event) => {
   this.emit('outputsChanged', {
     resourceName: event.tableName,
     outputs: { items: await scanTable() },
+    timestamp: Date.now(),
   });
 });
 ```

@@ -1,6 +1,6 @@
 # Constructs
 
-Constructs are your building blocks. They define **what** you want.
+Constructs are building blocks.
 
 ## What is a Construct?
 

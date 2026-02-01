@@ -1,31 +1,24 @@
 # 5. Run
 
-The entry point sets up CReact and keeps it running:
+## Entry point
 
 ```tsx
 // src/app.tsx
 import { CReact, renderCloudDOM } from '@creact-labs/creact';
 import { App } from './components/App';
 import { Provider } from './providers/Provider';
+import { InMemoryBackend } from './providers/InMemoryBackend';
 
-const provider = new Provider();
-CReact.provider = provider;
+CReact.provider = new Provider();
+CReact.backend = new InMemoryBackend();
 
 export default async function main() {
   await renderCloudDOM(<App />, 'agent');
-
-  // Re-render when provider emits changes
-  provider.on('change', async () => {
-    await renderCloudDOM(<App />, 'agent');
-  });
-
   console.log('Agent running at http://localhost:3000');
 }
 ```
 
-When the provider emits `change` (a new chat message arrived), CReact re-renders. The component tree sees the pending message and runs the agent.
-
-## The chat page
+## Chat page
 
 ```html
 <!-- public/index.html -->
@@ -138,24 +131,22 @@ When the provider emits `change` (a new chat message arrived), CReact re-renders
 </html>
 ```
 
-## Run it
+## Run
 
 ```bash
-creact src/app.tsx
+npm run dev
 ```
 
-Open http://localhost:3000 in your browser. Ask a question. The agent searches Wikipedia and responds.
+Open http://localhost:3000. Ask a question. The agent searches Wikipedia and responds.
 
 ## What's happening
 
 1. Browser sends POST /chat with your message
-2. Provider stores it in `pending`, emits `change`
-3. CReact re-renders the component tree
-4. `chat.pending()` now returns the message
-5. Agent component renders, calls OpenAI
-6. If OpenAI wants to search, ToolExec runs Wikipedia query
-7. Agent gets results, generates response
-8. ChatResponse sends it back to the browser
-9. `pending` clears, tree returns to waiting state
+2. Provider stores it, emits `outputsChanged`
+3. CReact re-renders, `chat.pending()` returns the message
+4. Agent component renders, calls OpenAI
+5. If OpenAI wants to search, ToolExec runs Wikipedia query
+6. Agent gets results, generates response
+7. ChatResponse sends it back to the browser
+8. `pending` clears, tree returns to waiting state
 
-Every step is a construct. The flow is visible in the JSX tree.

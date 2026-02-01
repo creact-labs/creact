@@ -1,7 +1,5 @@
 # Reactivity
 
-When outputs change, dependent resources update automatically.
-
 ## The Loop
 
 ```
