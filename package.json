@@ -4,6 +4,24 @@
   "description": "Declarative universal reactive runtime",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx/jsx-runtime.d.ts",
+      "default": "./dist/jsx/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx/jsx-dev-runtime.d.ts",
+      "default": "./dist/jsx/jsx-dev-runtime.js"
+    },
+    "./jsx": {
+      "types": "./dist/jsx/index.d.ts",
+      "default": "./dist/jsx/index.js"
+    }
+  },
   "typesVersions": {
     "*": {
       "jsx": [
