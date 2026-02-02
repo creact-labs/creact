@@ -42,8 +42,8 @@ export interface InstanceNode {
 // Registry of all instance nodes by ID
 const nodeRegistry = new Map<string, InstanceNode>();
 
-// Track which fiber owns each nodeId (to detect duplicate siblings)
-const nodeOwnership = new Map<string, any>();
+// Track which fiber path owns each nodeId (to detect duplicate siblings)
+const nodeOwnership = new Map<string, string>();
 
 // Output hydration map - populated before render to restore outputs from previous run
 const outputHydrationMap = new Map<string, Record<string, any>>();
@@ -150,9 +150,10 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   const constructType = construct.name || 'Unknown';
 
   // Check for duplicate siblings (requires keys)
-  // Allow same fiber to re-register (reactive re-render), but not different fibers
-  const existingOwner = nodeOwnership.get(nodeId);
-  if (existingOwner && existingOwner !== fiber) {
+  // Allow same fiber path to re-register (reactive re-render), but not different paths
+  const existingOwnerPath = nodeOwnership.get(nodeId);
+  const currentFiberPath = fiber.path.join('.');
+  if (existingOwnerPath && existingOwnerPath !== currentFiberPath) {
     throw new Error(
       `Multiple instances of ${constructType} at the same level require unique keys.\n` +
         `Add a key prop to differentiate them:\n\n` +
@@ -161,7 +162,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
         `  ))}`,
     );
   }
-  nodeOwnership.set(nodeId, fiber);
+  nodeOwnership.set(nodeId, currentFiberPath);
 
   // Create or get existing node
   let node = nodeRegistry.get(nodeId);
