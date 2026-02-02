@@ -23,6 +23,7 @@ import { clearHydration, prepareHydration } from '../primitives/store';
 import type { Backend, DeploymentState } from '../provider/backend';
 import { serializeNodes } from '../provider/backend';
 import type { OutputChangeEvent, Provider } from '../provider/interface';
+import { setOnFlushCallback } from '../reactive/tracking';
 import type { Fiber } from './fiber';
 import { buildDependencyGraph, reconcile, topologicalSort } from './reconcile';
 import { collectInstanceNodes, renderFiber, resetResourcePath } from './render';
@@ -81,6 +82,9 @@ export class CReact {
       this.outputChangeHandler = (change) => this.handleOutputChange(change);
       provider.on('outputsChanged', this.outputChangeHandler);
     }
+
+    // Subscribe to reactive flush events (for internal signal changes)
+    setOnFlushCallback(() => this.handleReactiveFlush());
   }
 
   /**
@@ -159,6 +163,16 @@ export class CReact {
    * re-renders immediately. New nodes appear in registry right away.
    */
   protected async applyChanges(previousNodes: InstanceNode[]): Promise<void> {
+    this.isApplying = true;
+
+    try {
+      await this.applyChangesInternal(previousNodes);
+    } finally {
+      this.isApplying = false;
+    }
+  }
+
+  protected async applyChangesInternal(previousNodes: InstanceNode[]): Promise<void> {
     const changes = reconcile(previousNodes, this.currentNodes);
 
     if (
@@ -243,7 +257,7 @@ export class CReact {
       if (hasNewNodes) {
         const prevNodes = this.currentNodes;
         this.currentNodes = newNodes;
-        await this.applyChanges(prevNodes); // Recurse for new nodes
+        await this.applyChangesInternal(prevNodes); // Recurse for new nodes
       } else {
         this.currentNodes = newNodes;
 
@@ -274,25 +288,56 @@ export class CReact {
    * we update signals (triggering synchronous re-renders via batch),
    * and apply any new nodes.
    */
-  protected async handleOutputChange(change: OutputChangeEvent): Promise<void> {
-    // Find node by resource name (props.name) or node.id
-    const node = this.currentNodes.find(
-      (n) => n.props.name === change.resourceName || n.id === change.resourceName
-    );
-    if (!node) {
-      console.warn(`[CReact] No node found for resource: ${change.resourceName}`);
+  protected handleOutputChange(change: OutputChangeEvent): void {
+    // Update signal by resource name - triggers reactive cascade
+    // The reactive system (via handleReactiveFlush) will collect and apply new nodes
+    fillInstanceOutputs(change.resourceName, change.outputs);
+  }
+
+  // Guard against concurrent applyChanges
+  protected isApplying = false;
+  protected pendingFlush = false;
+
+  /**
+   * Handle reactive flush events (internal signal changes)
+   *
+   * When components update their own signals (not Provider-initiated),
+   * we still need to collect and apply any new nodes.
+   */
+  protected handleReactiveFlush(): void {
+    if (!this.rootFiber) return;
+
+    // If already applying, mark that we need another flush after
+    if (this.isApplying) {
+      this.pendingFlush = true;
       return;
     }
 
-    // Update signal - reactive system triggers component re-execution
-    // With synchronous batching, re-renders happen inside fillInstanceOutputs
-    fillInstanceOutputs(node.id, change.outputs);
+    this.doFlush();
+  }
 
-    // Re-collect and apply any new nodes
-    if (this.rootFiber) {
+  protected async doFlush(): Promise<void> {
+    if (!this.rootFiber || this.isApplying) return;
+
+    // Re-collect nodes after reactive updates
+    const newNodes = collectInstanceNodes(this.rootFiber);
+    const hasNewNodes = newNodes.some((n) => !this.currentNodes.some((p) => p.id === n.id));
+
+    if (hasNewNodes) {
       const prevNodes = this.currentNodes;
-      this.currentNodes = collectInstanceNodes(this.rootFiber);
-      await this.applyChanges(prevNodes);
+      this.currentNodes = newNodes;
+
+      try {
+        await this.applyChanges(prevNodes);
+      } catch (err) {
+        console.error('[CReact] Error applying changes after reactive flush:', err);
+      }
+
+      // If another flush was requested while we were applying, do it now
+      if (this.pendingFlush) {
+        this.pendingFlush = false;
+        this.doFlush();
+      }
     }
   }
 
@@ -320,6 +365,8 @@ export class CReact {
     if (this.instanceProvider.stop) {
       this.instanceProvider.stop();
     }
+    // Clean up reactive callback
+    setOnFlushCallback(null);
   }
 
   /**

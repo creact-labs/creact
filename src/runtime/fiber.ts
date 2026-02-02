@@ -28,6 +28,9 @@ export interface Fiber {
   // Set when useInstance was called but returned a placeholder (undefined props)
   // Used to ensure resource path is properly popped even without a real node
   hasPlaceholderInstance?: boolean;
+
+  // Memoized hooks (signals, etc.) - persist across re-renders
+  hooks?: any[];
 }
 
 /**

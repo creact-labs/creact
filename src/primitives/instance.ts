@@ -211,7 +211,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
     };
     nodeRegistry.set(nodeId, node);
   } else {
-    // Update props
+    // Update props for the new render
     node.props = props;
   }
 
@@ -250,7 +250,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
 
       // Return wrapper that auto-unwraps accessors
       return () => {
-        const value = read(); // Read from signal (tracks it)
+        const value = read(); // Read from signal (tracks dependency)
         // If provider returned an accessor, call it (tracks provider's signal)
         if (typeof value === 'function') {
           return value();

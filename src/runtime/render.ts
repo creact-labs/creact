@@ -11,6 +11,7 @@ import { createFiber } from './fiber';
 // Current render context
 let currentFiber: Fiber | null = null;
 let currentPath: string[] = [];
+let currentHookIndex = 0;
 
 // Resource path - only components with useInstance contribute to this
 // This makes wrapper components (without useInstance) transparent
@@ -36,6 +37,20 @@ export function getCurrentPath(): string[] {
  */
 export function getCurrentResourcePath(): string[] {
   return [...resourcePath];
+}
+
+/**
+ * Get next hook index and increment (for hook memoization)
+ */
+export function getNextHookIndex(): number {
+  return currentHookIndex++;
+}
+
+/**
+ * Reset hook index (called before component execution)
+ */
+export function resetHookIndex(): void {
+  currentHookIndex = 0;
 }
 
 /**
@@ -111,19 +126,9 @@ export function renderFiber(element: any, path: string[]): Fiber {
     // Capture incoming resource path for reactive re-renders
     fiber.incomingResourcePath = [...resourcePath];
 
-    // Create computation for this component
-    const computation: Computation<void> = {
-      fn: () => executeComponent(fiber, type, { ...restProps, children }),
-      sources: null,
-      sourceSlots: null,
-      state: 1, // STALE
-      cleanups: null,
-    };
-
-    fiber.computation = computation;
-
-    // Initial render
-    runComputation(computation);
+    // Just execute once - no computation wrapper
+    // Effects inside create their own computations and track dependencies
+    executeComponent(fiber, type, { ...restProps, children });
   } else {
     // Intrinsic element - just render children
     fiber.children = renderChildren(children, fiberPath);
@@ -132,86 +137,175 @@ export function renderFiber(element: any, path: string[]): Fiber {
   return fiber;
 }
 
-/**
- * Recursively clean up computations from a fiber tree
- * This prevents stale computations from observing signals after re-render
- * and ensures queued computations won't run (by marking them CLEAN)
- */
-function cleanupFiberTree(fibers: Fiber[]): void {
-  for (const fiber of fibers) {
-    if (fiber.computation) {
-      cleanComputation(fiber.computation);
-      // Mark as CLEAN (0) so it won't run if already queued in batch
-      fiber.computation.state = 0;
-    }
-    if (fiber.children.length > 0) {
-      cleanupFiberTree(fiber.children);
-    }
-  }
-}
 
 /**
- * Execute a component function
+ * Execute a component function with reactive tracking
  */
 // biome-ignore lint/complexity/noBannedTypes: JSX component types are dynamically resolved at runtime
 function executeComponent(fiber: Fiber, type: Function, props: Record<string, any>): void {
-  const prevFiber = currentFiber;
-  const prevPath = currentPath;
+  // Store props on fiber so computation can read updated props on re-render
+  fiber.props = props;
 
-  currentFiber = fiber;
-  currentPath = fiber.path;
+  // Create computation for reactive re-renders
+  const computation: Computation<void> = {
+    fn: () => {
+      const prevFiber = currentFiber;
+      const prevPath = currentPath;
+      const prevHookIndex = currentHookIndex;
 
-  // Restore resource path for reactive re-renders
-  // This ensures components see the correct resource path even when
-  // re-executing independently (not from root)
-  resourcePath = [...(fiber.incomingResourcePath ?? [])];
+      currentFiber = fiber;
+      currentPath = fiber.path;
+      currentHookIndex = 0; // Reset hook index for each render
 
-  // Clean up old children's computations before re-rendering
-  // This prevents stale computations from observing signals
-  if (fiber.children.length > 0) {
-    cleanupFiberTree(fiber.children);
-  }
+      // Restore resource path for reactive re-renders
+      resourcePath = [...(fiber.incomingResourcePath ?? [])];
 
-  // Clear instance nodes and placeholder flag before re-executing component
-  fiber.instanceNodes = [];
-  fiber.hasPlaceholderInstance = false;
+      // Store old children for reconciliation
+      const oldChildren = fiber.children;
 
-  try {
-    // Execute component
-    const result = type(props);
+      // Clear instance nodes and placeholder flag before re-executing component
+      fiber.instanceNodes = [];
+      fiber.hasPlaceholderInstance = false;
 
-    // Render children from result
-    fiber.children = renderChildren(result, fiber.path);
-  } finally {
-    // If this component had useInstance (real or placeholder), pop its resource path segment
-    // (useInstance pushes a segment so children see it in their resource path)
-    if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
-      popResourcePath();
-    }
+      try {
+        // Execute component - read props from fiber for updated values
+        const result = type(fiber.props);
 
-    currentFiber = prevFiber;
-    currentPath = prevPath;
+        // Render children from result with reconciliation
+        fiber.children = renderChildren(result, fiber.path, oldChildren);
+      } finally {
+        // Clean up old children that weren't reused
+        // (they're no longer in fiber.children after reconciliation)
+        for (const oldChild of oldChildren) {
+          if (!fiber.children.includes(oldChild)) {
+            cleanupFiber(oldChild);
+          }
+        }
+
+        // If this component had useInstance (real or placeholder), pop its resource path segment
+        if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
+          popResourcePath();
+        }
+
+        currentFiber = prevFiber;
+        currentPath = prevPath;
+        currentHookIndex = prevHookIndex;
+      }
+    },
+    sources: null,
+    sourceSlots: null,
+    state: 1, // STALE - needs initial run
+    cleanups: null,
+  };
+
+  // Store computation on fiber
+  fiber.computation = computation;
+
+  // Run immediately with tracking
+  runComputation(computation);
+}
+
+/**
+ * Update and re-execute an existing component (for reconciliation)
+ * Reuses the existing fiber and computation
+ */
+// biome-ignore lint/complexity/noBannedTypes: JSX component types are dynamically resolved at runtime
+function executeComponentUpdate(fiber: Fiber, type: Function, props: Record<string, any>): void {
+  // Update props on fiber
+  fiber.props = props;
+
+  // If fiber has a computation, run it to re-render
+  if (fiber.computation) {
+    runComputation(fiber.computation);
+  } else {
+    // Shouldn't happen, but fall back to creating new computation
+    executeComponent(fiber, type, props);
   }
 }
 
 /**
  * Render children (handles various child types)
+ * @param oldChildren - Previous children fibers for reconciliation
  */
-function renderChildren(children: any, parentPath: string[]): Fiber[] {
+function renderChildren(children: any, parentPath: string[], oldChildren: Fiber[] = []): Fiber[] {
   if (children == null || typeof children === 'boolean') {
     return [];
+  }
+
+  // Build a map of old fibers by key for O(1) lookup
+  const oldFibersByKey = new Map<string, Fiber>();
+  for (const oldFiber of oldChildren) {
+    const key = oldFiber.key !== undefined ? String(oldFiber.key) : (oldFiber.path[oldFiber.path.length - 1] ?? '');
+    if (key) oldFibersByKey.set(key, oldFiber);
   }
 
   if (Array.isArray(children)) {
     return children.flatMap((child, i) => {
       const childKey = child?.key ?? i;
-      const fiber = renderFiber(child, [...parentPath, String(childKey)]);
+      const fiber = renderFiberWithReconciliation(child, [...parentPath, String(childKey)], oldFibersByKey);
       return fiber.type === null ? [] : [fiber];
     });
   }
 
-  const fiber = renderFiber(children, parentPath);
+  const fiber = renderFiberWithReconciliation(children, parentPath, oldFibersByKey);
   return fiber.type === null ? [] : [fiber];
+}
+
+/**
+ * Render a fiber with reconciliation against old fibers
+ * Reuses existing fiber if key/type match to preserve computation references
+ */
+function renderFiberWithReconciliation(element: any, path: string[], oldFibersByKey: Map<string, Fiber>): Fiber {
+  // Handle null/undefined/boolean
+  if (element == null || typeof element === 'boolean') {
+    return createFiber(null, {}, path);
+  }
+
+  // Handle primitives (text)
+  if (typeof element === 'string' || typeof element === 'number') {
+    return createFiber('text', { value: element }, path);
+  }
+
+  // Handle arrays - no reconciliation for fragments
+  if (Array.isArray(element)) {
+    const fiber = createFiber('fragment', {}, path);
+    fiber.children = element.map((child, i) => {
+      const childKey = child?.key ?? i;
+      return renderFiber(child, [...path, String(childKey)]);
+    });
+    return fiber;
+  }
+
+  // Handle JSX element
+  const { type, props = {}, key } = element;
+  const { children, ...restProps } = props;
+
+  // Generate path segment
+  const name = getNodeName(type, props, key);
+  const fiberPath = [...path, name];
+
+  // Try to find matching old fiber by key
+  const lookupKey = key !== undefined ? String(key) : name;
+  const oldFiber = oldFibersByKey.get(lookupKey);
+
+  // Check if we can reuse the old fiber (same type)
+  if (oldFiber && oldFiber.type === type) {
+    // Reuse old fiber - update props and re-execute
+    oldFiber.props = restProps;
+
+    if (typeof type === 'function') {
+      // Re-execute component with updated props
+      executeComponentUpdate(oldFiber, type, { ...restProps, children });
+    } else {
+      // Intrinsic element - just re-render children
+      oldFiber.children = renderChildren(children, fiberPath, oldFiber.children);
+    }
+
+    return oldFiber;
+  }
+
+  // No matching old fiber - create new one
+  return renderFiber(element, path);
 }
 
 /**

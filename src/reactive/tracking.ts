@@ -15,6 +15,17 @@ let pending = false;
 // Batch depth counter for synchronous batching
 let batchDepth = 0;
 
+// Callback for when computations are flushed (for runtime integration)
+let onFlushCallback: (() => void) | null = null;
+
+/**
+ * Set callback to be called after computations are flushed
+ * Used by runtime to re-collect nodes after reactive updates
+ */
+export function setOnFlushCallback(callback: (() => void) | null): void {
+  onFlushCallback = callback;
+}
+
 /**
  * Set the current listener (computation being executed)
  */
@@ -53,11 +64,18 @@ function flushQueue(): void {
   const toRun = [...queue];
   queue.length = 0;
 
+  let didRun = false;
   for (const comp of toRun) {
     if (comp.state === 1) {
       // Still STALE
       runComputation(comp);
+      didRun = true;
     }
+  }
+
+  // Notify runtime that computations were flushed
+  if (didRun && onFlushCallback) {
+    onFlushCallback();
   }
 }
 
@@ -148,16 +166,24 @@ export function batch<T>(fn: () => T): T {
     batchDepth--;
     if (batchDepth === 0) {
       // Flush synchronously - all updates happen NOW
+      let didRun = false;
       while (queue.length) {
         // biome-ignore lint/style/noNonNullAssertion: length check guarantees shift() returns value
         const comp = queue.shift()!;
         if (comp.state === 1) {
           // Still STALE
           runComputation(comp);
+          didRun = true;
         }
       }
       // Clear pending flag since we just flushed
       pending = false;
+
+      // Notify runtime that computations were flushed
+      // This allows new nodes created during batch to be collected and applied
+      if (didRun && onFlushCallback) {
+        onFlushCallback();
+      }
     }
   }
 }

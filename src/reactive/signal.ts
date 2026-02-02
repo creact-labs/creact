@@ -3,6 +3,7 @@
  * Inspired by SolidJS createSignal
  */
 
+import { getCurrentFiber, getNextHookIndex } from '../runtime/render';
 import { getListener, scheduleComputation } from './tracking';
 
 /**
@@ -29,10 +30,43 @@ export type Accessor<T> = () => T | undefined;
 export type Setter<T> = (value: T) => void;
 
 /**
- * Create a reactive signal
+ * Create a reactive signal (memoized per fiber)
  * Returns a getter/setter pair for fine-grained reactivity
+ *
+ * When called inside a component, signals are memoized to persist across re-renders.
+ * This allows components to re-run (like React) while keeping signal identity stable.
  */
 export function createSignal<T>(initial?: T): [Accessor<T>, Setter<T>] {
+  // Check if we're inside a component render
+  const fiber = getCurrentFiber();
+
+  if (fiber) {
+    // Memoize signal per fiber + hook index
+    const hookIndex = getNextHookIndex();
+
+    if (!fiber.hooks) {
+      fiber.hooks = [];
+    }
+
+    // Return existing signal if already created
+    if (fiber.hooks[hookIndex]) {
+      return fiber.hooks[hookIndex];
+    }
+
+    // Create new signal and store in hooks
+    const result = createSignalInternal<T>(initial);
+    fiber.hooks[hookIndex] = result;
+    return result;
+  }
+
+  // Outside component - create non-memoized signal
+  return createSignalInternal<T>(initial);
+}
+
+/**
+ * Internal signal creation (not memoized)
+ */
+function createSignalInternal<T>(initial?: T): [Accessor<T>, Setter<T>] {
   const signal: Signal<T> = {
     value: initial,
     observers: null,
