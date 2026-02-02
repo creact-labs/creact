@@ -175,18 +175,31 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
       outputSignals: new Map(),
       children: [],
       setOutputs(outputs: Record<string, any>) {
-        // Clear ownership before batch triggers re-renders
-        // When signals update, components re-execute and create new fibers
-        // that need to claim the same nodeIds
-        nodeOwnership.clear();
+        // First check if any values actually changed
+        let hasChanges = false;
+        for (const [key, value] of Object.entries(outputs)) {
+          if (!this.outputSignals.has(key)) {
+            hasChanges = true;
+            break;
+          }
+          const [read] = this.outputSignals.get(key)!;
+          if (!shallowEqual(read(), value)) {
+            hasChanges = true;
+            break;
+          }
+        }
 
+        // Early exit if nothing changed - no re-render needed
+        if (!hasChanges) return;
+
+        // Only clear ownership and batch if there are actual changes
+        nodeOwnership.clear();
         batch(() => {
           for (const [key, value] of Object.entries(outputs)) {
             if (!this.outputSignals.has(key)) {
               this.outputSignals.set(key, createSignal(value));
             } else {
               const [read, write] = this.outputSignals.get(key)!;
-              // Only update if value actually changed
               if (!shallowEqual(read(), value)) {
                 write(value);
               }
@@ -276,16 +289,29 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
   const node = nodeRegistry.get(nodeId);
   if (!node) return;
 
-  // Clear ownership before batch triggers re-renders
-  // When signals update, components re-execute and create new fibers
-  // that need to claim the same nodeIds
-  nodeOwnership.clear();
+  // First check if any values actually changed
+  let hasChanges = false;
+  for (const [key, value] of Object.entries(outputs)) {
+    if (!node.outputSignals.has(key)) {
+      hasChanges = true;
+      break;
+    }
+    const [read] = node.outputSignals.get(key)!;
+    if (!shallowEqual(read(), value)) {
+      hasChanges = true;
+      break;
+    }
+  }
 
+  // Early exit if nothing changed - no re-render needed
+  if (!hasChanges) return;
+
+  // Only clear ownership and batch if there are actual changes
+  nodeOwnership.clear();
   batch(() => {
     for (const [key, value] of Object.entries(outputs)) {
       if (node.outputSignals.has(key)) {
         const [read, write] = node.outputSignals.get(key)!;
-        // Only update if value actually changed
         if (!shallowEqual(read(), value)) {
           write(value);
         }
