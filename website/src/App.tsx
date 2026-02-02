@@ -63,7 +63,7 @@ const App: Component = () => {
             target="_blank"
             rel="noopener"
           >
-            Example
+            Demo
             <span class="link-arrow">→</span>
           </a>
         </nav>

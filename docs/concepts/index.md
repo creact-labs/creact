@@ -25,6 +25,6 @@ Runs continuously. Handles events, recovers from crashes.
 - [Providers](./providers.md) - Connecting to the real world
 - [Backend](./backend.md) - Persisting state
 
-## Example
+## Try it
 
-- [Agentic Chatbot](https://github.com/creact-labs/creact-agentic-chatbot-example) - Full chatbot with web search and browsing tools
+- [Agentic Chatbot Demo](https://github.com/creact-labs/creact-agentic-chatbot-example) — Build a chatbot with web search and browsing
