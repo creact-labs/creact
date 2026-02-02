@@ -1,49 +1,14 @@
-# Tutorial: AI Agent with Wikipedia
+# 1. Setup
 
-Build a chat agent that searches Wikipedia.
+Let's build a chat agent that searches Wikipedia.
 
-## What you'll learn
-
-CReact has four core pieces:
-
-1. **Provider** - The engine. Executes constructs and handles external events.
-2. **Backend** - State persistence. Saves deployment state for crash recovery.
-3. **Constructs** - Data shapes. What you want (props) and what you get (outputs).
-4. **Components** - Composition. JSX that wires constructs together.
-
-## Setup
+## Create the project
 
 ```bash
 mkdir agent && cd agent
 npm init -y
 npm install @creact-labs/creact openai express dotenv
 npm install -D typescript @types/node @types/express
-```
-
-Create `.env` with your OpenAI key:
-
-```
-OPENAI_API_KEY=sk-...
-```
-
-Get it from https://platform.openai.com/api-keys
-
-## Project structure
-
-```
-agent/
-├── src/
-│   ├── providers/
-│   │   ├── Provider.ts       # Executes constructs
-│   │   └── InMemoryBackend.ts # Persists state
-│   ├── constructs/           # Data shapes
-│   ├── components/           # JSX composition
-│   └── app.tsx               # Entry point
-├── public/
-│   └── index.html            # Chat UI
-├── .env
-├── package.json
-└── tsconfig.json
 ```
 
 ## Configuration
@@ -59,10 +24,13 @@ agent/
     "jsx": "react-jsx",
     "jsxImportSource": "@creact-labs/creact",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   }
 }
 ```
+
+The `jsxImportSource` tells TypeScript to use CReact's JSX runtime instead of React's.
 
 `package.json` scripts:
 
@@ -70,11 +38,44 @@ agent/
 {
   "scripts": {
     "start": "creact src/app.tsx",
-    "dev": "creact --watch src/app.tsx"
+    "dev": "creact --watch src/app.tsx",
+    "cleanup": "rm -rf .creact-state && echo 'Cleared state'"
   }
 }
 ```
 
+- `dev` - Runs the app with hot reload
+- `cleanup` - Clears persisted state (useful for starting fresh)
+
+## Environment
+
+Create `.env` with your OpenAI key:
+
+```
+OPENAI_API_KEY=sk-...
+```
+
+Get one from https://platform.openai.com/api-keys
+
+## Project structure
+
+```
+agent/
+├── src/
+│   ├── providers/
+│   │   ├── Provider.ts       # Executes constructs
+│   │   └── FileBackend.ts    # Persists state to disk
+│   ├── constructs/           # Data shapes
+│   ├── components/           # JSX composition
+│   │   └── App.tsx
+│   └── app.tsx               # Entry point
+├── public/
+│   └── index.html            # Chat UI
+├── .env
+├── package.json
+└── tsconfig.json
+```
+
 ---
 
-Next: [2. Provider & Backend](./2-provider.md)
+Next: [2. Architecture](./2-architecture.md)
