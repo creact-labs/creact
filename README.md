@@ -58,21 +58,9 @@ CReact is a meta-runtime for building domain-specific, reactive execution engine
 </Server>
 ```
 
-Form → Search → Extract → AI → branches to Sheets and Slack. Each construct is one action.
-
 ```bash
 npm install @creact-labs/creact
 ```
-
-## How it works
-
-**Constructs** define what you want (props) and what you get (outputs).
-
-**Components** compose constructs with JSX. Dependencies flow through render props.
-
-**Providers** execute constructs against real infrastructure (AWS, Terraform, APIs).
-
-**Backends** persist state for crash recovery and incremental updates.
 
 ## Try it
 
