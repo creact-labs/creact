@@ -1,6 +1,6 @@
 {
   "name": "@creact-labs/creact",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "type": "module",
   "description": "Declarative universal reactive runtime",
   "main": "dist/index.js",
