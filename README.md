@@ -5,34 +5,57 @@
 
 # CReact
 
-What if you could generate SEO-optimized product pages by researching competitors automatically?
+CReact is a meta-runtime for building domain-specific, reactive execution engines — where providers define the laws of reality, and JSX defines programs that run inside them.
 
 ```tsx
-<FormTrigger fields={['productTitle']}>
-  {(form) => (
-    <GoogleSearch query={`intitle:"${form.productTitle()}" pricing OR features`}>
-      {(results) => (
-        <ExtractText items={results.items()} fields={['title', 'snippet']}>
-          {(extracted) => (
-            <GeminiCompletion prompt={`Generate SEO meta and product description:\n${extracted.text()}`}>
-              {(content) => (
-                <>
-                  <ParseSections text={content.output()} format="seo,product">
-                    {(parsed) => (
-                      <GoogleSheetAppend doc="catalog" row={parsed.fields()} />
-                    )}
-                  </ParseSections>
+<Server port={3000}>
+  {(server) => (
+    <Chat serverId={server.id()} path="/chat">
+      {(chat) => (
+        <Model model="gpt-4o-mini">
+          {(model) => (
+            <Memory>
+              {(memory) => {
+                const pending = chat.pending();
+                if (!pending) return null;
 
-                  <SlackMessage channel="#products" text={`New: ${form.productTitle()}`} />
-                </>
-              )}
-            </GeminiCompletion>
+                const history = memory.messages() ?? [];
+
+                return (
+                  <Completion
+                    requestId={pending.id}
+                    model={model.model()}
+                    messages={[
+                      { role: 'system', content: 'You are a helpful assistant.' },
+                      ...history,
+                      { role: 'user', content: pending.content },
+                    ]}
+                  >
+                    {(response, conversation) => (
+                      <>
+                        <SaveMessages
+                          memoryId={memory.id()}
+                          currentMessages={history}
+                          newMessages={conversation.slice(history.length)}
+                        />
+
+                        <SendResponse
+                          handlerId={chat.id()}
+                          messageId={pending.id}
+                          content={response}
+                        />
+                      </>
+                    )}
+                  </Completion>
+                );
+              }}
+            </Memory>
           )}
-        </ExtractText>
+        </Model>
       )}
-    </GoogleSearch>
+    </Chat>
   )}
-</FormTrigger>
+</Server>
 ```
 
 Form → Search → Extract → AI → branches to Sheets and Slack. Each construct is one action.
