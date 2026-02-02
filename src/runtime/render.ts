@@ -2,7 +2,7 @@
  * Render - transform JSX to Fiber tree
  */
 
-import { popContext, pushContext } from '../primitives/context';
+import { getContextSnapshot, popContext, pushContext, restoreContextSnapshot } from '../primitives/context';
 import type { Computation } from '../reactive/signal';
 import { cleanComputation, runComputation } from '../reactive/tracking';
 import type { Fiber } from './fiber';
@@ -153,6 +153,9 @@ function executeComponent(fiber: Fiber, type: Function, props: Record<string, an
       const prevPath = currentPath;
       const prevHookIndex = currentHookIndex;
 
+      // Save current context state to restore after
+      const prevContextSnapshot = getContextSnapshot();
+
       currentFiber = fiber;
       currentPath = fiber.path;
       currentHookIndex = 0; // Reset hook index for each render
@@ -186,6 +189,9 @@ function executeComponent(fiber: Fiber, type: Function, props: Record<string, an
         if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
           popResourcePath();
         }
+
+        // Restore previous context state
+        restoreContextSnapshot(prevContextSnapshot);
 
         currentFiber = prevFiber;
         currentPath = prevPath;
@@ -283,6 +289,23 @@ function renderFiberWithReconciliation(element: any, path: string[], oldFibersBy
   // Generate path segment
   const name = getNodeName(type, props, key);
   const fiberPath = [...path, name];
+
+  // Handle context providers - must push/pop context even during reconciliation
+  if (element.__isProvider && element.__context) {
+    const lookupKey = key !== undefined ? String(key) : name;
+    const oldFiber = oldFibersByKey.get(lookupKey);
+    const fiber = oldFiber ?? createFiber(type, restProps, fiberPath, key);
+
+    pushContext(element.__context, props.value);
+
+    try {
+      fiber.children = renderChildren(children, fiberPath, oldFiber?.children ?? []);
+    } finally {
+      popContext(element.__context);
+    }
+
+    return fiber;
+  }
 
   // Try to find matching old fiber by key
   const lookupKey = key !== undefined ? String(key) : name;

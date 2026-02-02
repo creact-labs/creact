@@ -76,3 +76,34 @@ export function popContext(contextId: symbol): void {
 export function clearContextStacks(): void {
   contextStacks.clear();
 }
+
+/**
+ * Snapshot of context state at a point in time
+ * Maps context ID to array of values (the stack at that moment)
+ */
+export type ContextSnapshot = Map<symbol, any[]>;
+
+/**
+ * Capture current context state (for restoring during reactive re-renders)
+ * @internal
+ */
+export function getContextSnapshot(): ContextSnapshot {
+  const snapshot: ContextSnapshot = new Map();
+  for (const [id, stack] of contextStacks) {
+    // Clone the stack so mutations don't affect the snapshot
+    snapshot.set(id, [...stack]);
+  }
+  return snapshot;
+}
+
+/**
+ * Restore context state from a snapshot
+ * @internal
+ */
+export function restoreContextSnapshot(snapshot: ContextSnapshot): void {
+  // Clear current stacks and restore from snapshot
+  contextStacks.clear();
+  for (const [id, stack] of snapshot) {
+    contextStacks.set(id, [...stack]);
+  }
+}

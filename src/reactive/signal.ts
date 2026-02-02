@@ -27,7 +27,7 @@ export interface Computation<T> {
 }
 
 export type Accessor<T> = () => T | undefined;
-export type Setter<T> = (value: T) => void;
+export type Setter<T> = (value: T | ((prev: T | undefined) => T)) => void;
 
 /**
  * Create a reactive signal (memoized per fiber)
@@ -102,9 +102,14 @@ function createSignalInternal<T>(initial?: T): [Accessor<T>, Setter<T>] {
     return signal.value;
   }
 
-  function write(value: T): void {
-    if (signal.value === value) return; // No change
-    signal.value = value;
+  function write(value: T | ((prev: T | undefined) => T)): void {
+    // Support functional updates like React's setState
+    const newValue = typeof value === 'function'
+      ? (value as (prev: T | undefined) => T)(signal.value)
+      : value;
+
+    if (signal.value === newValue) return; // No change
+    signal.value = newValue;
 
     // Notify all observers
     if (signal.observers?.length) {
