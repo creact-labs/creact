@@ -169,8 +169,11 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
             if (!this.outputSignals.has(key)) {
               this.outputSignals.set(key, createSignal(value));
             } else {
-              const [, write] = this.outputSignals.get(key)!;
-              write(value);
+              const [read, write] = this.outputSignals.get(key)!;
+              // Only update if value actually changed
+              if (read() !== value) {
+                write(value);
+              }
             }
           }
         });
@@ -192,8 +195,11 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
       if (!node.outputSignals.has(key)) {
         node.outputSignals.set(key, createSignal(value));
       } else {
-        const [, write] = node.outputSignals.get(key)!;
-        write(value);
+        const [read, write] = node.outputSignals.get(key)!;
+        // Only update if value actually changed
+        if (read() !== value) {
+          write(value);
+        }
       }
     }
   }
@@ -262,8 +268,11 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
   batch(() => {
     for (const [key, value] of Object.entries(outputs)) {
       if (node.outputSignals.has(key)) {
-        const [, write] = node.outputSignals.get(key)!;
-        write(value); // Write value (plain or accessor) to signal
+        const [read, write] = node.outputSignals.get(key)!;
+        // Only update if value actually changed
+        if (read() !== value) {
+          write(value);
+        }
       } else {
         node.outputSignals.set(key, createSignal(value));
       }
