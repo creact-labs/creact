@@ -1,10 +1,6 @@
 # 3. Constructs
 
-A construct is a class with props (input) and outputs (result).
-
 ## ChatModel
-
-Register which model to use.
 
 ```ts
 // src/constructs/ChatModel.ts
@@ -14,6 +10,7 @@ export interface ChatModelProps {
 
 export interface ChatModelOutputs {
   id: string;
+  model: string;
 }
 
 export class ChatModel {
@@ -22,8 +19,6 @@ export class ChatModel {
 ```
 
 ## Memory
-
-Store conversation history.
 
 ```ts
 // src/constructs/Memory.ts
@@ -46,9 +41,9 @@ export class Memory {
 }
 ```
 
-## Tool
+Messages get hydrated from the backend on restart.
 
-Register a tool the model can call.
+## Tool
 
 ```ts
 // src/constructs/Tool.ts
@@ -59,6 +54,8 @@ export interface ToolProps {
 
 export interface ToolOutputs {
   id: string;
+  name: string;
+  description: string;
 }
 
 export class Tool {
@@ -66,16 +63,21 @@ export class Tool {
 }
 ```
 
-## Completion
+Outputs include name/description so components can build tool configs.
 
-Make one LLM call.
+## Completion
 
 ```ts
 // src/constructs/Completion.ts
+export interface ToolConfig {
+  name: string;
+  description: string;
+}
+
 export interface CompletionProps {
-  modelId: string;
+  model: string;
   messages: Array<{ role: string; content: string }>;
-  toolIds: string[];
+  tools: ToolConfig[];
 }
 
 export interface ToolCall {
@@ -94,9 +96,9 @@ export class Completion {
 }
 ```
 
-## ToolExec
+Takes model name, messages, and tools directly (not by ID).
 
-Execute a tool call.
+## ToolExec
 
 ```ts
 // src/constructs/ToolExec.ts
@@ -114,14 +116,13 @@ export class ToolExec {
 }
 ```
 
-## AddMessage
-
-Save a message to memory.
+## AddMessage / AddMessages
 
 ```ts
 // src/constructs/AddMessage.ts
 export interface AddMessageProps {
   memoryId: string;
+  currentMessages: Array<{ role: string; content: string }>;
   role: 'user' | 'assistant' | 'tool';
   content: string;
 }
@@ -133,11 +134,26 @@ export interface AddMessageOutputs {
 export class AddMessage {
   constructor(public props: AddMessageProps) {}
 }
+
+// Batch version
+export interface AddMessagesProps {
+  memoryId: string;
+  currentMessages: Array<{ role: string; content: string }>;
+  newMessages: Array<{ role: string; content: string }>;
+}
+
+export interface AddMessagesOutputs {
+  added: boolean;
+}
+
+export class AddMessages {
+  constructor(public props: AddMessagesProps) {}
+}
 ```
 
-## HttpServer
+The provider emits `outputsChanged` to update Memory.
 
-Run a local HTTP server.
+## HttpServer
 
 ```ts
 // src/constructs/HttpServer.ts
@@ -156,9 +172,9 @@ export class HttpServer {
 }
 ```
 
-## ChatHandler
+The Express app lives in the provider, not in outputs.
 
-Handle incoming chat messages.
+## ChatHandler
 
 ```ts
 // src/constructs/ChatHandler.ts
@@ -182,9 +198,9 @@ export class ChatHandler {
 }
 ```
 
-## ChatResponse
+When a message arrives, the provider updates `pending`.
 
-Send a response back to the client.
+## ChatResponse
 
 ```ts
 // src/constructs/ChatResponse.ts

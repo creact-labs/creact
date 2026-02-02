@@ -1,4 +1,4 @@
-# 5. Run
+# 6. Run
 
 ## Entry point
 
@@ -7,18 +7,23 @@
 import { CReact, renderCloudDOM } from '@creact-labs/creact';
 import { App } from './components/App';
 import { Provider } from './providers/Provider';
-import { InMemoryBackend } from './providers/InMemoryBackend';
+import { FileBackend } from './providers/FileBackend';
 
 CReact.provider = new Provider();
-CReact.backend = new InMemoryBackend();
+CReact.backend = new FileBackend({
+  directory: './.creact-state',
+});
 
 export default async function main() {
   await renderCloudDOM(<App />, 'agent');
-  console.log('Agent running at http://localhost:3000');
 }
+
+main().catch(console.error);
 ```
 
-## Chat page
+The `creact` CLI looks for a default export named `main`.
+
+## Chat UI
 
 ```html
 <!-- public/index.html -->
@@ -38,6 +43,7 @@ export default async function main() {
     }
     #messages {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding: 1rem;
     }
@@ -63,7 +69,7 @@ export default async function main() {
     #input {
       flex: 1;
       padding: 0.75rem 1rem;
-      border: none;
+      border: 2px solid #3b82f6;
       border-radius: 0.5rem;
       background: #0f172a;
       color: #e2e8f0;
@@ -125,28 +131,43 @@ export default async function main() {
     }
 
     send.onclick = sendMessage;
-    input.onkeydown = (e) => e.key === 'Enter' && sendMessage();
+    input.onkeydown = (e) => { if (e.key === 'Enter') sendMessage(); };
   </script>
 </body>
 </html>
 ```
 
-## Run
+## Start the agent
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000. Ask a question. The agent searches Wikipedia and responds.
+Open http://localhost:3000.
 
-## What's happening
+## What happens
 
-1. Browser sends POST /chat with your message
-2. Provider stores it, emits `outputsChanged`
-3. CReact re-renders, `chat.pending()` returns the message
-4. Agent component renders, calls OpenAI
-5. If OpenAI wants to search, ToolExec runs Wikipedia query
-6. Agent gets results, generates response
-7. ChatResponse sends it back to the browser
-8. `pending` clears, tree returns to waiting state
+1. Browser POSTs to `/chat` with your message
+2. ChatHandler stores the pending message, emits `outputsChanged`
+3. CReact re-renders the component tree
+4. `chat.pending()` now returns the message
+5. Agent component renders with the prompt
+6. Completion calls OpenAI with the message and tools
+7. If OpenAI wants to search Wikipedia, ToolExec runs the query
+8. A second Completion call gets the final response
+9. SaveMessages updates Memory (emits `outputsChanged` to persist)
+10. SendResponse sends the response back to the browser
+11. ChatHandler's pending clears, tree returns to waiting state
 
+## Persistence
+
+Restart the agent. Conversation history persists in `.creact-state/agent.json`.
+
+Reset with `npm run cleanup`.
+
+## Next steps
+
+- Add more tools
+- Add system prompts
+- Implement memory window size
+- Add multiple chat sessions

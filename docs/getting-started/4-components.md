@@ -1,6 +1,24 @@
 # 4. Components
 
-Components compose constructs using JSX. Each component wraps a construct and uses render props to pass outputs down.
+Components wrap constructs using `useInstance` and compose them with JSX.
+
+## The pattern
+
+```tsx
+import { useInstance, type OutputAccessors } from '@creact-labs/creact';
+
+function Model({ model, children }: {
+  model: string;
+  children: (outputs: OutputAccessors<ChatModelOutputs>) => any;
+}) {
+  const outputs = useInstance<ChatModelOutputs>(ChatModel, { model });
+  return children(outputs);
+}
+```
+
+`useInstance` returns accessor functions. Call `outputs.model()` to get the value. Values are undefined until the provider sets them.
+
+## Resource components
 
 ```tsx
 // src/components/App.tsx
@@ -8,14 +26,13 @@ import { useInstance, type OutputAccessors } from '@creact-labs/creact';
 import { ChatModel, type ChatModelOutputs } from '../constructs/ChatModel';
 import { Memory, type MemoryOutputs } from '../constructs/Memory';
 import { Tool, type ToolOutputs } from '../constructs/Tool';
-import { Completion, type CompletionOutputs, type ToolCall } from '../constructs/Completion';
+import { Completion, type CompletionOutputs, type ToolCall, type ToolConfig } from '../constructs/Completion';
 import { ToolExec, type ToolExecOutputs } from '../constructs/ToolExec';
-import { AddMessage } from '../constructs/AddMessage';
+import { AddMessages } from '../constructs/AddMessage';
 import { HttpServer, type HttpServerOutputs } from '../constructs/HttpServer';
 import { ChatHandler, type ChatHandlerOutputs, type PendingMessage } from '../constructs/ChatHandler';
 import { ChatResponse } from '../constructs/ChatResponse';
 
-// Resource components - one useInstance each
 function Server({ port, staticDir, children }: {
   port: number;
   staticDir: string;
@@ -68,16 +85,16 @@ function Wikipedia({ children }: {
   return children(outputs);
 }
 
-function Complete({ modelId, messages, toolIds, children }: {
-  modelId: string | undefined;
+function Complete({ model, messages, tools, children }: {
+  model: string | undefined;
   messages: any[];
-  toolIds: string[];
+  tools: ToolConfig[];
   children: (outputs: OutputAccessors<CompletionOutputs>) => any;
 }) {
   const outputs = useInstance<CompletionOutputs>(Completion, {
-    modelId,
+    model: model || '',
     messages,
-    toolIds
+    tools
   });
   return children(outputs);
 }
@@ -93,60 +110,80 @@ function ExecTool({ call, children }: {
   return children(outputs);
 }
 
-function SaveMessage({ memoryId, role, content }: {
+function SaveMessages({ memoryId, currentMessages, newMessages }: {
   memoryId: string | undefined;
-  role: 'user' | 'assistant' | 'tool';
-  content: string | undefined;
+  currentMessages: any[];
+  newMessages: Array<{ role: string; content: string }>;
 }) {
-  useInstance(AddMessage, { memoryId, role, content });
+  useInstance(AddMessages, { memoryId, currentMessages, newMessages });
   return null;
 }
 ```
 
-The Agent component handles the LLM loop:
+`Complete` takes the model name and tools directly, not IDs.
+
+## Agent
 
 ```tsx
-function Agent({ prompt, modelId, memoryId, toolIds, messages, onResponse }: {
+function Agent({ prompt, model, memoryId, tools, messages, onResponse }: {
   prompt: string;
-  modelId: string | undefined;
+  model: string | undefined;
   memoryId: string | undefined;
-  toolIds: string[];
+  tools: ToolConfig[];
   messages: any[];
   onResponse: (content: string) => any;
 }) {
   const allMessages = [...messages, { role: 'user', content: prompt }];
 
   return (
-    <Complete modelId={modelId} messages={allMessages} toolIds={toolIds}>
+    <Complete model={model} messages={allMessages} tools={tools}>
       {(completion) => {
         const content = completion.content();
         const toolCalls = completion.toolCalls() || [];
 
+        // If the model wants to use tools
         if (toolCalls.length > 0) {
           return (
             <>
-              {toolCalls.map((call) => (
+              {toolCalls.map((call: ToolCall) => (
                 <ExecTool key={call.id} call={call}>
                   {(exec) => {
                     const result = exec.result();
                     if (!result) return null;
 
+                    // Convert back to OpenAI format for the follow-up call
+                    const openaiToolCalls = toolCalls.map((tc: ToolCall) => ({
+                      id: tc.id,
+                      type: 'function' as const,
+                      function: {
+                        name: tc.name,
+                        arguments: JSON.stringify(tc.args)
+                      }
+                    }));
+
                     const updatedMessages = [
                       ...allMessages,
-                      { role: 'assistant', content: null, tool_calls: toolCalls },
+                      { role: 'assistant', content: null, tool_calls: openaiToolCalls },
                       { role: 'tool', tool_call_id: call.id, content: result }
                     ];
 
+                    // Second call with tool results
                     return (
-                      <Complete modelId={modelId} messages={updatedMessages} toolIds={toolIds}>
+                      <Complete model={model} messages={updatedMessages} tools={tools}>
                         {(final) => {
                           const response = final.content();
                           if (!response) return null;
 
                           return (
                             <>
-                              <SaveMessage memoryId={memoryId} role="user" content={prompt} />
-                              <SaveMessage memoryId={memoryId} role="assistant" content={response} />
+                              <SaveMessages
+                                memoryId={memoryId}
+                                currentMessages={messages}
+                                newMessages={[
+                                  { role: 'user', content: prompt },
+                                  { role: 'assistant', content: response }
+                                ]}
+                              />
                               {onResponse(response)}
                             </>
                           );
@@ -160,11 +197,18 @@ function Agent({ prompt, modelId, memoryId, toolIds, messages, onResponse }: {
           );
         }
 
+        // Direct response, no tools
         if (content) {
           return (
             <>
-              <SaveMessage memoryId={memoryId} role="user" content={prompt} />
-              <SaveMessage memoryId={memoryId} role="assistant" content={content} />
+              <SaveMessages
+                memoryId={memoryId}
+                currentMessages={messages}
+                newMessages={[
+                  { role: 'user', content: prompt },
+                  { role: 'assistant', content: content }
+                ]}
+              />
               {onResponse(content)}
             </>
           );
@@ -177,7 +221,7 @@ function Agent({ prompt, modelId, memoryId, toolIds, messages, onResponse }: {
 }
 ```
 
-Now wire everything together:
+## App
 
 ```tsx
 export function App() {
@@ -195,12 +239,19 @@ export function App() {
                         const pending = chat.pending();
                         if (!pending) return null;
 
+                        // Build tools array from wiki outputs
+                        const wikiName = wiki.name();
+                        const wikiDesc = wiki.description();
+                        const toolsArray: ToolConfig[] = wikiName && wikiDesc
+                          ? [{ name: wikiName, description: wikiDesc }]
+                          : [];
+
                         return (
                           <Agent
                             prompt={pending.content}
-                            modelId={model.id()}
+                            model={model.model()}
                             memoryId={memory.id()}
-                            toolIds={[wiki.id()].filter(Boolean) as string[]}
+                            tools={toolsArray}
                             messages={memory.messages() || []}
                             onResponse={(response) => (
                               <SendResponse
@@ -227,4 +278,4 @@ export function App() {
 
 ---
 
-Next: [5. Run](./5-run.md)
+Next: [5. Provider](./5-provider.md)
