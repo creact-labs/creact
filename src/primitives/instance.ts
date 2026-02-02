@@ -7,6 +7,22 @@ import { batch } from '../reactive/tracking';
 import { getCurrentFiber, getCurrentResourcePath, pushResourcePath } from '../runtime/render';
 
 /**
+ * Shallow equality check for output deduplication
+ */
+function shallowEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const key of keysA) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
+
+/**
  * Instance node - represents something materialized by provider
  */
 export interface InstanceNode {
@@ -171,7 +187,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
             } else {
               const [read, write] = this.outputSignals.get(key)!;
               // Only update if value actually changed
-              if (read() !== value) {
+              if (!shallowEqual(read(), value)) {
                 write(value);
               }
             }
@@ -197,7 +213,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
       } else {
         const [read, write] = node.outputSignals.get(key)!;
         // Only update if value actually changed
-        if (read() !== value) {
+        if (!shallowEqual(read(), value)) {
           write(value);
         }
       }
@@ -270,7 +286,7 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
       if (node.outputSignals.has(key)) {
         const [read, write] = node.outputSignals.get(key)!;
         // Only update if value actually changed
-        if (read() !== value) {
+        if (!shallowEqual(read(), value)) {
           write(value);
         }
       } else {
