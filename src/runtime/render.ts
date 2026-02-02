@@ -146,6 +146,9 @@ function executeComponent(fiber: Fiber, type: Function, props: Record<string, an
   // Store props on fiber so computation can read updated props on re-render
   fiber.props = props;
 
+  // Capture context snapshot NOW (while inside Provider tree) for reactive re-runs
+  fiber.contextSnapshot = getContextSnapshot();
+
   // Create computation for reactive re-renders
   const computation: Computation<void> = {
     fn: () => {
@@ -153,7 +156,13 @@ function executeComponent(fiber: Fiber, type: Function, props: Record<string, an
       const prevPath = currentPath;
       const prevHookIndex = currentHookIndex;
 
-      // Save current context state to restore after
+      // Restore context from snapshot (needed when computation re-runs from reactive system)
+      // This ensures useContext works correctly even when not inside render tree
+      if (fiber.contextSnapshot) {
+        restoreContextSnapshot(fiber.contextSnapshot);
+      }
+
+      // Save current context state to restore after (for cleanup of child contexts)
       const prevContextSnapshot = getContextSnapshot();
 
       currentFiber = fiber;
@@ -165,6 +174,15 @@ function executeComponent(fiber: Fiber, type: Function, props: Record<string, an
 
       // Store old children for reconciliation
       const oldChildren = fiber.children;
+
+      // Clean up old effects before re-executing component
+      // This prevents effect accumulation on re-renders
+      if (fiber.effects) {
+        for (const effect of fiber.effects) {
+          cleanComputation(effect);
+        }
+        fiber.effects = [];
+      }
 
       // Clear instance nodes and placeholder flag before re-executing component
       fiber.instanceNodes = [];
@@ -381,9 +399,20 @@ export function collectInstanceNodes(fiber: Fiber): any[] {
  * Clean up a fiber tree
  */
 export function cleanupFiber(fiber: Fiber): void {
+  // Clean up the fiber's computation
   if (fiber.computation) {
     cleanComputation(fiber.computation);
   }
+
+  // Clean up any effects created by this fiber
+  if (fiber.effects) {
+    for (const effect of fiber.effects) {
+      cleanComputation(effect);
+    }
+    fiber.effects = [];
+  }
+
+  // Recursively clean up children
   for (const child of fiber.children) {
     cleanupFiber(child);
   }

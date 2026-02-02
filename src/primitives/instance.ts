@@ -193,6 +193,9 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
         // Early exit if nothing changed - no re-render needed
         if (!hasChanges) return;
 
+        // Update the outputs object for Provider idempotency checks
+        this.outputs = { ...(this.outputs || {}), ...outputs };
+
         // Only clear ownership and batch if there are actual changes
         nodeOwnership.clear();
         batch(() => {

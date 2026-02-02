@@ -21,6 +21,9 @@ export interface Fiber {
   // Effect computation (component body)
   computation?: Computation<void>;
 
+  // Effects created via createEffect (cleaned up on re-render/unmount)
+  effects?: Computation<void>[];
+
   // Resource path at fiber creation (only components with useInstance contribute)
   // Used to restore correct resource path during reactive re-renders
   incomingResourcePath?: string[];
@@ -31,6 +34,10 @@ export interface Fiber {
 
   // Memoized hooks (signals, etc.) - persist across re-renders
   hooks?: any[];
+
+  // Context snapshot captured when fiber is created (inside Provider tree)
+  // Used to restore context when computation re-runs from reactive system
+  contextSnapshot?: Map<symbol, any[]>;
 }
 
 /**

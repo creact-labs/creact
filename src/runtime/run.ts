@@ -170,6 +170,14 @@ export class CReact {
     } finally {
       this.isApplying = false;
     }
+
+    // Process any pending flush that was blocked during apply
+    // This handles signal changes that occurred during materialization
+    // (e.g., ChatResponse clearing pending after sending)
+    if (this.pendingFlush) {
+      this.pendingFlush = false;
+      await this.doFlush();
+    }
   }
 
   protected async applyChangesInternal(previousNodes: InstanceNode[]): Promise<void> {
@@ -321,9 +329,13 @@ export class CReact {
 
     // Re-collect nodes after reactive updates
     const newNodes = collectInstanceNodes(this.rootFiber);
-    const hasNewNodes = newNodes.some((n) => !this.currentNodes.some((p) => p.id === n.id));
 
-    if (hasNewNodes) {
+    // Check for any changes: additions, removals, or different node set
+    const hasNewNodes = newNodes.some((n) => !this.currentNodes.some((p) => p.id === n.id));
+    const hasRemovedNodes = this.currentNodes.some((p) => !newNodes.some((n) => n.id === p.id));
+    const hasChanges = hasNewNodes || hasRemovedNodes;
+
+    if (hasChanges) {
       const prevNodes = this.currentNodes;
       this.currentNodes = newNodes;
 
@@ -336,7 +348,7 @@ export class CReact {
       // If another flush was requested while we were applying, do it now
       if (this.pendingFlush) {
         this.pendingFlush = false;
-        this.doFlush();
+        await this.doFlush();
       }
     }
   }
