@@ -41,6 +41,37 @@ provider.emit('outputsChanged', {
 // CReact automatically re-renders dependent components
 ```
 
+## createSignal
+
+Create component-owned reactive state:
+
+```tsx
+import { createSignal } from '@creact-labs/creact';
+
+const [count, setCount] = createSignal(0);
+
+// Read the value (tracks dependencies)
+console.log(count()); // 0
+
+// Update the value (triggers dependents)
+setCount(5);
+```
+
+Useful for async operations like data fetching:
+
+```tsx
+function DataFetcher({ url, children }) {
+  const [data, setData] = createSignal(null);
+
+  createEffect(async () => {
+    const response = await fetch(url);
+    setData(await response.json());
+  });
+
+  return data() ? children(data()) : null;
+}
+```
+
 ## createEffect
 
 Run side effects when dependencies change:

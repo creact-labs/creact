@@ -29,7 +29,8 @@ export type Accessor<T> = () => T | undefined;
 export type Setter<T> = (value: T) => void;
 
 /**
- * Create a reactive signal (internal - not exported from package)
+ * Create a reactive signal
+ * Returns a getter/setter pair for fine-grained reactivity
  */
 export function createSignal<T>(initial?: T): [Accessor<T>, Setter<T>] {
   const signal: Signal<T> = {

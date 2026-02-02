@@ -10,6 +10,8 @@ export { createContext, useContext } from './primitives/context';
 export { useInstance } from './primitives/instance';
 export { createStore } from './primitives/store';
 export { createEffect } from './reactive/effect';
+export { createSignal } from './reactive/signal';
+export type { Accessor, Setter } from './reactive/signal';
 
 // Runtime
 export { CReact, renderCloudDOM } from './runtime/run';
