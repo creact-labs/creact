@@ -51,7 +51,10 @@ async function runEntrypoint(entrypoint: string) {
   // FIXME: Cache-busting causes memory leak as old modules stay in V8 cache.
   // Acceptable for dev watch mode, but consider worker threads for long sessions.
   const cacheBustUrl = `${url}?t=${Date.now()}`;
-  const module = await tsImport(cacheBustUrl, import.meta.url);
+  const module = await tsImport(cacheBustUrl, {
+    parentURL: import.meta.url,
+    tsconfig: resolve(dirname(entrypoint), 'tsconfig.json'),
+  });
   if (typeof module.default === 'function') {
     await module.default();
   }
