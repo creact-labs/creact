@@ -206,9 +206,20 @@ export function handleCompletion(node: InstanceNode, emitter: EventEmitter): voi
 
       // Final response
       if (choice.finish_reason === 'stop' || !message.tool_calls?.length) {
+        const content = message.content || '';
+        
+        // Add final assistant message to conversation history
+        currentMessages.push(message);
+
         emitter.emit('outputsChanged', {
           resourceName: nodeId,
-          outputs: { id: nodeId, status: 'complete', response: message.content || '', requestId },
+          outputs: { 
+            id: nodeId, 
+            status: 'complete', 
+            response: content, 
+            requestId,
+            conversationHistory: currentMessages
+          },
           timestamp: Date.now(),
         });
         break;

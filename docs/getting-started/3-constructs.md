@@ -128,6 +128,7 @@ export interface CompletionOutputs {
   status: 'pending' | 'complete';
   response: string | null;
   requestId: string;
+  conversationHistory?: Array<any>;
 }
 
 export class Completion {

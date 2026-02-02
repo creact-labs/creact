@@ -98,7 +98,7 @@ export function Completion({ requestId, model, messages, children }: {
   requestId: string;
   model: string;
   messages: Array<{ role: string; content: string }>;
-  children: (response: string) => JSXElement | null;
+  children: (response: string, conversationHistory?: Array<any>) => JSXElement | null;
 }) {
   const { tools: getTools } = useTools();
   const tools = getTools();
@@ -111,8 +111,9 @@ export function Completion({ requestId, model, messages, children }: {
   });
 
   const response = outputs.response();
+  const conversationHistory = outputs.conversationHistory?.();
   if (!response) return null;
-  return children(response);
+  return children(response, conversationHistory);
 }
 ```
 
@@ -333,6 +334,9 @@ export function App() {
                     const modelName = model.model();
                     if (!modelName) return null;
 
+                    const memoryId = memory.id();
+                    if (!memoryId) return null;
+
                     // untrack prevents re-render loop when SaveMessages updates memory
                     const existingMessages = untrack(() => memory.messages()) || [];
 
@@ -342,35 +346,56 @@ export function App() {
                         <Browser />
                         <Message key={`user-${pending.id}`} role="user" content={pending.content}>
                           {() => {
+                            // Filter out messages with null/undefined content, but keep assistant messages
+                            // with tool_calls even if content is null, and keep tool messages
+                            const validMessages = existingMessages.filter(
+                              (m: any) => {
+                                if (!m || !m.role) return false;
+                                // Keep messages with content
+                                if (m.content) return true;
+                                // Keep assistant messages with tool_calls (even if content is null)
+                                if (m.role === 'assistant' && m.tool_calls && m.tool_calls.length > 0) return true;
+                                // Keep tool messages
+                                if (m.role === 'tool') return true;
+                                return false;
+                              }
+                            );
+
                             const allMessages = [
                               { role: 'system', content: 'You are a helpful assistant.' },
-                              ...existingMessages.filter((m: any) => m?.role && m?.content),
+                              ...validMessages,
                               { role: 'user', content: pending.content }
                             ];
 
                             return (
                               <Completion requestId={pending.id} model={modelName} messages={allMessages}>
-                                {(responseContent) => (
-                                  <Message key={`assistant-${pending.id}`} role="assistant" content={responseContent}>
-                                    {() => (
-                                      <>
-                                        <SaveMessages
-                                          memoryId={memory.id()}
-                                          currentMessages={existingMessages}
-                                          newMessages={[
-                                            { role: 'user', content: pending.content },
-                                            { role: 'assistant', content: responseContent }
-                                          ]}
-                                        />
-                                        <SendResponse
-                                          handlerId={chat.id()}
-                                          messageId={pending.id}
-                                          content={responseContent}
-                                        />
-                                      </>
-                                    )}
-                                  </Message>
-                                )}
+                                {(responseContent, conversationHistory) => {
+                                  // Extract only NEW messages (those not in allMessages)
+                                  const inputMessageCount = allMessages.length;
+                                  const newMessages = conversationHistory?.slice(inputMessageCount) || [
+                                    { role: 'user', content: pending.content },
+                                    { role: 'assistant', content: responseContent }
+                                  ];
+
+                                  return (
+                                    <Message key={`assistant-${pending.id}`} role="assistant" content={responseContent}>
+                                      {() => (
+                                        <>
+                                          <SaveMessages
+                                            memoryId={memoryId}
+                                            currentMessages={existingMessages}
+                                            newMessages={newMessages}
+                                          />
+                                          <SendResponse
+                                            handlerId={chat.id()}
+                                            messageId={pending.id}
+                                            content={responseContent}
+                                          />
+                                        </>
+                                      )}
+                                    </Message>
+                                  );
+                                }}
                               </Completion>
                             );
                           }}
