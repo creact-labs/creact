@@ -1,5 +1,7 @@
 # 2. Architecture
 
+> **Full example**: [creact-agentic-chatbot-example](https://github.com/creact-labs/creact-agentic-chatbot-example)
+
 ## Constructs
 
 A construct is a class with `props` (input) and outputs (result).

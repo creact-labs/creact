@@ -51,9 +51,13 @@ npm install @creact-labs/creact
 
 **Backends** persist state for crash recovery and incremental updates.
 
+## Example
+
+- [Agentic Chatbot](https://github.com/creact-labs/creact-agentic-chatbot-example) — Full chatbot with web search and browsing tools
+
 ## Documentation
 
-- [Tutorial](./docs/getting-started/1-setup.md) — Build an AI agent with Wikipedia search
+- [Tutorial](./docs/getting-started/1-setup.md) — Build an agentic chatbot with web search and browsing
 - [Concepts](./docs/concepts/index.md) — Core mental model
 
 ## License

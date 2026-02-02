@@ -1,13 +1,15 @@
 # 6. Run
 
-## Entry point
+> **Full example**: [creact-agentic-chatbot-example](https://github.com/creact-labs/creact-agentic-chatbot-example)
+
+## Entry Point
 
 ```tsx
-// src/app.tsx
+// app.tsx
 import { CReact, renderCloudDOM } from '@creact-labs/creact';
-import { App } from './components/App';
-import { Provider } from './providers/Provider';
-import { FileBackend } from './providers/FileBackend';
+import { App } from './src/components/App';
+import { Provider } from './src/providers/Provider';
+import { FileBackend } from './src/providers/FileBackend';
 
 CReact.provider = new Provider();
 CReact.backend = new FileBackend({
@@ -17,11 +19,7 @@ CReact.backend = new FileBackend({
 export default async function main() {
   await renderCloudDOM(<App />, 'agent');
 }
-
-main().catch(console.error);
 ```
-
-The `creact` CLI looks for a default export named `main`.
 
 ## Chat UI
 
@@ -31,6 +29,7 @@ The `creact` CLI looks for a default export named `main`.
 <html>
 <head>
   <title>Agent</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -53,13 +52,12 @@ The `creact` CLI looks for a default export named `main`.
       margin-bottom: 0.5rem;
       border-radius: 1rem;
     }
-    .user {
-      background: #3b82f6;
-      margin-left: auto;
-    }
-    .assistant {
-      background: #1e293b;
-    }
+    .user { background: #3b82f6; margin-left: auto; }
+    .assistant { background: #1e293b; }
+    .assistant p { margin: 0.5em 0; }
+    .assistant code { background: #0f172a; padding: 0.2em 0.4em; border-radius: 0.25em; }
+    .assistant pre { background: #0f172a; padding: 0.75em; border-radius: 0.5em; overflow-x: auto; }
+    .assistant pre code { background: none; padding: 0; }
     #input-area {
       padding: 1rem;
       background: #1e293b;
@@ -75,7 +73,6 @@ The `creact` CLI looks for a default export named `main`.
       color: #e2e8f0;
       font-size: 1rem;
     }
-    #input:focus { outline: none; }
     button {
       padding: 0.75rem 1.5rem;
       border: none;
@@ -101,7 +98,11 @@ The `creact` CLI looks for a default export named `main`.
     function addMessage(text, role) {
       const div = document.createElement('div');
       div.className = 'message ' + role;
-      div.textContent = text;
+      if (role === 'assistant') {
+        div.innerHTML = marked.parse(text);
+      } else {
+        div.textContent = text;
+      }
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
@@ -137,7 +138,7 @@ The `creact` CLI looks for a default export named `main`.
 </html>
 ```
 
-## Start the agent
+## Start
 
 ```bash
 npm run dev
@@ -145,29 +146,32 @@ npm run dev
 
 Open http://localhost:3000.
 
-## What happens
+## Event Flow
 
-1. Browser POSTs to `/chat` with your message
-2. ChatHandler stores the pending message, emits `outputsChanged`
-3. CReact re-renders the component tree
-4. `chat.pending()` now returns the message
-5. Agent component renders with the prompt
-6. Completion calls OpenAI with the message and tools
-7. If OpenAI wants to search Wikipedia, ToolExec runs the query
-8. A second Completion call gets the final response
-9. SaveMessages updates Memory (emits `outputsChanged` to persist)
-10. SendResponse sends the response back to the browser
-11. ChatHandler's pending clears, tree returns to waiting state
+```
+1. Browser POSTs to /chat
+   └─► ChatHandler stores pending, emits outputsChanged
+
+2. CReact re-renders
+   └─► chat.pending() returns message
+   └─► Completion starts
+
+3. OpenAI returns tool calls
+   └─► Provider executes tools (web_search, browse_page)
+   └─► Results added to messages
+   └─► Loop continues
+
+4. OpenAI returns final response
+   └─► Provider emits outputsChanged
+   └─► SaveMessages updates Memory
+   └─► SendResponse sends to browser
+
+5. ChatHandler clears pending
+   └─► Tree returns to waiting state
+```
 
 ## Persistence
 
-Restart the agent. Conversation history persists in `.creact-state/agent.json`.
+Restart the chatbot. Conversation history persists in `.creact-state/agent.json`.
 
 Reset with `npm run cleanup`.
-
-## Next steps
-
-- Add more tools
-- Add system prompts
-- Implement memory window size
-- Add multiple chat sessions

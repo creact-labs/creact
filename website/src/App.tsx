@@ -37,8 +37,8 @@ const App: Component = () => {
         </div>
         
         <nav class="links">
-          <a 
-            href="https://github.com/creact-labs/creact/tree/main/docs/getting-started" 
+          <a
+            href="https://github.com/creact-labs/creact/tree/main/docs/getting-started"
             class="link"
             target="_blank"
             rel="noopener"
@@ -46,14 +46,24 @@ const App: Component = () => {
             Getting Started
             <span class="link-arrow">→</span>
           </a>
-          
-          <a 
-            href="https://github.com/creact-labs/creact/tree/main/docs/concepts" 
+
+          <a
+            href="https://github.com/creact-labs/creact/tree/main/docs/concepts"
             class="link"
             target="_blank"
             rel="noopener"
           >
             Concepts
+            <span class="link-arrow">→</span>
+          </a>
+
+          <a
+            href="https://github.com/creact-labs/creact-agentic-chatbot-example"
+            class="link"
+            target="_blank"
+            rel="noopener"
+          >
+            Example
             <span class="link-arrow">→</span>
           </a>
         </nav>

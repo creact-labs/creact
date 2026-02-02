@@ -24,3 +24,7 @@ Runs continuously. Handles events, recovers from crashes.
 - [Reactivity](./reactivity.md) - When things change
 - [Providers](./providers.md) - Connecting to the real world
 - [Backend](./backend.md) - Persisting state
+
+## Example
+
+- [Agentic Chatbot](https://github.com/creact-labs/creact-agentic-chatbot-example) - Full chatbot with web search and browsing tools

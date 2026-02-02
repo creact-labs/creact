@@ -1,26 +1,27 @@
 # 1. Setup
 
-Let's build a chat agent that searches Wikipedia.
+> **Full example**: [creact-agentic-chatbot-example](https://github.com/creact-labs/creact-agentic-chatbot-example)
+
+Build an agentic chatbot with web search and browsing tools.
 
 ## Create the project
 
 ```bash
-mkdir agent && cd agent
+mkdir chatbot && cd chatbot
 npm init -y
-npm install @creact-labs/creact openai express dotenv
+npm install @creact-labs/creact openai express playwright dotenv
 npm install -D typescript @types/node @types/express
+npx playwright install chromium
 ```
 
-## Configuration
-
-`tsconfig.json`:
+## tsconfig.json
 
 ```json
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "jsxImportSource": "@creact-labs/creact",
     "strict": true,
@@ -30,51 +31,76 @@ npm install -D typescript @types/node @types/express
 }
 ```
 
-The `jsxImportSource` tells TypeScript to use CReact's JSX runtime instead of React's.
-
-`package.json` scripts:
+## package.json scripts
 
 ```json
 {
+  "type": "module",
   "scripts": {
-    "start": "creact src/app.tsx",
-    "dev": "creact --watch src/app.tsx",
-    "cleanup": "rm -rf .creact-state && echo 'Cleared state'"
+    "start": "creact app.tsx",
+    "dev": "creact --watch app.tsx",
+    "cleanup": "rm -rf .creact-state"
   }
 }
 ```
 
-- `dev` - Runs the app with hot reload
-- `cleanup` - Clears persisted state (useful for starting fresh)
-
-## Environment
-
-Create `.env` with your OpenAI key:
+## .env
 
 ```
 OPENAI_API_KEY=sk-...
 ```
 
-Get one from https://platform.openai.com/api-keys
-
 ## Project structure
 
 ```
-agent/
+chatbot/
+├── app.tsx                    # Entry point
 ├── src/
-│   ├── providers/
-│   │   ├── Provider.ts       # Executes constructs
-│   │   └── FileBackend.ts    # Persists state to disk
-│   ├── constructs/           # Data shapes
-│   ├── components/           # JSX composition
-│   │   └── App.tsx
-│   └── app.tsx               # Entry point
+│   ├── components/
+│   │   ├── App.tsx
+│   │   ├── server/
+│   │   │   ├── HttpServer.construct.ts
+│   │   │   └── Server.tsx
+│   │   ├── chat/
+│   │   │   ├── ChatHandler.construct.ts
+│   │   │   ├── ChatModel.construct.ts
+│   │   │   ├── ChatResponse.construct.ts
+│   │   │   ├── Chat.tsx
+│   │   │   ├── Model.tsx
+│   │   │   └── SendResponse.tsx
+│   │   ├── memory/
+│   │   │   ├── Memory.construct.ts
+│   │   │   ├── AddMessage.construct.ts
+│   │   │   ├── Memory.tsx
+│   │   │   └── SaveMessages.tsx
+│   │   ├── completion/
+│   │   │   ├── Completion.construct.ts
+│   │   │   └── Completion.tsx
+│   │   ├── message/
+│   │   │   ├── Message.construct.ts
+│   │   │   └── Message.tsx
+│   │   └── tools/
+│   │       ├── Tool.tsx
+│   │       ├── ToolContext.tsx
+│   │       ├── ToolProvider.tsx
+│   │       ├── DuckDuckGo.tsx
+│   │       └── Browser.tsx
+│   └── providers/
+│       ├── Provider.ts
+│       ├── FileBackend.ts
+│       └── handlers/
+│           ├── http.ts
+│           ├── chat.ts
+│           ├── completion.ts
+│           └── memory.ts
 ├── public/
-│   └── index.html            # Chat UI
+│   └── index.html
 ├── .env
 ├── package.json
 └── tsconfig.json
 ```
+
+Constructs are colocated with their components.
 
 ---
 
