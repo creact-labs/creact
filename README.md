@@ -57,6 +57,7 @@ CReact is a meta-runtime for building domain-specific, reactive execution engine
   )}
 </Server>
 ```
+## Getting started
 
 ```bash
 npm install @creact-labs/creact
