@@ -2,7 +2,7 @@
   "name": "@creact-labs/creact",
   "version": "0.2.15",
   "type": "module",
-  "description": "Declarative universal reactive runtime",
+  "description": "CReact is a meta-runtime for building domain-specific, reactive execution engines.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
