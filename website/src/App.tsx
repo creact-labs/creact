@@ -62,7 +62,6 @@ const App: Component = () => {
 
       <footer class="footer">
         <div class="footer-content">
-          <span>Daniel Coutinho Ribeiro</span>
           <span class="footer-sep">·</span>
           <a href="https://github.com/drn1996" target="_blank" rel="noopener">GitHub</a>
           <span class="footer-sep">·</span>
