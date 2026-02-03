@@ -141,6 +141,20 @@ export function serializeNode(node: InstanceNode): SerializedNode {
   for (const [key, [read]] of node.outputSignals) {
     const value = read();
     if (value !== undefined) {
+      // Guard: Detect corrupted outputs (e.g., id should be string, not array)
+      if (key === 'id' && typeof value !== 'string') {
+        console.error(`[serializeNode] CORRUPTION DETECTED:`);
+        console.error(`  node.id: ${node.id}`);
+        console.error(`  node.constructType: ${node.constructType}`);
+        console.error(`  signal keys: [${Array.from(node.outputSignals.keys()).join(', ')}]`);
+        console.error(`  corrupted 'id' value type: ${Array.isArray(value) ? 'array' : typeof value}`);
+        console.error(`  corrupted 'id' value preview: ${JSON.stringify(value).slice(0, 300)}`);
+        throw new Error(
+          `[serializeNode] Corrupted output detected for ${node.id}: ` +
+          `'id' should be string but got ${Array.isArray(value) ? 'array' : typeof value}. ` +
+          `This indicates a signal/proxy bug where outputs are being read from wrong node.`
+        );
+      }
       outputs[key] = value;
     }
   }

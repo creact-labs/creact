@@ -2,7 +2,7 @@
  * useInstance - bind to a provider and get reactive outputs
  */
 
-import { type Accessor, createSignal, type Setter } from '../reactive/signal';
+import { type Accessor, createSignalInternal, type Setter } from '../reactive/signal';
 import { batch } from '../reactive/tracking';
 import { getCurrentFiber, getCurrentResourcePath, pushResourcePath } from '../runtime/render';
 
@@ -65,6 +65,14 @@ export function prepareOutputHydration(serializedNodes: SerializedNodeForHydrati
 
   for (const node of serializedNodes) {
     if (node.outputs && Object.keys(node.outputs).length > 0) {
+      // Guard: Detect corrupted saved state (id should be string, not array)
+      if (node.outputs.id !== undefined && typeof node.outputs.id !== 'string') {
+        throw new Error(
+          `[prepareOutputHydration] Corrupted state detected for ${node.id}: ` +
+          `'id' output should be string but got ${Array.isArray(node.outputs.id) ? 'array' : typeof node.outputs.id}. ` +
+          `State file may be corrupted - try running 'npm run cleanup' to reset.`
+        );
+      }
       outputHydrationMap.set(node.id, node.outputs);
     }
   }
@@ -134,11 +142,14 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   const nodeId = fullPath.join('.');
 
   // Check for undefined dependencies BEFORE creating/updating node
-  // If any prop is undefined, return placeholder - don't create node in registry
+  // If any prop is undefined AND no existing node/hydration exists, return placeholder
   const hasUndefinedDeps = Object.values(props).some((v) => v === undefined);
+  const hasHydrationData = outputHydrationMap.has(nodeId);
+  const hasExistingNode = nodeRegistry.has(nodeId);
 
-  if (hasUndefinedDeps) {
-    // STILL push to resource path so children have correct paths
+  if (hasUndefinedDeps && !hasHydrationData && !hasExistingNode) {
+    // Only use placeholder if NO saved state AND no existing node
+    // If we have hydration data or existing node, create real node to maintain continuity
     pushResourcePath(name);
 
     // Mark fiber as having a placeholder instance (for proper path pop in render.ts)
@@ -176,6 +187,21 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
       outputSignals: new Map(),
       children: [],
       setOutputs(outputs: Record<string, any>) {
+        // Guard: Detect corrupted outputs being set
+        if (outputs.id !== undefined && typeof outputs.id !== 'string') {
+          console.error(`[setOutputs] CORRUPTION for ${nodeId}:`, {
+            expectedType: 'string',
+            actualType: Array.isArray(outputs.id) ? 'array' : typeof outputs.id,
+            value: JSON.stringify(outputs.id).slice(0, 200),
+            allOutputKeys: Object.keys(outputs),
+          });
+          throw new Error(
+            `[setOutputs] Corrupted output detected for ${nodeId}: ` +
+            `'id' should be string but got ${Array.isArray(outputs.id) ? 'array' : typeof outputs.id}. ` +
+            `This indicates a bug in the provider or signal system.`
+          );
+        }
+
         // First check if any values actually changed
         let hasChanges = false;
         for (const [key, value] of Object.entries(outputs)) {
@@ -200,8 +226,15 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
         nodeOwnership.clear();
         batch(() => {
           for (const [key, value] of Object.entries(outputs)) {
+            // Guard: Catch corruption at write time
+            if (key === 'id' && typeof value !== 'string') {
+              throw new Error(
+                `[setOutputs.batch] Writing corrupted 'id' to ${nodeId}: ` +
+                `expected string, got ${Array.isArray(value) ? 'array' : typeof value}`
+              );
+            }
             if (!this.outputSignals.has(key)) {
-              this.outputSignals.set(key, createSignal(value));
+              this.outputSignals.set(key, createSignalInternal(value));
             } else {
               const [read, write] = this.outputSignals.get(key)!;
               if (!shallowEqual(read(), value)) {
@@ -225,8 +258,15 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
   const hydratedOutputs = outputHydrationMap.get(nodeId);
   if (hydratedOutputs) {
     for (const [key, value] of Object.entries(hydratedOutputs)) {
+      // Guard: Catch corruption from saved state during hydration
+      if (key === 'id' && typeof value !== 'string') {
+        throw new Error(
+          `[useInstance.hydration] Corrupted 'id' in saved state for ${nodeId}: ` +
+          `expected string, got ${Array.isArray(value) ? 'array' : typeof value}.`
+        );
+      }
       if (!node.outputSignals.has(key)) {
-        node.outputSignals.set(key, createSignal(value));
+        node.outputSignals.set(key, createSignalInternal(value));
       } else {
         const [read, write] = node.outputSignals.get(key)!;
         // Only update if value actually changed
@@ -246,7 +286,7 @@ export function useInstance<O extends Record<string, any> = Record<string, any>>
     get(_, key: string) {
       // Lazily create signal for this output
       if (!node.outputSignals.has(key)) {
-        node.outputSignals.set(key, createSignal<any>());
+        node.outputSignals.set(key, createSignalInternal<any>());
       }
       // biome-ignore lint/style/noNonNullAssertion: we just ensured the key exists above
       const [read] = node.outputSignals.get(key)!;
@@ -293,6 +333,21 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
   const node = nodeRegistry.get(nodeId);
   if (!node) return;
 
+  // Guard: Detect corrupted outputs being set
+  if (outputs.id !== undefined && typeof outputs.id !== 'string') {
+    throw new Error(
+      `[fillInstanceOutputs] Corrupted output detected for ${nodeId}: ` +
+      `'id' should be string but got ${Array.isArray(outputs.id) ? 'array' : typeof outputs.id}. ` +
+      `This indicates a bug in the provider or signal system.`
+    );
+  }
+
+  // Guard: Check if we're writing 'messages' to a non-Memory node
+  if (outputs.messages !== undefined && !nodeId.includes('memory')) {
+    console.error(`[fillInstanceOutputs] WARNING: Writing 'messages' to non-memory node ${nodeId}`);
+    console.error(`  outputs keys: [${Object.keys(outputs).join(', ')}]`);
+  }
+
   // First check if any values actually changed
   let hasChanges = false;
   for (const [key, value] of Object.entries(outputs)) {
@@ -320,7 +375,7 @@ export function fillInstanceOutputs(nodeId: string, outputs: Record<string, any>
           write(value);
         }
       } else {
-        node.outputSignals.set(key, createSignal(value));
+        node.outputSignals.set(key, createSignalInternal(value));
       }
     }
   });

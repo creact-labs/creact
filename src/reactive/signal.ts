@@ -65,8 +65,9 @@ export function createSignal<T>(initial?: T): [Accessor<T>, Setter<T>] {
 
 /**
  * Internal signal creation (not memoized)
+ * Exported for use in useInstance where memoization causes signal sharing bugs
  */
-function createSignalInternal<T>(initial?: T): [Accessor<T>, Setter<T>] {
+export function createSignalInternal<T>(initial?: T): [Accessor<T>, Setter<T>] {
   const signal: Signal<T> = {
     value: initial,
     observers: null,

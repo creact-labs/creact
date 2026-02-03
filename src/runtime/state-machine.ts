@@ -8,6 +8,7 @@
  */
 
 import type { Backend, DeploymentState, ResourceState, SerializedNode } from '../provider/backend';
+import { AsyncMutex } from './async-mutex';
 
 export interface StateMachineOptions {
   user?: string;
@@ -20,12 +21,25 @@ export interface StateMachineOptions {
 export class StateMachine {
   private resourceStates = new Map<string, ResourceState>();
   private options: StateMachineOptions;
+  private stackMutexes = new Map<string, AsyncMutex>();
 
   constructor(
     private backend: Backend,
     options: StateMachineOptions = {},
   ) {
     this.options = options;
+  }
+
+  /**
+   * Get or create a mutex for a specific stack
+   */
+  private getMutex(stackName: string): AsyncMutex {
+    let mutex = this.stackMutexes.get(stackName);
+    if (!mutex) {
+      mutex = new AsyncMutex();
+      this.stackMutexes.set(stackName, mutex);
+    }
+    return mutex;
   }
 
   /**
@@ -69,15 +83,18 @@ export class StateMachine {
     nodes: SerializedNode[],
     changeStats?: { creates: number; updates: number; deletes: number },
   ): Promise<void> {
-    const state: DeploymentState = {
-      nodes,
-      status: 'applying',
-      stackName,
-      lastDeployedAt: Date.now(),
-      user: this.options.user,
-    };
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state: DeploymentState = {
+        nodes,
+        status: 'applying',
+        stackName,
+        lastDeployedAt: Date.now(),
+        user: this.options.user,
+      };
 
-    await this.backend.saveState(stackName, state);
+      await this.backend.saveState(stackName, state);
+    });
 
     if (this.options.enableAuditLog && this.backend.appendAuditLog) {
       await this.backend.appendAuditLog(stackName, {
@@ -98,36 +115,45 @@ export class StateMachine {
     nodeId: string,
     outputs: Record<string, any>,
   ): Promise<void> {
-    const state = await this.backend.getState(stackName);
-    if (state) {
-      const node = state.nodes.find((n) => n.id === nodeId);
-      if (node) {
-        node.outputs = outputs;
-        await this.backend.saveState(stackName, state);
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state = await this.backend.getState(stackName);
+      if (state) {
+        const node = state.nodes.find((n) => n.id === nodeId);
+        if (node) {
+          node.outputs = outputs;
+          await this.backend.saveState(stackName, state);
+        }
       }
-    }
+    });
   }
 
   /**
    * Mark a node as currently being applied (for crash recovery)
    */
   async markApplying(stackName: string, nodeId: string): Promise<void> {
-    const state = await this.backend.getState(stackName);
-    if (state) {
-      state.applyingNodeId = nodeId;
-      await this.backend.saveState(stackName, state);
-    }
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state = await this.backend.getState(stackName);
+      if (state) {
+        state.applyingNodeId = nodeId;
+        await this.backend.saveState(stackName, state);
+      }
+    });
   }
 
   /**
    * Clear the applying marker after successful apply
    */
   async clearApplying(stackName: string): Promise<void> {
-    const state = await this.backend.getState(stackName);
-    if (state) {
-      state.applyingNodeId = undefined;
-      await this.backend.saveState(stackName, state);
-    }
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state = await this.backend.getState(stackName);
+      if (state) {
+        state.applyingNodeId = undefined;
+        await this.backend.saveState(stackName, state);
+      }
+    });
   }
 
   /**
@@ -171,15 +197,18 @@ export class StateMachine {
    * Complete a successful deployment
    */
   async completeDeployment(stackName: string, nodes: SerializedNode[]): Promise<void> {
-    const state: DeploymentState = {
-      nodes,
-      status: 'deployed',
-      stackName,
-      lastDeployedAt: Date.now(),
-      user: this.options.user,
-    };
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state: DeploymentState = {
+        nodes,
+        status: 'deployed',
+        stackName,
+        lastDeployedAt: Date.now(),
+        user: this.options.user,
+      };
 
-    await this.backend.saveState(stackName, state);
+      await this.backend.saveState(stackName, state);
+    });
 
     if (this.options.enableAuditLog && this.backend.appendAuditLog) {
       await this.backend.appendAuditLog(stackName, {
@@ -195,11 +224,14 @@ export class StateMachine {
    * Record a failed deployment
    */
   async failDeployment(stackName: string, error: Error): Promise<void> {
-    const state = await this.backend.getState(stackName);
-    if (state) {
-      state.status = 'failed';
-      await this.backend.saveState(stackName, state);
-    }
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state = await this.backend.getState(stackName);
+      if (state) {
+        state.status = 'failed';
+        await this.backend.saveState(stackName, state);
+      }
+    });
 
     if (this.options.enableAuditLog && this.backend.appendAuditLog) {
       await this.backend.appendAuditLog(stackName, {

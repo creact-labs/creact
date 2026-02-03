@@ -140,8 +140,10 @@ export class CReact {
     this.rootFiber = renderFiber(element, []);
     this.currentNodes = collectInstanceNodes(this.rootFiber);
 
-    // Clear hydration maps after render (no longer needed)
-    clearOutputHydration();
+    // NOTE: Don't clear hydration maps here - keep them available for re-renders
+    // When reactive updates trigger re-renders, nodes with undefined props need
+    // hydration data to restore from saved state instead of becoming placeholders.
+    // Hydration maps will be cleared on next run() or by resetRuntime().
 
     // Initial apply cycle
     await this.applyChanges(previousNodes ?? []);

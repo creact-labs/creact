@@ -1,3 +1,4 @@
+export { AsyncMutex } from './async-mutex';
 export { createFiber, type Fiber } from './fiber';
 export { type ChangeSet, deepEqual, hasNewNodes, reconcile } from './reconcile';
 export {
