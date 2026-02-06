@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "./src/jsx"
+  },
+  "include": [
+    "src/**/*",
+    "flow/src/**/*",
+    "runtime/src/**/*",
+    "store/src/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "**/test/**"]
+}

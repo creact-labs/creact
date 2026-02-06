@@ -1,0 +1,88 @@
+{
+  "name": "@creact-labs/creact",
+  "version": "0.3.0",
+  "type": "module",
+  "description": "CReact is a meta-runtime for building domain-specific, reactive execution engines.",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/src/jsx/jsx-runtime.d.ts",
+      "default": "./dist/src/jsx/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/src/jsx/jsx-dev-runtime.d.ts",
+      "default": "./dist/src/jsx/jsx-dev-runtime.js"
+    },
+    "./jsx": {
+      "types": "./dist/src/jsx/index.d.ts",
+      "default": "./dist/src/jsx/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "jsx": [
+        "dist/jsx.d.ts"
+      ]
+    }
+  },
+  "bin": {
+    "creact": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "prebuild": "npm run typecheck && npm run test",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest --run",
+    "typecheck": "tsc --noEmit",
+    "format": "biome check --fix .",
+    "format:write": "biome format --write .",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "reactive",
+    "declarative",
+    "runtime",
+    "jsx",
+    "ai-agents",
+    "automation",
+    "orchestration",
+    "workflow",
+    "infrastructure-as-code",
+    "cloud",
+    "devops",
+    "deployment",
+    "reconciler",
+    "multi-cloud"
+  ],
+  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creact-labs/creact.git",
+    "directory": "packages/creact"
+  },
+  "homepage": "https://github.com/creact-labs/creact",
+  "bugs": {
+    "url": "https://github.com/creact-labs/creact/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "picocolors": "^1.1.1",
+    "tsx": "^4.20.6"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

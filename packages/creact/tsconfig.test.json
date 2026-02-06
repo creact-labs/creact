@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "./src/jsx",
+    "paths": {
+      "@creact-labs/creact": ["./src"],
+      "@creact-labs/creact/jsx-runtime": ["./src/jsx/jsx-runtime"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "flow/src/**/*",
+    "runtime/src/**/*",
+    "store/src/**/*",
+    "test/**/*",
+    "flow/test/**/*",
+    "runtime/test/**/*",
+    "store/test/**/*"
+  ]
+}

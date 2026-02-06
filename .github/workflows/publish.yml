@@ -1,4 +1,4 @@
-name: 📦 Publish to npm
+name: "\U0001F4E6 Publish to npm"
 
 on:
   push:
@@ -33,10 +33,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Type check
+        working-directory: packages/creact
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        working-directory: packages/creact
+        run: npx vitest run
+
       - name: Build project
-        run: npm run build --if-present
+        working-directory: packages/creact
+        run: npm run build
 
       - name: Publish to npm
+        working-directory: packages/creact
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public

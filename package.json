@@ -1,83 +1,28 @@
 {
-  "name": "@creact-labs/creact",
-  "version": "0.2.17",
+  "name": "@creact-labs/creact-monorepo",
+  "private": true,
   "type": "module",
-  "description": "CReact is a meta-runtime for building domain-specific, reactive execution engines.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./jsx-runtime": {
-      "types": "./dist/jsx/jsx-runtime.d.ts",
-      "default": "./dist/jsx/jsx-runtime.js"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./dist/jsx/jsx-dev-runtime.d.ts",
-      "default": "./dist/jsx/jsx-dev-runtime.js"
-    },
-    "./jsx": {
-      "types": "./dist/jsx/index.d.ts",
-      "default": "./dist/jsx/index.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "jsx": [
-        "dist/jsx.d.ts"
-      ]
-    }
-  },
-  "bin": {
-    "creact": "./dist/cli.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest --run",
+    "build": "npm run build -w packages/creact",
+    "test": "npm test -w packages/creact",
+    "typecheck": "npm run typecheck -w packages/creact",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
-  "keywords": [
-    "reactive",
-    "declarative",
-    "runtime",
-    "jsx",
-    "ai-agents",
-    "automation",
-    "orchestration",
-    "workflow",
-    "infrastructure-as-code",
-    "cloud",
-    "devops",
-    "deployment",
-    "reconciler",
-    "multi-cloud"
-  ],
   "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/creact-labs/creact.git"
   },
-  "homepage": "https://github.com/creact-labs/creact",
-  "bugs": {
-    "url": "https://github.com/creact-labs/creact/issues"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/node": "^20.0.0",
@@ -88,10 +33,6 @@
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
     "typescript": "^5.0.0",
-    "typescript-eslint": "^8.45.0",
-    "vitest": "^3.2.4"
-  },
-  "dependencies": {
-    "tsx": "^4.20.6"
+    "typescript-eslint": "^8.45.0"
   }
 }

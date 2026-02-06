@@ -5,72 +5,129 @@
 
 # CReact
 
-CReact is a meta-runtime for building domain-specific, reactive execution engines — where providers define the laws of reality, and JSX defines programs that run inside them.
+A meta-runtime for building reactive execution engines. 
+
+Components can declare anything you want, for example infrastructure, side effects, and AI calls using JSX. The runtime handles lifecycle, state persistence, and dependency tracking.
+
+<p align="center">
+  <img src="https://s12.gifyu.com/images/bkyAp.gif" alt="CReact demo" />
+</p>
+
+## Example
+
+This is a multi-site platform that generates websites with AI and deploys them to AWS. An HTTP API accepts prompts, Claude generates HTML, and each site gets its own S3 bucket. State persists across restarts.
 
 ```tsx
-<Server port={3000}>
-  {(server) => (
-    <Chat serverId={server.id()} path="/chat">
-      {(chat) => (
-        <Model model="gpt-4o-mini">
-          {(model) => (
-            <Memory>
-              {(memory) => {
-                const pending = chat.pending();
-                if (!pending) return null;
+export function App() {
+  const [sites, setSites] = createSignal<SiteConfig[]>([]);
+  const [initialized, setInitialized] = createSignal(false);
 
-                const history = memory.messages() ?? [];
+  const persistence = useAsyncOutput<{ sites: SiteConfig[] }>(
+    () => ({ sites: sites() }),
+    async (props, setOutputs) => {
+      setOutputs(prev => {
+        if (!initialized() && prev?.sites && prev.sites.length > 0) {
+          setSites(prev.sites);
+          setInitialized(true);
+          return prev;
+        }
+        setInitialized(true);
+        return { sites: props.sites };
+      });
+    }
+  );
 
-                return (
-                  <Completion
-                    requestId={pending.id}
-                    model={model.model()}
-                    messages={[
-                      { role: 'system', content: 'You are a helpful assistant.' },
-                      ...history,
-                      { role: 'user', content: pending.content },
-                    ]}
-                  >
-                    {(response, conversation) => (
-                      <>
-                        <SaveMessages
-                          memoryId={memory.id()}
-                          currentMessages={history}
-                          newMessages={conversation.slice(history.length)}
-                        />
+  const {
+    shouldCleanup, pendingGeneration,
+    handleList, handleGenerate, handleUpdate,
+    handleCleanupSite, handleCleanupAll,
+    updateSiteContent, onDeployed, onCleanupComplete,
+    clearPendingGeneration,
+  } = useSites(sites, setSites);
 
-                        <SendResponse
-                          handlerId={chat.id()}
-                          messageId={pending.id}
-                          content={response}
-                        />
-                      </>
-                    )}
-                  </Completion>
-                );
-              }}
-            </Memory>
+  return (
+    <>
+      <Channel
+        port={3000}
+        onList={handleList}
+        onGenerate={handleGenerate}
+        onUpdate={handleUpdate}
+        onCleanupSite={handleCleanupSite}
+        onCleanupAll={handleCleanupAll}
+      />
+
+      <HttpServer port={8080} path="./resources/admin" />
+
+      <Claude>
+        <Show when={() => pendingGeneration()}>
+          {(gen) => {
+            const { id, path, prompt } = gen();
+            const [content, setContent] = createSignal('');
+            return (
+              <>
+                <Read path={path} file="index.html">
+                  {(existingContent) => (
+                    <GenerateHtml
+                      existingContent={existingContent}
+                      prompt={prompt}
+                      onGenerated={setContent}
+                    />
+                  )}
+                </Read>
+                <Show when={() => content()}>
+                  {() => (
+                    <Write
+                      path={path}
+                      file="index.html"
+                      content={() => content()}
+                      onWritten={() => {
+                        updateSiteContent(id, content());
+                        clearPendingGeneration();
+                      }}
+                    />
+                  )}
+                </Show>
+              </>
+            );
+          }}
+        </Show>
+      </Claude>
+
+      <AWS region="us-east-1" shouldCleanup={() => shouldCleanup()} onCleanupComplete={onCleanupComplete}>
+        <For each={() => persistence.sites() ?? []} keyFn={(s) => s.id}>
+          {(site) => (
+            <Show when={() => site().content}>
+              {() => (
+                <WebSite
+                  name={() => site().path}
+                  content={() => site().content}
+                  onDeployed={(url) => onDeployed(site().id, url)}
+                />
+              )}
+            </Show>
           )}
-        </Model>
-      )}
-    </Chat>
-  )}
-</Server>
+        </For>
+      </AWS>
+    </>
+  );
+}
 ```
-## Getting started
+
+## Install
 
 ```bash
 npm install @creact-labs/creact
 ```
 
-## Try it
-
-- [Agentic Chatbot Demo](https://github.com/creact-labs/creact-agentic-chatbot-example) — Build a chatbot with web search and browsing in 15 minutes
-
 ## Documentation
 
-- [Tutorial](./docs/getting-started/1-setup.md) — Build an agentic chatbot with web search and browsing
-- [Concepts](./docs/concepts/index.md) — Core mental model
+Build the app above from scratch across five chapters:
+
+1. [Your First CReact App](./docs/01-your-first-creact-app.md) — State persistence with a counter
+2. [Hello World](./docs/02-hello-world.md) — Components, handlers, and AWS deployment
+3. [AI-Powered Website](./docs/03-ai-powered-website.md) — Claude integration and HTML generation
+4. [Creating the Control Plane](./docs/04-creating-the-control-plane.md) — HTTP API, multi-site management
+5. [Giving It a Pretty Face](./docs/05-giving-it-a-pretty-face.md) — Admin dashboard and static file serving
 
 ## License
 
