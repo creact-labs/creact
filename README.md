@@ -15,7 +15,7 @@ Components can declare anything you want, for example infrastructure, side effec
 
 ## Example
 
-Working demo at <a href='https://github.com/creact-labs/ai-powered-aws-website-generator'></a> 
+Working demo at <a href='https://github.com/creact-labs/ai-powered-aws-website-generator'>https://github.com/creact-labs/ai-powered-aws-website-generator</a> 
 
 This is a multi-site platform that generates websites with AI and deploys them to AWS. An HTTP API accepts prompts, Claude generates HTML, and each site gets its own S3 bucket. State persists across restarts.
 
