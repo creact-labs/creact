@@ -121,13 +121,7 @@ npm install @creact-labs/creact
 
 ## Documentation
 
-Build the app above from scratch across five chapters:
-
-1. [Your First CReact App](./docs/01-your-first-creact-app.md) — State persistence with a counter
-2. [Hello World](./docs/02-hello-world.md) — Components, handlers, and AWS deployment
-3. [AI-Powered Website](./docs/03-ai-powered-website.md) — Claude integration and HTML generation
-4. [Creating the Control Plane](./docs/04-creating-the-control-plane.md) — HTTP API, multi-site management
-5. [Giving It a Pretty Face](./docs/05-giving-it-a-pretty-face.md) — Admin dashboard and static file serving
+[creact-labs.github.io/creact](https://creact-labs.github.io/creact)
 
 ## License
 
