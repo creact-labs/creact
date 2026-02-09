@@ -1,7 +1,8 @@
 import type { Component } from "solid-js";
 import { useSidebar } from "../../contexts/SidebarContext";
 import MobileSidebarToggle from "./MobileSidebarToggle";
-import logoUrl from "../../../assets/logo.jpeg";
+import logoWhite from "../../../assets/logo_white.svg";
+import logoBlack from "../../../assets/logo_black.svg";
 
 const DocNav: Component = () => {
   return (
@@ -9,7 +10,10 @@ const DocNav: Component = () => {
       <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
         <MobileSidebarToggle />
         <a href="#/" class="docs-nav-logo">
-          <img src={logoUrl} alt="CReact" />
+          <picture>
+            <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
+            <img src={logoWhite} alt="CReact" />
+          </picture>
           <span>CReact</span>
         </a>
       </div>

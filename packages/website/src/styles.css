@@ -1,12 +1,14 @@
 :root {
+  color-scheme: dark light;
+
   --bg: #000;
   --text: #fff;
   --text-muted: #999;
   --border: rgba(255, 255, 255, 0.15);
   --code-bg: #0a0a0a;
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Fantasque Sans Mono", monospace;
 
   --syn-keyword: #c792ea;
   --syn-function: #82aaff;
@@ -25,6 +27,18 @@
   --docs-hover: rgba(255, 255, 255, 0.06);
   --docs-active: rgba(255, 255, 255, 0.1);
 
+  /* Shared element colors */
+  --code-header-bg: rgba(255, 255, 255, 0.03);
+  --code-dot-bg: rgba(255, 255, 255, 0.12);
+  --code-inline-bg: rgba(255, 255, 255, 0.06);
+  --code-text: #e0e0e0;
+  --code-inline-text: #f78c6c;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+  --border-hover: rgba(255, 255, 255, 0.3);
+  --subsection-label: rgba(255, 255, 255, 0.35);
+  --td-border: rgba(255, 255, 255, 0.05);
+
   /* Callout colors */
   --callout-info-bg: rgba(56, 139, 253, 0.08);
   --callout-info-border: rgba(56, 139, 253, 0.4);
@@ -35,6 +49,43 @@
   --callout-tip-bg: rgba(46, 160, 67, 0.08);
   --callout-tip-border: rgba(46, 160, 67, 0.4);
   --callout-tip-text: #3fb950;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fff;
+    --text: #111;
+    --text-muted: #666;
+    --border: rgba(0, 0, 0, 0.12);
+    --code-bg: #f5f5f5;
+
+    --syn-keyword: #7c3aed;
+    --syn-function: #2563eb;
+    --syn-string: #16a34a;
+    --syn-component: #0891b2;
+    --syn-prop: #d97706;
+    --syn-bracket: #0891b2;
+
+    --docs-sidebar-bg: #fafafa;
+    --docs-border: rgba(0, 0, 0, 0.1);
+    --docs-hover: rgba(0, 0, 0, 0.04);
+    --docs-active: rgba(0, 0, 0, 0.08);
+
+    --code-header-bg: rgba(0, 0, 0, 0.03);
+    --code-dot-bg: rgba(0, 0, 0, 0.12);
+    --code-inline-bg: rgba(0, 0, 0, 0.06);
+    --code-text: #333;
+    --code-inline-text: #d6336c;
+    --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+    --border-hover: rgba(0, 0, 0, 0.3);
+    --subsection-label: rgba(0, 0, 0, 0.4);
+    --td-border: rgba(0, 0, 0, 0.08);
+
+    --callout-info-text: #0969da;
+    --callout-warning-text: #9a6700;
+    --callout-tip-text: #1a7f37;
+  }
 }
 
 * {
@@ -51,7 +102,7 @@ body {
 /* Custom scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -64,12 +115,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--scrollbar-thumb-hover);
 }
 
 ::-webkit-scrollbar-corner {
@@ -254,7 +305,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--code-header-bg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -262,7 +313,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--code-dot-bg);
 }
 
 .code-filename {
@@ -277,7 +328,7 @@ body {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.8;
-  color: #e0e0e0;
+  color: var(--code-text);
   overflow-x: auto;
 }
 

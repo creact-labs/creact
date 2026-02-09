@@ -1,12 +1,16 @@
 import type { Component } from "solid-js";
-import logoUrl from "../assets/logo.jpeg";
+import logoWhite from "../assets/logo_white.svg";
+import logoBlack from "../assets/logo_black.svg";
 
 const App: Component = () => {
   return (
     <div class="container">
       <header class="nav">
         <div class="nav-logo">
-          <img src={logoUrl} alt="CReact" />
+          <picture>
+            <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
+            <img src={logoWhite} alt="CReact" />
+          </picture>
           <span>CReact</span>
         </div>
         <nav class="nav-links" aria-label="Main navigation">
@@ -34,7 +38,10 @@ const App: Component = () => {
       <main class="hero">
         <div class="hero-header">
           <div class="hero-logo">
-            <img src={logoUrl} alt="CReact" />
+            <picture>
+            <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
+            <img src={logoWhite} alt="CReact" />
+          </picture>
           </div>
           <h1 class="hero-title">CReact</h1>
         </div>

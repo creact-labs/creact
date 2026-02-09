@@ -3,7 +3,7 @@
    ============================================= */
 
 .docs-shell {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--docs-nav-height));
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
@@ -166,7 +166,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--subsection-label);
 }
 
 /* =============================================
@@ -273,10 +273,10 @@
 .docs-article code {
   font-family: var(--font-mono);
   font-size: 13px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--code-inline-bg);
   padding: 2px 6px;
   border-radius: 4px;
-  color: #e0e0e0;
+  color: var(--code-inline-text);
 }
 
 .docs-article table {
@@ -297,7 +297,7 @@
 
 .docs-article td {
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--td-border);
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -346,7 +346,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--code-header-bg);
   border-bottom: 1px solid var(--docs-border);
 }
 
@@ -363,7 +363,7 @@
   padding: 4px 10px;
   border: none;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--code-inline-bg);
   color: var(--text-muted);
   font-family: var(--font-sans);
   font-size: 12px;
@@ -372,7 +372,7 @@
 }
 
 .doc-code-copy:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--docs-active);
   color: var(--text);
 }
 
@@ -398,6 +398,33 @@
   padding: 0;
   border-radius: 0;
   font-size: inherit;
+}
+
+/* Shiki dual-theme: map CSS variables to prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  .shiki {
+    background-color: var(--code-bg) !important;
+  }
+  .shiki,
+  .shiki span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .shiki {
+    background-color: var(--code-bg) !important;
+  }
+  .shiki,
+  .shiki span {
+    color: var(--shiki-light) !important;
+    font-style: var(--shiki-light-font-style) !important;
+    font-weight: var(--shiki-light-font-weight) !important;
+    text-decoration: var(--shiki-light-text-decoration) !important;
+  }
 }
 
 /* =============================================
@@ -480,7 +507,7 @@
 }
 
 .prev-next-link:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--border-hover);
   background: var(--docs-hover);
 }
 
@@ -528,7 +555,7 @@
   font-size: 13px;
   color: var(--text-muted);
   text-decoration: none;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid var(--docs-border);
   transition: color 0.15s, border-color 0.15s;
   line-height: 1.5;
 }

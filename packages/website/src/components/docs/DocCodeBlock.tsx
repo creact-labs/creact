@@ -16,7 +16,11 @@ const DocCodeBlock: Component<DocCodeBlockProps> = (props) => {
       const highlighter = await getHighlighter();
       return highlighter.codeToHtml(code, {
         lang,
-        theme: "github-dark",
+        themes: {
+          dark: "github-dark",
+          light: "github-light",
+        },
+        defaultColor: false,
       });
     }
   );

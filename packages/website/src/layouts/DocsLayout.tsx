@@ -37,8 +37,8 @@ const DocsLayout: ParentComponent = (props) => {
   return (
     <SidebarProvider>
       <TocProvider>
+        <DocNav />
         <div class="docs-shell">
-          <DocNav />
           <DocsContent>{props.children}</DocsContent>
         </div>
       </TocProvider>
