@@ -1,22 +1,18 @@
 import type { Component } from "solid-js";
-import logoUrl from "../assets/logo.jpeg";
+import logoUrl from "../../assets/logo.jpeg";
 
-const App: Component = () => {
+const LandingPage: Component = () => {
   return (
     <div class="container">
       <header class="nav">
         <div class="nav-logo">
-          <img src={logoUrl} alt="CReact" />
-          <span>CReact</span>
+          <a href="#/" style={{ display: "flex", "align-items": "center", gap: "12px", "text-decoration": "none", color: "inherit" }}>
+            <img src={logoUrl} alt="CReact" />
+            <span>CReact</span>
+          </a>
         </div>
         <nav class="nav-links" aria-label="Main navigation">
-          <a
-            href="https://github.com/creact-labs/creact/tree/main/docs"
-            target="_blank"
-            rel="noopener"
-          >
-            Docs
-          </a>
+          <a href="#/docs">Docs</a>
           <a
             href="https://github.com/creact-labs/creact"
             target="_blank"
@@ -54,12 +50,7 @@ const App: Component = () => {
           </div>
         </div>
         <div class="hero-cta">
-          <a
-            href="https://github.com/creact-labs/creact/tree/main/docs"
-            class="btn btn-primary"
-            target="_blank"
-            rel="noopener"
-          >
+          <a href="#/docs" class="btn btn-primary">
             Get Started <span>&rarr;</span>
           </a>
           <a
@@ -111,4 +102,4 @@ const codeExample = `<span class="kw">export function</span> <span class="fn">Ap
   );
 }`;
 
-export default App;
+export default LandingPage;

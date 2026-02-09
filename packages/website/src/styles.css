@@ -14,6 +14,27 @@
   --syn-component: #89ddff;
   --syn-prop: #ffcb6b;
   --syn-bracket: #89ddff;
+
+  /* Docs layout */
+  --docs-sidebar-width: 280px;
+  --docs-toc-width: 220px;
+  --docs-content-max-width: 720px;
+  --docs-nav-height: 64px;
+  --docs-sidebar-bg: #0a0a0a;
+  --docs-border: rgba(255, 255, 255, 0.1);
+  --docs-hover: rgba(255, 255, 255, 0.06);
+  --docs-active: rgba(255, 255, 255, 0.1);
+
+  /* Callout colors */
+  --callout-info-bg: rgba(56, 139, 253, 0.08);
+  --callout-info-border: rgba(56, 139, 253, 0.4);
+  --callout-info-text: #58a6ff;
+  --callout-warning-bg: rgba(210, 153, 34, 0.08);
+  --callout-warning-border: rgba(210, 153, 34, 0.4);
+  --callout-warning-text: #d29922;
+  --callout-tip-bg: rgba(46, 160, 67, 0.08);
+  --callout-tip-border: rgba(46, 160, 67, 0.4);
+  --callout-tip-text: #3fb950;
 }
 
 * {
@@ -25,6 +46,34 @@
 html,
 body {
   height: 100%;
+}
+
+/* Custom scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body {

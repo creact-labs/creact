@@ -4,7 +4,6 @@ const Footer: Component = () => {
   return (
     <footer class="footer">
       <div class="footer-content">
-        <span>Daniel Coutinho Ribeiro</span>
         <span class="footer-sep">&middot;</span>
         <a
           href="https://github.com/creact-labs/creact"
