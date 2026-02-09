@@ -17,7 +17,7 @@ CReact is a meta-runtime for building domain-specific, reactive execution engine
 
 ## Documentation
 
-Visit [https://github.com/creact-labs/creact/tree/main/docs](https://github.com/creact-labs/creact/tree/main/docs) to view the full documentation.
+Visit [creact-labs.github.io/creact](https://creact-labs.github.io/creact) to view the full documentation.
 
 ## Community
 
