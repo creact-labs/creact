@@ -1,128 +1,29 @@
-<p align="center">
-  <img src="https://img.shields.io/npm/v/@creact-labs/creact" alt="npm version" />
-  <img src="https://img.shields.io/npm/l/@creact-labs/creact" alt="license" />
-</p>
+<div align="center">
+   <a href="https://creact-labs.github.io/creact/">
+   <img alt="CReact banner" src="https://i.postimg.cc/8P66GnT3/banner.jpg" width="100%">
+   </a>
+   <hr>
+   <a href="https://www.npmjs.com/package/@creact-labs/creact"><img alt="NPM version" src="https://img.shields.io/npm/v/@creact-labs/creact.svg?style=for-the-badge&labelColor=000000"></a>
+   <a href="https://github.com/creact-labs/creact/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@creact-labs/creact.svg?style=for-the-badge&labelColor=000000"></a>
+   <a href="https://github.com/creact-labs/creact/discussions"><img alt="Join the community on GitHub" src="https://img.shields.io/badge/Join%20the%20community-blueviolet.svg?style=for-the-badge&logo=github&labelColor=000000&logoWidth=20"></a>
+</div>
 
-# CReact
+## Getting Started
 
-A meta-runtime for building reactive execution engines. 
+CReact is a meta-runtime for building domain-specific, reactive execution engines. Declare what should exist using JSX — infrastructure, side effects, AI calls — and the runtime reconciles the difference, tracking dependencies, managing lifecycle, and persisting state across restarts.
 
-Components can declare anything you want, for example infrastructure, side effects, and AI calls using JSX. The runtime handles lifecycle, state persistence, and dependency tracking.
-
-<p align="center">
-  <img src="https://s12.gifyu.com/images/bkyAp.gif" alt="CReact demo" />
-</p>
-
-## Example
-
-This is a multi-site platform that generates websites with AI and deploys them to AWS. An HTTP API accepts prompts, Claude generates HTML, and each site gets its own S3 bucket. State persists across restarts.
-
-```tsx
-export function App() {
-  const [sites, setSites] = createSignal<SiteConfig[]>([]);
-  const [initialized, setInitialized] = createSignal(false);
-
-  const persistence = useAsyncOutput<{ sites: SiteConfig[] }>(
-    () => ({ sites: sites() }),
-    async (props, setOutputs) => {
-      setOutputs(prev => {
-        if (!initialized() && prev?.sites && prev.sites.length > 0) {
-          setSites(prev.sites);
-          setInitialized(true);
-          return prev;
-        }
-        setInitialized(true);
-        return { sites: props.sites };
-      });
-    }
-  );
-
-  const {
-    shouldCleanup, pendingGeneration,
-    handleList, handleGenerate, handleUpdate,
-    handleCleanupSite, handleCleanupAll,
-    updateSiteContent, onDeployed, onCleanupComplete,
-    clearPendingGeneration,
-  } = useSites(sites, setSites);
-
-  return (
-    <>
-      <Channel
-        port={3000}
-        onList={handleList}
-        onGenerate={handleGenerate}
-        onUpdate={handleUpdate}
-        onCleanupSite={handleCleanupSite}
-        onCleanupAll={handleCleanupAll}
-      />
-
-      <HttpServer port={8080} path="./resources/admin" />
-
-      <Claude>
-        <Show when={() => pendingGeneration()}>
-          {(gen) => {
-            const { id, path, prompt } = gen();
-            const [content, setContent] = createSignal('');
-            return (
-              <>
-                <Read path={path} file="index.html">
-                  {(existingContent) => (
-                    <GenerateHtml
-                      existingContent={existingContent}
-                      prompt={prompt}
-                      onGenerated={setContent}
-                    />
-                  )}
-                </Read>
-                <Show when={() => content()}>
-                  {() => (
-                    <Write
-                      path={path}
-                      file="index.html"
-                      content={() => content()}
-                      onWritten={() => {
-                        updateSiteContent(id, content());
-                        clearPendingGeneration();
-                      }}
-                    />
-                  )}
-                </Show>
-              </>
-            );
-          }}
-        </Show>
-      </Claude>
-
-      <AWS region="us-east-1" shouldCleanup={() => shouldCleanup()} onCleanupComplete={onCleanupComplete}>
-        <For each={() => persistence.sites() ?? []} keyFn={(s) => s.id}>
-          {(site) => (
-            <Show when={() => site().content}>
-              {() => (
-                <WebSite
-                  name={() => site().path}
-                  content={() => site().content}
-                  onDeployed={(url) => onDeployed(site().id, url)}
-                />
-              )}
-            </Show>
-          )}
-        </For>
-      </AWS>
-    </>
-  );
-}
-```
-
-## Install
-
-```bash
-npm install @creact-labs/creact
-```
+- Visit the [documentation](https://github.com/creact-labs/creact/tree/main/docs) to get started with CReact.
+- Check out the [AI-Powered Website Generator](https://github.com/creact-labs/ai-powered-aws-website-generator) to see a full demo built with CReact.
 
 ## Documentation
 
-[creact-labs.github.io/creact](https://creact-labs.github.io/creact)
+Visit [https://github.com/creact-labs/creact/tree/main/docs](https://github.com/creact-labs/creact/tree/main/docs) to view the full documentation.
 
-## License
+## Community
 
-Apache-2.0
+The CReact community can be found on [GitHub Discussions](https://github.com/creact-labs/creact/discussions) where you can ask questions, voice ideas, and share your projects with other people.
+
+## Contributing
+
+Contributions to CReact are welcome and highly appreciated. However, before you jump right into it, we would like you to review our [Contribution Guidelines](./CONTRIBUTING.md) to make sure you have a smooth experience contributing to CReact.
+
