@@ -1,5 +1,5 @@
 /**
- * CReact - A meta-runtime for building domain-specific, reactive execution engines.
+ * CReact - Use JSX to automate durable workflows
  */
 
 export { ErrorBoundary } from "../flow/src/ErrorBoundary";

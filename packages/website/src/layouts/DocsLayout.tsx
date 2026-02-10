@@ -22,9 +22,7 @@ const DocsContent: ParentComponent = (props) => {
       <Sidebar />
       <main class="docs-content">
         <Suspense fallback={<div class="docs-loading">Loading...</div>}>
-          <article class="docs-article">
-            {props.children}
-          </article>
+          <article class="docs-article">{props.children}</article>
         </Suspense>
         <PrevNext />
       </main>

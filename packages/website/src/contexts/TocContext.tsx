@@ -1,4 +1,10 @@
-import { createContext, useContext, createSignal, onCleanup, type ParentComponent } from "solid-js";
+import {
+  createContext,
+  useContext,
+  createSignal,
+  onCleanup,
+  type ParentComponent,
+} from "solid-js";
 
 export interface TocEntry {
   id: string;
@@ -33,7 +39,7 @@ export const TocProvider: ParentComponent = (props) => {
           }
         }
       },
-      { rootMargin: "-80px 0px -70% 0px", threshold: 0 }
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
     );
 
     // Observe all heading elements
@@ -65,7 +71,9 @@ export const TocProvider: ParentComponent = (props) => {
   });
 
   return (
-    <TocContext.Provider value={{ headings, activeId, registerHeading, clearHeadings }}>
+    <TocContext.Provider
+      value={{ headings, activeId, registerHeading, clearHeadings }}
+    >
       {props.children}
     </TocContext.Provider>
   );

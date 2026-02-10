@@ -23,6 +23,18 @@ const { version } = require("../../package.json");
 
 let currentResult: { dispose?: () => void } | null = null;
 
+// Handle Ctrl+C at any point — including during startup/await.
+// Must stop ora spinner first since it hooks stdin and swallows SIGINT.
+function shutdown() {
+  logger.stopSpinner();
+  if (currentResult?.dispose) {
+    currentResult.dispose();
+  }
+  process.exit(0);
+}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
 async function runEntrypoint(entrypoint: string) {
   // Dispose previous render before restarting
   if (currentResult?.dispose) {
@@ -59,6 +71,8 @@ function runTypeCheck(entrypoint: string, cwd: string): boolean {
     logger.typeCheckSkipped("typescript not found in project");
     return true;
   }
+
+  logger.typeCheckStart();
 
   try {
     const result = typeCheck(ts, entrypoint, cwd);
@@ -112,6 +126,7 @@ async function main() {
   const typesOk = runTypeCheck(entrypoint, cwd);
 
   if (typesOk) {
+    logger.appStarting();
     try {
       await runEntrypoint(entrypoint);
       logger.appStarted();
@@ -140,8 +155,6 @@ async function main() {
         logger.watching();
       }
     }
-  } else {
-    logger.closeFrame();
   }
 }
 

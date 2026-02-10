@@ -1,17 +1,22 @@
 import type { Component } from "solid-js";
-import logoWhite from "../../assets/logo_white.svg";
-import logoBlack from "../../assets/logo_black.svg";
+import logoUrl from "../../assets/logo.jpeg";
 
 const LandingPage: Component = () => {
   return (
     <div class="container">
       <header class="nav">
         <div class="nav-logo">
-          <a href="#/" style={{ display: "flex", "align-items": "center", gap: "12px", "text-decoration": "none", color: "inherit" }}>
-            <picture>
-              <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
-              <img src={logoWhite} alt="CReact" />
-            </picture>
+          <a
+            href="#/"
+            style={{
+              display: "flex",
+              "align-items": "center",
+              gap: "12px",
+              "text-decoration": "none",
+              color: "inherit",
+            }}
+          >
+            <img src={logoUrl} alt="CReact" />
             <span>CReact</span>
           </a>
         </div>
@@ -34,16 +39,12 @@ const LandingPage: Component = () => {
       <main class="hero">
         <div class="hero-header">
           <div class="hero-logo">
-            <picture>
-              <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
-              <img src={logoWhite} alt="CReact" />
-            </picture>
+            <img src={logoUrl} alt="CReact" />
           </div>
           <h1 class="hero-title">CReact</h1>
         </div>
         <p class="hero-subtitle">
-          A meta-runtime for building domain-specific, reactive execution
-          engines.
+          Use JSX to automate durable workflows
         </p>
         <div class="hero-code">
           <div class="code-box">

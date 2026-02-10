@@ -117,17 +117,6 @@ export type OutputAccessors<O> = {
 };
 
 /**
- * Create a placeholder proxy that returns undefined for all outputs
- */
-function createPlaceholderProxy<O>(): OutputAccessors<O> {
-  return new Proxy({} as OutputAccessors<O>, {
-    get(_target, _key: string) {
-      return () => undefined;
-    },
-  });
-}
-
-/**
  * Create an async output with handler-based lifecycle
  *
  * Called once per component (components run once). The instance is created
@@ -228,11 +217,7 @@ export function useAsyncOutput<
   const hasHydrationData = outputHydrationMap.has(nodeId);
   const hasExistingNode = nodeRegistry.has(nodeId);
 
-  if (hasUndefinedDeps && !hasHydrationData && !hasExistingNode) {
-    pushResourcePath(name);
-    fiber.hasPlaceholderInstance = true;
-    return createPlaceholderProxy<O>();
-  }
+  const isDeferred = hasUndefinedDeps && !hasHydrationData && !hasExistingNode;
 
   // Check for collisions (multiple instances with same resource path)
   const currentFiberPath = fiber.path.join(".");
@@ -330,14 +315,34 @@ export function useAsyncOutput<
     }
   }
 
-  fiber.instanceNodes.push(node);
+  if (isDeferred) {
+    fiber.hasPlaceholderInstance = true;
+  } else {
+    fiber.instanceNodes.push(node);
+  }
 
-  // If props are reactive (getter function), track changes and update node.props
+  // If props are reactive (getter function), track changes and update node.props.
+  // Also handles deferred nodes: when undefined deps become defined, push to fiber.
   if (isGetter) {
+    const ownerFiber = fiber;
     createEffect(() => {
       const newProps = getProps();
-      // Update node.props so reconciler sees the change
       node.props = newProps as Record<string, any>;
+
+      // Upgrade deferred placeholder → real instance node when deps resolve
+      if (
+        ownerFiber.hasPlaceholderInstance &&
+        !ownerFiber.instanceNodes.includes(node)
+      ) {
+        const stillUndefined = Object.entries(
+          newProps as Record<string, any>,
+        ).some(([key, value]) => key !== "children" && value === undefined);
+
+        if (!stillUndefined) {
+          ownerFiber.hasPlaceholderInstance = false;
+          ownerFiber.instanceNodes.push(node);
+        }
+      }
     });
   }
 

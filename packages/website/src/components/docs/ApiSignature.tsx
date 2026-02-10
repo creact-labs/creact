@@ -7,7 +7,13 @@ interface ApiSignatureProps {
 }
 
 const ApiSignature: Component<ApiSignatureProps> = (props) => {
-  return <DocCodeBlock code={props.signature} lang="typescript" filename={props.name} />;
+  return (
+    <DocCodeBlock
+      code={props.signature}
+      lang="typescript"
+      filename={props.name}
+    />
+  );
 };
 
 export default ApiSignature;

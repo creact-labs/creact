@@ -31,6 +31,7 @@ import type { Memory } from "./memory";
 import { serializeNodes } from "./memory";
 import {
   buildDependencyGraph,
+  getReadyNodes,
   hasChanges,
   reconcile,
   topologicalSort,
@@ -93,7 +94,7 @@ class CReactRuntime {
 
     // Check for interrupted deployment
     if (await this.stateMachine.canResume(this.stackName)) {
-      await this.stateMachine.getInterruptedNodeId(this.stackName);
+      await this.stateMachine.getInterruptedNodeIds(this.stackName);
     }
 
     // Load previous state from memory
@@ -188,8 +189,8 @@ class CReactRuntime {
     try {
       // Apply deletes (reverse order)
       const deleteIds = changes.deletes.map((n) => n.id);
-      const graph = buildDependencyGraph(changes.deletes);
-      const deleteOrder = topologicalSort(deleteIds, graph).reverse();
+      const deleteGraph = buildDependencyGraph(changes.deletes);
+      const deleteOrder = topologicalSort(deleteIds, deleteGraph).reverse();
 
       for (const nodeId of deleteOrder) {
         const node = changes.deletes.find((n) => n.id === nodeId);
@@ -207,54 +208,157 @@ class CReactRuntime {
         }
       }
 
-      // Execute handlers for creates, updates, and resumed (unchanged) nodes
-      // Unchanged nodes on initial run need handlers to re-establish side effects
-      const allNodesToRun = [
+      // Concurrent executor with eager cascading
+      const deployed = new Set<string>();
+      const running = new Map<string, Promise<string>>();
+      const pending = new Set<string>([
         ...changes.deploymentOrder,
         ...unchangedNodes.map((n) => n.id),
-      ];
+      ]);
+      let graph = buildDependencyGraph(this.currentNodes);
+      const deferredDeletes: InstanceNode[] = [];
+      const MAX_EXECUTIONS = 100;
+      let totalExecutions = 0;
 
-      for (const nodeId of allNodesToRun) {
-        const node = getNodeById(nodeId);
-        if (!node) continue;
-
-        this.stateMachine.setResourceState(nodeId, "applying");
-        await this.stateMachine.markApplying(this.stackName, nodeId);
-
-        // Handlers must be idempotent - no cleanup needed on updates/resumes.
-        // Cleanup only runs on deletes (resource removal).
-        const cleanup = await node.handler(node.props, (outputs) =>
-          node.setOutputs(outputs),
+      while (pending.size > 0 || running.size > 0) {
+        // 1. Find nodes whose deps are all satisfied
+        const ready = getReadyNodes(
+          pending,
+          new Set(running.keys()),
+          graph,
+          deployed,
         );
-        if (cleanup) {
-          node.cleanupFn = cleanup;
+
+        // 2. Deadlock check
+        if (ready.length === 0 && running.size === 0 && pending.size > 0) {
+          console.warn(
+            "[CReact] Deadlock detected: pending nodes have unsatisfied dependencies:",
+            [...pending],
+          );
+          break;
         }
 
-        const outputs = node.outputs ?? {};
+        // 3. Launch ready nodes
+        for (const nodeId of ready) {
+          if (totalExecutions >= MAX_EXECUTIONS) {
+            throw new Error(
+              `[CReact] Max handler executions (${MAX_EXECUTIONS}) exceeded — possible infinite cascade`,
+            );
+          }
+          totalExecutions++;
+          pending.delete(nodeId);
 
-        this.stateMachine.setResourceState(nodeId, "deployed");
-        await this.stateMachine.clearApplying(this.stackName);
-        await this.stateMachine.updateNodeOutputs(
-          this.stackName,
-          nodeId,
-          outputs,
-        );
-        await this.stateMachine.recordResourceApplied(
-          this.stackName,
-          nodeId,
-          outputs,
-        );
+          const handlerPromise = (async (): Promise<string> => {
+            const node = getNodeById(nodeId);
+            if (!node) return nodeId;
+
+            this.stateMachine.setResourceState(nodeId, "applying");
+            await this.stateMachine.addApplying(this.stackName, nodeId);
+
+            const cleanup = await node.handler(node.props, (outputs) =>
+              node.setOutputs(outputs),
+            );
+            if (cleanup) {
+              node.cleanupFn = cleanup;
+            }
+
+            const outputs = node.outputs ?? {};
+
+            this.stateMachine.setResourceState(nodeId, "deployed");
+            await this.stateMachine.removeApplying(this.stackName, nodeId);
+            await this.stateMachine.updateNodeOutputs(
+              this.stackName,
+              nodeId,
+              outputs,
+            );
+            await this.stateMachine.recordResourceApplied(
+              this.stackName,
+              nodeId,
+              outputs,
+            );
+
+            return nodeId;
+          })();
+
+          running.set(nodeId, handlerPromise);
+        }
+
+        // If nothing is running (all pending are blocked), break
+        if (running.size === 0) break;
+
+        // 4. Wait for any one handler to complete
+        let completedId: string;
+        try {
+          completedId = await Promise.race(running.values());
+        } catch (error) {
+          // Fail-fast: cancel remaining by awaiting all (let them settle)
+          const remaining = [...running.values()];
+          await Promise.allSettled(remaining);
+          throw error;
+        }
+
+        // 5. Move running → deployed
+        running.delete(completedId);
+        deployed.add(completedId);
+
+        // 6. Eager cascade: re-collect nodes from fiber tree
+        const newNodes = collectInstanceNodes(this.rootFiber!);
+        if (hasChanges(this.currentNodes, newNodes)) {
+          const cascadeChanges = reconcile(this.currentNodes, newNodes);
+          this.currentNodes = newNodes;
+
+          // Add new creates/updates to pending
+          for (const node of cascadeChanges.creates) {
+            if (!deployed.has(node.id) && !running.has(node.id)) {
+              pending.add(node.id);
+            }
+          }
+          for (const node of cascadeChanges.updates) {
+            if (!deployed.has(node.id) && !running.has(node.id)) {
+              pending.add(node.id);
+            }
+          }
+
+          // Defer mid-cascade deletes
+          deferredDeletes.push(...cascadeChanges.deletes);
+
+          // Rebuild graph with all current nodes
+          graph = buildDependencyGraph(this.currentNodes);
+        }
       }
 
-      // Re-collect nodes and check for any changes (new, removed, or prop changes)
-      const newNodes = collectInstanceNodes(this.rootFiber!);
+      // Process deferred deletes (reverse topological order)
+      if (deferredDeletes.length > 0) {
+        const deferredIds = deferredDeletes.map((n) => n.id);
+        const deferredGraph = buildDependencyGraph(deferredDeletes);
+        const deferredOrder = topologicalSort(
+          deferredIds,
+          deferredGraph,
+        ).reverse();
 
-      if (hasChanges(this.currentNodes, newNodes)) {
+        for (const nodeId of deferredOrder) {
+          const node = deferredDeletes.find((n) => n.id === nodeId);
+          if (node) {
+            this.stateMachine.setResourceState(nodeId, "applying");
+            if (node.cleanupFn) {
+              await node.cleanupFn();
+            }
+            await this.stateMachine.recordResourceDestroyed(
+              this.stackName,
+              nodeId,
+            );
+          }
+        }
+      }
+
+      // Safety-net final re-collect
+      const finalNodes = collectInstanceNodes(this.rootFiber!);
+      if (hasChanges(this.currentNodes, finalNodes)) {
         const prevNodes = this.currentNodes;
-        this.currentNodes = newNodes;
+        this.currentNodes = finalNodes;
         await this.applyChangesInternal(prevNodes);
       } else {
-        this.currentNodes = newNodes;
+        this.currentNodes = finalNodes;
         await this.stateMachine.completeDeployment(
           this.stackName,
           serializeNodes(this.currentNodes),

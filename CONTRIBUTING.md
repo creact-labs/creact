@@ -26,6 +26,7 @@ Thank you for your interest in contributing to CReact! This document provides gu
 ## Development Workflow
 
 1. Create a new branch for your feature or fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -33,16 +34,19 @@ Thank you for your interest in contributing to CReact! This document provides gu
 2. Make your changes
 
 3. Run tests to ensure everything works:
+
    ```bash
    npm test
    ```
 
 4. Commit your changes with a clear message:
+
    ```bash
    git commit -m "Add: description of your change"
    ```
 
 5. Push to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```

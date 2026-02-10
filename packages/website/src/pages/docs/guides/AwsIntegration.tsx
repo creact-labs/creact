@@ -8,16 +8,21 @@ const AwsIntegration: Component = () => {
     <>
       <h1>AWS Integration</h1>
       <p class="docs-description">
-        Build S3 bucket, file upload, and website deployment components using the AWS SDK.
+        Build S3 bucket, file upload, and website deployment components using
+        the AWS SDK.
       </p>
 
-      <DocHeading level={2} id="aws-provider">AWS Provider</DocHeading>
+      <DocHeading level={2} id="aws-provider">
+        AWS Provider
+      </DocHeading>
       <p>
-        Wrap AWS clients in a context provider. Child components access the S3 client, region,
-        and account ID via hooks. The provider fetches the account ID with <code>useAsyncOutput</code>
+        Wrap AWS clients in a context provider. Child components access the S3
+        client, region, and account ID via hooks. The provider fetches the
+        account ID with <code>useAsyncOutput</code>
         and waits for it with <code>Show</code> before rendering children.
       </p>
-      <DocCodeBlock code={`import { createContext, useContext, useAsyncOutput, Show, type CReactNode } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createContext, useContext, useAsyncOutput, Show, type CReactNode } from '@creact-labs/creact';
 import { S3Client } from '@aws-sdk/client-s3';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 
@@ -66,16 +71,22 @@ export function useAWSAccountId() {
   const ctx = useContext(AWSContext);
   if (!ctx) throw new Error('useAWSAccountId must be used inside <AWSProvider>');
   return ctx.accountId;
-}`} filename="providers/aws-provider.tsx" />
+}`}
+        filename="providers/aws-provider.tsx"
+      />
 
-      <DocHeading level={2} id="bucket-component">Bucket Component</DocHeading>
+      <DocHeading level={2} id="bucket-component">
+        Bucket Component
+      </DocHeading>
       <p>
-        The <code>Bucket</code> component creates an S3 bucket with <code>useAsyncOutput</code>.
-        It checks saved outputs to skip creation on restart. The cleanup handler empties
-        and deletes the bucket when the component is removed from the tree.
-        Children render only after the bucket is ready.
+        The <code>Bucket</code> component creates an S3 bucket with{" "}
+        <code>useAsyncOutput</code>. It checks saved outputs to skip creation on
+        restart. The cleanup handler empties and deletes the bucket when the
+        component is removed from the tree. Children render only after the
+        bucket is ready.
       </p>
-      <DocCodeBlock code={`import { useAsyncOutput, createEffect, createSignal, untrack, Show, access, type CReactNode, type MaybeAccessor } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { useAsyncOutput, createEffect, createSignal, untrack, Show, access, type CReactNode, type MaybeAccessor } from '@creact-labs/creact';
 import type { S3Client } from '@aws-sdk/client-s3';
 
 export function Bucket(props: {
@@ -117,14 +128,20 @@ export function Bucket(props: {
       {props.children}
     </Show>
   );
-}`} filename="components/bucket.tsx" />
+}`}
+        filename="components/bucket.tsx"
+      />
 
-      <DocHeading level={2} id="s3-file">S3 File Upload</DocHeading>
+      <DocHeading level={2} id="s3-file">
+        S3 File Upload
+      </DocHeading>
       <p>
-        The <code>S3File</code> component uploads content to S3. It hashes the content
-        and compares against saved state to skip uploads when nothing changed.
+        The <code>S3File</code> component uploads content to S3. It hashes the
+        content and compares against saved state to skip uploads when nothing
+        changed.
       </p>
-      <DocCodeBlock code={`import { useAsyncOutput, access, type MaybeAccessor } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { useAsyncOutput, access, type MaybeAccessor } from '@creact-labs/creact';
 import { createHash } from 'crypto';
 
 export function S3File(props: {
@@ -156,14 +173,20 @@ export function S3File(props: {
   );
 
   return <></>;
-}`} filename="shared/s3-file.tsx" />
+}`}
+        filename="shared/s3-file.tsx"
+      />
 
-      <DocHeading level={2} id="website-component">Composing a WebSite</DocHeading>
+      <DocHeading level={2} id="website-component">
+        Composing a WebSite
+      </DocHeading>
       <p>
-        <code>WebSite</code> composes <code>Bucket</code> and <code>S3File</code>. The bucket
-        creates and configures itself, then <code>S3File</code> uploads content as a child.
+        <code>WebSite</code> composes <code>Bucket</code> and{" "}
+        <code>S3File</code>. The bucket creates and configures itself, then{" "}
+        <code>S3File</code> uploads content as a child.
       </p>
-      <DocCodeBlock code={`import { createMemo, access, type MaybeAccessor } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createMemo, access, type MaybeAccessor } from '@creact-labs/creact';
 import { createHash } from 'crypto';
 
 export function WebSite(props: {
@@ -196,10 +219,15 @@ export function WebSite(props: {
       />
     </Bucket>
   );
-}`} filename="components/website.tsx" />
+}`}
+        filename="components/website.tsx"
+      />
 
-      <DocHeading level={2} id="multiple-resources">Deploying Multiple Sites</DocHeading>
-      <DocCodeBlock code={`import { For, Show, createSignal } from '@creact-labs/creact';
+      <DocHeading level={2} id="multiple-resources">
+        Deploying Multiple Sites
+      </DocHeading>
+      <DocCodeBlock
+        code={`import { For, Show, createSignal } from '@creact-labs/creact';
 
 function App() {
   const [sites, setSites] = createSignal<SiteConfig[]>([]);
@@ -221,12 +249,15 @@ function App() {
       </For>
     </AWSProvider>
   );
-}`} filename="app.tsx" />
+}`}
+        filename="app.tsx"
+      />
 
       <Callout type="warning">
         <p>
-          Implement cleanup handlers for AWS resources. Without cleanup, removing a
-          component from the tree won't delete the underlying resource.
+          Implement cleanup handlers for AWS resources. Without cleanup,
+          removing a component from the tree won't delete the underlying
+          resource.
         </p>
       </Callout>
     </>

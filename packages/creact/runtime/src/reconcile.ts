@@ -260,6 +260,28 @@ export function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 /**
+ * Find nodes in pending whose dependencies are all satisfied.
+ * A dependency is satisfied if it's deployed, or not in pending/running
+ * (i.e., it was already deployed in a prior pass or doesn't exist in this graph).
+ */
+export function getReadyNodes(
+  pending: Set<string>,
+  running: Set<string>,
+  graph: DependencyGraph,
+  deployed: Set<string>,
+): string[] {
+  const ready: string[] = [];
+  for (const nodeId of pending) {
+    const deps = graph.dependencies.get(nodeId) ?? [];
+    const allSatisfied = deps.every(
+      (d) => deployed.has(d) || (!pending.has(d) && !running.has(d)),
+    );
+    if (allSatisfied) ready.push(nodeId);
+  }
+  return ready;
+}
+
+/**
  * Check if there are new nodes that weren't in previous
  * Uses id for matching consistency with reconcile()
  */

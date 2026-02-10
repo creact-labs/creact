@@ -8,15 +8,20 @@ const AiIntegration: Component = () => {
     <>
       <h1>AI Integration</h1>
       <p class="docs-description">
-        Wrap the Anthropic SDK in a context provider and call Claude from reactive effects.
+        Wrap the Anthropic SDK in a context provider and call Claude from
+        reactive effects.
       </p>
 
-      <DocHeading level={2} id="provider">Claude Provider</DocHeading>
+      <DocHeading level={2} id="provider">
+        Claude Provider
+      </DocHeading>
       <p>
-        Wrap the Anthropic SDK in a context provider so any child component can call the API.
-        The provider creates the client once. Child components access it via <code>useComplete()</code>.
+        Wrap the Anthropic SDK in a context provider so any child component can
+        call the API. The provider creates the client once. Child components
+        access it via <code>useComplete()</code>.
       </p>
-      <DocCodeBlock code={`import { createContext, useContext, type CReactNode } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createContext, useContext, type CReactNode } from '@creact-labs/creact';
 import Anthropic from '@anthropic-ai/sdk';
 
 interface CompletionOptions {
@@ -56,15 +61,21 @@ export function useComplete() {
   const ctx = useContext(ClaudeContext);
   if (!ctx) throw new Error('useComplete must be used inside <ClaudeProvider>');
   return ctx.complete;
-}`} filename="providers/claude-provider.tsx" />
+}`}
+        filename="providers/claude-provider.tsx"
+      />
 
-      <DocHeading level={2} id="generate-component">Generation Component</DocHeading>
+      <DocHeading level={2} id="generate-component">
+        Generation Component
+      </DocHeading>
       <p>
-        The <code>GenerateHtml</code> component calls <code>useComplete()</code> inside a <code>createEffect</code>.
-        When the prompt signal changes, the effect fires, calls the API, and passes the result
-        to a callback. The <code>untrack</code> guard prevents duplicate generations.
+        The <code>GenerateHtml</code> component calls <code>useComplete()</code>{" "}
+        inside a <code>createEffect</code>. When the prompt signal changes, the
+        effect fires, calls the API, and passes the result to a callback. The{" "}
+        <code>untrack</code> guard prevents duplicate generations.
       </p>
-      <DocCodeBlock code={`import { createEffect, createSignal, untrack, access, type MaybeAccessor, type Accessor } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createEffect, createSignal, untrack, access, type MaybeAccessor, type Accessor } from '@creact-labs/creact';
 
 const SYSTEM_PROMPT = \`You are an HTML generator. Output ONLY the HTML content, no markdown or explanations.\`;
 
@@ -99,15 +110,21 @@ export function GenerateHtml(props: GenerateHtmlProps) {
   });
 
   return <></>;
-}`} filename="components/generate-html.tsx" />
+}`}
+        filename="components/generate-html.tsx"
+      />
 
-      <DocHeading level={2} id="reactive-pipeline">Reactive Pipeline</DocHeading>
+      <DocHeading level={2} id="reactive-pipeline">
+        Reactive Pipeline
+      </DocHeading>
       <p>
-        The app wires generation and deployment together with <code>Show</code>. When a pending
-        generation exists, <code>GenerateHtml</code> runs. When it produces content, <code>Write</code> saves it
-        to disk, and the site list updates, which triggers AWS deployment downstream.
+        The app wires generation and deployment together with <code>Show</code>.
+        When a pending generation exists, <code>GenerateHtml</code> runs. When
+        it produces content, <code>Write</code> saves it to disk, and the site
+        list updates, which triggers AWS deployment downstream.
       </p>
-      <DocCodeBlock code={`import { Show, createSignal } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { Show, createSignal } from '@creact-labs/creact';
 
 function App() {
   const [pendingGeneration, setPendingGeneration] = createSignal<SiteConfig | null>(null);
@@ -148,12 +165,14 @@ function App() {
       </Show>
     </ClaudeProvider>
   );
-}`} filename="app.tsx" />
+}`}
+        filename="app.tsx"
+      />
 
       <Callout type="tip">
         <p>
-          AI outputs are persisted like any other <code>useAsyncOutput</code> result.
-          The generation only runs again if its input props change.
+          AI outputs are persisted like any other <code>useAsyncOutput</code>{" "}
+          result. The generation only runs again if its input props change.
         </p>
       </Callout>
     </>

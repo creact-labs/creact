@@ -10,7 +10,7 @@
 
 ## Getting Started
 
-CReact is a meta-runtime for building domain-specific, reactive execution engines. Declare what should exist using JSX — infrastructure, side effects, AI calls — and the runtime reconciles the difference, tracking dependencies, managing lifecycle, and persisting state across restarts.
+Use JSX to automate durable workflows. Declare what should exist, and runtime reconciles the difference, tracking dependencies, managing lifecycle, and persisting state across restarts.
 
 - Visit the [documentation](https://github.com/creact-labs/creact/tree/main/docs) to get started with CReact.
 - Check out the [AI-Powered Website Generator](https://github.com/creact-labs/ai-powered-aws-website-generator) to see a full demo built with CReact.
@@ -26,4 +26,3 @@ The CReact community can be found on [GitHub Discussions](https://github.com/cre
 ## Contributing
 
 Contributions to CReact are welcome and highly appreciated. However, before you jump right into it, we would like you to review our [Contribution Guidelines](./CONTRIBUTING.md) to make sure you have a smooth experience contributing to CReact.
-

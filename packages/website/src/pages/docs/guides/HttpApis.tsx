@@ -8,22 +8,30 @@ const HttpApis: Component = () => {
     <>
       <h1>HTTP APIs and Channels</h1>
       <p class="docs-description">
-        Build a channel component that exposes HTTP endpoints and feeds input into the reactive system.
+        Build a channel component that exposes HTTP endpoints and feeds input
+        into the reactive system.
       </p>
 
-      <DocHeading level={2} id="channels">What Are Channels?</DocHeading>
+      <DocHeading level={2} id="channels">
+        What Are Channels?
+      </DocHeading>
       <p>
-        A channel is a component that starts an HTTP server on mount and stops it on cleanup.
-        Incoming requests call callback props, which update signals and trigger downstream components.
+        A channel is a component that starts an HTTP server on mount and stops
+        it on cleanup. Incoming requests call callback props, which update
+        signals and trigger downstream components.
       </p>
 
-      <DocHeading level={2} id="http-server">Channel Component</DocHeading>
+      <DocHeading level={2} id="http-server">
+        Channel Component
+      </DocHeading>
       <p>
-        The <code>Channel</code> component starts a Hono server inside <code>onMount</code>.
-        Route handlers are passed in as props. <code>onCleanup</code> shuts down the server
-        when the component is removed.
+        The <code>Channel</code> component starts a Hono server inside{" "}
+        <code>onMount</code>. Route handlers are passed in as props.{" "}
+        <code>onCleanup</code> shuts down the server when the component is
+        removed.
       </p>
-      <DocCodeBlock code={`import { onMount, onCleanup } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { onMount, onCleanup } from '@creact-labs/creact';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
@@ -68,15 +76,21 @@ export function Channel(props: ChannelProps) {
   onCleanup(() => server?.close());
 
   return <></>;
-}`} filename="components/channel.tsx" />
+}`}
+        filename="components/channel.tsx"
+      />
 
-      <DocHeading level={2} id="reactive-flow">Connecting to the Reactive System</DocHeading>
+      <DocHeading level={2} id="reactive-flow">
+        Connecting to the Reactive System
+      </DocHeading>
       <p>
-        The channel's callback props call <code>setSites</code>, <code>setPendingGeneration</code>,
-        and other setters. Those signal updates trigger effects and <code>Show</code>/<code>For</code>
+        The channel's callback props call <code>setSites</code>,{" "}
+        <code>setPendingGeneration</code>, and other setters. Those signal
+        updates trigger effects and <code>Show</code>/<code>For</code>
         components downstream.
       </p>
-      <DocCodeBlock code={`import { createSignal, For, Show } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createSignal, For, Show } from '@creact-labs/creact';
 
 function App() {
   const [sites, setSites] = createSignal<SiteConfig[]>([]);
@@ -109,12 +123,14 @@ function App() {
       </For>
     </>
   );
-}`} filename="app.tsx" />
+}`}
+        filename="app.tsx"
+      />
 
       <Callout type="info">
         <p>
-          The <code>onCleanup</code> callback releases the port when the component is removed
-          or the app stops.
+          The <code>onCleanup</code> callback releases the port when the
+          component is removed or the app stops.
         </p>
       </Callout>
     </>

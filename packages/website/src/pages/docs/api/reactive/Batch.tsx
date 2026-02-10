@@ -7,30 +7,62 @@ const Batch: Component = () => {
   return (
     <>
       <h1>batch</h1>
-      <p class="docs-description">Groups multiple signal updates into a single computation pass.</p>
+      <p class="docs-description">
+        Groups multiple signal updates into a single computation pass.
+      </p>
 
-      <DocCodeBlock code={`batch(() => {
+      <DocCodeBlock
+        code={`batch(() => {
   setA(1);
   setB(2);
   setC(3);
-}); // Effects run once, not three times`} />
+}); // Effects run once, not three times`}
+      />
 
-      <DocHeading level={2} id="reference">Reference</DocHeading>
+      <DocHeading level={2} id="reference">
+        Reference
+      </DocHeading>
       <ApiSignature name="batch" signature="batch<T>(fn: () => T): T" />
 
-      <DocHeading level={3} id="parameters">Parameters</DocHeading>
+      <DocHeading level={3} id="parameters">
+        Parameters
+      </DocHeading>
       <table>
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td><code>fn</code></td><td><code>() =&gt; T</code></td><td>Function containing signal updates. All updates are deferred until the function completes.</td></tr>
+          <tr>
+            <td>
+              <code>fn</code>
+            </td>
+            <td>
+              <code>() =&gt; T</code>
+            </td>
+            <td>
+              Function containing signal updates. All updates are deferred until
+              the function completes.
+            </td>
+          </tr>
         </tbody>
       </table>
 
-      <DocHeading level={3} id="returns">Returns</DocHeading>
-      <p>The return value of <code>fn</code>.</p>
+      <DocHeading level={3} id="returns">
+        Returns
+      </DocHeading>
+      <p>
+        The return value of <code>fn</code>.
+      </p>
 
-      <DocHeading level={2} id="usage">Usage</DocHeading>
-      <DocCodeBlock code={`const [firstName, setFirstName] = createSignal('');
+      <DocHeading level={2} id="usage">
+        Usage
+      </DocHeading>
+      <DocCodeBlock
+        code={`const [firstName, setFirstName] = createSignal('');
 const [lastName, setLastName] = createSignal('');
 
 createEffect(() => {
@@ -41,7 +73,8 @@ createEffect(() => {
 batch(() => {
   setFirstName('John');
   setLastName('Doe');
-}); // Logs: "John Doe" (once)`} />
+}); // Logs: "John Doe" (once)`}
+      />
     </>
   );
 };

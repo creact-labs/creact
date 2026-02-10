@@ -20,7 +20,9 @@ const PrevNext: Component = () => {
 
   const next = () => {
     const idx = currentIndex();
-    return idx >= 0 && idx < docPages.length - 1 ? docPages[idx + 1] : undefined;
+    return idx >= 0 && idx < docPages.length - 1
+      ? docPages[idx + 1]
+      : undefined;
   };
 
   return (

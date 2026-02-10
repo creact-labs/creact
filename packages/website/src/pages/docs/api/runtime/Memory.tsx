@@ -7,9 +7,13 @@ const MemoryApi: Component = () => {
   return (
     <>
       <h1>Memory</h1>
-      <p class="docs-description">The Memory interface defines how CReact persists state between runs.</p>
+      <p class="docs-description">
+        The Memory interface defines how CReact persists state between runs.
+      </p>
 
-      <DocHeading level={2} id="reference">Reference</DocHeading>
+      <DocHeading level={2} id="reference">
+        Reference
+      </DocHeading>
       <ApiSignature
         name="Memory"
         signature={`interface Memory {
@@ -25,28 +29,78 @@ const MemoryApi: Component = () => {
 }`}
       />
 
-      <DocHeading level={3} id="methods">Required Methods</DocHeading>
+      <DocHeading level={3} id="methods">
+        Required Methods
+      </DocHeading>
       <table>
-        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td><code>getState(stackName)</code></td><td>Retrieve previously saved state. Return <code>null</code> for first run.</td></tr>
-          <tr><td><code>saveState(stackName, state)</code></td><td>Persist the current state after a render cycle.</td></tr>
+          <tr>
+            <td>
+              <code>getState(stackName)</code>
+            </td>
+            <td>
+              Retrieve previously saved state. Return <code>null</code> for
+              first run.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>saveState(stackName, state)</code>
+            </td>
+            <td>Persist the current state after a render cycle.</td>
+          </tr>
         </tbody>
       </table>
 
-      <DocHeading level={3} id="optional-methods">Optional Methods</DocHeading>
+      <DocHeading level={3} id="optional-methods">
+        Optional Methods
+      </DocHeading>
       <table>
-        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td><code>acquireLock(stackName, holder, ttlSeconds)</code></td><td>Acquire a deploy lock to prevent concurrent deploys.</td></tr>
-          <tr><td><code>releaseLock(stackName)</code></td><td>Release a previously acquired lock.</td></tr>
-          <tr><td><code>appendAuditLog(stackName, entry)</code></td><td>Append an entry to the deployment audit trail.</td></tr>
-          <tr><td><code>getAuditLog(stackName, limit?)</code></td><td>Retrieve audit log entries for a stack.</td></tr>
+          <tr>
+            <td>
+              <code>acquireLock(stackName, holder, ttlSeconds)</code>
+            </td>
+            <td>Acquire a deploy lock to prevent concurrent deploys.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>releaseLock(stackName)</code>
+            </td>
+            <td>Release a previously acquired lock.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>appendAuditLog(stackName, entry)</code>
+            </td>
+            <td>Append an entry to the deployment audit trail.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>getAuditLog(stackName, limit?)</code>
+            </td>
+            <td>Retrieve audit log entries for a stack.</td>
+          </tr>
         </tbody>
       </table>
 
-      <DocHeading level={2} id="usage">Usage</DocHeading>
-      <DocCodeBlock code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
+      <DocHeading level={2} id="usage">
+        Usage
+      </DocHeading>
+      <DocCodeBlock
+        code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -65,7 +119,9 @@ class FileMemory implements Memory {
     await mkdir(this.dir, { recursive: true });
     await writeFile(join(this.dir, \`\${stackName}.json\`), JSON.stringify(state, null, 2));
   }
-}`} filename="memory.ts" />
+}`}
+        filename="memory.ts"
+      />
     </>
   );
 };

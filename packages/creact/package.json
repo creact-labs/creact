@@ -1,8 +1,8 @@
 {
   "name": "@creact-labs/creact",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
-  "description": "CReact is a meta-runtime for building domain-specific, reactive execution engines.",
+  "description": "Use JSX to automate durable workflows",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "exports": {
@@ -79,6 +79,7 @@
     "LICENSE"
   ],
   "dependencies": {
+    "ora": "^9.3.0",
     "picocolors": "^1.1.1",
     "tsx": "^4.20.6"
   },

@@ -32,8 +32,7 @@ const Hero: Component = () => {
           <h1 class="hero-title">CReact</h1>
         </div>
         <p class="hero-subtitle">
-          A meta-runtime for building domain-specific, reactive execution
-          engines.
+          Use JSX to automate durable workflows
         </p>
         <p class="hero-description">
           Providers define the laws of your domain — cloud, AI, databases,
