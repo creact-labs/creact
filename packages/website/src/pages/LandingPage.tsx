@@ -44,8 +44,7 @@ const LandingPage: Component = () => {
           <h1 class="hero-title">CReact</h1>
         </div>
         <p class="hero-subtitle">
-          A meta-runtime for building domain-specific, reactive execution
-          engines.
+          Use JSX to automate durable workflows
         </p>
         <div class="hero-code">
           <div class="code-box">

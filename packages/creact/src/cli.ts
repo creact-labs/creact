@@ -23,6 +23,18 @@ const { version } = require("../../package.json");
 
 let currentResult: { dispose?: () => void } | null = null;
 
+// Handle Ctrl+C at any point — including during startup/await.
+// Must stop ora spinner first since it hooks stdin and swallows SIGINT.
+function shutdown() {
+  logger.stopSpinner();
+  if (currentResult?.dispose) {
+    currentResult.dispose();
+  }
+  process.exit(0);
+}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
 async function runEntrypoint(entrypoint: string) {
   // Dispose previous render before restarting
   if (currentResult?.dispose) {

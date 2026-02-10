@@ -27,6 +27,9 @@ function stopSpinner() {
   }
 }
 
+/** Stop any active spinner — exported so the SIGINT handler can call it */
+export { stopSpinner };
+
 // ── Public API ───────────────────────────────────────────────────
 
 export function banner(version: string) {
@@ -38,7 +41,7 @@ export function banner(version: string) {
 }
 
 export function typeCheckStart() {
-  spinner = ora({ text: "Type checking…", indent: 2 }).start();
+  spinner = ora({ text: "Type checking…", indent: 2, discardStdin: false }).start();
 }
 
 export function typeCheckPassed(fileCount: number, durationMs: number) {
@@ -96,7 +99,7 @@ export function typeCheckSkipped(reason: string) {
 }
 
 export function appStarting() {
-  spinner = ora({ text: "Starting app…", indent: 2 }).start();
+  spinner = ora({ text: "Starting app…", indent: 2, discardStdin: false }).start();
 }
 
 export function appStarted() {
@@ -149,7 +152,7 @@ export function fileChanged(filename: string) {
 }
 
 export function restarting() {
-  spinner = ora({ text: "Restarting…", indent: 2 }).start();
+  spinner = ora({ text: "Restarting…", indent: 2, discardStdin: false }).start();
 }
 
 export function help() {
