@@ -1,6 +1,6 @@
 {
   "name": "@creact-labs/creact",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "description": "Use JSX to automate durable workflows",
   "main": "dist/src/index.js",
