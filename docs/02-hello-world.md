@@ -7,6 +7,7 @@ In this chapter, we'll deploy a "Hello World" website to AWS S3. This builds on 
 ## Prerequisites
 
 You'll need:
+
 - An AWS account with credentials configured (`aws configure`)
 - The project from Chapter 1
 
@@ -25,13 +26,13 @@ First, let's create the low-level AWS functions.
 Create `src/aws/identity.ts`:
 
 ```tsx
-import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
+import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
 
 export async function getAccountId(region: string): Promise<string> {
   const sts = new STSClient({ region });
   const identity = await sts.send(new GetCallerIdentityCommand({}));
   if (!identity.Account) {
-    throw new Error('Failed to get AWS account ID');
+    throw new Error("Failed to get AWS account ID");
   }
   return identity.Account;
 }
@@ -48,71 +49,93 @@ import {
   PutBucketPolicyCommand,
   PutBucketTaggingCommand,
   PutPublicAccessBlockCommand,
-} from '@aws-sdk/client-s3';
+} from "@aws-sdk/client-s3";
 
-export async function createBucket(s3: S3Client, bucketName: string): Promise<void> {
+export async function createBucket(
+  s3: S3Client,
+  bucketName: string,
+): Promise<void> {
   try {
     await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
   } catch (err: any) {
     // Idempotent: only ignore if we already own the bucket
     // BucketAlreadyExists means someone else owns it - must fail
-    if (err.name === 'BucketAlreadyOwnedByYou') {
+    if (err.name === "BucketAlreadyOwnedByYou") {
       return;
     }
     throw err;
   }
 }
 
-export async function deleteBucket(s3: S3Client, bucketName: string): Promise<void> {
+export async function deleteBucket(
+  s3: S3Client,
+  bucketName: string,
+): Promise<void> {
   await s3.send(new DeleteBucketCommand({ Bucket: bucketName }));
 }
 
 export async function tagBucket(
   s3: S3Client,
   bucketName: string,
-  tags: Record<string, string>
+  tags: Record<string, string>,
 ): Promise<void> {
-  await s3.send(new PutBucketTaggingCommand({
-    Bucket: bucketName,
-    Tagging: {
-      TagSet: Object.entries(tags).map(([Key, Value]) => ({ Key, Value })),
-    },
-  }));
-}
-
-export async function configureBucketAsWebsite(s3: S3Client, bucketName: string): Promise<void> {
-  await s3.send(new PutBucketWebsiteCommand({
-    Bucket: bucketName,
-    WebsiteConfiguration: {
-      IndexDocument: { Suffix: 'index.html' },
-    },
-  }));
-}
-
-export async function makeBucketPublic(s3: S3Client, bucketName: string): Promise<void> {
-  // Disable S3 Block Public Access first
-  await s3.send(new PutPublicAccessBlockCommand({
-    Bucket: bucketName,
-    PublicAccessBlockConfiguration: {
-      BlockPublicAcls: false,
-      IgnorePublicAcls: false,
-      BlockPublicPolicy: false,
-      RestrictPublicBuckets: false,
-    },
-  }));
-
-  await s3.send(new PutBucketPolicyCommand({
-    Bucket: bucketName,
-    Policy: JSON.stringify({
-      Version: '2012-10-17',
-      Statement: [{
-        Effect: 'Allow',
-        Principal: '*',
-        Action: ['s3:GetObject'],
-        Resource: [`arn:aws:s3:::${bucketName}/*`],
-      }],
+  await s3.send(
+    new PutBucketTaggingCommand({
+      Bucket: bucketName,
+      Tagging: {
+        TagSet: Object.entries(tags).map(([Key, Value]) => ({ Key, Value })),
+      },
     }),
-  }));
+  );
+}
+
+export async function configureBucketAsWebsite(
+  s3: S3Client,
+  bucketName: string,
+): Promise<void> {
+  await s3.send(
+    new PutBucketWebsiteCommand({
+      Bucket: bucketName,
+      WebsiteConfiguration: {
+        IndexDocument: { Suffix: "index.html" },
+      },
+    }),
+  );
+}
+
+export async function makeBucketPublic(
+  s3: S3Client,
+  bucketName: string,
+): Promise<void> {
+  // Disable S3 Block Public Access first
+  await s3.send(
+    new PutPublicAccessBlockCommand({
+      Bucket: bucketName,
+      PublicAccessBlockConfiguration: {
+        BlockPublicAcls: false,
+        IgnorePublicAcls: false,
+        BlockPublicPolicy: false,
+        RestrictPublicBuckets: false,
+      },
+    }),
+  );
+
+  await s3.send(
+    new PutBucketPolicyCommand({
+      Bucket: bucketName,
+      Policy: JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: "*",
+            Action: ["s3:GetObject"],
+            Resource: [`arn:aws:s3:::${bucketName}/*`],
+          },
+        ],
+      }),
+    }),
+  );
 }
 
 export function getWebsiteUrl(bucketName: string, region: string): string {
@@ -128,36 +151,52 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
-} from '@aws-sdk/client-s3';
+} from "@aws-sdk/client-s3";
 
 export async function uploadObject(
   s3: S3Client,
   bucketName: string,
   key: string,
   body: string,
-  contentType: string
+  contentType: string,
 ): Promise<void> {
-  await s3.send(new PutObjectCommand({
-    Bucket: bucketName,
-    Key: key,
-    Body: body,
-    ContentType: contentType,
-  }));
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    }),
+  );
 }
 
-export async function deleteObject(s3: S3Client, bucketName: string, key: string): Promise<void> {
-  await s3.send(new DeleteObjectCommand({
-    Bucket: bucketName,
-    Key: key,
-  }));
+export async function deleteObject(
+  s3: S3Client,
+  bucketName: string,
+  key: string,
+): Promise<void> {
+  await s3.send(
+    new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+    }),
+  );
 }
 
-export async function listObjects(s3: S3Client, bucketName: string): Promise<string[]> {
-  const response = await s3.send(new ListObjectsV2Command({ Bucket: bucketName }));
+export async function listObjects(
+  s3: S3Client,
+  bucketName: string,
+): Promise<string[]> {
+  const response = await s3.send(
+    new ListObjectsV2Command({ Bucket: bucketName }),
+  );
   return (response.Contents ?? []).map((obj) => obj.Key!).filter(Boolean);
 }
 
-export async function emptyBucket(s3: S3Client, bucketName: string): Promise<void> {
+export async function emptyBucket(
+  s3: S3Client,
+  bucketName: string,
+): Promise<void> {
   const keys = await listObjects(s3, bucketName);
   for (const key of keys) {
     await deleteObject(s3, bucketName, key);
@@ -168,35 +207,40 @@ export async function emptyBucket(s3: S3Client, bucketName: string): Promise<voi
 Create `src/aws/cleanup.ts`:
 
 ```tsx
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client } from "@aws-sdk/client-s3";
 import {
   ResourceGroupsTaggingAPIClient,
   GetResourcesCommand,
-} from '@aws-sdk/client-resource-groups-tagging-api';
+} from "@aws-sdk/client-resource-groups-tagging-api";
 
-import { deleteBucket } from './bucket';
-import { emptyBucket } from './object';
+import { deleteBucket } from "./bucket";
+import { emptyBucket } from "./object";
 
 export async function findBucketsByTags(
   region: string,
-  tags: Record<string, string>
+  tags: Record<string, string>,
 ): Promise<string[]> {
   const tagging = new ResourceGroupsTaggingAPIClient({ region });
 
-  const resources = await tagging.send(new GetResourcesCommand({
-    TagFilters: Object.entries(tags).map(([Key, Value]) => ({ Key, Values: [Value] })),
-    ResourceTypeFilters: ['s3:bucket'],
-  }));
+  const resources = await tagging.send(
+    new GetResourcesCommand({
+      TagFilters: Object.entries(tags).map(([Key, Value]) => ({
+        Key,
+        Values: [Value],
+      })),
+      ResourceTypeFilters: ["s3:bucket"],
+    }),
+  );
 
   return (resources.ResourceTagMappingList ?? [])
-    .map((r) => r.ResourceARN?.split(':::')[1])
+    .map((r) => r.ResourceARN?.split(":::")[1])
     .filter((name): name is string => Boolean(name));
 }
 
 export async function cleanupBuckets(
   s3: S3Client,
   region: string,
-  tags: Record<string, string>
+  tags: Record<string, string>,
 ): Promise<string[]> {
   const buckets = await findBucketsByTags(region, tags);
 
@@ -213,10 +257,10 @@ export async function cleanupBuckets(
 Create `src/aws/index.ts`:
 
 ```tsx
-export * from './bucket';
-export * from './object';
-export * from './cleanup';
-export * from './identity';
+export * from "./bucket";
+export * from "./object";
+export * from "./cleanup";
+export * from "./identity";
 ```
 
 ---
@@ -228,11 +272,18 @@ Now we create a CReact component that provides AWS configuration to its children
 Create `src/components/aws.tsx`:
 
 ```tsx
-import { createContext, useContext, useAsyncOutput, createEffect, Show, type CReactNode } from '@creact-labs/creact';
-import { S3Client } from '@aws-sdk/client-s3';
+import {
+  createContext,
+  useContext,
+  useAsyncOutput,
+  createEffect,
+  Show,
+  type CReactNode,
+} from "@creact-labs/creact";
+import { S3Client } from "@aws-sdk/client-s3";
 
-import { STACK_NAME } from '../../index';
-import { cleanupBuckets, getAccountId } from '../aws';
+import { STACK_NAME } from "../../index";
+import { cleanupBuckets, getAccountId } from "../aws";
 
 type Tags = Record<string, string>;
 
@@ -248,10 +299,10 @@ interface AWSProps {
   children: CReactNode;
 }
 
-const SHOULD_CLEANUP = process.env.SHOULD_CLEANUP === 'true';
+const SHOULD_CLEANUP = process.env.SHOULD_CLEANUP === "true";
 
 export function AWS(props: AWSProps) {
-  const region = props.region ?? 'us-east-1';
+  const region = props.region ?? "us-east-1";
   const s3 = new S3Client({ region });
 
   const tags: Tags = {
@@ -267,7 +318,9 @@ export function AWS(props: AWSProps) {
   return (
     <Show when={() => aws.accountId()}>
       {(accountId) => (
-        <AWSContext.Provider value={{ s3, region, tags, accountId: accountId() }}>
+        <AWSContext.Provider
+          value={{ s3, region, tags, accountId: accountId() }}
+        >
           <Show when={!SHOULD_CLEANUP} fallback={<Cleanup key="cleanup" />}>
             {props.children}
           </Show>
@@ -279,25 +332,25 @@ export function AWS(props: AWSProps) {
 
 export function useS3(): S3Client {
   const ctx = useContext(AWSContext);
-  if (!ctx) throw new Error('useS3 must be used inside <AWS>');
+  if (!ctx) throw new Error("useS3 must be used inside <AWS>");
   return ctx.s3;
 }
 
 export function useAWSTags(): Tags {
   const ctx = useContext(AWSContext);
-  if (!ctx) throw new Error('useAWSTags must be used inside <AWS>');
+  if (!ctx) throw new Error("useAWSTags must be used inside <AWS>");
   return ctx.tags;
 }
 
 export function useAWSRegion(): string {
   const ctx = useContext(AWSContext);
-  if (!ctx) throw new Error('useAWSRegion must be used inside <AWS>');
+  if (!ctx) throw new Error("useAWSRegion must be used inside <AWS>");
   return ctx.region;
 }
 
 export function useAWSAccountId(): string {
   const ctx = useContext(AWSContext);
-  if (!ctx) throw new Error('useAWSAccountId must be used inside <AWS>');
+  if (!ctx) throw new Error("useAWSAccountId must be used inside <AWS>");
   return ctx.accountId;
 }
 
@@ -306,33 +359,36 @@ function Cleanup() {
   const region = useAWSRegion();
   const tags = useAWSTags();
 
-  const cleanup = useAsyncOutput({ region, tags }, async (props, setOutputs) => {
-    // Skip if already complete
-    let isComplete = false;
-    setOutputs(prev => {
-      isComplete = prev?.status === 'complete';
-      return isComplete ? prev : { status: 'pending' };
-    });
-    if (isComplete) return;
+  const cleanup = useAsyncOutput(
+    { region, tags },
+    async (props, setOutputs) => {
+      // Skip if already complete
+      let isComplete = false;
+      setOutputs((prev) => {
+        isComplete = prev?.status === "complete";
+        return isComplete ? prev : { status: "pending" };
+      });
+      if (isComplete) return;
 
-    setOutputs({ status: 'finding_resources' });
+      setOutputs({ status: "finding_resources" });
 
-    const deleted = await cleanupBuckets(s3, props.region, props.tags);
+      const deleted = await cleanupBuckets(s3, props.region, props.tags);
 
-    setOutputs({ status: 'complete', deleted });
-  });
+      setOutputs({ status: "complete", deleted });
+    },
+  );
 
   createEffect(() => {
-    const status = cleanup.status() ?? 'pending';
+    const status = cleanup.status() ?? "pending";
     const deleted = cleanup.deleted() as string[] | undefined;
 
-    if (status === 'complete') {
+    if (status === "complete") {
       if (deleted && deleted.length > 0) {
-        console.log(`Cleanup complete. Deleted: ${deleted.join(', ')}`);
+        console.log(`Cleanup complete. Deleted: ${deleted.join(", ")}`);
       } else {
-        console.log('Cleanup complete. Nothing to delete.');
+        console.log("Cleanup complete. Nothing to delete.");
       }
-    } else if (status !== 'pending') {
+    } else if (status !== "pending") {
       console.log(`Cleanup status: ${status}`);
     }
   });
@@ -347,15 +403,15 @@ Notice how `<Show when={() => aws.accountId()}>` waits for the account ID before
 
 ## Step 3: The Website Component
 
-Now the fun part—a component that deploys a website. Notice that the async output handlers in CReact need to be idempotent 
+Now the fun part—a component that deploys a website. Notice that the async output handlers in CReact need to be idempotent
 
 Create `src/components/website.tsx`:
 
 ```tsx
-import { useAsyncOutput, createEffect } from '@creact-labs/creact';
+import { useAsyncOutput, createEffect } from "@creact-labs/creact";
 
-import { useS3, useAWSTags, useAWSRegion, useAWSAccountId } from './aws';
-import { STACK_NAME } from '../../index';
+import { useS3, useAWSTags, useAWSRegion, useAWSAccountId } from "./aws";
+import { STACK_NAME } from "../../index";
 import {
   createBucket,
   deleteBucket,
@@ -365,7 +421,7 @@ import {
   getWebsiteUrl,
   uploadObject,
   deleteObject,
-} from '../aws';
+} from "../aws";
 
 interface WebSiteProps {
   content: string;
@@ -385,28 +441,34 @@ export function WebSite(props: WebSiteProps) {
     async (props, setOutputs) => {
       // Skip if already deployed
       let isDeployed = false;
-      setOutputs(prev => {
-        isDeployed = prev?.status === 'deployed';
-        return isDeployed ? prev : { status: 'not_deployed' };
+      setOutputs((prev) => {
+        isDeployed = prev?.status === "deployed";
+        return isDeployed ? prev : { status: "not_deployed" };
       });
       if (isDeployed) return;
 
-      setOutputs({ status: 'creating_bucket' });
+      setOutputs({ status: "creating_bucket" });
       await createBucket(s3, props.bucketName);
       await tagBucket(s3, props.bucketName, props.tags);
       await configureBucketAsWebsite(s3, props.bucketName);
       await makeBucketPublic(s3, props.bucketName);
 
-      setOutputs({ status: 'uploading' });
-      await uploadObject(s3, props.bucketName, 'index.html', props.content, 'text/html');
+      setOutputs({ status: "uploading" });
+      await uploadObject(
+        s3,
+        props.bucketName,
+        "index.html",
+        props.content,
+        "text/html",
+      );
 
       const url = getWebsiteUrl(props.bucketName, props.region);
-      setOutputs({ status: 'deployed', url, bucketName: props.bucketName });
+      setOutputs({ status: "deployed", url, bucketName: props.bucketName });
 
       // Cleanup function—runs when component is removed
       return async () => {
         console.log(`Destroying: ${props.bucketName}`);
-        await deleteObject(s3, props.bucketName, 'index.html');
+        await deleteObject(s3, props.bucketName, "index.html");
         await deleteBucket(s3, props.bucketName);
         console.log(`Destroyed: ${props.bucketName}`);
       };
@@ -418,7 +480,7 @@ export function WebSite(props: WebSiteProps) {
     if (!status) return; // Don't log initial undefined state
 
     const url = website.url();
-    if (status === 'deployed' && url) {
+    if (status === "deployed" && url) {
       console.log(`Website deployed: ${url}`);
     } else {
       console.log(`Website status: ${status}`);
@@ -438,9 +500,9 @@ Let's add a component that reads files from disk.
 Create `src/components/read.tsx`:
 
 ```tsx
-import { useAsyncOutput, Show, type CReactNode } from '@creact-labs/creact';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { useAsyncOutput, Show, type CReactNode } from "@creact-labs/creact";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 interface ReadProps {
   path: string;
@@ -452,7 +514,7 @@ export function Read(props: ReadProps) {
   const read = useAsyncOutput(
     { path: props.path, file: props.file },
     async (props, setOutputs) => {
-      const content = readFileSync(join(props.path, props.file), 'utf-8');
+      const content = readFileSync(join(props.path, props.file), "utf-8");
       setOutputs({ content });
     },
   );
@@ -466,6 +528,7 @@ export function Read(props: ReadProps) {
 ```
 
 This component:
+
 - Reads a file and stores its content as output
 - Uses render props (`children` as a function) to pass content to children
 - Uses `<Show>` to wait until content is available
@@ -477,14 +540,14 @@ This component:
 Update `index.tsx` to export the stack name:
 
 ```tsx
-import { render } from '@creact-labs/creact';
-import { FileMemory } from './src/memory';
-import { App } from './src/app';
+import { render } from "@creact-labs/creact";
+import { FileMemory } from "./src/memory";
+import { App } from "./src/app";
 
-export const STACK_NAME = 'my-app';
+export const STACK_NAME = "my-app";
 
-export default async function() {
-  const memory = new FileMemory('./.state');
+export default async function () {
+  const memory = new FileMemory("./.state");
   return render(() => <App />, memory, STACK_NAME);
 }
 ```
@@ -498,9 +561,9 @@ Create `resources/my-frontend/index.html`:
 Update `src/app.tsx`:
 
 ```tsx
-import { AWS } from './components/aws';
-import { Read } from './components/read';
-import { WebSite } from './components/website';
+import { AWS } from "./components/aws";
+import { Read } from "./components/read";
+import { WebSite } from "./components/website";
 
 export function App() {
   return (

@@ -79,6 +79,7 @@
     "LICENSE"
   ],
   "dependencies": {
+    "ora": "^9.3.0",
     "picocolors": "^1.1.1",
     "tsx": "^4.20.6"
   },

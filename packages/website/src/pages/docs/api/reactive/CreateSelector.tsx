@@ -7,32 +7,70 @@ const CreateSelector: Component = () => {
   return (
     <>
       <h1>createSelector</h1>
-      <p class="docs-description">Creates an O(2) selection signal. Only the previous and new selection re-evaluate.</p>
+      <p class="docs-description">
+        Creates an O(2) selection signal. Only the previous and new selection
+        re-evaluate.
+      </p>
 
-      <DocHeading level={2} id="reference">Reference</DocHeading>
+      <DocHeading level={2} id="reference">
+        Reference
+      </DocHeading>
       <ApiSignature
         name="createSelector"
         signature="createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean"
       />
 
-      <DocHeading level={3} id="parameters">Parameters</DocHeading>
+      <DocHeading level={3} id="parameters">
+        Parameters
+      </DocHeading>
       <table>
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td><code>source</code></td><td><code>Accessor&lt;T&gt;</code></td><td>Signal that holds the currently selected value.</td></tr>
-          <tr><td><code>fn</code></td><td><code>(a: U, b: T) =&gt; boolean</code></td><td>Optional comparator. Defaults to <code>===</code>.</td></tr>
+          <tr>
+            <td>
+              <code>source</code>
+            </td>
+            <td>
+              <code>Accessor&lt;T&gt;</code>
+            </td>
+            <td>Signal that holds the currently selected value.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>fn</code>
+            </td>
+            <td>
+              <code>(a: U, b: T) =&gt; boolean</code>
+            </td>
+            <td>
+              Optional comparator. Defaults to <code>===</code>.
+            </td>
+          </tr>
         </tbody>
       </table>
 
-      <DocHeading level={3} id="returns">Returns</DocHeading>
+      <DocHeading level={3} id="returns">
+        Returns
+      </DocHeading>
       <p>
-        A function <code>(key: U) =&gt; boolean</code> that returns <code>true</code> if
-        <code>key</code> matches the current selection. Only the previously selected and
-        newly selected items re-evaluate. O(2) regardless of list size.
+        A function <code>(key: U) =&gt; boolean</code> that returns{" "}
+        <code>true</code> if
+        <code>key</code> matches the current selection. Only the previously
+        selected and newly selected items re-evaluate. O(2) regardless of list
+        size.
       </p>
 
-      <DocHeading level={2} id="usage">Usage</DocHeading>
-      <DocCodeBlock code={`const [selected, setSelected] = createSignal('a');
+      <DocHeading level={2} id="usage">
+        Usage
+      </DocHeading>
+      <DocCodeBlock
+        code={`const [selected, setSelected] = createSignal('a');
 const isSelected = createSelector(selected);
 
 // In a loop: only 2 items update when selection changes
@@ -44,7 +82,8 @@ items.forEach(item => {
   });
 });
 
-setSelected('b'); // Only 'a' and 'b' effects re-run`} />
+setSelected('b'); // Only 'a' and 'b' effects re-run`}
+      />
     </>
   );
 };

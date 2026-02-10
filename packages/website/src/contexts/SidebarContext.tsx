@@ -1,4 +1,9 @@
-import { createContext, useContext, createSignal, type ParentComponent } from "solid-js";
+import {
+  createContext,
+  useContext,
+  createSignal,
+  type ParentComponent,
+} from "solid-js";
 
 interface SidebarContextValue {
   isOpen: () => boolean;

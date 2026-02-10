@@ -6,7 +6,16 @@ const LandingPage: Component = () => {
     <div class="container">
       <header class="nav">
         <div class="nav-logo">
-          <a href="#/" style={{ display: "flex", "align-items": "center", gap: "12px", "text-decoration": "none", color: "inherit" }}>
+          <a
+            href="#/"
+            style={{
+              display: "flex",
+              "align-items": "center",
+              gap: "12px",
+              "text-decoration": "none",
+              color: "inherit",
+            }}
+          >
             <img src={logoUrl} alt="CReact" />
             <span>CReact</span>
           </a>

@@ -60,6 +60,8 @@ function runTypeCheck(entrypoint: string, cwd: string): boolean {
     return true;
   }
 
+  logger.typeCheckStart();
+
   try {
     const result = typeCheck(ts, entrypoint, cwd);
     if (result.ok) {
@@ -112,6 +114,7 @@ async function main() {
   const typesOk = runTypeCheck(entrypoint, cwd);
 
   if (typesOk) {
+    logger.appStarting();
     try {
       await runEntrypoint(entrypoint);
       logger.appStarted();
@@ -140,8 +143,6 @@ async function main() {
         logger.watching();
       }
     }
-  } else {
-    logger.closeFrame();
   }
 }
 

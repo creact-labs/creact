@@ -7,6 +7,7 @@ This chapter adds an HTTP API that accepts requests at runtime, manages multiple
 ## Prerequisites
 
 You'll need:
+
 - The project from Chapter 3
 - Hono (a lightweight HTTP framework)
 
@@ -27,15 +28,15 @@ Create `src/server/routes.ts`.
 Two read-only endpoints. Each route takes a callback, keeping HTTP separate from application logic:
 
 ```tsx
-import type { Context } from 'hono';
+import type { Context } from "hono";
 
 export function status(c: Context) {
-  return c.json({ status: 'ok' });
+  return c.json({ status: "ok" });
 }
 
 export function list(
   c: Context,
-  onList?: () => Array<{ id: string; path: string; url?: string }>
+  onList?: () => Array<{ id: string; path: string; url?: string }>,
 ) {
   const sites = onList?.() ?? [];
   return c.json({ sites });
@@ -47,16 +48,18 @@ The write endpoints parse a JSON body and delegate to a callback that returns a 
 ```tsx
 export async function generate(
   c: Context,
-  onGenerate?: (prompt: string) => Promise<{ id: string; path: string; url: string }>
+  onGenerate?: (
+    prompt: string,
+  ) => Promise<{ id: string; path: string; url: string }>,
 ) {
   try {
     const body = await c.req.json();
     const prompt = body?.prompt;
     if (!prompt) {
-      return c.json({ error: 'prompt required' }, 400);
+      return c.json({ error: "prompt required" }, 400);
     }
     const result = await onGenerate?.(prompt);
-    return c.json({ status: 'complete', ...result });
+    return c.json({ status: "complete", ...result });
   } catch (err) {
     return c.json({ error: String(err) }, 500);
   }
@@ -64,20 +67,20 @@ export async function generate(
 
 export async function update(
   c: Context,
-  onUpdate?: (id: string, prompt: string) => Promise<{ url: string }>
+  onUpdate?: (id: string, prompt: string) => Promise<{ url: string }>,
 ) {
   try {
-    const id = c.req.param('id');
+    const id = c.req.param("id");
     const body = await c.req.json();
     const prompt = body?.prompt;
     if (!id) {
-      return c.json({ error: 'id required' }, 400);
+      return c.json({ error: "id required" }, 400);
     }
     if (!prompt) {
-      return c.json({ error: 'prompt required' }, 400);
+      return c.json({ error: "prompt required" }, 400);
     }
     const result = await onUpdate?.(id, prompt);
-    return c.json({ status: 'complete', id, ...result });
+    return c.json({ status: "complete", id, ...result });
   } catch (err) {
     return c.json({ error: String(err) }, 500);
   }
@@ -89,15 +92,15 @@ Teardown. One endpoint deletes a single site, the other deletes all of them:
 ```tsx
 export async function cleanupSite(
   c: Context,
-  onCleanup?: (id: string) => Promise<void>
+  onCleanup?: (id: string) => Promise<void>,
 ) {
   try {
-    const id = c.req.param('id');
+    const id = c.req.param("id");
     if (!id) {
-      return c.json({ error: 'id required' }, 400);
+      return c.json({ error: "id required" }, 400);
     }
     await onCleanup?.(id);
-    return c.json({ status: 'complete', id });
+    return c.json({ status: "complete", id });
   } catch (err) {
     return c.json({ error: String(err) }, 500);
   }
@@ -106,7 +109,7 @@ export async function cleanupSite(
 export async function cleanupAll(c: Context, onCleanup?: () => Promise<void>) {
   try {
     await onCleanup?.();
-    return c.json({ status: 'complete' });
+    return c.json({ status: "complete" });
   } catch (err) {
     return c.json({ error: String(err) }, 500);
   }
@@ -116,16 +119,25 @@ export async function cleanupAll(c: Context, onCleanup?: () => Promise<void>) {
 Create `src/server/index.ts`:
 
 ```tsx
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { serve } from '@hono/node-server';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { serve } from "@hono/node-server";
 
-import { status, list, generate, update, cleanupSite, cleanupAll } from './routes';
+import {
+  status,
+  list,
+  generate,
+  update,
+  cleanupSite,
+  cleanupAll,
+} from "./routes";
 
 export interface ServerOptions {
   port: number;
   onList?: () => Array<{ id: string; path: string; url?: string }>;
-  onGenerate?: (prompt: string) => Promise<{ id: string; path: string; url: string }>;
+  onGenerate?: (
+    prompt: string,
+  ) => Promise<{ id: string; path: string; url: string }>;
   onUpdate?: (id: string, prompt: string) => Promise<{ url: string }>;
   onCleanupSite?: (id: string) => Promise<void>;
   onCleanupAll?: () => Promise<void>;
@@ -134,14 +146,14 @@ export interface ServerOptions {
 export function startServer(options: ServerOptions) {
   const app = new Hono();
 
-  app.use('/*', cors());
+  app.use("/*", cors());
 
-  app.get('/status', status);
-  app.get('/list', (c) => list(c, options.onList));
-  app.post('/generate', (c) => generate(c, options.onGenerate));
-  app.post('/update/:id', (c) => update(c, options.onUpdate));
-  app.post('/cleanup/:id', (c) => cleanupSite(c, options.onCleanupSite));
-  app.post('/cleanup', (c) => cleanupAll(c, options.onCleanupAll));
+  app.get("/status", status);
+  app.get("/list", (c) => list(c, options.onList));
+  app.post("/generate", (c) => generate(c, options.onGenerate));
+  app.post("/update/:id", (c) => update(c, options.onUpdate));
+  app.post("/cleanup/:id", (c) => cleanupSite(c, options.onCleanupSite));
+  app.post("/cleanup", (c) => cleanupAll(c, options.onCleanupAll));
 
   const server = serve({ fetch: app.fetch, port: options.port });
 
@@ -158,14 +170,16 @@ Five endpoints: list, generate, update, delete one, delete all. Each route deleg
 Create `src/components/channel.tsx`:
 
 ```tsx
-import { onMount, onCleanup } from '@creact-labs/creact';
+import { onMount, onCleanup } from "@creact-labs/creact";
 
-import { startServer } from '../server';
+import { startServer } from "../server";
 
 interface ChannelProps {
   port?: number;
   onList?: () => Array<{ id: string; path: string; url?: string }>;
-  onGenerate?: (prompt: string) => Promise<{ id: string; path: string; url: string }>;
+  onGenerate?: (
+    prompt: string,
+  ) => Promise<{ id: string; path: string; url: string }>;
   onUpdate?: (id: string, prompt: string) => Promise<{ url: string }>;
   onCleanupSite?: (id: string) => Promise<void>;
   onCleanupAll?: () => Promise<void>;
@@ -205,8 +219,17 @@ The WebSite component from Chapter 3 handled bucket creation, uploads, and clean
 Create `src/components/bucket.tsx`.
 
 ```tsx
-import { useAsyncOutput, createEffect, createSignal, untrack, Show, access, type CReactNode, type MaybeAccessor } from '@creact-labs/creact';
-import type { S3Client } from '@aws-sdk/client-s3';
+import {
+  useAsyncOutput,
+  createEffect,
+  createSignal,
+  untrack,
+  Show,
+  access,
+  type CReactNode,
+  type MaybeAccessor,
+} from "@creact-labs/creact";
+import type { S3Client } from "@aws-sdk/client-s3";
 
 import {
   createBucket,
@@ -214,7 +237,7 @@ import {
   tagBucket,
   configureBucketAsWebsite,
   makeBucketPublic,
-} from '../aws';
+} from "../aws";
 
 interface BucketProps {
   s3: S3Client;
@@ -364,14 +387,14 @@ The dedup effect prevents calling `onUploaded` twice for the same content. It co
 Now update `src/components/website.tsx` to compose these pieces. Each site gets a unique bucket name derived from a hash of its path, avoiding collisions and keeping names deterministic across restarts:
 
 ```tsx
-import { createHash } from 'crypto';
-import { createMemo, access, type MaybeAccessor } from '@creact-labs/creact';
+import { createHash } from "crypto";
+import { createMemo, access, type MaybeAccessor } from "@creact-labs/creact";
 
-import { useS3, useAWSTags, useAWSRegion, useAWSAccountId } from './aws';
-import { Bucket } from './bucket';
-import { S3File } from './s3-file';
-import { STACK_NAME } from '../../index';
-import { getWebsiteUrl } from '../aws';
+import { useS3, useAWSTags, useAWSRegion, useAWSAccountId } from "./aws";
+import { Bucket } from "./bucket";
+import { S3File } from "./s3-file";
+import { STACK_NAME } from "../../index";
+import { getWebsiteUrl } from "../aws";
 
 interface WebSiteProps {
   name: MaybeAccessor<string>;
@@ -386,7 +409,7 @@ export function WebSite(props: WebSiteProps) {
   const accountId = useAWSAccountId();
 
   const siteId = createMemo(() =>
-    createHash('sha256').update(access(props.name)).digest('hex').slice(0, 8)
+    createHash("sha256").update(access(props.name)).digest("hex").slice(0, 8),
   );
   const bucketName = createMemo(() => `${accountId}-${STACK_NAME}-${siteId()}`);
   const url = createMemo(() => getWebsiteUrl(bucketName(), region));
@@ -397,7 +420,13 @@ export function WebSite(props: WebSiteProps) {
   };
 
   return (
-    <Bucket key={siteId()} s3={s3} name={() => bucketName()} tags={tags} website>
+    <Bucket
+      key={siteId()}
+      s3={s3}
+      name={() => bucketName()}
+      tags={tags}
+      website
+    >
       <S3File
         key="index.html"
         s3={s3}
@@ -420,7 +449,7 @@ The `key` prop tells CReact which instance is which. When a key changes, CReact 
 Add a delete utility. Create `src/fs/delete.ts`:
 
 ```tsx
-import { rmSync } from 'fs';
+import { rmSync } from "fs";
 
 export function deleteFolder(path: string): void {
   rmSync(path, { recursive: true, force: true });
@@ -430,18 +459,22 @@ export function deleteFolder(path: string): void {
 Update `src/fs/index.ts`:
 
 ```tsx
-export * from './delete';
-export * from './read';
-export * from './write';
+export * from "./delete";
+export * from "./read";
+export * from "./write";
 ```
 
 Update `src/components/read.tsx` to use render props with a signal:
 
 ```tsx
-import { createSignal, type Accessor, type CReactNode } from '@creact-labs/creact';
-import { existsSync } from 'fs';
-import { join } from 'path';
-import { readFile } from '../fs';
+import {
+  createSignal,
+  type Accessor,
+  type CReactNode,
+} from "@creact-labs/creact";
+import { existsSync } from "fs";
+import { join } from "path";
+import { readFile } from "../fs";
 
 interface ReadProps {
   path: string;
@@ -450,7 +483,7 @@ interface ReadProps {
 }
 
 export function Read(props: ReadProps) {
-  const [content, setContent] = createSignal('');
+  const [content, setContent] = createSignal("");
 
   const filePath = join(props.path, props.file);
   if (existsSync(filePath)) {
@@ -467,8 +500,14 @@ Read now passes an accessor to its children, giving child components a signal th
 Create `src/components/write.tsx`:
 
 ```tsx
-import { createEffect, createSignal, untrack, access, type MaybeAccessor } from '@creact-labs/creact';
-import { writeFile } from '../fs';
+import {
+  createEffect,
+  createSignal,
+  untrack,
+  access,
+  type MaybeAccessor,
+} from "@creact-labs/creact";
+import { writeFile } from "../fs";
 
 interface WriteProps {
   path: string;
@@ -478,7 +517,7 @@ interface WriteProps {
 }
 
 export function Write(props: WriteProps) {
-  const [lastWritten, setLastWritten] = createSignal('');
+  const [lastWritten, setLastWritten] = createSignal("");
 
   createEffect(() => {
     const content = access(props.content);
@@ -502,9 +541,16 @@ export function Write(props: WriteProps) {
 Update `src/components/generate-html.tsx`:
 
 ```tsx
-import { createEffect, createSignal, untrack, access, type MaybeAccessor, type Accessor } from '@creact-labs/creact';
+import {
+  createEffect,
+  createSignal,
+  untrack,
+  access,
+  type MaybeAccessor,
+  type Accessor,
+} from "@creact-labs/creact";
 
-import { useComplete } from './claude';
+import { useComplete } from "./claude";
 
 const SYSTEM_PROMPT = `You are an HTML generator. You will be given the current HTML content and a description of changes to make.
 
@@ -528,7 +574,7 @@ Same `untrack` pattern as Write — generation runs exactly once per new prompt 
 ```tsx
 export function GenerateHtml(props: GenerateHtmlProps) {
   const complete = useComplete();
-  const [generatedPrompt, setGeneratedPrompt] = createSignal('');
+  const [generatedPrompt, setGeneratedPrompt] = createSignal("");
 
   createEffect(() => {
     const prompt = access(props.prompt);
@@ -542,7 +588,7 @@ export function GenerateHtml(props: GenerateHtmlProps) {
     (async () => {
       try {
         const existing = props.existingContent();
-        console.log('Generate: generating');
+        console.log("Generate: generating");
 
         const userPrompt = existing
           ? `Current HTML:\n\`\`\`html\n${existing}\n\`\`\`\n\nRequested changes: ${prompt}`
@@ -553,10 +599,10 @@ export function GenerateHtml(props: GenerateHtmlProps) {
           prompt: userPrompt,
         });
 
-        console.log('Generate: complete');
+        console.log("Generate: complete");
         props.onGenerated(html);
       } catch (err) {
-        console.error('Generate: error', err);
+        console.error("Generate: error", err);
       }
     })();
   });
@@ -576,8 +622,8 @@ Create `src/hooks/useSites.ts`.
 A site has an id, path, content, prompt, and optional URL. The hook returns handlers for each API endpoint plus coordination functions:
 
 ```tsx
-import { createSignal, type Accessor, type Setter } from '@creact-labs/creact';
-import { randomUUID } from 'crypto';
+import { createSignal, type Accessor, type Setter } from "@creact-labs/creact";
+import { randomUUID } from "crypto";
 
 export interface SiteConfig {
   id: string;
@@ -597,7 +643,9 @@ export interface UseSitesReturn {
   pendingGeneration: Accessor<SiteConfig | null>;
 
   handleList: () => Array<{ id: string; path: string; url?: string }>;
-  handleGenerate: (prompt: string) => Promise<{ id: string; path: string; url: string }>;
+  handleGenerate: (
+    prompt: string,
+  ) => Promise<{ id: string; path: string; url: string }>;
   handleUpdate: (id: string, prompt: string) => Promise<{ url: string }>;
   handleCleanupSite: (id: string) => Promise<void>;
   handleCleanupAll: () => Promise<void>;
@@ -666,51 +714,47 @@ export function useSites(
 Removing a site from the signal is enough. CReact sees the missing item, unmounts its WebSite, and the component's cleanup function deletes the S3 resources:
 
 ```tsx
-  function handleCleanupSite(id: string): Promise<void> {
-    const site = sites().find(s => s.id === id);
-    if (!site) {
-      return Promise.reject(new Error(`Site not found: ${id}`));
-    }
-
-    setSites(prev => prev.filter(s => s.id !== id));
-    return Promise.resolve();
+function handleCleanupSite(id: string): Promise<void> {
+  const site = sites().find((s) => s.id === id);
+  if (!site) {
+    return Promise.reject(new Error(`Site not found: ${id}`));
   }
 
-  function handleCleanupAll(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      pendingOps.set('cleanup:all', { resolve, reject });
-      setShouldCleanup(true);
-    });
-  }
+  setSites((prev) => prev.filter((s) => s.id !== id));
+  return Promise.resolve();
+}
+
+function handleCleanupAll(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pendingOps.set("cleanup:all", { resolve, reject });
+    setShouldCleanup(true);
+  });
+}
 ```
 
 These callbacks close the loop between the HTTP handlers and the reactive pipeline. `updateSiteContent` pushes generated HTML into the sites signal. `onDeployed` resolves the pending Promise so the HTTP response can return:
 
 ```tsx
-  function updateSiteContent(id: string, content: string) {
-    setSites(prev => {
-      const site = prev.find(s => s.id === id);
-      if (!site || site.content === content) {
-        return prev;
-      }
-      return prev.map(s =>
-        s.id === id ? { ...s, content } : s
-      );
-    });
-  }
-
-  function onDeployed(id: string, url: string) {
-    setSites(prev => prev.map(s =>
-      s.id === id ? { ...s, url } : s
-    ));
-
-    const site = sites().find(s => s.id === id);
-    const op = pendingOps.get(id);
-    if (op && site) {
-      op.resolve({ id, path: site.path, url });
-      pendingOps.delete(id);
+function updateSiteContent(id: string, content: string) {
+  setSites((prev) => {
+    const site = prev.find((s) => s.id === id);
+    if (!site || site.content === content) {
+      return prev;
     }
+    return prev.map((s) => (s.id === id ? { ...s, content } : s));
+  });
+}
+
+function onDeployed(id: string, url: string) {
+  setSites((prev) => prev.map((s) => (s.id === id ? { ...s, url } : s)));
+
+  const site = sites().find((s) => s.id === id);
+  const op = pendingOps.get(id);
+  if (op && site) {
+    op.resolve({ id, path: site.path, url });
+    pendingOps.delete(id);
   }
+}
 ```
 
 `onCleanupComplete` resets state after a full cleanup. `clearPendingGeneration` tears down the generation pipeline so the next request can proceed:
@@ -749,8 +793,8 @@ These callbacks close the loop between the HTTP handlers and the reactive pipeli
 Create `src/hooks/index.ts`:
 
 ```tsx
-export { useSites } from './useSites';
-export type { SiteConfig, UseSitesReturn } from './useSites';
+export { useSites } from "./useSites";
+export type { SiteConfig, UseSitesReturn } from "./useSites";
 ```
 
 ---
@@ -773,7 +817,10 @@ interface AWSProps {
 The `Show` flips between children and cleanup based on the reactive prop:
 
 ```tsx
-<Show when={() => !access(props.shouldCleanup)} fallback={<Cleanup key="cleanup" onComplete={props.onCleanupComplete} />}>
+<Show
+  when={() => !access(props.shouldCleanup)}
+  fallback={<Cleanup key="cleanup" onComplete={props.onCleanupComplete} />}
+>
   {props.children}
 </Show>
 ```
@@ -790,39 +837,46 @@ export function Cleanup(props: CleanupProps) {
   const region = useAWSRegion();
   const tags = useAWSTags();
 
-  const cleanup = useAsyncOutput({ region, tags }, async (asyncProps, setOutputs) => {
-    let isComplete = false;
-    setOutputs(prev => {
-      isComplete = prev?.status === 'complete';
-      return isComplete ? prev : { status: 'pending' };
-    });
-    if (isComplete) return;
+  const cleanup = useAsyncOutput(
+    { region, tags },
+    async (asyncProps, setOutputs) => {
+      let isComplete = false;
+      setOutputs((prev) => {
+        isComplete = prev?.status === "complete";
+        return isComplete ? prev : { status: "pending" };
+      });
+      if (isComplete) return;
 
-    setOutputs({ status: 'finding_resources' });
+      setOutputs({ status: "finding_resources" });
 
-    const deleted = await cleanupBuckets(s3, asyncProps.region, asyncProps.tags);
+      const deleted = await cleanupBuckets(
+        s3,
+        asyncProps.region,
+        asyncProps.tags,
+      );
 
-    setOutputs({ status: 'complete', deleted });
-  });
+      setOutputs({ status: "complete", deleted });
+    },
+  );
 
   const [reported, setReported] = createSignal(false);
 
   createEffect(() => {
-    const status = cleanup.status() ?? 'pending';
+    const status = cleanup.status() ?? "pending";
     const deleted = cleanup.deleted() as string[] | undefined;
 
-    if (status === 'complete') {
+    if (status === "complete") {
       const alreadyReported = untrack(() => reported());
       if (alreadyReported) return;
 
       setReported(true);
       if (deleted && deleted.length > 0) {
-        console.log(`Cleanup complete. Deleted: ${deleted.join(', ')}`);
+        console.log(`Cleanup complete. Deleted: ${deleted.join(", ")}`);
       } else {
-        console.log('Cleanup complete. Nothing to delete.');
+        console.log("Cleanup complete. Nothing to delete.");
       }
       props.onComplete?.();
-    } else if (status !== 'pending') {
+    } else if (status !== "pending") {
       console.log(`Cleanup status: ${status}`);
     }
   });
@@ -876,19 +930,19 @@ export function App() {
 The `useSites` hook destructured here:
 
 ```tsx
-  const {
-    shouldCleanup,
-    pendingGeneration,
-    handleList,
-    handleGenerate,
-    handleUpdate,
-    handleCleanupSite,
-    handleCleanupAll,
-    updateSiteContent,
-    onDeployed,
-    onCleanupComplete,
-    clearPendingGeneration,
-  } = useSites(sites, setSites);
+const {
+  shouldCleanup,
+  pendingGeneration,
+  handleList,
+  handleGenerate,
+  handleUpdate,
+  handleCleanupSite,
+  handleCleanupAll,
+  updateSiteContent,
+  onDeployed,
+  onCleanupComplete,
+  clearPendingGeneration,
+} = useSites(sites, setSites);
 ```
 
 Channel mounts the API server immediately. When `pendingGeneration()` becomes non-null, `Show` renders the generation pipeline: Read loads existing HTML, GenerateHtml sends it to Claude, Write saves the result. After writing, `updateSiteContent` pushes the HTML into the sites signal and `clearPendingGeneration` tears down the pipeline:

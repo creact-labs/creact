@@ -57,9 +57,9 @@ CReact needs to know where to persist your application state. We call this a "Me
 Create `src/memory.ts`:
 
 ```tsx
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import type { Memory, DeploymentState } from '@creact-labs/creact';
+import { readFile, writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import type { Memory, DeploymentState } from "@creact-labs/creact";
 
 export class FileMemory implements Memory {
   constructor(private directory: string) {}
@@ -67,7 +67,7 @@ export class FileMemory implements Memory {
   async getState(stackName: string): Promise<DeploymentState | null> {
     try {
       const path = join(this.directory, `${stackName}.json`);
-      const data = await readFile(path, 'utf-8');
+      const data = await readFile(path, "utf-8");
       return JSON.parse(data);
     } catch {
       return null;
@@ -92,23 +92,23 @@ Now we get to the core of CReact: the `useAsyncOutput` hook.
 
 This hook creates a resource with outputs that CReact automatically persists. It takes two arguments: props and a handler function. The handler receives `setOutputs`, which works like React's `setState`—pass it a function to get the previous value and build on it.
 
-Notice that `prev?.count` isn't just the previous value from this session—it's the value from the *last time the app ran*. CReact restores it automatically.
+Notice that `prev?.count` isn't just the previous value from this session—it's the value from the _last time the app ran_. CReact restores it automatically.
 
 We also use `createEffect` to react to changes. It runs whenever its dependencies change, in this case `counter.count()`.
 
 Create `src/app.tsx`:
 
 ```tsx
-import { useAsyncOutput, createEffect } from '@creact-labs/creact';
+import { useAsyncOutput, createEffect } from "@creact-labs/creact";
 
 export function App() {
   const counter = useAsyncOutput({}, async (_props, setOutputs) => {
     // Start from previous value, or 0 if this is the first run
-    setOutputs(prev => ({ count: prev?.count ?? 0 }));
+    setOutputs((prev) => ({ count: prev?.count ?? 0 }));
 
     // Tick every second
     const interval = setInterval(() => {
-      setOutputs(prev => ({ count: (prev?.count ?? 0) + 1 }));
+      setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 }));
     }, 1000);
 
     // Clean up when the app stops
@@ -117,7 +117,7 @@ export function App() {
 
   // React to changes
   createEffect(() => {
-    console.log('Count:', counter.count());
+    console.log("Count:", counter.count());
   });
 
   return <></>;
@@ -133,13 +133,13 @@ The cleanup function at the end prevents memory leaks by clearing the interval w
 Finally, create the entry point. Create `index.tsx`:
 
 ```tsx
-import { render } from '@creact-labs/creact';
-import { FileMemory } from './src/memory';
-import { App } from './src/app';
+import { render } from "@creact-labs/creact";
+import { FileMemory } from "./src/memory";
+import { App } from "./src/app";
 
-export default async function() {
-  const memory = new FileMemory('./.state');
-  return render(() => <App />, memory, 'my-app');
+export default async function () {
+  const memory = new FileMemory("./.state");
+  return render(() => <App />, memory, "my-app");
 }
 ```
 

@@ -1,165 +1,155 @@
+import ora, { type Ora } from "ora";
 import pc from "picocolors";
 import type { TypeCheckResult } from "./cli-typecheck.js";
 
-const _origWrite = process.stdout.write.bind(process.stdout);
-const _lines: string[] = [];
-let _active = false;
+// ── Semantic theme (mirrors React's scripts/release/theme.js) ────
 
-process.on("exit", () => {
-  _origWrite("\x1b[?25h");
-});
+const theme = {
+  error: (s: string) => pc.bold(pc.red(s)),
+  success: (s: string) => pc.green(s),
+  warning: (s: string) => pc.yellow(s),
+  info: (s: string) => pc.cyan(s),
+  dimmed: (s: string) => pc.dim(s),
+  path: (s: string) => pc.italic(pc.dim(s)),
+  command: (s: string) => pc.dim(s),
+  version: (s: string) => pc.green(s),
+  header: (s: string) => pc.bold(pc.green(s)),
+};
 
-function stripAnsi(s: string): string {
-  return s.replace(/\x1b\[[0-9;]*m/g, "");
-}
+// ── Spinner state ────────────────────────────────────────────────
 
-function render() {
-  if (!_active) return;
-  const rows = process.stdout.rows || 24;
-  const cols = process.stdout.columns || 80;
-  const innerW = cols - 4; // 2 borders + 2 inner padding
-  const borderW = cols - 2; // inside the corners
-  const contentRows = Math.max(1, rows - 2); // minus top + bottom border
-  const visible = _lines.slice(-contentRows);
+let spinner: Ora | null = null;
 
-  let buf = "\x1b[H";
-  buf += `${pc.dim(`╭${"─".repeat(borderW)}╮`)}\x1b[K\n`;
-  for (let i = 0; i < contentRows; i++) {
-    const line = i < visible.length ? visible[i]! : "";
-    const vis = stripAnsi(line).length;
-    const gap = Math.max(0, innerW - vis);
-    buf += `${pc.dim("│")} ${line}${" ".repeat(gap)} ${pc.dim("│")}\x1b[K\n`;
+function stopSpinner() {
+  if (spinner) {
+    spinner.stop();
+    spinner = null;
   }
-  buf += `${pc.dim(`╰${"─".repeat(borderW)}╯`)}\x1b[K`;
-
-  _origWrite(buf);
 }
 
-function addLine(content: string) {
-  _lines.push(content);
-  render();
-}
-
-function addBlank() {
-  addLine("");
-}
-
-function activate() {
-  if (_active) return;
-  _active = true;
-
-  _origWrite("\x1b[?25l");
-  _origWrite("\x1b[2J\x1b[H");
-
-  // Intercept stdout so app output appears inside the frame
-  process.stdout.write = ((
-    chunk: any,
-    encodingOrCb?: any,
-    cb?: any,
-  ): boolean => {
-    if (typeof chunk === "string" && _active) {
-      const parts = chunk.split("\n");
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i]!;
-        if (i === parts.length - 1 && part === "") continue;
-        _lines.push(part);
-      }
-      render();
-      const callback = typeof encodingOrCb === "function" ? encodingOrCb : cb;
-      if (typeof callback === "function") callback();
-      return true;
-    }
-    return _origWrite(chunk, encodingOrCb, cb);
-  }) as any;
-
-  process.stdout.on("resize", render);
-  render();
-}
-
-// ── Public API ─────────────────────────────────────────
-
-export function openFrame() {
-  // noop — kept for API compat
-}
-
-export function closeFrame() {
-  if (!_active) return;
-  render();
-  _active = false;
-  process.stdout.write = _origWrite;
-  process.stdout.removeListener("resize", render);
-  _origWrite("\x1b[?25h");
-  const rows = process.stdout.rows || 24;
-  _origWrite(`\x1b[${rows};1H\n`);
-}
+// ── Public API ───────────────────────────────────────────────────
 
 export function banner(version: string) {
-  activate();
-  addLine(`${pc.bold(pc.cyan("creact"))} ${pc.green(`v${version}`)}`);
+  console.log();
+  console.log(
+    `  ${pc.bold(pc.cyan("creact"))} ${theme.version(`v${version}`)}`,
+  );
+  console.log();
+}
+
+export function typeCheckStart() {
+  spinner = ora({ text: "Type checking…", indent: 2 }).start();
 }
 
 export function typeCheckPassed(fileCount: number, durationMs: number) {
   const secs = (durationMs / 1000).toFixed(1);
-  addLine(
-    `Type check passed ${pc.dim(`(${fileCount} file${fileCount === 1 ? "" : "s"}, ${secs}s)`)}`,
+  const detail = theme.dimmed(
+    `(${fileCount} file${fileCount === 1 ? "" : "s"}, ${secs}s)`,
   );
-  addBlank();
+  if (spinner) {
+    spinner.succeed(`Type check passed ${detail}`);
+    spinner = null;
+  } else {
+    console.log(`  ${theme.success("✔")} Type check passed ${detail}`);
+  }
 }
 
 export function typeCheckFailed(result: TypeCheckResult) {
   const count = result.errors.length;
-  _lines.push(pc.red(`${count} type error${count === 1 ? "" : "s"}`));
-  _lines.push("");
+  const label = `${count} type error${count === 1 ? "" : "s"}`;
+
+  if (spinner) {
+    spinner.fail(label);
+    spinner = null;
+  } else {
+    console.log(`  ${theme.error("✖")} ${theme.error(label)}`);
+  }
+
+  console.log();
+
   for (const err of result.errors) {
-    const loc = pc.cyan(`${err.file}:${err.line}:${err.column}`);
-    const code = pc.dim(`TS${err.code}`);
+    const loc = theme.info(`${err.file}:${err.line}:${err.column}`);
+    const code = theme.dimmed(`TS${err.code}`);
     const msgLines = err.message.split("\n");
     const firstLine = msgLines[0] ?? "";
     const prefix = `${code}: `;
     const contPad = " ".repeat(stripAnsi(prefix).length);
-    _lines.push(`  ${loc}`);
-    _lines.push(`  ${prefix}${firstLine}`);
+
+    console.log(`  ${loc}`);
+    console.log(`  ${prefix}${firstLine}`);
     for (let i = 1; i < msgLines.length; i++) {
-      _lines.push(`  ${contPad}${msgLines[i]}`);
+      console.log(`  ${contPad}${msgLines[i]}`);
     }
-    _lines.push("");
+    console.log();
   }
-  render();
 }
 
 export function typeCheckSkipped(reason: string) {
-  addLine(`Type check skipped ${pc.dim(`(${reason})`)}`);
-  addBlank();
+  if (spinner) {
+    spinner.info(`Type check skipped ${theme.dimmed(`(${reason})`)}`);
+    spinner = null;
+  } else {
+    console.log(
+      `  ${theme.info("ℹ")} Type check skipped ${theme.dimmed(`(${reason})`)}`,
+    );
+  }
+}
+
+export function appStarting() {
+  spinner = ora({ text: "Starting app…", indent: 2 }).start();
 }
 
 export function appStarted() {
-  addBlank();
-  addLine("App started");
+  if (spinner) {
+    spinner.succeed("App started");
+    spinner = null;
+  } else {
+    console.log(`  ${theme.success("✔")} App started`);
+  }
 }
 
 export function appFailed(error: unknown) {
-  _lines.push("");
-  _lines.push(pc.red("App failed to start"));
-  const rawStr =
-    error instanceof Error && error.stack ? error.stack : String(error);
-  for (const line of rawStr.split("\n")) {
-    _lines.push(pc.dim(`  ${line}`));
+  // Separate message from stack trace (React pattern)
+  const message =
+    error instanceof Error
+      ? error.message.trim().replace(/\n +/g, "\n")
+      : String(error);
+  const stack =
+    error instanceof Error && error.stack
+      ? error.stack.replace(error.message, "").trim()
+      : "";
+
+  if (spinner) {
+    spinner.fail("App failed to start");
+    spinner = null;
+  } else {
+    console.log(`  ${theme.error("✖")} ${theme.error("App failed to start")}`);
   }
-  render();
+
+  console.log();
+  console.log(`  ${theme.error(message)}`);
+  if (stack) {
+    console.log();
+    for (const line of stack.split("\n")) {
+      console.log(`  ${theme.path(line)}`);
+    }
+  }
+  console.log();
 }
 
 export function watching() {
-  addLine(pc.dim("Watching for changes..."));
+  console.log(`  ${theme.dimmed("Watching for changes…")}`);
 }
 
 export function fileChanged(filename: string) {
-  _lines.length = 0;
-  addLine(`${pc.bold(filename)} changed`);
+  console.clear();
+  console.log();
+  console.log(`  ${pc.bold(filename)} changed`);
+  console.log();
 }
 
 export function restarting() {
-  addLine(pc.cyan("Restarting..."));
-  addBlank();
+  spinner = ora({ text: "Restarting…", indent: 2 }).start();
 }
 
 export function help() {
@@ -185,5 +175,12 @@ ${PAD}  and export a default async function that calls render().
 }
 
 export function error(msg: string) {
-  console.log(`  ${pc.red("Error:")} ${msg}`);
+  stopSpinner();
+  console.log(`  ${theme.error("Error:")} ${msg}`);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+
+function stripAnsi(s: string): string {
+  return s.replace(/\x1b\[[0-9;]*m/g, "");
 }

@@ -8,15 +8,20 @@ const Typescript: Component = () => {
     <>
       <h1>TypeScript</h1>
       <p class="docs-description">
-        CReact is written in TypeScript. Here's how to get the most out of the type system for signals, props, and components.
+        CReact is written in TypeScript. Here's how to get the most out of the
+        type system for signals, props, and components.
       </p>
 
-      <DocHeading level={2} id="tsconfig">TypeScript Configuration</DocHeading>
+      <DocHeading level={2} id="tsconfig">
+        TypeScript Configuration
+      </DocHeading>
       <p>
-        The key setting is <code>jsxImportSource</code>. This tells TypeScript to use CReact's
-        JSX types:
+        The key setting is <code>jsxImportSource</code>. This tells TypeScript
+        to use CReact's JSX types:
       </p>
-      <DocCodeBlock lang="json" code={`{
+      <DocCodeBlock
+        lang="json"
+        code={`{
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -26,11 +31,19 @@ const Typescript: Component = () => {
     "strict": true,
     "outDir": "dist"
   }
-}`} filename="tsconfig.json" />
+}`}
+        filename="tsconfig.json"
+      />
 
-      <DocHeading level={2} id="typed-signals">Typed Signals</DocHeading>
-      <p>Signals infer their type from the initial value, or you can specify it explicitly:</p>
-      <DocCodeBlock code={`// Inferred as Signal<number>
+      <DocHeading level={2} id="typed-signals">
+        Typed Signals
+      </DocHeading>
+      <p>
+        Signals infer their type from the initial value, or you can specify it
+        explicitly:
+      </p>
+      <DocCodeBlock
+        code={`// Inferred as Signal<number>
 const [count, setCount] = createSignal(0);
 
 // Explicit generic
@@ -38,10 +51,14 @@ const [items, setItems] = createSignal<string[]>([]);
 
 // Optional initial value
 const [user, setUser] = createSignal<User>();
-// user() returns User | undefined`} />
+// user() returns User | undefined`}
+      />
 
-      <DocHeading level={2} id="typed-props">Typed Props</DocHeading>
-      <DocCodeBlock code={`interface WebSiteProps {
+      <DocHeading level={2} id="typed-props">
+        Typed Props
+      </DocHeading>
+      <DocCodeBlock
+        code={`interface WebSiteProps {
   name: () => string;
   content: () => string;
   region?: string;
@@ -55,10 +72,14 @@ function WebSite(props: WebSiteProps) {
   });
 
   return <></>;
-}`} />
+}`}
+      />
 
-      <DocHeading level={2} id="accessor-types">Accessor and MaybeAccessor</DocHeading>
-      <DocCodeBlock code={`import type { Accessor, MaybeAccessor } from '@creact-labs/creact';
+      <DocHeading level={2} id="accessor-types">
+        Accessor and MaybeAccessor
+      </DocHeading>
+      <DocCodeBlock
+        code={`import type { Accessor, MaybeAccessor } from '@creact-labs/creact';
 import { access } from '@creact-labs/creact';
 
 // Accessor<T> = () => T
@@ -67,12 +88,14 @@ const getter: Accessor<number> = () => 42;
 // MaybeAccessor<T> = T | () => T
 function useValue(v: MaybeAccessor<string>) {
   return access(v); // unwraps to string
-}`} />
+}`}
+      />
 
       <Callout type="info">
         <p>
-          CReact re-exports key types: <code>Accessor</code>, <code>Setter</code>,
-          <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>,
+          CReact re-exports key types: <code>Accessor</code>,{" "}
+          <code>Setter</code>,<code>MaybeAccessor</code>,{" "}
+          <code>SignalOptions</code>, <code>MemoOptions</code>,
           <code>Owner</code>, <code>Context</code>, and all runtime types.
         </p>
       </Callout>

@@ -26,4 +26,3 @@ The CReact community can be found on [GitHub Discussions](https://github.com/cre
 ## Contributing
 
 Contributions to CReact are welcome and highly appreciated. However, before you jump right into it, we would like you to review our [Contribution Guidelines](./CONTRIBUTING.md) to make sure you have a smooth experience contributing to CReact.
-

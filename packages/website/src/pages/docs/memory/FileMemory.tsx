@@ -8,11 +8,15 @@ const FileMemory: Component = () => {
     <>
       <h1>File Memory</h1>
       <p class="docs-description">
-        A reference Memory implementation that persists state as JSON files on disk.
+        A reference Memory implementation that persists state as JSON files on
+        disk.
       </p>
 
-      <DocHeading level={2} id="implementation">Implementation</DocHeading>
-      <DocCodeBlock code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
+      <DocHeading level={2} id="implementation">
+        Implementation
+      </DocHeading>
+      <DocCodeBlock
+        code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -38,30 +42,43 @@ export class FileMemory implements Memory {
       JSON.stringify(state, null, 2)
     );
   }
-}`} filename="src/memory.ts" />
+}`}
+        filename="src/memory.ts"
+      />
 
-      <DocHeading level={2} id="usage">Usage</DocHeading>
-      <DocCodeBlock code={`import { render } from '@creact-labs/creact';
+      <DocHeading level={2} id="usage">
+        Usage
+      </DocHeading>
+      <DocCodeBlock
+        code={`import { render } from '@creact-labs/creact';
 import { FileMemory } from './src/memory';
 import { App } from './src/app';
 
 export default async function() {
   const memory = new FileMemory('./.state');
   return render(() => <App />, memory, 'my-app');
-}`} filename="index.tsx" />
+}`}
+        filename="index.tsx"
+      />
 
-      <DocHeading level={2} id="state-directory">State Directory</DocHeading>
+      <DocHeading level={2} id="state-directory">
+        State Directory
+      </DocHeading>
       <p>
-        State files are saved as <code>{`<stackName>.json`}</code> in the directory you specify.
-        Add this directory to <code>.gitignore</code>:
+        State files are saved as <code>{`<stackName>.json`}</code> in the
+        directory you specify. Add this directory to <code>.gitignore</code>:
       </p>
       <DocCodeBlock lang="bash" code={`.state/`} filename=".gitignore" />
 
-      <DocHeading level={2} id="with-locking">Adding Lock Support</DocHeading>
+      <DocHeading level={2} id="with-locking">
+        Adding Lock Support
+      </DocHeading>
       <p>
-        For single-machine deploys, file-based locking prevents concurrent runs from corrupting state:
+        For single-machine deploys, file-based locking prevents concurrent runs
+        from corrupting state:
       </p>
-      <DocCodeBlock code={`import { writeFile, unlink, stat } from 'fs/promises';
+      <DocCodeBlock
+        code={`import { writeFile, unlink, stat } from 'fs/promises';
 import { join } from 'path';
 
 export class FileMemoryWithLock extends FileMemory {
@@ -89,12 +106,15 @@ export class FileMemoryWithLock extends FileMemory {
       // already released
     }
   }
-}`} filename="src/memory.ts" />
+}`}
+        filename="src/memory.ts"
+      />
 
       <Callout type="info">
         <p>
-          File-based locking is advisory. It won't prevent a second process that ignores locks.
-          For production, use DynamoDB conditional writes or database row locking.
+          File-based locking is advisory. It won't prevent a second process that
+          ignores locks. For production, use DynamoDB conditional writes or
+          database row locking.
         </p>
       </Callout>
     </>

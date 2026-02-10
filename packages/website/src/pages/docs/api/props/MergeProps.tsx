@@ -7,18 +7,28 @@ const MergeProps: Component = () => {
   return (
     <>
       <h1>mergeProps</h1>
-      <p class="docs-description">Merges multiple props objects reactively, with later sources overriding earlier ones. Use for default props.</p>
+      <p class="docs-description">
+        Merges multiple props objects reactively, with later sources overriding
+        earlier ones. Use for default props.
+      </p>
 
-      <DocCodeBlock code={`const merged = mergeProps({ color: 'blue', size: 'md' }, props);`} />
+      <DocCodeBlock
+        code={`const merged = mergeProps({ color: 'blue', size: 'md' }, props);`}
+      />
 
-      <DocHeading level={2} id="reference">Reference</DocHeading>
+      <DocHeading level={2} id="reference">
+        Reference
+      </DocHeading>
       <ApiSignature
         name="mergeProps"
         signature="mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
       />
 
-      <DocHeading level={2} id="usage">Usage</DocHeading>
-      <DocCodeBlock code={`function Button(props: { color?: string; size?: string; label: string }) {
+      <DocHeading level={2} id="usage">
+        Usage
+      </DocHeading>
+      <DocCodeBlock
+        code={`function Button(props: { color?: string; size?: string; label: string }) {
   const merged = mergeProps({ color: 'blue', size: 'md' }, props);
 
   createEffect(() => {
@@ -26,7 +36,8 @@ const MergeProps: Component = () => {
   });
 
   return <></>;
-}`} />
+}`}
+      />
     </>
   );
 };

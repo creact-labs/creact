@@ -139,28 +139,38 @@ export class StateMachine {
   }
 
   /**
-   * Mark a node as currently being applied (for crash recovery)
+   * Add a node to the in-flight applying set (for crash recovery)
    */
-  async markApplying(stackName: string, nodeId: string): Promise<void> {
+  async addApplying(stackName: string, nodeId: string): Promise<void> {
     const mutex = this.getMutex(stackName);
     await mutex.runExclusive(async () => {
       const state = await this.memory.getState(stackName);
       if (state) {
-        state.applyingNodeId = nodeId;
+        if (!state.applyingNodeIds) state.applyingNodeIds = [];
+        if (!state.applyingNodeIds.includes(nodeId)) {
+          state.applyingNodeIds.push(nodeId);
+        }
         await this.memory.saveState(stackName, state);
       }
     });
   }
 
   /**
-   * Clear the applying marker after successful apply
+   * Remove a node from the in-flight applying set after successful apply
    */
-  async clearApplying(stackName: string): Promise<void> {
+  async removeApplying(stackName: string, nodeId: string): Promise<void> {
     const mutex = this.getMutex(stackName);
     await mutex.runExclusive(async () => {
       const state = await this.memory.getState(stackName);
       if (state) {
-        state.applyingNodeId = undefined;
+        if (state.applyingNodeIds) {
+          state.applyingNodeIds = state.applyingNodeIds.filter(
+            (id) => id !== nodeId,
+          );
+          if (state.applyingNodeIds.length === 0) {
+            state.applyingNodeIds = undefined;
+          }
+        }
         await this.memory.saveState(stackName, state);
       }
     });
@@ -268,11 +278,11 @@ export class StateMachine {
   }
 
   /**
-   * Get the node that was being applied when crash occurred
+   * Get the nodes that were being applied when crash occurred
    */
-  async getInterruptedNodeId(stackName: string): Promise<string | null> {
+  async getInterruptedNodeIds(stackName: string): Promise<string[]> {
     const state = await this.memory.getState(stackName);
-    return state?.applyingNodeId ?? null;
+    return state?.applyingNodeIds ?? [];
   }
 
   /**

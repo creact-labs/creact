@@ -19,15 +19,30 @@ export const sidebarNav: NavSection[] = [
     title: "Getting Started",
     links: [
       { title: "Installation", href: "/docs/getting-started/installation" },
-      { title: "Components and JSX", href: "/docs/getting-started/components-jsx" },
-      { title: "Reactive Primitives", href: "/docs/getting-started/reactive-primitives" },
+      {
+        title: "Components and JSX",
+        href: "/docs/getting-started/components-jsx",
+      },
+      {
+        title: "Reactive Primitives",
+        href: "/docs/getting-started/reactive-primitives",
+      },
       { title: "Flow Control", href: "/docs/getting-started/flow-control" },
-      { title: "Context and Providers", href: "/docs/getting-started/context-providers" },
+      {
+        title: "Context and Providers",
+        href: "/docs/getting-started/context-providers",
+      },
       { title: "Error Handling", href: "/docs/getting-started/error-handling" },
-      { title: "State and Memory", href: "/docs/getting-started/state-and-memory" },
+      {
+        title: "State and Memory",
+        href: "/docs/getting-started/state-and-memory",
+      },
       { title: "Watch Mode", href: "/docs/guides/watch-mode" },
       { title: "TypeScript", href: "/docs/guides/typescript" },
-      { title: "Environment Variables", href: "/docs/guides/environment-variables" },
+      {
+        title: "Environment Variables",
+        href: "/docs/guides/environment-variables",
+      },
       { title: "Testing", href: "/docs/guides/testing" },
     ],
   },
@@ -59,11 +74,23 @@ export const sidebarNav: NavSection[] = [
           { title: "createSignal", href: "/docs/api/reactive/create-signal" },
           { title: "createEffect", href: "/docs/api/reactive/create-effect" },
           { title: "createMemo", href: "/docs/api/reactive/create-memo" },
-          { title: "createComputed", href: "/docs/api/reactive/create-computed" },
-          { title: "createRenderEffect", href: "/docs/api/reactive/create-render-effect" },
-          { title: "createReaction", href: "/docs/api/reactive/create-reaction" },
+          {
+            title: "createComputed",
+            href: "/docs/api/reactive/create-computed",
+          },
+          {
+            title: "createRenderEffect",
+            href: "/docs/api/reactive/create-render-effect",
+          },
+          {
+            title: "createReaction",
+            href: "/docs/api/reactive/create-reaction",
+          },
           { title: "createRoot", href: "/docs/api/reactive/create-root" },
-          { title: "createSelector", href: "/docs/api/reactive/create-selector" },
+          {
+            title: "createSelector",
+            href: "/docs/api/reactive/create-selector",
+          },
           { title: "batch", href: "/docs/api/reactive/batch" },
           { title: "untrack", href: "/docs/api/reactive/untrack" },
           { title: "on", href: "/docs/api/reactive/on" },
@@ -74,8 +101,14 @@ export const sidebarNav: NavSection[] = [
         links: [
           { title: "Show", href: "/docs/api/components/show" },
           { title: "For", href: "/docs/api/components/for" },
-          { title: "Switch / Match", href: "/docs/api/components/switch-match" },
-          { title: "ErrorBoundary", href: "/docs/api/components/error-boundary" },
+          {
+            title: "Switch / Match",
+            href: "/docs/api/components/switch-match",
+          },
+          {
+            title: "ErrorBoundary",
+            href: "/docs/api/components/error-boundary",
+          },
           { title: "Index", href: "/docs/api/components/index-component" },
         ],
       },
@@ -90,7 +123,10 @@ export const sidebarNav: NavSection[] = [
         label: "Runtime",
         links: [
           { title: "render", href: "/docs/api/runtime/render" },
-          { title: "useAsyncOutput", href: "/docs/api/runtime/use-async-output" },
+          {
+            title: "useAsyncOutput",
+            href: "/docs/api/runtime/use-async-output",
+          },
         ],
       },
       {

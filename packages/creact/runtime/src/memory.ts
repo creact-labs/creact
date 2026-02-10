@@ -52,7 +52,7 @@ export interface DeploymentState {
 
   // Deployment lifecycle
   status: DeploymentStatus;
-  applyingNodeId?: string; // Node currently being applied (for crash recovery)
+  applyingNodeIds?: string[]; // Nodes currently being applied (for crash recovery)
 
   // Metadata
   stackName: string;

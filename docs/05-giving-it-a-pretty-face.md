@@ -7,6 +7,7 @@ The control plane works — you can generate, update, and delete sites via curl.
 ## Prerequisites
 
 You'll need:
+
 - The project from Chapter 4
 
 ---
@@ -16,11 +17,11 @@ You'll need:
 Create `src/components/http-server.tsx`. A static file server that serves the admin dashboard:
 
 ```tsx
-import { onMount, onCleanup } from '@creact-labs/creact';
-import { Hono } from 'hono';
-import { serve } from '@hono/node-server';
-import { readFileSync, existsSync } from 'fs';
-import { join, extname } from 'path';
+import { onMount, onCleanup } from "@creact-labs/creact";
+import { Hono } from "hono";
+import { serve } from "@hono/node-server";
+import { readFileSync, existsSync } from "fs";
+import { join, extname } from "path";
 
 interface HttpServerProps {
   port: number;
@@ -28,13 +29,13 @@ interface HttpServerProps {
 }
 
 const MIME_TYPES: Record<string, string> = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'application/javascript',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
+  ".html": "text/html",
+  ".css": "text/css",
+  ".js": "application/javascript",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
 };
 ```
 
@@ -49,30 +50,32 @@ export function HttpServer(props: HttpServerProps) {
 
     const app = new Hono();
 
-    app.get('/*', (c) => {
-      const url = c.req.path === '/' ? '/index.html' : c.req.path;
+    app.get("/*", (c) => {
+      const url = c.req.path === "/" ? "/index.html" : c.req.path;
       const filePath = join(path, url);
 
       if (!existsSync(filePath)) {
-        return c.text('Not Found', 404);
+        return c.text("Not Found", 404);
       }
 
       const content = readFileSync(filePath);
       const ext = extname(filePath);
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      const contentType = MIME_TYPES[ext] || "application/octet-stream";
 
-      return c.body(content, 200, { 'Content-Type': contentType });
+      return c.body(content, 200, { "Content-Type": contentType });
     });
 
     server = serve({ fetch: app.fetch, port }, () => {
-      console.log(`Static server running at http://localhost:${port} serving ${path}`);
+      console.log(
+        `Static server running at http://localhost:${port} serving ${path}`,
+      );
     });
   });
 
   onCleanup(() => {
     if (server) {
       server.close();
-      console.log('Static server stopped');
+      console.log("Static server stopped");
     }
   });
 
@@ -90,7 +93,7 @@ Create `resources/admin/index.html`. A single HTML file — Preact and Bootstrap
 
 The HTML shell and styles:
 
-````html
+```html
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -117,7 +120,7 @@ import htm from "https://esm.sh/htm@3.1.1";
 
 const html = htm.bind(h);
 const API = "http://localhost:3000";
-````
+```
 
 State and data loading. The `load` function fetches the site list on mount and after every mutation:
 
@@ -150,64 +153,64 @@ function App() {
 Each action function calls the Channel API and reloads the list:
 
 ```js
-  async function generate(e) {
-    e.preventDefault();
-    const prompt = e.target.prompt.value;
-    setGenerating(true);
-    try {
-      const res = await fetch(`${API}/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      e.target.reset();
-      load();
-    } catch {
-      alert("Failed to generate");
-    }
-    setGenerating(false);
+async function generate(e) {
+  e.preventDefault();
+  const prompt = e.target.prompt.value;
+  setGenerating(true);
+  try {
+    const res = await fetch(`${API}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    const data = await res.json();
+    e.target.reset();
+    load();
+  } catch {
+    alert("Failed to generate");
   }
+  setGenerating(false);
+}
 
-  async function update(e) {
-    e.preventDefault();
-    const prompt = e.target.prompt.value;
-    const id = editing;
-    setUpdating(true);
-    try {
-      await fetch(`${API}/update/${id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      setEditing(null);
-      load();
-    } catch {
-      alert("Failed to update");
-    }
-    setUpdating(false);
+async function update(e) {
+  e.preventDefault();
+  const prompt = e.target.prompt.value;
+  const id = editing;
+  setUpdating(true);
+  try {
+    await fetch(`${API}/update/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    setEditing(null);
+    load();
+  } catch {
+    alert("Failed to update");
   }
+  setUpdating(false);
+}
 ```
 
 The delete handlers:
 
 ```js
-  async function del(id) {
-    await fetch(`${API}/cleanup/${id}`, { method: "POST" });
-    load();
-  }
+async function del(id) {
+  await fetch(`${API}/cleanup/${id}`, { method: "POST" });
+  load();
+}
 
-  async function cleanupAll() {
-    if (!confirm("Delete all sites?")) return;
-    setCleaning(true);
-    try {
-      await fetch(`${API}/cleanup`, { method: "POST" });
-      load();
-    } catch {
-      alert("Failed to cleanup");
-    }
-    setCleaning(false);
+async function cleanupAll() {
+  if (!confirm("Delete all sites?")) return;
+  setCleaning(true);
+  try {
+    await fetch(`${API}/cleanup`, { method: "POST" });
+    load();
+  } catch {
+    alert("Failed to cleanup");
   }
+  setCleaning(false);
+}
 ```
 
 The render return — a generate form at the top, then the site list with loading/error states:
@@ -280,11 +283,11 @@ render(html`<${App} />`, document.getElementById("app"));
 
 The closing tags:
 
-````html
+```html
 </script>
 </body>
 </html>
-````
+```
 
 ---
 
@@ -295,7 +298,7 @@ Update `src/app.tsx` to add HttpServer.
 Add the import:
 
 ```tsx
-import { HttpServer } from './components/http-server';
+import { HttpServer } from "./components/http-server";
 ```
 
 And add the `<HttpServer>` line right after `<Channel>`:

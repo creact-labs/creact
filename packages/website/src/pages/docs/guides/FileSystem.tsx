@@ -10,12 +10,16 @@ const FileSystem: Component = () => {
         Build reactive file read and write components using Node.js APIs.
       </p>
 
-      <DocHeading level={2} id="read-component">Read Component</DocHeading>
+      <DocHeading level={2} id="read-component">
+        Read Component
+      </DocHeading>
       <p>
-        The <code>Read</code> component loads a file and passes its content as an accessor
-        to a render callback. Children receive the content reactively.
+        The <code>Read</code> component loads a file and passes its content as
+        an accessor to a render callback. Children receive the content
+        reactively.
       </p>
-      <DocCodeBlock code={`import { createSignal, type Accessor, type CReactNode } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createSignal, type Accessor, type CReactNode } from '@creact-labs/creact';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -34,15 +38,20 @@ export function Read(props: ReadProps) {
   }
 
   return <>{props.children(content)}</>;
-}`} filename="shared/read.tsx" />
+}`}
+        filename="shared/read.tsx"
+      />
 
-      <DocHeading level={2} id="write-component">Write Component</DocHeading>
+      <DocHeading level={2} id="write-component">
+        Write Component
+      </DocHeading>
       <p>
-        The <code>Write</code> component watches a content accessor with <code>createEffect</code>.
-        When the content changes, it writes to disk. The <code>untrack</code> guard
-        prevents re-writing the same content.
+        The <code>Write</code> component watches a content accessor with{" "}
+        <code>createEffect</code>. When the content changes, it writes to disk.
+        The <code>untrack</code> guard prevents re-writing the same content.
       </p>
-      <DocCodeBlock code={`import { createEffect, createSignal, untrack, access, type MaybeAccessor } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { createEffect, createSignal, untrack, access, type MaybeAccessor } from '@creact-labs/creact';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 
@@ -73,14 +82,19 @@ export function Write(props: WriteProps) {
   });
 
   return <></>;
-}`} filename="shared/write.tsx" />
+}`}
+        filename="shared/write.tsx"
+      />
 
-      <DocHeading level={2} id="usage">Using Read and Write Together</DocHeading>
+      <DocHeading level={2} id="usage">
+        Using Read and Write Together
+      </DocHeading>
       <p>
-        Compose <code>Read</code> and <code>Write</code> to build pipelines that transform
-        file content reactively:
+        Compose <code>Read</code> and <code>Write</code> to build pipelines that
+        transform file content reactively:
       </p>
-      <DocCodeBlock code={`import { Show, createSignal } from '@creact-labs/creact';
+      <DocCodeBlock
+        code={`import { Show, createSignal } from '@creact-labs/creact';
 
 function App() {
   const [content, setContent] = createSignal('');
@@ -108,14 +122,19 @@ function App() {
       </Show>
     </>
   );
-}`} filename="app.tsx" />
+}`}
+        filename="app.tsx"
+      />
 
-      <DocHeading level={2} id="file-memory">File-Based Memory</DocHeading>
+      <DocHeading level={2} id="file-memory">
+        File-Based Memory
+      </DocHeading>
       <p>
-        The most common file system pattern in CReact is the <code>FileMemory</code> implementation
-        for state persistence:
+        The most common file system pattern in CReact is the{" "}
+        <code>FileMemory</code> implementation for state persistence:
       </p>
-      <DocCodeBlock code={`import { readFile, writeFile, mkdir } from 'fs/promises';
+      <DocCodeBlock
+        code={`import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import type { Memory, DeploymentState } from '@creact-labs/creact';
 
@@ -136,7 +155,9 @@ export class FileMemory implements Memory {
     const path = join(this.directory, \`\${stackName}.json\`);
     await writeFile(path, JSON.stringify(state, null, 2));
   }
-}`} filename="src/memory.ts" />
+}`}
+        filename="src/memory.ts"
+      />
     </>
   );
 };

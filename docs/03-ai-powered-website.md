@@ -9,6 +9,7 @@ This chapter adds Claude to your app. You'll generate HTML from prompts and depl
 ## Prerequisites
 
 You'll need:
+
 - The project from Chapter 2
 - An Anthropic API key from [console.anthropic.com](https://console.anthropic.com)
 
@@ -33,17 +34,17 @@ Add `.env` to your `.gitignore`.
 Update `index.tsx` to load `.env`:
 
 ```tsx
-import { config } from 'dotenv';
-import { render } from '@creact-labs/creact';
-import { FileMemory } from './src/memory';
-import { App } from './src/app';
+import { config } from "dotenv";
+import { render } from "@creact-labs/creact";
+import { FileMemory } from "./src/memory";
+import { App } from "./src/app";
 
 config();
 
-export const STACK_NAME = 'my-app';
+export const STACK_NAME = "my-app";
 
-export default async function() {
-  const memory = new FileMemory('./.state');
+export default async function () {
+  const memory = new FileMemory("./.state");
   return render(() => <App />, memory, STACK_NAME);
 }
 ```
@@ -57,24 +58,24 @@ Create helpers for reading and writing files.
 Create `src/fs/read.ts`:
 
 ```tsx
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export function readFile(path: string, file: string): string {
-  return readFileSync(join(path, file), 'utf-8');
+  return readFileSync(join(path, file), "utf-8");
 }
 ```
 
 Create `src/fs/write.ts`:
 
 ```tsx
-import { writeFileSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { writeFileSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
 
 export function writeFile(path: string, file: string, content: string): string {
   const filePath = join(path, file);
   mkdirSync(dirname(filePath), { recursive: true });
-  writeFileSync(filePath, content, 'utf-8');
+  writeFileSync(filePath, content, "utf-8");
   return filePath;
 }
 ```
@@ -82,8 +83,8 @@ export function writeFile(path: string, file: string, content: string): string {
 Create `src/fs/index.ts`:
 
 ```tsx
-export * from './read';
-export * from './write';
+export * from "./read";
+export * from "./write";
 ```
 
 ---
@@ -95,8 +96,12 @@ Create a provider that shares Claude's API with child components.
 Create `src/components/claude.tsx`:
 
 ```tsx
-import { createContext, useContext, type CReactNode } from '@creact-labs/creact';
-import Anthropic from '@anthropic-ai/sdk';
+import {
+  createContext,
+  useContext,
+  type CReactNode,
+} from "@creact-labs/creact";
+import Anthropic from "@anthropic-ai/sdk";
 
 export interface CompletionOptions {
   prompt: string;
@@ -114,7 +119,7 @@ interface ClaudeProps {
 }
 
 export function Claude(props: ClaudeProps) {
-  const model = props.model ?? 'claude-sonnet-4-20250514';
+  const model = props.model ?? "claude-sonnet-4-20250514";
   const client = new Anthropic();
 
   async function complete(options: CompletionOptions): Promise<string> {
@@ -122,11 +127,11 @@ export function Claude(props: ClaudeProps) {
       model,
       max_tokens: options.maxTokens ?? 4096,
       system: options.system,
-      messages: [{ role: 'user', content: options.prompt }],
+      messages: [{ role: "user", content: options.prompt }],
     });
 
-    const textBlock = response.content.find((block) => block.type === 'text');
-    return textBlock?.text ?? '';
+    const textBlock = response.content.find((block) => block.type === "text");
+    return textBlock?.text ?? "";
   }
 
   return (
@@ -139,7 +144,7 @@ export function Claude(props: ClaudeProps) {
 export function useComplete(): (options: CompletionOptions) => Promise<string> {
   const ctx = useContext(ClaudeContext);
   if (!ctx) {
-    throw new Error('useComplete must be used inside <Claude>');
+    throw new Error("useComplete must be used inside <Claude>");
   }
   return ctx.complete;
 }
@@ -154,12 +159,12 @@ This component reads existing HTML (if any), sends it to Claude with your prompt
 Create `src/components/generate-html.tsx`:
 
 ```tsx
-import { useAsyncOutput, createEffect } from '@creact-labs/creact';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { useAsyncOutput, createEffect } from "@creact-labs/creact";
+import { existsSync } from "fs";
+import { join } from "path";
 
-import { useComplete } from './claude';
-import { readFile, writeFile } from '../fs';
+import { useComplete } from "./claude";
+import { readFile, writeFile } from "../fs";
 
 interface GenerateHtmlProps {
   path: string;
@@ -178,20 +183,20 @@ export function GenerateHtml(props: GenerateHtmlProps) {
       let existingPrompt: string | undefined;
       setOutputs((prev) => {
         existingPrompt = prev?.prompt;
-        return prev ?? { status: 'pending' };
+        return prev ?? { status: "pending" };
       });
       if (existingPrompt === props.prompt) return;
 
-      setOutputs({ status: 'reading', prompt: props.prompt });
+      setOutputs({ status: "reading", prompt: props.prompt });
 
       // Read existing HTML for context
       const filePath = join(props.path, props.file);
-      let existingHtml = '';
+      let existingHtml = "";
       if (existsSync(filePath)) {
         existingHtml = readFile(props.path, props.file);
       }
 
-      setOutputs({ status: 'generating', prompt: props.prompt });
+      setOutputs({ status: "generating", prompt: props.prompt });
 
       const systemPrompt = existingHtml
         ? `You are an HTML generator. The user will provide instructions. Here is the current HTML:\n\n${existingHtml}\n\nGenerate updated HTML based on the instructions. Output only the HTML, no explanation.`
@@ -202,10 +207,15 @@ export function GenerateHtml(props: GenerateHtmlProps) {
         system: systemPrompt,
       });
 
-      setOutputs({ status: 'writing', prompt: props.prompt });
+      setOutputs({ status: "writing", prompt: props.prompt });
 
       const outputPath = writeFile(props.path, props.file, html);
-      setOutputs({ status: 'complete', prompt: props.prompt, outputPath, html });
+      setOutputs({
+        status: "complete",
+        prompt: props.prompt,
+        outputPath,
+        html,
+      });
     },
   );
 
@@ -213,7 +223,7 @@ export function GenerateHtml(props: GenerateHtmlProps) {
     const status = generate.status();
     if (!status) return;
 
-    if (status === 'complete') {
+    if (status === "complete") {
       const outputPath = generate.outputPath() as string;
       const html = generate.html() as string;
       console.log(`HTML generated: ${outputPath}`);
@@ -230,6 +240,7 @@ export function GenerateHtml(props: GenerateHtmlProps) {
 ```
 
 Key points:
+
 - The handler checks if it already ran for this prompt—avoids regenerating on restart
 - It reads existing HTML so Claude can update it rather than start from scratch
 - The `onGenerated` callback lets parent components react to the new content
@@ -241,8 +252,8 @@ Key points:
 Update `src/components/read.tsx` to use the file utility and support a callback:
 
 ```tsx
-import { useAsyncOutput, createEffect } from '@creact-labs/creact';
-import { readFile } from '../fs';
+import { useAsyncOutput, createEffect } from "@creact-labs/creact";
+import { readFile } from "../fs";
 
 interface ReadProps {
   path: string;
@@ -277,7 +288,12 @@ export function Read(props: ReadProps) {
 Update `src/components/website.tsx` to accept reactive content:
 
 ```tsx
-import { useAsyncOutput, createEffect, access, type MaybeAccessor } from '@creact-labs/creact';
+import {
+  useAsyncOutput,
+  createEffect,
+  access,
+  type MaybeAccessor,
+} from "@creact-labs/creact";
 
 interface WebSiteProps {
   content: MaybeAccessor<string>;
@@ -295,7 +311,13 @@ export function WebSite(props: WebSiteProps) {
     { tags, region, bucketName, content },
     async (props, setOutputs) => {
       // ... rest stays the same, but use String(props.content) for upload:
-      await uploadObject(s3, props.bucketName, 'index.html', String(props.content), 'text/html');
+      await uploadObject(
+        s3,
+        props.bucketName,
+        "index.html",
+        String(props.content),
+        "text/html",
+      );
       // ...
     },
   );
@@ -310,19 +332,19 @@ export function WebSite(props: WebSiteProps) {
 Update `src/app.tsx`:
 
 ```tsx
-import { Show, createSignal } from '@creact-labs/creact';
+import { Show, createSignal } from "@creact-labs/creact";
 
-import { AWS } from './components/aws';
-import { Claude } from './components/claude';
-import { GenerateHtml } from './components/generate-html';
-import { Read } from './components/read';
-import { WebSite } from './components/website';
+import { AWS } from "./components/aws";
+import { Claude } from "./components/claude";
+import { GenerateHtml } from "./components/generate-html";
+import { Read } from "./components/read";
+import { WebSite } from "./components/website";
 
-const SHOULD_GENERATE = process.env.SHOULD_GENERATE === 'true';
-const GENERATE_PROMPT = process.env.GENERATE_PROMPT ?? '';
+const SHOULD_GENERATE = process.env.SHOULD_GENERATE === "true";
+const GENERATE_PROMPT = process.env.GENERATE_PROMPT ?? "";
 
 export function App() {
-  const [HTMLPage, setHTMLPage] = createSignal('');
+  const [HTMLPage, setHTMLPage] = createSignal("");
 
   return (
     <Claude>
@@ -336,7 +358,12 @@ export function App() {
         />
       </Show>
 
-      <Read key="read" path="./resources/my-frontend" file="index.html" onRead={setHTMLPage} />
+      <Read
+        key="read"
+        path="./resources/my-frontend"
+        file="index.html"
+        onRead={setHTMLPage}
+      />
 
       <AWS key="aws" region="us-east-1">
         <Show when={() => HTMLPage()}>
@@ -349,6 +376,7 @@ export function App() {
 ```
 
 Notice:
+
 - `<Show when={SHOULD_GENERATE}>` is a static boolean—no accessor needed
 - `<Show when={() => HTMLPage()}>` is reactive—uses an accessor so CReact tracks changes
 - `content={() => HTMLPage()}` passes an accessor to WebSite
@@ -398,4 +426,3 @@ You built an app that:
 ---
 
 Right now you control everything through environment variables and restarts. [Chapter 4](./04-creating-the-control-plane.md) adds an HTTP API so you can manage sites at runtime.
-
