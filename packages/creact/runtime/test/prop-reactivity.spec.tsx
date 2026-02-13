@@ -29,7 +29,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ seen: p.count });
         },
       );
-      return null;
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
@@ -62,7 +62,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ last: p.count });
         },
       );
-      return null;
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
@@ -96,7 +96,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ doubled: p.count * 2 });
         },
       );
-      return null;
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
@@ -127,7 +127,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ v: p.count });
         },
       );
-      return null;
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
@@ -176,7 +176,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ processed: true });
         },
       );
-      return null;
+      return <></>;
     }
 
     const memory = new InMemoryMemory();

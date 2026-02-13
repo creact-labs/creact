@@ -389,6 +389,24 @@ export function getAllNodes(): InstanceNode[] {
 }
 
 /**
+ * Call all cleanup functions on registered nodes (best-effort, sync)
+ * @internal
+ */
+export function callAllCleanupFunctions(): void {
+  for (const node of nodeRegistry.values()) {
+    if (node.cleanupFn) {
+      const fn = node.cleanupFn;
+      node.cleanupFn = undefined;
+      try {
+        fn();
+      } catch {
+        // best-effort
+      }
+    }
+  }
+}
+
+/**
  * Clear node registry (for testing)
  * @internal
  */

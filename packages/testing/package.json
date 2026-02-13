@@ -1,0 +1,27 @@
+{
+  "name": "@creact-labs/testing",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Testing utilities for CReact applications",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --run",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@creact-labs/creact": "*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

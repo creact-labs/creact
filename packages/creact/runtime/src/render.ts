@@ -509,6 +509,7 @@ function getNodeName(type: any): string {
 export function collectInstanceNodes(fiber: Fiber): any[] {
   const nodes: any[] = [];
   function walk(f: Fiber): void {
+    if (!f || !f.instanceNodes) return;
     for (const instanceNode of f.instanceNodes) {
       const snapshot = {
         ...instanceNode,
@@ -517,10 +518,11 @@ export function collectInstanceNodes(fiber: Fiber): any[] {
       nodes.push(snapshot);
     }
     for (const child of f.children) {
-      walk(child);
+      if (child) walk(child);
     }
   }
 
+  if (!fiber) return nodes;
   walk(fiber);
 
   return nodes;

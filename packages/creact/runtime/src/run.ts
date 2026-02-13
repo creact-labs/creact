@@ -21,6 +21,7 @@ import { clearHydration, prepareHydration } from "../../store/src/store";
 import type { Fiber } from "./fiber";
 import type { InstanceNode } from "./instance";
 import {
+  callAllCleanupFunctions,
   clearNodeOwnership,
   clearNodeRegistry,
   clearOutputHydration,
@@ -61,7 +62,12 @@ export interface RenderResult {
   getNodes: () => InstanceNode[];
   /** Promise that resolves when initial deployment completes */
   ready: Promise<void>;
+  /** Wait for all async work (handlers, reactive flushes, debounced saves) to complete */
+  settled: () => Promise<void>;
 }
+
+// Track all active runtimes for resetRuntime() cleanup
+const activeRuntimes = new Set<CReactRuntime>();
 
 /**
  * Internal runtime class
@@ -74,6 +80,7 @@ class CReactRuntime {
   protected currentNodes: InstanceNode[] = [];
   protected stackName: string;
   protected disposed = false;
+  protected activeFlush: Promise<void> | null = null;
 
   constructor(memory: Memory, stackName: string, options: RenderOptions = {}) {
     this.memory = memory;
@@ -85,6 +92,7 @@ class CReactRuntime {
     });
 
     setOnFlushCallback(() => this.handleReactiveFlush());
+    activeRuntimes.add(this);
   }
 
   async run(element: any): Promise<void> {
@@ -217,7 +225,7 @@ class CReactRuntime {
       ]);
       let graph = buildDependencyGraph(this.currentNodes);
       const deferredDeletes: InstanceNode[] = [];
-      const MAX_EXECUTIONS = 100;
+      const MAX_EXECUTIONS = 1_000_000;
       let totalExecutions = 0;
 
       while (pending.size > 0 || running.size > 0) {
@@ -384,7 +392,10 @@ class CReactRuntime {
       return;
     }
 
-    this.doFlush();
+    const p = this.doFlush().finally(() => {
+      if (this.activeFlush === p) this.activeFlush = null;
+    });
+    this.activeFlush = p;
   }
 
   protected async doFlush(): Promise<void> {
@@ -437,6 +448,28 @@ class CReactRuntime {
     );
   }
 
+  async settled(): Promise<void> {
+    if (this.disposed)
+      throw new Error("Cannot call settled() on disposed runtime");
+    while (true) {
+      if (this.activeFlush) {
+        await this.activeFlush;
+        continue;
+      }
+      if (this.isApplying || this.pendingFlush) {
+        await new Promise<void>((r) => queueMicrotask(r));
+        continue;
+      }
+      if (this.saveStateTimeout) {
+        clearTimeout(this.saveStateTimeout);
+        this.saveStateTimeout = null;
+        await this.saveStateNow();
+        continue;
+      }
+      break;
+    }
+  }
+
   getNodes(): InstanceNode[] {
     return [...this.currentNodes];
   }
@@ -444,12 +477,30 @@ class CReactRuntime {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    activeRuntimes.delete(this);
 
     setOnFlushCallback(null);
 
     if (this.saveStateTimeout) {
       clearTimeout(this.saveStateTimeout);
       this.saveStateTimeout = null;
+    }
+
+    // Call cleanup on all current nodes (best-effort, sync)
+    // Note: currentNodes are snapshots from collectInstanceNodes, so we must
+    // also clear cleanupFn on the real registry node to avoid double-calls.
+    for (const node of this.currentNodes) {
+      if (node.cleanupFn) {
+        const fn = node.cleanupFn;
+        node.cleanupFn = undefined;
+        const registryNode = getNodeById(node.id);
+        if (registryNode) registryNode.cleanupFn = undefined;
+        try {
+          fn();
+        } catch {
+          // best-effort
+        }
+      }
     }
 
     if (this.rootFiber) {
@@ -526,6 +577,7 @@ export function render(
     dispose: () => runtime.dispose(),
     getNodes: () => runtime.getNodes(),
     ready,
+    settled: () => runtime.settled(),
   };
 }
 
@@ -533,6 +585,14 @@ export function render(
  * Reset all runtime state (for testing)
  */
 export function resetRuntime(): void {
+  // Dispose all active runtimes (aborts cleanupFns, cancels timers)
+  for (const runtime of activeRuntimes) {
+    runtime.dispose();
+  }
+  activeRuntimes.clear();
+
+  // Call cleanup on any orphaned nodes in the global registry
+  callAllCleanupFunctions();
   clearNodeRegistry();
   clearHydration();
   clearOutputHydration();
