@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { createEffect, createSignal, For, Show } from "../../src/index";
+import { afterEach, describe, expect, it } from "vitest";
+import { createEffect, createSignal, For, Fragment, Show } from "../../src/index";
 import { useAsyncOutput } from "../src/instance";
 import type { Memory } from "../src/memory";
 import { render, resetRuntime } from "../src/run";
@@ -45,7 +45,7 @@ describe("eager handler cascading", () => {
           setOutputs({ connected: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -74,7 +74,7 @@ describe("eager handler cascading", () => {
         timeline.push({ node: "A", event: "end", time: Date.now() - start });
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function NodeB(props: { key: string }) {
@@ -84,7 +84,7 @@ describe("eager handler cascading", () => {
         timeline.push({ node: "B", event: "end", time: Date.now() - start });
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Root() {
@@ -159,7 +159,7 @@ describe("eager handler cascading", () => {
           setOutputs({ cVal: `C(${p.aVal})` });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     // D depends on B (materializes when B outputs)
@@ -171,7 +171,7 @@ describe("eager handler cascading", () => {
           setOutputs({ done: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -213,7 +213,7 @@ describe("eager handler cascading", () => {
         handlerOrder.push("Dependent");
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -243,7 +243,7 @@ describe("eager handler cascading", () => {
         handlerCallCount++;
         setOutputs({ count: handlerCallCount });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -342,7 +342,7 @@ describe("eager handler cascading", () => {
           setOutputs({ done: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -409,7 +409,7 @@ describe("eager handler cascading", () => {
           setOutputs({ bVal: "done-b" });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     function BranchC(props: { key: string }) {
@@ -420,7 +420,7 @@ describe("eager handler cascading", () => {
           setOutputs({ cVal: "done-c" });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Leaf(props: { from: string; key: string }) {
@@ -431,7 +431,7 @@ describe("eager handler cascading", () => {
           setOutputs({ processed: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -484,7 +484,7 @@ describe("eager handler cascading", () => {
     function Worker(props: { id: string; key: string }) {
       const out = useAsyncOutput<{ result: string }>(
         { key: props.key },
-        async (p, setOutputs) => {
+        async (_p, setOutputs) => {
           handlerOrder.push(`Worker:${props.id}`);
           setOutputs({ result: `done-${props.id}` });
         },
@@ -501,7 +501,7 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Downstream(props: { key: string }) {
@@ -512,7 +512,7 @@ describe("eager handler cascading", () => {
           setOutputs({ final: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -571,7 +571,7 @@ describe("eager handler cascading", () => {
           setOutputs({ processed: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -637,12 +637,12 @@ describe("eager handler cascading", () => {
     function FileConnects(props: { summary: string; fileName: string; key: string }) {
       useAsyncOutput(
         { summary: props.summary, key: props.key },
-        async (p, setOutputs) => {
+        async (_p, setOutputs) => {
           handlerOrder.push(`Connects:${props.fileName}`);
           setOutputs({ deps: ["dep1"] });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -706,7 +706,7 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Anatomy(props: { key: string }) {
@@ -718,7 +718,7 @@ describe("eager handler cascading", () => {
           setOutputs({ tissues: ["tissue-1"] });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -786,7 +786,7 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return <></>;
+      return h(Fragment, {});
     }
 
     function AnatomyStage(props: { key: string }) {
@@ -821,7 +821,7 @@ describe("eager handler cascading", () => {
           setOutputs({ organs: [`organ-${p.tissue.name}`] });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -879,7 +879,7 @@ describe("eager handler cascading", () => {
           setOutputs({ done: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -940,7 +940,7 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return <></>;
+      return h(Fragment, {});
     }
 
     function ForConsumer(props: { key: string }) {
@@ -968,7 +968,7 @@ describe("eager handler cascading", () => {
           setOutputs({ processed: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -1012,7 +1012,7 @@ describe("eager handler cascading", () => {
         await delay(20);
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function NodeB(props: { key: string }) {
@@ -1020,7 +1020,7 @@ describe("eager handler cascading", () => {
         await delay(20);
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Root() {

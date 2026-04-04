@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { createSignal, Show } from "../../src/index";
+import { createSignal, Fragment, Show } from "../../src/index";
 import { useAsyncOutput } from "../src/instance";
 import { render, resetRuntime } from "../src/run";
 import { InMemoryMemory } from "../../test/helpers/setup";
@@ -29,7 +29,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ seen: p.count });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -62,7 +62,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ last: p.count });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -96,7 +96,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ doubled: p.count * 2 });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -127,7 +127,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ v: p.count });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -176,7 +176,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
           setOutputs({ processed: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();

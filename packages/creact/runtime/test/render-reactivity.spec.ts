@@ -25,38 +25,6 @@ function findFibers(fiber: Fiber, predicate: (f: Fiber) => boolean): Fiber[] {
   return result;
 }
 
-/** Helper: count non-null fibers in the tree */
-function _countFibers(fiber: Fiber): number {
-  let count = 0;
-  function walk(f: Fiber) {
-    if (f.type !== null) count++;
-    for (const child of f.children) walk(child);
-  }
-  walk(fiber);
-  return count;
-}
-
-/** Helper: collect all fiber types in depth-first order */
-function _collectTypes(fiber: Fiber): string[] {
-  const types: string[] = [];
-  function walk(f: Fiber) {
-    if (
-      f.type !== null &&
-      f.type !== "reactive-boundary" &&
-      f.type !== "fragment"
-    ) {
-      types.push(
-        typeof f.type === "function"
-          ? f.type.name || "Component"
-          : String(f.type),
-      );
-    }
-    for (const child of f.children) walk(child);
-  }
-  walk(fiber);
-  return types;
-}
-
 /** Helper: create a simple JSX element */
 function h(type: any, props?: Record<string, any>, key?: string | number) {
   return { type, props: props || {}, key };

@@ -33,7 +33,8 @@ describe("createMemo", () => {
           undefined,
           { equals: false },
         );
-        const _c1 = createMemo(
+        // reactive subscription: must execute to track b1/b2 and append to seq
+        void createMemo(
           () => {
             b1();
             b2();
@@ -68,7 +69,8 @@ describe("createMemo", () => {
         const f4 = createMemo(() => d());
         const f5 = createMemo(() => d());
         let gcount = 0;
-        const _g = createMemo(() => {
+        // reactive subscription: must execute to track f1–f5 and count evaluations
+        void createMemo(() => {
           gcount++;
           return f1() + f2() + f3() + f4() + f5();
         });
@@ -102,7 +104,8 @@ describe("createMemo", () => {
         const g2 = createMemo(() => f1() + f2() + f3());
         const g3 = createMemo(() => f1() + f2() + f3());
         let hcount = 0;
-        const _h = createMemo(() => {
+        // reactive subscription: must execute to track g1–g3 and count evaluations
+        void createMemo(() => {
           hcount++;
           return g1() + g2() + g3();
         });

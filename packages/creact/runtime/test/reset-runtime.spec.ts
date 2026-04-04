@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { Fragment } from "../../src/index";
 import { useAsyncOutput } from "../src/instance";
 import { render, resetRuntime } from "../src/run";
 import { InMemoryMemory } from "../../test/helpers/setup";
@@ -23,7 +24,7 @@ describe("resetRuntime()", () => {
           cleanupCalls.push("A");
         };
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function NodeB(props: { key: string }) {
@@ -33,7 +34,7 @@ describe("resetRuntime()", () => {
           cleanupCalls.push("B");
         };
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     function Root() {
@@ -62,7 +63,7 @@ describe("resetRuntime()", () => {
       useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
         setOutputs({ value: 1 });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const result = render(
@@ -94,7 +95,7 @@ describe("resetRuntime()", () => {
       useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -133,7 +134,7 @@ describe("resetRuntime()", () => {
         handlerCalls.push("handler");
         setOutputs({ value: 42 });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     // First render

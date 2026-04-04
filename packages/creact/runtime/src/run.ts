@@ -471,7 +471,14 @@ class CReactRuntime {
   }
 
   getNodes(): InstanceNode[] {
-    return [...this.currentNodes];
+    // Return live nodes with current outputs from the registry
+    return this.currentNodes.map(snapshot => {
+      const live = getNodeById(snapshot.id);
+      if (live) {
+        return { ...snapshot, outputs: live.outputs };
+      }
+      return snapshot;
+    });
   }
 
   dispose(): void {

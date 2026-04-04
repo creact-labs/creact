@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { createSignal, Show } from "../../src/index";
+import { Fragment, Show } from "../../src/index";
 import { useAsyncOutput } from "../src/instance";
 import { render, resetRuntime } from "../src/run";
 import { InMemoryMemory } from "../../test/helpers/setup";
@@ -19,7 +19,7 @@ afterEach(() => {
 describe("settled()", () => {
   it("resolves immediately when no async handlers exist", async () => {
     function Empty() {
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -41,7 +41,7 @@ describe("settled()", () => {
         handlerOrder.push("handler-done");
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -85,7 +85,7 @@ describe("settled()", () => {
           setOutputs({ connected: true });
         },
       );
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -117,7 +117,7 @@ describe("settled()", () => {
       useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
         setOutputs({ value: 1 });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const result = render(
@@ -141,7 +141,7 @@ describe("settled()", () => {
         await delay(30);
         setOutputs({ done: true });
       });
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
@@ -170,7 +170,7 @@ describe("settled()", () => {
 
   it("throws if runtime is disposed", async () => {
     function Empty() {
-      return <></>;
+      return h(Fragment, {});
     }
 
     const memory = new InMemoryMemory();
