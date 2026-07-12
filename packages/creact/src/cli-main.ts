@@ -233,24 +233,26 @@ export async function runCli(
   runner: AppRunner,
   watchSignal?: AbortSignal,
 ): Promise<number> {
-  const command = parseCliArgs(args);
-
-  if (command.kind === "help") {
-    logger.help();
-    return 0;
-  }
-  if (command.kind === "error") {
-    logger.error(command.message);
-    return 1;
-  }
-
-  const entrypoint = resolve(cwd, command.entrypoint);
-  logger.banner(loadVersion());
-
-  // runCli never throws past this point: any failure (a watcher error, an
-  // unexpected loader crash) is formatted through the CLI logger and
-  // becomes exit code 1 — never Node's default rejection dump
+  // runCli never throws: every failure (a watcher error, an unexpected
+  // loader crash, even a version-file read) is formatted through the CLI
+  // logger and becomes exit code 1 — never Node's default rejection dump.
+  // The cli.ts shim can therefore stay a logic-free
+  // `process.exit(await runCli(...))`.
   try {
+    const command = parseCliArgs(args);
+
+    if (command.kind === "help") {
+      logger.help();
+      return 0;
+    }
+    if (command.kind === "error") {
+      logger.error(command.message);
+      return 1;
+    }
+
+    const entrypoint = resolve(cwd, command.entrypoint);
+    logger.banner(loadVersion());
+
     // Type-check — blocks execution on failure
     if (runTypeCheck(entrypoint, cwd)) {
       logger.appStarting();

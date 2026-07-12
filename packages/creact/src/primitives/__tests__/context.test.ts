@@ -55,6 +55,19 @@ describe("createContext / useContext", () => {
       expect(useContext(Ctx)).toBe("from-owner");
     });
   });
+
+  it("a provider intentionally supplying undefined beats the default", () => {
+    const Ctx = createContext<string | undefined>("default");
+
+    createRoot((_dispose) => {
+      // Presence, not value, decides the owner-chain lookup — an entry
+      // whose value is undefined must not fall through to the default
+      pushContext(Ctx.id, undefined);
+      popContext(Ctx.id);
+
+      expect(useContext(Ctx)).toBeUndefined();
+    });
+  });
 });
 
 describe("context snapshots (render-time capture/restore)", () => {

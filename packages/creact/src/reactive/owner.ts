@@ -141,18 +141,20 @@ function runOwnerCleanups(owner: Owner): void {
 }
 
 /**
- * Look up a context value in the owner chain
+ * Look up a context entry in the owner chain.
+ * The hit is wrapped so a provider intentionally supplying undefined is
+ * distinguishable from an absent entry (null = no provider in the chain).
  * @internal
  */
-export function lookupContext<T>(key: symbol): T | undefined {
+export function lookupContext<T>(key: symbol): { value: T } | null {
   let current = getOwner();
   while (current) {
     if (current.context && key in current.context) {
-      return current.context[key] as T;
+      return { value: current.context[key] as T };
     }
     current = current.owner;
   }
-  return undefined;
+  return null;
 }
 
 /**

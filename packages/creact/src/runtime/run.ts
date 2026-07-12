@@ -67,6 +67,13 @@ export interface RenderOptions {
   /** Backstop: max handler executions per deployment before assuming an
    * infinite cascade (default 1,000,000) */
   maxHandlerExecutions?: number;
+  /**
+   * Hard timeout (ms) for Memory calls made under a stack mutex. A
+   * timed-out call rejects its deployment operation instead of blocking
+   * the stack forever. Off by default — the underlying backend call is
+   * not cancelled, so enable only when abandoned calls are safe.
+   */
+  memoryCallTimeoutMs?: number;
 }
 
 /**
@@ -140,6 +147,7 @@ class CReactRuntime {
     this.stateMachine = new StateMachine(memory, {
       user: options.user,
       enableAuditLog: options.enableAuditLog,
+      memoryCallTimeoutMs: options.memoryCallTimeoutMs,
     });
 
     this.flushCallback = () => this.handleReactiveFlush();

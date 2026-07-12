@@ -20,6 +20,13 @@ import type {
 export interface StateMachineOptions {
   user?: string;
   enableAuditLog?: boolean;
+  /**
+   * Hard timeout for Memory calls made under a stack mutex. A timed-out
+   * call rejects its operation instead of blocking the stack forever.
+   * Off by default: the underlying backend call is not cancelled, so only
+   * enable this when abandoned calls are safe for the backend.
+   */
+  memoryCallTimeoutMs?: number;
 }
 
 // How long a backend call may hold a stack mutex before we warn about it
@@ -55,24 +62,47 @@ export class StateMachine {
   /**
    * Backend I/O under the stack mutex that stalls blocks every subsequent
    * operation on that stack (checkpoints, applying-set updates, deployment
-   * completion) — surface the stall instead of hanging silently.
+   * completion) — surface the stall instead of hanging silently, and,
+   * when memoryCallTimeoutMs is set, bound it with a hard rejection.
    */
   private async warnIfStalled<T>(
     stackName: string,
     operation: string,
     work: () => Promise<T>,
   ): Promise<T> {
-    const timer = setTimeout(() => {
+    const warnTimer = setTimeout(() => {
       console.warn(
         `[CReact] Memory.${operation} for "${stackName}" has been running ` +
           `for ${STALL_WARNING_MS / 1000}s while holding the stack mutex — ` +
           "a stalled backend blocks every operation on this stack",
       );
     }, STALL_WARNING_MS);
+
+    const timeoutMs = this.options.memoryCallTimeoutMs;
     try {
-      return await work();
+      if (timeoutMs === undefined) {
+        return await work();
+      }
+
+      let rejectTimer!: ReturnType<typeof setTimeout>;
+      const timeout = new Promise<never>((_, reject) => {
+        rejectTimer = setTimeout(() => {
+          reject(
+            new Error(
+              `[CReact] Memory.${operation} for "${stackName}" exceeded ` +
+                `${timeoutMs}ms (memoryCallTimeoutMs) — failing the ` +
+                "operation instead of blocking the stack",
+            ),
+          );
+        }, timeoutMs);
+      });
+      try {
+        return await Promise.race([work(), timeout]);
+      } finally {
+        clearTimeout(rejectTimer);
+      }
     } finally {
-      clearTimeout(timer);
+      clearTimeout(warnTimer);
     }
   }
 

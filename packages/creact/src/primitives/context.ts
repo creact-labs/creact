@@ -65,10 +65,11 @@ export function createContext<T>(defaultValue?: T): Context<T | undefined> {
  * then falls back to render-time context stacks.
  */
 export function useContext<T>(context: Context<T>): T {
-  // Try Owner-based lookup first
-  const ownerValue = lookupContext<T>(context.id);
-  if (ownerValue !== undefined) {
-    return ownerValue;
+  // Try Owner-based lookup first — presence-tracked, so a provider that
+  // intentionally supplies undefined wins over the stack/default fallback
+  const ownerEntry = lookupContext<T>(context.id);
+  if (ownerEntry) {
+    return ownerEntry.value;
   }
 
   // Fall back to render-time stack. Values are stored untyped because one

@@ -369,4 +369,34 @@ describe("stalled backend diagnostics", () => {
       vi.useRealTimers();
     }
   });
+
+  it("memoryCallTimeoutMs bounds a stalled call with a hard rejection", async () => {
+    vi.useFakeTimers();
+    try {
+      const stalled: Memory = {
+        getState: async () => null,
+        saveState: () => new Promise(() => {}),
+      };
+      const sm = new StateMachine(stalled, { memoryCallTimeoutMs: 5_000 });
+
+      const operation = sm.completeDeployment(stack(), []);
+      const outcome = expect(operation).rejects.toThrow(
+        /exceeded 5000ms \(memoryCallTimeoutMs\)/,
+      );
+      await vi.advanceTimersByTimeAsync(5_000);
+      await outcome;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("memoryCallTimeoutMs leaves fast backend calls untouched", async () => {
+    const memory = new InMemoryMemory();
+    const sm = new StateMachine(memory, { memoryCallTimeoutMs: 5_000 });
+    const stackName = stack();
+
+    await sm.completeDeployment(stackName, []);
+
+    expect((await memory.getState(stackName))?.status).toBe("deployed");
+  });
 });
