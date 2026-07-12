@@ -12,7 +12,7 @@ export default defineConfig({
     jsxImportSource: resolve(__dirname, "../creact/src/jsx"),
   },
   test: {
-    include: ["test/**/*.spec.{ts,tsx}"],
+    include: ["src/**/__tests__/**/*.test.{ts,tsx}"],
     environment: "node",
   },
 });

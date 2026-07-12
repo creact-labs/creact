@@ -20,6 +20,6 @@
     "**/dist",
     "**/coverage",
     // Solid JSX app with its own tsconfig (jsx: preserve, jsxImportSource solid-js)
-    "packages/website"
+    "apps/website"
   ]
 }

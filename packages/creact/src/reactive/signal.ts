@@ -272,7 +272,8 @@ function handleError(err: unknown, owner: any): void {
   try {
     for (const f of fns as ((err: any) => void)[]) f(error);
   } catch (e) {
-    handleError(e, owner?.owner ?? null);
+    // owner is non-null here (fns came from owner.context)
+    handleError(e, owner.owner);
   }
 }
 
@@ -301,10 +302,10 @@ export function catchError<T>(
     return fn();
   } catch (err) {
     handler(err instanceof Error ? err : new Error(String(err)));
-    return undefined;
   } finally {
     setOwner(prevOwner);
   }
+  return undefined;
 }
 
 /**

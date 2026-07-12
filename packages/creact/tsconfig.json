@@ -7,11 +7,12 @@
     "jsx": "react-jsx",
     "jsxImportSource": "./src/jsx"
   },
-  "include": [
-    "src/**/*",
-    "flow/src/**/*",
-    "runtime/src/**/*",
-    "store/src/**/*"
-  ],
-  "exclude": ["node_modules", "dist", "**/test/**"]
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "src/testing/**"
+  ]
 }

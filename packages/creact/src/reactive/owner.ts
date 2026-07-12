@@ -43,11 +43,11 @@ export function runWithOwner<T>(o: Owner | null, fn: () => T): T | undefined {
   } catch (err) {
     if (_handleError) _handleError(err);
     else throw err;
-    return undefined;
   } finally {
     setOwner(prev);
     setListener(prevListener);
   }
+  return undefined;
 }
 
 /**
@@ -129,11 +129,10 @@ export function cleanupOwner(owner: Owner): void {
 function runOwnerCleanups(owner: Owner): void {
   if (!owner.cleanups) return;
 
+  // onCleanup only ever pushes functions, so entries are always callable
   for (let i = owner.cleanups.length - 1; i >= 0; i--) {
-    const cleanup = owner.cleanups[i];
-    if (!cleanup) continue;
     try {
-      cleanup();
+      owner.cleanups[i]!();
     } catch (e) {
       console.error("[CReact] Error in cleanup:", e);
     }

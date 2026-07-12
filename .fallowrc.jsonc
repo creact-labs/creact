@@ -35,30 +35,41 @@
     "maxCrap": 35,
     "ignore": [
       // Complexity gates apply to production code; specs are structured as
-      // long describe/it blocks by design.
-      "**/test/**",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
+      // long describe/it blocks by design, and mocks/test utilities are
+      // test-support code.
+      "**/__tests__/**",
+      "**/__mocks__/**",
+      "**/src/testing/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
       // Process entry: runs main() at import, spawns watchers, exits the
       // process — excluded from vitest coverage for the same reason, and
       // CRAP cannot be scored without coverage.
       "packages/creact/src/cli.ts",
       // Docs pages are page-sized JSX content (prose + code samples), not
       // logic — unit-size limits don't apply to content.
-      "packages/website/src/pages/docs/**"
+      "apps/website/src/pages/docs/getting-started/**",
+      "apps/website/src/pages/docs/guides/**",
+      "apps/website/src/pages/docs/api/**",
+      "apps/website/src/pages/docs/architecture/**"
     ]
   },
 
   "duplicates": {
     "ignore": [
-      // Test suites repeat setup scaffolding by design
-      "**/test/**",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
+      // Test suites and their mocks repeat setup scaffolding by design
+      "**/__tests__/**",
+      "**/__mocks__/**",
+      "**/src/testing/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
       // Hand-written docs pages share an intentional page skeleton
       // (hero → signature → example → notes) — repetition here is the
       // documentation format, not extractable logic.
-      "packages/website/src/pages/docs/**"
+      "apps/website/src/pages/docs/getting-started/**",
+      "apps/website/src/pages/docs/guides/**",
+      "apps/website/src/pages/docs/api/**",
+      "apps/website/src/pages/docs/architecture/**"
     ]
   }
 }

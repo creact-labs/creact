@@ -2,29 +2,29 @@
  * CReact - Use JSX to automate durable workflows
  */
 
-export { ErrorBoundary } from "../flow/src/ErrorBoundary";
-export { For } from "../flow/src/For";
+export { ErrorBoundary } from "./flow/error-boundary";
+export { For } from "./flow/for";
 // Control Flow
-export { Show } from "../flow/src/Show";
-export { Match, Switch } from "../flow/src/Switch";
+export { Show } from "./flow/show";
+export { Match, Switch } from "./flow/switch";
 export type {
   Handler,
   InstanceNode,
   OutputAccessors,
-} from "../runtime/src/instance";
+} from "./runtime/instance";
 // Instance/Handler (CReact-specific)
-export { useAsyncOutput } from "../runtime/src/instance";
+export { useAsyncOutput } from "./runtime/instance";
 export type {
   AuditLogEntry,
   DeploymentState,
   Memory,
-} from "../runtime/src/memory";
-export type { RenderOptions, RenderResult } from "../runtime/src/run";
+} from "./runtime/memory";
+export type { RenderOptions, RenderResult } from "./runtime/run";
 // Runtime
-export { render, resetRuntime } from "../runtime/src/run";
-export type { SetStoreFunction } from "../store/src/store";
+export { render, resetRuntime } from "./runtime/run";
+export type { SetStoreFunction } from "./store/store";
 // Store
-export { createStore, unwrap } from "../store/src/store";
+export { createStore, unwrap } from "./store/store";
 export type { CReactNode, JSXElement } from "./jsx/jsx-runtime";
 // JSX
 export { createElement, Fragment, jsx, jsxs } from "./jsx/jsx-runtime";

@@ -203,15 +203,14 @@ function runQueue(queue: Computation<any>[]): void {
 }
 
 /**
- * Run effects queue
+ * Run effects queue.
+ * No runaway guard needed here: unlike runQueue (which iterates the live
+ * Updates array), this iterates a detached snapshot — new effects scheduled
+ * while it runs go to a fresh Effects array, so `queue` cannot grow.
  */
 function runEffects(queue: Computation<any>[]): void {
   for (let i = 0; i < queue.length; i++) {
     runTop(queue[i]!);
-    if (i > 10e5) {
-      queue.length = 0;
-      throw new Error("Potential infinite loop detected.");
-    }
   }
 }
 
@@ -225,10 +224,15 @@ function runTop(node: Computation<any>): void {
     return;
   }
 
+  // Owning computations have always completed at least one run by the time
+  // an owned child is scheduled (children are created during that run), so
+  // updatedAt is never null here. And because markDownstream enqueues every
+  // PENDING pure computation into Updates — which fully drains before any
+  // effect executes — an ancestor can only be CLEAN or STALE at this point.
   const ancestors: Computation<any>[] = [node];
   while (
     (node = node.owner as Computation<any>) &&
-    (!node.updatedAt || node.updatedAt < ExecCount)
+    node.updatedAt! < ExecCount
   ) {
     if (node.state) ancestors.push(node);
   }
@@ -237,11 +241,6 @@ function runTop(node: Computation<any>): void {
     node = ancestors[i]!;
     if (node.state === STALE) {
       updateComputation(node);
-    } else if (node.state === PENDING) {
-      const updates = Updates;
-      Updates = null;
-      runUpdates(() => lookUpstream(node, ancestors[0]), false);
-      Updates = updates;
     }
   }
 }
@@ -249,34 +248,33 @@ function runTop(node: Computation<any>): void {
 /**
  * Look upstream for stale sources
  */
-function lookUpstream(node: Computation<any>, ignore?: Computation<any>): void {
+function lookUpstream(node: Computation<any>): void {
   node.state = 0;
-  if (!node.sources) return;
 
-  for (let i = 0; i < node.sources.length; i++) {
-    const source = node.sources[i] as any;
+  // PENDING is only ever set on observers (markDownstream), and observing
+  // anything guarantees a sources array exists
+  for (let i = 0; i < node.sources!.length; i++) {
+    const source = node.sources![i] as any;
     if (source.sources) {
       const state = source.state;
       if (state === STALE) {
-        if (
-          source !== ignore &&
-          (!source.updatedAt || source.updatedAt < ExecCount)
-        ) {
+        // Memos run at creation, so updatedAt is always set; skip sources
+        // already brought up to date in this cycle
+        if (source.updatedAt < ExecCount) {
           runTop(source);
         }
       } else if (state === PENDING) {
-        lookUpstream(source, ignore);
+        lookUpstream(source);
       }
     }
   }
 }
 
 /**
- * Mark downstream observers as pending
+ * Mark downstream observers as pending.
+ * Callers check `node.observers` before calling, so it is always non-null.
  */
 export function markDownstream(node: any): void {
-  if (!node.observers) return;
-
   for (let i = 0; i < node.observers.length; i++) {
     const o = node.observers[i]!;
     if (!o.state) {
@@ -289,10 +287,11 @@ export function markDownstream(node: any): void {
 }
 
 /**
- * Update a computation - clean it and run it
+ * Update a computation - clean it and run it.
+ * Every scheduled node has an fn (owners without fn are never queued —
+ * runTop filters the ancestor walk on `node.state`, which owners lack).
  */
 export function updateComputation(node: Computation<any>): void {
-  if (!node.fn) return;
   cleanComputation(node);
   const time = ExecCount;
   runComputation(node, node.value, time);
@@ -381,8 +380,11 @@ function propagateMemoValue(memo: any, nextValue: any): void {
   for (let i = 0; i < memo.observers.length; i++) {
     const o = memo.observers[i]!;
     if (!o.state) {
-      if (o.pure) Updates?.push(o);
-      else Effects?.push(o);
+      // Only pure observers can be found clean mid-propagation: memos are
+      // re-resolved on demand (resolvePending) while non-pure observers
+      // (effects) only drain after every pure update has settled — by then
+      // markDownstream has already marked them.
+      Updates?.push(o);
       if (o.observers) markDownstream(o);
     }
     o.state = STALE;

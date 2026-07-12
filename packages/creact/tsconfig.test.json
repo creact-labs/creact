@@ -10,14 +10,5 @@
       "@creact-labs/creact/jsx-runtime": ["./src/jsx/jsx-runtime"]
     }
   },
-  "include": [
-    "src/**/*",
-    "flow/src/**/*",
-    "runtime/src/**/*",
-    "store/src/**/*",
-    "test/**/*",
-    "flow/test/**/*",
-    "runtime/test/**/*",
-    "store/test/**/*"
-  ]
+  "include": ["src/**/*"]
 }
