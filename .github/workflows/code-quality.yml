@@ -122,9 +122,12 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -o pipefail
+          # fallow prints the scope/summary lines on stderr and only the
+          # findings on stdout — merge both so a clean audit still hands
+          # the Grok review a real report instead of an empty file
           npx --yes fallow@3.3.0 audit \
             --base "origin/${GITHUB_BASE_REF}" \
-            --coverage coverage/coverage-final.json | tee fallow-audit.txt
+            --coverage coverage/coverage-final.json 2>&1 | tee fallow-audit.txt
       - name: Upload audit report (consumed by the Grok review)
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
