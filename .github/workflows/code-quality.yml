@@ -1,0 +1,129 @@
+name: Code Quality
+
+on:
+  workflow_dispatch:
+  # Reusable trigger so release.yml can gate publishing on this workflow.
+  workflow_call:
+  pull_request:
+    branches: [main, release]
+  push:
+    branches: [main, release]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Cheap, independent checks run in parallel — typecheck/test/build surface
+  # co-failures in a single CI cycle (twd code-quality pattern).
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Root (packages + testing, strict flags)
+        run: npx tsc --noEmit
+      - name: creact test suites
+        run: npx tsc --noEmit -p packages/creact/tsconfig.test.json
+      - name: Website (Solid JSX)
+        run: npx tsc --noEmit -p apps/website/tsconfig.json
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: creact — tests + enforced 100% coverage gate
+        run: npm run test:coverage -w packages/creact
+      - name: testing package
+        run: npm test -w packages/testing
+      - name: Upload coverage (consumed by the fallow job)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-creact
+          path: packages/creact/coverage/coverage-final.json
+          retention-days: 14
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: creact (tsc; typecheck+test hooks covered by sibling jobs)
+        run: npm run build -w packages/creact --ignore-scripts
+      - name: Website (vite)
+        run: npm run build -w apps/website
+
+  # Fallow static analysis: dead code, duplication, complexity/CRAP health,
+  # and a changed-files audit. Config + justified ignores in .fallowrc.jsonc.
+  fallow:
+    name: Fallow
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # audit diffs changed files against the base branch
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download coverage for exact CRAP scores
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-creact
+          path: packages/creact/coverage
+      - name: Dead code
+        run: npx --yes fallow@3.3.0 dead-code
+      - name: Duplication
+        run: npx --yes fallow@3.3.0 dupes
+      - name: Health (CRAP < 35, zero findings)
+        run: npx --yes fallow@3.3.0 health --coverage packages/creact/coverage/coverage-final.json
+      - name: Audit changed files (PRs)
+        if: github.event_name == 'pull_request'
+        run: npx --yes fallow@3.3.0 audit --base origin/${{ github.base_ref }}
+
+  # Single stable aggregate — THE required status check for branch
+  # protection. Required checks are selected per job and job matrices/names
+  # drift; this one context stays stable: "Code Quality / Quality Gate".
+  # `if: always()` is load-bearing: without it a failing job would make this
+  # SKIP, and GitHub treats a skipped required check as a PASS.
+  quality-gate:
+    name: Quality Gate
+    needs: [typecheck, test, build, fallow]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Verify all checks passed
+        run: |
+          if [ "${{ needs.typecheck.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.fallow.result }}" != "success" ]; then
+            echo "::error::Quality gate failed (typecheck=${{ needs.typecheck.result }}, test=${{ needs.test.result }}, build=${{ needs.build.result }}, fallow=${{ needs.fallow.result }})"
+            exit 1
+          fi
+          echo "All quality checks passed."

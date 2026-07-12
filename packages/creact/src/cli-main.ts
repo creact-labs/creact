@@ -22,7 +22,6 @@ export function loadVersion(
 ): string {
   for (const candidate of candidates) {
     try {
-      // fallow-ignore-next-line unresolved-imports
       return require(candidate).version;
     } catch {
       // try next layout

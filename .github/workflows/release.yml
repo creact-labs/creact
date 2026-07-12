@@ -1,0 +1,81 @@
+name: Release
+
+# Standardized release flow:
+#   1. Land work on main through PRs (Quality Gate required).
+#   2. Bump the version in packages/creact/package.json on main.
+#   3. Open a PR main → release; merging it is the release action.
+#   4. This workflow re-runs the full quality gate on release, then publishes
+#      to npm (idempotent — skips versions that are already published),
+#      tags vX.Y.Z, and creates a GitHub Release with generated notes.
+#
+# Requires the NPM_TOKEN repository secret (npm automation token).
+
+on:
+  push:
+    branches: [release]
+
+permissions:
+  contents: write
+  id-token: write # npm provenance
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Quality
+    uses: ./.github/workflows/code-quality.yml
+
+  publish:
+    name: Publish @creact-labs/creact
+    needs: [quality]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./packages/creact/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if npm view "@creact-labs/creact@$VERSION" version > /dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "@creact-labs/creact@$VERSION already on npm — skipping publish."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.version.outputs.published == 'false'
+        # typecheck/tests already passed in the quality job
+        run: npm run build -w packages/creact --ignore-scripts
+
+      - name: Publish to npm (with provenance)
+        if: steps.version.outputs.published == 'false'
+        run: npm publish -w packages/creact --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Tag and GitHub Release
+        if: steps.version.outputs.published == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git rev-parse "$TAG" > /dev/null 2>&1; then
+            echo "Tag $TAG already exists — skipping."
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
+          gh release create "$TAG" --generate-notes --title "$TAG"
