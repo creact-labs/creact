@@ -46,16 +46,7 @@
   gap: 20px;
 }
 
-.docs-nav-right a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.docs-nav-right a:hover {
-  color: var(--text);
-}
+/* .docs-nav-right a inherits the shared top-nav link style (styles.css) */
 
 .docs-nav-github {
   display: flex;
@@ -302,7 +293,7 @@
   line-height: 1.5;
 }
 
-.docs-article td code {
+td code {
   font-size: 12px;
 }
 
@@ -381,49 +372,50 @@
   height: 14px;
 }
 
-.doc-code-block pre,
-.doc-code-block .shiki {
+/* Shiki output is a <pre> inside .doc-code-block, so one selector covers
+   both the highlighted and the plain fallback code block */
+.doc-code-block pre {
   padding: 20px;
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.7;
   overflow-x: auto;
   margin: 0;
-  background: var(--code-bg) !important;
+  background: var(--code-bg);
 }
 
-.doc-code-block pre code,
-.doc-code-block .shiki code {
+/* Code inside a pre is the block itself — undo inline-code styling */
+pre code {
   background: none;
   padding: 0;
   border-radius: 0;
   font-size: inherit;
 }
 
-/* Shiki dual-theme: map CSS variables to prefers-color-scheme */
+/* Shiki dual-theme with defaultColor: false — the highlighter emits only
+   --shiki-dark/--shiki-light custom properties inline (no inline color or
+   background to fight), so plain rules map them per color scheme */
 @media (prefers-color-scheme: dark) {
-  .shiki {
-    background-color: var(--code-bg) !important;
+  .doc-code-block pre {
+    color: var(--shiki-dark);
   }
-  .shiki,
-  .shiki span {
-    color: var(--shiki-dark) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    text-decoration: var(--shiki-dark-text-decoration) !important;
+  pre span {
+    color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
   }
 }
 
 @media (prefers-color-scheme: light) {
-  .shiki {
-    background-color: var(--code-bg) !important;
+  .doc-code-block pre {
+    color: var(--shiki-light);
   }
-  .shiki,
-  .shiki span {
-    color: var(--shiki-light) !important;
-    font-style: var(--shiki-light-font-style) !important;
-    font-weight: var(--shiki-light-font-weight) !important;
-    text-decoration: var(--shiki-light-text-decoration) !important;
+  pre span {
+    color: var(--shiki-light);
+    font-style: var(--shiki-light-font-style);
+    font-weight: var(--shiki-light-font-weight);
+    text-decoration: var(--shiki-light-text-decoration);
   }
 }
 

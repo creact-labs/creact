@@ -169,14 +169,18 @@ body {
   gap: 32px;
 }
 
-.nav-links a {
+/* Shared top-nav link style — used by the landing nav here and the docs
+   nav (docs.css); one rule so the two cannot drift apart */
+.nav-links a,
+.docs-nav-right a {
   color: var(--text-muted);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.docs-nav-right a:hover {
   color: var(--text);
 }
 
@@ -401,8 +405,12 @@ body {
     gap: 16px;
   }
 
-  .nav-links a:not(.nav-github) {
+  .nav-links a {
     display: none;
+  }
+
+  .nav-links .nav-github {
+    display: flex;
   }
 
   .hero {
