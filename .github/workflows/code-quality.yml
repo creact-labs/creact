@@ -4,13 +4,11 @@ on:
   workflow_dispatch:
   # Reusable trigger so release.yml can gate publishing on this workflow.
   workflow_call:
+  # PR-only by design: direct pushes to develop run nothing. The gate runs
+  # once, on the PR into release (or develop), and again on the release
+  # branch itself via release.yml's workflow_call after the merge.
   pull_request:
     branches: [develop, release]
-  push:
-    # develop only: pushes to release are merges of already-gated PRs, and
-    # release.yml re-runs this whole workflow there via workflow_call —
-    # a push trigger would run it a third time
-    branches: [develop]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
