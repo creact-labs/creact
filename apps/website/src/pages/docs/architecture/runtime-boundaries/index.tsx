@@ -145,8 +145,10 @@ setShowTenant(false); // <Show> unmounts the wrapper → child disposes
 // Resume: re-mount and the child re-hydrates from its ledger
 setShowTenant(true);
 
-// Destroy: an explicit act against the child's own Memory
-await tenantMemory.saveState('tenant-app-tenant-a', emptyState);`}
+// Destroy: an explicit act against the child's own Memory.
+// TenantApp = createRuntime(App), so key="tenant-a" addresses the
+// ledger as app-runtime-tenant-a (kebab of "AppRuntime" plus the key).
+await tenantMemory.saveState('app-runtime-tenant-a', emptyState);`}
       />
       <Callout type="warning">
         <p>

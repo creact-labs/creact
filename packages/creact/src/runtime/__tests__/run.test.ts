@@ -12,6 +12,7 @@ import {
   useContext,
 } from "../../index";
 import { removeNodeFromRegistry, useAsyncOutput} from "../instance";
+import { allContexts} from "../runtime-context";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
 
@@ -1165,7 +1166,11 @@ describe("getNodes", () => {
     const result = render(() => h(App, {}, "app"), memory, "nodes-fallback");
     await result.ready;
 
-    removeNodeFromRegistry("db-solo");
+    // Removal is scoped to one runtime's context — name it explicitly
+    const owningCtx = [...allContexts].find((ctx) =>
+      ctx.nodeRegistry.has("db-solo"),
+    )!;
+    removeNodeFromRegistry("db-solo", owningCtx);
 
     const nodes = result.getNodes();
     expect(nodes).toHaveLength(1);

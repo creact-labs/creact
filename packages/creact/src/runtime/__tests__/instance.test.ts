@@ -4,6 +4,11 @@ import { Fragment, Show, createSignal} from "../../index";
 import { callAllCleanupFunctions, getAllNodes, getNodeById, removeNodeFromRegistry, shallowEqual, useAsyncOutput} from "../instance";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
+import { allContexts} from "../runtime-context";
+
+/** The runtime context a registered node lives in (for scoped removal) */
+const contextHolding = (nodeId: string) =>
+  [...allContexts].find((ctx) => ctx.nodeRegistry.has(nodeId))!;
 
 const bareMemory = (): Memory => ({
   getState: async () => null,
@@ -323,7 +328,8 @@ describe("node registry maintenance", () => {
     );
     await result.ready;
 
-    removeNodeFromRegistry("db-gone");
+    // Removal is scoped to one runtime's context — name it explicitly
+    removeNodeFromRegistry("db-gone", contextHolding("db-gone"));
 
     expect(getNodeById("db-gone")).toBeUndefined();
     callAllCleanupFunctions();

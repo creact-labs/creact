@@ -548,17 +548,16 @@ export function callAllCleanupFunctions(ctx?: RuntimeContext): void {
  */
 export function removeNodeFromRegistry(
   nodeId: string,
-  ctx?: RuntimeContext,
+  ctx: RuntimeContext = getActiveContext(),
 ): void {
-  const contexts = ctx ? [ctx] : allContexts;
-  for (const c of contexts) {
-    const node = c.nodeRegistry.get(nodeId);
-    if (node) {
-      node.cleanupFn = undefined;
-      c.nodeRegistry.delete(nodeId);
-    }
-    c.nodeOwnership.delete(nodeId);
+  // Destructive — always scoped to one runtime's context. A cross-runtime
+  // sweep could delete a same-id node from an unrelated runtime.
+  const node = ctx.nodeRegistry.get(nodeId);
+  if (node) {
+    node.cleanupFn = undefined;
+    ctx.nodeRegistry.delete(nodeId);
   }
+  ctx.nodeOwnership.delete(nodeId);
 }
 
 /**
