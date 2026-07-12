@@ -79,23 +79,27 @@ jobs:
 
       # Not gated on the publish outputs: a retry after "published but not
       # tagged" (or "tagged but not released") must still heal the rest.
+      # ${{ }} expressions are hoisted into env: (zizmor: no raw template
+      # interpolation inside run: scripts).
       - name: Ensure tag exists
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          if gh api "repos/${{ github.repository }}/git/ref/tags/$TAG" > /dev/null 2>&1; then
+          TAG="v${VERSION}"
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$TAG" > /dev/null 2>&1; then
             echo "Tag $TAG already exists — skipping."
           else
-            gh api "repos/${{ github.repository }}/git/refs" \
+            gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
               -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA"
           fi
 
       - name: Ensure GitHub Release exists
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
+          TAG="v${VERSION}"
           if gh release view "$TAG" > /dev/null 2>&1; then
             echo "Release $TAG already exists — skipping."
           else
