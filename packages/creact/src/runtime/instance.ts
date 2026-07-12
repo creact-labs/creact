@@ -429,24 +429,31 @@ function hydrateNodeOutputs(
  * Also upgrades deferred placeholders once their undefined deps resolve.
  */
 function trackReactiveProps(
-  ownerFiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
+  ownerFiber: Fiber,
   node: InstanceNode,
   getProps: () => unknown,
 ): void {
-  createEffect(() => {
-    const newProps = getProps() as Record<string, unknown>;
-    node.props = newProps;
+  createEffect(() => applyReactiveProps(ownerFiber, node, getProps));
+}
 
-    // Upgrade deferred placeholder → real instance node when deps resolve
-    if (
-      ownerFiber.hasPlaceholderInstance &&
-      !ownerFiber.instanceNodes.includes(node) &&
-      !hasUndefinedValues(newProps)
-    ) {
-      ownerFiber.hasPlaceholderInstance = false;
-      ownerFiber.instanceNodes.push(node);
-    }
-  });
+/** One reactive-props pass: refresh node.props, promote resolved deferreds */
+function applyReactiveProps(
+  ownerFiber: Fiber,
+  node: InstanceNode,
+  getProps: () => unknown,
+): void {
+  const newProps = getProps() as Record<string, unknown>;
+  node.props = newProps;
+
+  // Upgrade deferred placeholder → real instance node when deps resolve
+  if (
+    ownerFiber.hasPlaceholderInstance &&
+    !ownerFiber.instanceNodes.includes(node) &&
+    !hasUndefinedValues(newProps)
+  ) {
+    ownerFiber.hasPlaceholderInstance = false;
+    ownerFiber.instanceNodes.push(node);
+  }
 }
 
 /** Proxy exposing each output as a reactive accessor */

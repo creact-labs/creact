@@ -41,7 +41,9 @@
   },
 
   "health": {
-    // Goal: every production function's CRAP score stays below 35
-    "maxCrap": 35
+    // Goal: every production function's CRAP score stays below 15.
+    // At 100% coverage CRAP equals cyclomatic complexity, so this bounds
+    // every function's complexity at 15.
+    "maxCrap": 15
   }
 }

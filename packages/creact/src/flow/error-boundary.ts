@@ -69,22 +69,30 @@ export interface ErrorBoundaryProps {
 export function ErrorBoundary(props: ErrorBoundaryProps): JSXElement {
   const [errored, setErrored] = createSignal<Error | undefined>(undefined);
 
-  return createMemo(() => {
-    const e = errored();
-    if (e !== undefined) {
-      const f = props.fallback;
-      // Check if it's an error handler function (has parameters)
-      if (typeof f === "function" && (f as Function).length > 0) {
-        return untrack(() =>
-          (f as (err: Error, reset: () => void) => CReactNode)(e, () =>
-            setErrored(undefined),
-          ),
-        );
-      }
-      // Otherwise access (handles both static and accessor)
-      return access(f as MaybeAccessor<CReactNode>);
+  return createMemo(() =>
+    renderBoundary(props, errored(), setErrored),
+  ) as unknown as JSXElement;
+}
+
+/** Render the fallback when an error is held, otherwise guard the children */
+function renderBoundary(
+  props: ErrorBoundaryProps,
+  e: Error | undefined,
+  setErrored: (err: Error | undefined) => void,
+): CReactNode {
+  if (e !== undefined) {
+    const f = props.fallback;
+    // Check if it's an error handler function (has parameters)
+    if (typeof f === "function" && (f as Function).length > 0) {
+      return untrack(() =>
+        (f as (err: Error, reset: () => void) => CReactNode)(e, () =>
+          setErrored(undefined),
+        ),
+      );
     }
-    // Unwrap children in case it's an accessor
-    return catchError(() => access(props.children), setErrored);
-  }) as unknown as JSXElement;
+    // Otherwise access (handles both static and accessor)
+    return access(f as MaybeAccessor<CReactNode>);
+  }
+  // Unwrap children in case it's an accessor
+  return catchError(() => access(props.children), setErrored);
 }

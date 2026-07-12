@@ -242,15 +242,9 @@ export class StateMachine {
    * Ensures nodes born mid-cascade are checkpointable by updateNodeOutputs.
    */
   async syncNodes(stackName: string, nodes: SerializedNode[]): Promise<void> {
-    await this.mutateState(stackName, (state) => {
-      // Keep outputs already checkpointed for nodes the new snapshot lacks
-      const persisted = new Map(state.nodes.map((n) => [n.id, n]));
-      state.nodes = nodes.map((n) => {
-        if (n.outputs) return n;
-        const prev = persisted.get(n.id);
-        return prev?.outputs ? { ...n, outputs: prev.outputs } : n;
-      });
-    });
+    await this.mutateState(stackName, (state) =>
+      mergePersistedOutputs(state, nodes),
+    );
   }
 
   /**
@@ -399,4 +393,26 @@ export class StateMachine {
       await this.memory.releaseLock(stackName);
     }
   }
+}
+
+/**
+ * Fold a new node snapshot into the persisted state, keeping outputs
+ * already checkpointed for nodes the new snapshot lacks
+ */
+function mergePersistedOutputs(
+  state: DeploymentState,
+  nodes: SerializedNode[],
+): void {
+  const persisted = new Map(state.nodes.map((n) => [n.id, n]));
+  state.nodes = nodes.map((n) => withCheckpointedOutputs(n, persisted));
+}
+
+/** Prefer the incoming outputs; fall back to the checkpointed ones */
+function withCheckpointedOutputs(
+  n: SerializedNode,
+  persisted: Map<string, SerializedNode>,
+): SerializedNode {
+  if (n.outputs) return n;
+  const prev = persisted.get(n.id);
+  return prev?.outputs ? { ...n, outputs: prev.outputs } : n;
 }

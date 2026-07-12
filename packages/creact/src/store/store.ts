@@ -216,18 +216,21 @@ function notifyProperty(node: StoreNode, prop: string | symbol): void {
   // Wrap in runUpdates so observers actually execute even when no batch is
   // active (mirrors signal write semantics) — otherwise a setStore call from
   // a plain async callback marks observers stale but never runs them
-  runUpdates(() => {
-    for (let i = 0; i < signal.observers!.length; i++) {
-      const observer = signal.observers![i]!;
-      if (!observer.state) {
-        scheduleComputation(observer);
-        // memo-like observers fan out to their own observers
-        if ((observer as { observers?: unknown }).observers)
-          markDownstream(observer);
-      }
-      observer.state = 1; // STALE
+  runUpdates(() => markStoreObserversStale(signal), false);
+}
+
+/** Mark every observer of a store property stale and schedule it */
+function markStoreObserversStale(signal: Signal<unknown>): void {
+  for (let i = 0; i < signal.observers!.length; i++) {
+    const observer = signal.observers![i]!;
+    if (!observer.state) {
+      scheduleComputation(observer);
+      // memo-like observers fan out to their own observers
+      if ((observer as { observers?: unknown }).observers)
+        markDownstream(observer);
     }
-  }, false);
+    observer.state = 1; // STALE
+  }
 }
 
 function setPropertyAtPath(

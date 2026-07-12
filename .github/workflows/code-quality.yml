@@ -55,15 +55,17 @@ jobs:
       - run: npm ci
       - name: creact — tests + enforced 100% coverage gate
         run: npm run test:coverage -w packages/creact
-      - name: testing package
-        run: npm test -w packages/testing
-      - name: Website
-        run: npm test -w apps/website
-      - name: Upload coverage (consumed by the fallow job)
+      - name: testing package (with coverage)
+        run: npx vitest --run --coverage --root packages/testing
+      - name: Website (with coverage)
+        run: npx vitest --run --coverage --root apps/website
+      - name: Merge coverage across workspaces
+        run: npm run coverage:merge
+      - name: Upload merged coverage (consumed by the fallow job)
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-creact
-          path: packages/creact/coverage/coverage-final.json
+          name: coverage-merged
+          path: coverage/coverage-final.json
           retention-days: 14
 
   build:
@@ -100,23 +102,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download coverage for exact CRAP scores
+      - name: Download merged coverage for exact CRAP scores
         uses: actions/download-artifact@v4
         with:
-          name: coverage-creact
-          path: packages/creact/coverage
+          name: coverage-merged
+          path: coverage
       - name: Dead code
         run: npx --yes fallow@3.3.0 dead-code
       - name: Duplication
         run: npx --yes fallow@3.3.0 dupes
-      - name: Health (CRAP < 35, zero findings)
-        run: npx --yes fallow@3.3.0 health --coverage packages/creact/coverage/coverage-final.json
+      - name: Health (CRAP < 15, zero findings)
+        run: npx --yes fallow@3.3.0 health --coverage coverage/coverage-final.json
       - name: Audit changed files (PRs)
         if: github.event_name == 'pull_request'
         run: >
           npx --yes fallow@3.3.0 audit
           --base origin/${{ github.base_ref }}
-          --coverage packages/creact/coverage/coverage-final.json
+          --coverage coverage/coverage-final.json
 
   # Single stable aggregate — THE required status check for branch
   # protection. Required checks are selected per job and job matrices/names

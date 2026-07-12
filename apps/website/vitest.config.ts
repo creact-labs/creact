@@ -20,5 +20,13 @@ export default defineConfig({
         inline: [/solid-js/, /@solidjs/],
       },
     },
+    coverage: {
+      provider: "v8",
+      // json produces coverage-final.json — merged with the other
+      // packages' coverage for fallow's CRAP scoring
+      reporter: ["text", "json"],
+      include: ["src/**"],
+      exclude: ["src/**/__tests__/**", "src/**/__mocks__/**", "src/testing/**"],
+    },
   },
 });

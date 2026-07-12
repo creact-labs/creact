@@ -65,18 +65,28 @@ export function Show<T>(props: ShowProps<T>): JSXElement {
     ) => !a === !b,
   });
 
-  return createMemo(() => {
-    const c = condition();
-    if (c) {
-      const child = props.children;
-      return typeof child === "function" && (child as Function).length > 0
-        ? untrack(() =>
-            (child as (item: Accessor<NonNullable<T>>) => JSXElement)(
-              () => conditionValue() as NonNullable<T>,
-            ),
-          )
-        : child;
-    }
-    return access(props.fallback);
-  }) as unknown as JSXElement;
+  return createMemo(() =>
+    renderShow(props, condition(), conditionValue),
+  ) as unknown as JSXElement;
+}
+
+/** Render children (or the render function over the value) when truthy */
+function renderShow<T>(
+  props: ShowProps<T>,
+  c: T | undefined | null | false,
+  conditionValue: Accessor<T | undefined | null | false>,
+): CReactNode {
+  if (c) {
+    const child = props.children;
+    return typeof child === "function" && (child as Function).length > 0
+      ? untrack(() =>
+          (child as (item: Accessor<NonNullable<T>>) => JSXElement)(
+            () => conditionValue() as NonNullable<T>,
+          ),
+        )
+      : // Not a render function — a plain node or a zero-arg accessor,
+        // both of which are CReactNode
+        (child as CReactNode);
+  }
+  return access(props.fallback);
 }

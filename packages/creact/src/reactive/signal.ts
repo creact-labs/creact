@@ -131,20 +131,23 @@ export function createSignal<T>(
 
     // Notify all observers - wrapped in runUpdates for proper batching
     if (signal.observers?.length) {
-      runUpdates(() => {
-        for (let i = 0; i < signal.observers!.length; i++) {
-          const o = signal.observers![i]!;
-          if (!o.state) {
-            scheduleComputation(o);
-            if ((o as { observers?: unknown }).observers) markDownstream(o);
-          }
-          o.state = STALE;
-        }
-      }, false);
+      runUpdates(() => notifySignalObservers(signal), false);
     }
   }
 
   return [read, write] as [Accessor<T | undefined>, Setter<T | undefined>];
+}
+
+/** Mark every observer of a written signal stale and schedule it */
+function notifySignalObservers<T>(signal: Signal<T>): void {
+  for (let i = 0; i < signal.observers!.length; i++) {
+    const o = signal.observers![i]!;
+    if (!o.state) {
+      scheduleComputation(o);
+      if ((o as { observers?: unknown }).observers) markDownstream(o);
+    }
+    o.state = STALE;
+  }
 }
 
 /**
@@ -231,15 +234,7 @@ export function on<S, T>(
   let defer = options?.defer;
 
   return (prevValue: T | undefined) => {
-    let input: S;
-    if (isArray) {
-      input = Array((deps as Accessor<S>[]).length) as unknown as S;
-      for (let i = 0; i < (deps as Accessor<S>[]).length; i++) {
-        (input as unknown[])[i] = (deps as Accessor<S>[])[i]!();
-      }
-    } else {
-      input = (deps as Accessor<S>)() as S;
-    }
+    const input = readOnDeps<S>(deps, isArray);
 
     if (defer) {
       defer = false;
@@ -250,6 +245,21 @@ export function on<S, T>(
     prevInput = input;
     return result;
   };
+}
+
+/** Read on()'s dependency (or dependency tuple), tracking each accessor */
+function readOnDeps<S>(
+  deps: Accessor<S> | readonly Accessor<unknown>[],
+  isArray: boolean,
+): S {
+  if (!isArray) {
+    return (deps as Accessor<S>)();
+  }
+  const input = Array((deps as Accessor<S>[]).length) as unknown as S;
+  for (let i = 0; i < (deps as Accessor<S>[]).length; i++) {
+    (input as unknown[])[i] = (deps as Accessor<S>[])[i]!();
+  }
+  return input;
 }
 
 // Error handling

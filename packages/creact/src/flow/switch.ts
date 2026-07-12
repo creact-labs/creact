@@ -93,16 +93,24 @@ export function Switch(props: SwitchProps): JSXElement {
       ? [props.children]
       : [];
 
-  return createMemo(() => {
-    for (const match of matches) {
-      if (isMatchResult(match) && access(match.when)) {
-        return renderMatch(match);
-      }
-    }
+  return createMemo(() =>
+    selectMatch(matches, props.fallback),
+  ) as unknown as JSXElement;
+}
 
-    // No match found - render fallback (access in case it's an accessor)
-    return access(props.fallback);
-  }) as unknown as JSXElement;
+/** Render the first truthy match, or the fallback when none matches */
+function selectMatch(
+  matches: unknown[],
+  fallback: SwitchProps["fallback"],
+): CReactNode {
+  for (const match of matches) {
+    if (isMatchResult(match) && access(match.when)) {
+      return renderMatch(match);
+    }
+  }
+
+  // No match found - render fallback (access in case it's an accessor)
+  return access(fallback);
 }
 
 /** Is this child the result of a <Match> component? */

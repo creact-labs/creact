@@ -30,7 +30,9 @@ const IS_DEV = process.env.NODE_ENV !== "production";
 // execution are attached to the fiber (persisted with its instance nodes)
 // and hydrated from the previous run's state. Keyed by the component's
 // resource path — matches prepareHydration's node.path.slice(0, -1).
-setStoreAttachHook((initial) => {
+setStoreAttachHook(attachStoreToCurrentFiber);
+
+function attachStoreToCurrentFiber(initial: object): object | undefined {
   const fiber = getActiveContext().currentFiber;
   if (!fiber) return undefined; // store created outside a component
   // The fiber persists exactly one store snapshot — a second createStore
@@ -45,7 +47,7 @@ setStoreAttachHook((initial) => {
   const state = hydrateStore<object>(getCurrentResourcePath()) ?? initial;
   fiber.store = state; // live reference — snapshotted on every collect
   return state;
-});
+}
 
 // The render context (currentFiber/currentPath/resourcePath) lives on the
 // active RuntimeContext — accessors below resolve it through the slot.
