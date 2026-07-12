@@ -22,10 +22,9 @@ describe("UsageSection", () => {
       container.querySelector(".doc-code-filename")?.textContent,
     ).toBe(props.filename);
     await waitFor(() => {
-      expect(
-        container.querySelector("[data-testid=highlighted]")?.textContent,
-      ).toBe(props.code);
+      expect(container.querySelector("code")).toBeNull(); // fallback replaced
     });
+    expect(container.textContent).toContain(props.code);
     expect(container.textContent).toContain(prose);
   });
 });

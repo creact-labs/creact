@@ -87,6 +87,202 @@ describe("deployment locking", () => {
     await expect(result.ready).resolves.toBeUndefined();
     result.dispose();
   });
+
+  it("renews the lock lease before its TTL expires", async () => {
+    const memory = new InMemoryMemory();
+    const stackName = "renewed-stack";
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), memory, stackName, {
+      lockTtlSeconds: 1,
+    });
+    await result.ready;
+
+    // Past the original 1s TTL the lease must still be held (renewed at
+    // half-TTL intervals); without renewal the intruder would get in
+    await delay(1300);
+    expect(await memory.acquireLock(stackName, "intruder", 60)).toBe(false);
+
+    result.dispose();
+  });
+
+  it("warns when the lock lease is lost during renewal", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const losing: Memory = {
+      getState: async () => null,
+      saveState: async () => {},
+      acquireLock: async () => true,
+      renewLock: async () => false,
+      releaseLock: async () => {},
+    };
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), losing, "lost-stack", {
+      lockTtlSeconds: 0.1,
+    });
+    await result.ready;
+
+    await vi.waitFor(() => {
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Lost the deployment lock"),
+      );
+    });
+    result.dispose();
+  });
+
+  it("warns when lock renewal itself fails", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const flaky: Memory = {
+      getState: async () => null,
+      saveState: async () => {},
+      acquireLock: async () => true,
+      renewLock: async () => {
+        throw new Error("network down");
+      },
+      releaseLock: async () => {},
+    };
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), flaky, "flaky-stack", {
+      lockTtlSeconds: 0.1,
+    });
+    await result.ready;
+
+    await vi.waitFor(() => {
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to renew the deployment lock"),
+        expect.any(Error),
+      );
+    });
+    result.dispose();
+  });
+
+  it("disposing while the lock is being acquired hands it straight back", async () => {
+    const memory = new InMemoryMemory();
+    const releaseSpy = vi.spyOn(memory, "releaseLock");
+    let resolveAcquire!: (acquired: boolean) => void;
+    vi.spyOn(memory, "acquireLock").mockReturnValue(
+      new Promise((resolve) => {
+        resolveAcquire = resolve;
+      }),
+    );
+    let executed = false;
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        executed = true;
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), memory, "raced-stack");
+    result.dispose();
+    resolveAcquire(true);
+    await result.ready;
+
+    // The dead runtime never deployed and returned the lock immediately
+    expect(executed).toBe(false);
+    expect(releaseSpy).toHaveBeenCalledWith("raced-stack");
+  });
+
+  it("disposing while previous state loads abandons the run before rendering", async () => {
+    const memory = new InMemoryMemory();
+    let releaseGetState!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      releaseGetState = resolve;
+    });
+    let gated = false;
+    const realGetState = memory.getState.bind(memory);
+    vi.spyOn(memory, "getState").mockImplementation(async (stackName) => {
+      if (!gated) {
+        gated = true;
+        await gate;
+      }
+      return realGetState(stackName);
+    });
+    let executed = false;
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        executed = true;
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), memory, "mid-read-stack");
+    await vi.waitFor(() => {
+      expect(gated).toBe(true); // the lock is held, state read in flight
+    });
+    result.dispose();
+    releaseGetState();
+    await result.ready;
+
+    // The dead runtime never rendered, and dispose returned the lock
+    expect(executed).toBe(false);
+    expect(await memory.acquireLock("mid-read-stack", "intruder", 60)).toBe(
+      true,
+    );
+  });
+
+  it("a dispose issued by a component during the initial render prevents deployment", async () => {
+    const memory = new InMemoryMemory();
+    let executed = false;
+    let result!: ReturnType<typeof render>;
+
+    function SelfDestruct() {
+      // Components render inside the async run — the handle already exists
+      result.dispose();
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        executed = true;
+        setOutputs({ ran: true });
+      });
+      return h(Fragment, {});
+    }
+
+    result = render(() => h(SelfDestruct, {}, "s"), memory, "self-destruct");
+    await result.ready;
+
+    expect(executed).toBe(false);
+  });
+
+  it("a failed initial run releases the lock without a manual dispose", async () => {
+    const memory = new InMemoryMemory();
+    const stackName = "failed-run-stack";
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    function Doomed() {
+      useAsyncOutput({}, async () => {
+        throw new Error("boom");
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(Doomed, {}, "d"), memory, stackName);
+    await expect(result.ready).rejects.toThrow("boom");
+
+    // No manual dispose — the runtime already released its resources
+    expect(await memory.acquireLock(stackName, "intruder", 60)).toBe(true);
+  });
 });
 
 describe("interrupted deployment recovery", () => {
@@ -229,6 +425,40 @@ describe("resource deletion", () => {
     await result.settled();
 
     expect(deploys).toBe(2);
+    result.dispose();
+  });
+});
+
+describe("handler cleanup on re-run", () => {
+  it("runs the previous cleanup before re-running the handler on a prop change", async () => {
+    const memory = new InMemoryMemory();
+    const [tag, setTag] = createSignal("first");
+    const order: string[] = [];
+
+    function Res() {
+      useAsyncOutput(
+        () => ({ tag: tag() }),
+        async (p, setOutputs) => {
+          order.push(`handler:${p.tag}`);
+          setOutputs({ tag: p.tag });
+          return () => {
+            order.push(`cleanup:${p.tag}`);
+          };
+        },
+      );
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(Res, {}, "r"), memory, "cleanup-order");
+    await result.ready;
+    expect(order).toEqual(["handler:first"]);
+
+    setTag("second");
+    await result.settled();
+
+    // The first run's subscriptions are torn down before the re-run —
+    // otherwise every prop change would leak the previous side effects
+    expect(order).toEqual(["handler:first", "cleanup:first", "handler:second"]);
     result.dispose();
   });
 });
@@ -541,6 +771,98 @@ describe("state persistence", () => {
     const state = await memory.getState(stackName);
     expect(state?.status).toBe("deployed");
     expect(state?.nodes[0]?.outputs?.counter).toBe(41);
+    result.dispose();
+  });
+
+  it("a rejected debounced save is reported, never an unhandled rejection", async () => {
+    const memory = new InMemoryMemory();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    let failSaves = false;
+    const realSaveState = memory.saveState.bind(memory);
+    vi.spyOn(memory, "saveState").mockImplementation(async (stack, state) => {
+      if (failSaves) throw new Error("disk full");
+      return realSaveState(stack, state);
+    });
+    let push: ((o: Record<string, any>) => void) | undefined;
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        push = setOutputs;
+        setOutputs({ counter: 0 });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), memory, "failing-save");
+    await result.ready;
+    await result.settled();
+
+    failSaves = true;
+    push!({ counter: 1 });
+
+    // Let the debounce timer fire on its own — that path must absorb and
+    // report the rejection
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        "[CReact] Failed to save state:",
+        expect.any(Error),
+      );
+    });
+    // settled() still resolves — the failed save is not left in flight
+    failSaves = false;
+    await result.settled();
+    result.dispose();
+  });
+
+  it("settled() waits for a debounced save already in flight", async () => {
+    const memory = new InMemoryMemory();
+    let gateSaves = false;
+    let saveStarted = false;
+    let releaseSave!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      releaseSave = resolve;
+    });
+    const realSaveState = memory.saveState.bind(memory);
+    vi.spyOn(memory, "saveState").mockImplementation(async (stack, state) => {
+      if (gateSaves) {
+        saveStarted = true;
+        await gate;
+      }
+      return realSaveState(stack, state);
+    });
+    let push: ((o: Record<string, any>) => void) | undefined;
+
+    function App() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        push = setOutputs;
+        setOutputs({ counter: 0 });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(App, {}, "app"), memory, "in-flight-save");
+    await result.ready;
+    await result.settled();
+
+    gateSaves = true;
+    push!({ counter: 1 });
+    // Let the debounce timer fire so the save is genuinely in flight
+    await vi.waitFor(() => {
+      expect(saveStarted).toBe(true);
+    });
+
+    let settledResolved = false;
+    const settling = result.settled().then(() => {
+      settledResolved = true;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(settledResolved).toBe(false); // still waiting on the save
+
+    releaseSave();
+    await settling;
+    expect((await memory.getState("in-flight-save"))!.nodes[0]!.outputs).toEqual(
+      { counter: 1 },
+    );
     result.dispose();
   });
 

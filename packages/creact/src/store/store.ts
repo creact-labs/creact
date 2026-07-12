@@ -142,15 +142,23 @@ function createStoreNode(target: object): StoreNode {
         );
       }
 
+      // A store proxy must never land in a raw target: later nested writes
+      // would hit its mutation guard, and structuredClone (unwrap,
+      // persistence) rejects proxies — snapshot it to raw data instead
+      const newValue =
+        value !== null && typeof value === "object" ? unwrap(value) : value;
+
       const oldValue = Reflect.get(obj, prop);
-      if (oldValue === value) return true;
+      if (oldValue === newValue) return true;
 
-      Reflect.set(obj, prop, value);
+      Reflect.set(obj, prop, newValue);
+
+      // Drop the cached child node before notifying: a synchronously
+      // re-run observer must read a fresh child proxy, and a replaced
+      // object (by primitive, null, or anything else) must not stay
+      // strongly retained through the stale cache entry
+      node.children.delete(prop);
       notifyProperty(node, prop);
-
-      if (typeof value === "object" && value !== null) {
-        node.children.delete(prop);
-      }
 
       return true;
     },
@@ -230,16 +238,23 @@ function setPropertyAtPath(
   const obj = node.target as Record<string | symbol, unknown>;
   const oldValue = obj[prop];
 
-  const newValue = typeof value === "function" ? value(oldValue) : value;
+  let newValue = typeof value === "function" ? value(oldValue) : value;
+  // A store proxy must never land in a raw target: later nested writes
+  // would hit its mutation guard, and structuredClone (unwrap, persistence)
+  // rejects proxies — snapshot it to raw data instead
+  if (newValue !== null && typeof newValue === "object") {
+    newValue = unwrap(newValue);
+  }
 
   if (oldValue === newValue) return;
 
   obj[prop] = newValue;
 
-  if (typeof newValue === "object" && newValue !== null) {
-    node.children.delete(prop);
-  }
-
+  // Drop the cached child node before notifying: a synchronously re-run
+  // observer must read a fresh child proxy, and a replaced object (by
+  // primitive, null, or anything else) must not stay strongly retained
+  // through the stale cache entry
+  node.children.delete(prop);
   notifyProperty(node, prop);
 }
 

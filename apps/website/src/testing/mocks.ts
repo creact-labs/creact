@@ -14,10 +14,11 @@ vi.mock("@/i18n", async (importOriginal) => {
   };
 });
 
-// Shiki loads WASM + grammars; tests only need deterministic markup.
+// Shiki loads WASM + grammars; tests only need deterministic markup that
+// mirrors the real shape (a <pre> block of the source text).
 vi.mock("@/shared/shiki", () => ({
   getHighlighter: async () => ({
-    codeToHtml: (code: string) => `<pre data-testid="highlighted">${code}</pre>`,
+    codeToHtml: (code: string) => `<pre>${code}</pre>`,
   }),
 }));
 

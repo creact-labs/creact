@@ -262,10 +262,22 @@ function objectsDeepEqual(a: object, b: object): boolean {
   if (builtin !== undefined) return builtin;
 
   if (Array.isArray(a) || Array.isArray(b)) return arraysDeepEqual(a, b);
+
+  // Only plain objects compare by key walk. Arbitrary class instances
+  // (Error, class Foo, …) may have no enumerable keys, so a key walk would
+  // call unequal instances equal and skip a required prop update — compare
+  // them by identity instead (=== already failed by this point).
+  if (!isPlainObject(a) || !isPlainObject(b)) return false;
   return plainObjectsDeepEqual(
     a as Record<string, unknown>,
     b as Record<string, unknown>,
   );
+}
+
+/** An object whose prototype is Object.prototype or null */
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
 }
 
 /**
@@ -295,6 +307,12 @@ function regExpsEqual(a: object, b: object): boolean {
   );
 }
 
+/**
+ * Map keys compare by identity (SameValueZero, as Map.has does) while
+ * values compare deeply. A Map keyed by recreated objects therefore
+ * compares unequal — the safe direction: the prop counts as changed and
+ * the handler re-runs.
+ */
 function mapsDeepEqual(a: object, b: object): boolean {
   if (!(a instanceof Map) || !(b instanceof Map)) return false;
   if (a.size !== b.size) return false;
@@ -304,6 +322,11 @@ function mapsDeepEqual(a: object, b: object): boolean {
   return true;
 }
 
+/**
+ * Set members compare by identity (SameValueZero, as Set.has does).
+ * Sets of recreated objects therefore compare unequal — the safe
+ * direction: the prop counts as changed and the handler re-runs.
+ */
 function setsEqual(a: object, b: object): boolean {
   if (!(a instanceof Set) || !(b instanceof Set)) return false;
   if (a.size !== b.size) return false;

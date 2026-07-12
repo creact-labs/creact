@@ -85,6 +85,85 @@ describe("useAsyncOutput developer errors", () => {
     await expect(result.ready).rejects.toThrow(/Duplicate resource ID/);
     result.dispose();
   });
+
+  it("still catches a duplicate revealed after an earlier node set outputs", async () => {
+    // Regression: setOutputs used to clear the whole ownership map, so a
+    // duplicate mounted later in the deployment slipped past detection
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const [gate, setGate] = createSignal(false);
+
+    function Db() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        // Wipes ownership in the buggy version
+        setOutputs({ up: true });
+      });
+      return h(Fragment, {});
+    }
+
+    function App() {
+      return [
+        h(Db, {}, "same"),
+        Show({ when: gate, children: () => h(Db, {}, "same") }),
+      ];
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "late-dup-id",
+    );
+    await result.ready;
+
+    // Mounting the second claimant from a different fiber path must throw
+    expect(() => setGate(true)).toThrow(/Duplicate resource ID/);
+    result.dispose();
+  });
+});
+
+describe("cleanup functions returning promises", () => {
+  it("absorbs async cleanup rejections instead of crashing the process", async () => {
+    const memory = new InMemoryMemory();
+
+    function Flaky() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ up: true });
+        return async () => {
+          throw new Error("teardown failed");
+        };
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(Flaky, {}, "f"), memory, "async-cleanup");
+    await result.ready;
+
+    // The sweep starts the async cleanup; its rejection must be absorbed
+    // (an unhandled rejection would fail this test run)
+    expect(() => callAllCleanupFunctions()).not.toThrow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    result.dispose();
+  });
+
+  it("dispose absorbs async cleanup rejections from current nodes", async () => {
+    const memory = new InMemoryMemory();
+
+    function Flaky() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ up: true });
+        return async () => {
+          throw new Error("teardown failed");
+        };
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(Flaky, {}, "f"), memory, "async-dispose");
+    await result.ready;
+
+    expect(() => result.dispose()).not.toThrow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
 });
 
 describe("resource identity", () => {
@@ -591,9 +670,6 @@ describe("shallowEqual", () => {
   });
 });
 
-/** Helper: wait for reactive flush + async apply to propagate */
-const flush = (ms = 100) => new Promise((r) => setTimeout(r, ms));
-
 afterEach(() => {
   resetRuntime();
 });
@@ -625,7 +701,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
 
     // Update the signal — should trigger a handler re-run
     setCount(2);
-    await flush();
+    await result.settled();
 
     expect(handlerCount).toBe(2);
 
@@ -657,11 +733,11 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     expect(receivedProps).toEqual([10]);
 
     setCount(20);
-    await flush();
+    await result.settled();
     expect(receivedProps).toEqual([10, 20]);
 
     setCount(30);
-    await flush();
+    await result.settled();
     expect(receivedProps).toEqual([10, 20, 30]);
 
     result.dispose();
@@ -691,7 +767,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     expect(outputAccessors.doubled()).toBe(2);
 
     setCount(5);
-    await flush();
+    await result.settled();
     expect(outputAccessors.doubled()).toBe(10);
 
     result.dispose();
@@ -723,7 +799,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
 
     // Set to the same value — should NOT trigger re-run
     setCount(42);
-    await flush();
+    await result.settled();
     expect(handlerCount).toBe(1);
 
     result.dispose();
@@ -778,7 +854,7 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     // Change the trigger signal — Producer re-runs, outputs change,
     // Consumer's getter sees new value → re-runs
     setTrigger("updated");
-    await flush(200);
+    await result.settled();
 
     expect(handlerOrder).toContain("Producer:updated");
     expect(handlerOrder).toContain("Consumer:produced-updated");

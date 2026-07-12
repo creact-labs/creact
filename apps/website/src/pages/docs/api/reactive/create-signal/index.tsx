@@ -17,7 +17,8 @@ const CreateSignal: Component = () => {
 
       <ApiReference
         name="createSignal"
-        signature="createSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]"
+        signature={`createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]
+createSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]`}
         parameters={[
           [<><code>value</code></>, <><code>T</code></>, <>Initial value of the signal. Optional; omit for{" "}
               <code>T | undefined</code>.</>],

@@ -22,6 +22,21 @@ vi.mock("ora", async () =>
   (await import("../__mocks__/mock-ora")).mockOraModule(),
 );
 
+// Passthrough fs mock with one switch: lets a test make fs.watch throw a
+// non-Error value (unreachable through real fs) while everything else —
+// including this file's own fixture setup — stays real
+const watchControl = { throwValue: undefined as unknown };
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return {
+    ...actual,
+    watch: (...args: Parameters<typeof actual.watch>) => {
+      if (watchControl.throwValue !== undefined) throw watchControl.throwValue;
+      return actual.watch(...args);
+    },
+  };
+});
+
 // Fixture app in a tmp dir so tsImport resolves a real module
 let appDir: string;
 const TSCONFIG = JSON.stringify({
@@ -248,6 +263,43 @@ describe("shutdown", () => {
 });
 
 describe("runCli", () => {
+  it("formats a watcher failure through the CLI logger and exits 1", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      // Entry point in a directory that doesn't exist: the type check
+      // skips, and the watcher throws ENOENT — runCli must swallow it
+      const ghostDir = join(appDir, "nope");
+      const code = await runCli(
+        ["--watch", "missing.ts"],
+        ghostDir,
+        new AppRunner(),
+      );
+
+      expect(code).toBe(1);
+      expect(logSpy.mock.calls.flat().join("\n")).toContain("Error:");
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it("stringifies non-Error watcher failures instead of crashing", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    watchControl.throwValue = "watch exploded";
+    try {
+      const code = await runCli(
+        ["--watch", "app.ts"],
+        appDir,
+        new AppRunner(),
+      );
+
+      expect(code).toBe(1);
+      expect(logSpy.mock.calls.flat().join("\n")).toContain("watch exploded");
+    } finally {
+      watchControl.throwValue = undefined;
+      logSpy.mockRestore();
+    }
+  });
+
   it("prints help and exits 0 with no arguments", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
@@ -310,7 +362,10 @@ describe("runCli", () => {
       });
       await new Promise((r) => setTimeout(r, 200));
 
-      // a non-source file must NOT trigger a restart
+      // a non-source file must NOT trigger a restart. Negative assertions
+      // over fs.watch have no completion signal to await — a fixed window
+      // is the only observation available; the positive assertion below
+      // (vi.waitFor) keeps the test's overall verdict deterministic.
       await writeFile(join(appDir, "notes.txt"), "irrelevant");
       await new Promise((r) => setTimeout(r, 300));
       expect((globalThis as any).__cliDisposeCount).toBe(0);

@@ -226,6 +226,53 @@ describe("createStore", () => {
     expect(state[sym]).toBeUndefined();
     expect(state.constructor).toBe(Object);
   });
+
+  it("assigning a store proxy snapshots it to raw data", () => {
+    const user = generateUser();
+    const [state, setState] = createStore<{
+      user: { name: string; age: number };
+      backup: { name: string; age: number } | null;
+    }>({ user, backup: null });
+
+    // state.user is a proxy — it must never land in the raw target
+    setState("backup", state.user);
+
+    expect(state.backup).toEqual(user);
+    // Nested writes into the copied value hit no mutation guard...
+    setState("backup", "name", "renamed");
+    expect(state.backup!.name).toBe("renamed");
+    // ...the snapshot is detached from the source...
+    expect(state.user.name).toBe(user.name);
+    // ...and the whole store stays structuredClone-able
+    expect(() => unwrap(state)).not.toThrow();
+  });
+
+  it("a functional update returning a store proxy is snapshotted too", () => {
+    const user = generateUser();
+    const [state, setState] = createStore<{
+      user: { name: string; age: number };
+      backup: { name: string; age: number } | null;
+    }>({ user, backup: null });
+
+    setState("backup", () => state.user);
+
+    expect(state.backup).toEqual(user);
+    expect(() => unwrap(state)).not.toThrow();
+  });
+
+  it("replacing an object with a primitive drops the cached child proxy", () => {
+    const [state, setState] = createStore<{
+      user: { name: string } | null;
+    }>({ user: { name: "before" } });
+    state.user; // populate the child proxy cache
+
+    setState("user", null);
+    expect(state.user).toBeNull();
+
+    // A later object value produces a fresh child, not the stale cache
+    setState("user", { name: "after" });
+    expect(state.user!.name).toBe("after");
+  });
 });
 
 describe("unwrap", () => {
@@ -369,6 +416,51 @@ describe("store in production mode", () => {
       delete state.never;
     }).not.toThrow();
   });
+
+  it("assigning a store proxy snapshots it to raw data", async () => {
+    const { createStore, unwrap: prodUnwrap } = await loadProductionStore();
+    const user = generateUser();
+    const [state] = createStore({ user, backup: null }) as [any, any];
+
+    state.backup = state.user;
+
+    expect(state.backup).toEqual(user);
+    expect(() => prodUnwrap(state)).not.toThrow();
+  });
+
+  it("assigning a primitive over an object drops the cached child proxy", async () => {
+    const { createStore } = await loadProductionStore();
+    const [state] = createStore({ user: { name: "before" } }) as [any, any];
+    state.user; // populate the child proxy cache
+
+    state.user = null;
+    expect(state.user).toBeNull();
+
+    state.user = { name: "after" };
+    expect(state.user.name).toBe("after");
+  });
+
+  it("observers re-run during assignment read the fresh child, not the stale cache", async () => {
+    const { createStore } = await loadProductionStore();
+    // Fresh copies of the reactive modules to match the reloaded store
+    const { createRoot: freshRoot } = await import("../../reactive/owner");
+    const { createEffect: freshEffect } = await import("../../reactive/effect");
+    const seen: string[] = [];
+    let state!: any;
+
+    freshRoot(() => {
+      [state] = createStore({ user: { name: "before" } }) as [any, any];
+      freshEffect(() => {
+        seen.push(state.user.name);
+      });
+    });
+
+    // The child cache must be invalidated BEFORE observers are notified —
+    // a synchronously re-run effect reads through the child proxy
+    state.user = { name: "after" };
+
+    expect(seen).toEqual(["before", "after"]);
+  });
 });
 
 afterEach(() => {
@@ -437,5 +529,26 @@ describe("createStore persistence through Memory", () => {
     setState("value", "still-plain");
 
     expect(state.value).toBe("still-plain");
+  });
+
+  it("a second createStore in one component is rejected, not silently lost", async () => {
+    const memory = new InMemoryMemory();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    function Greedy() {
+      createStore({ first: 1 });
+      // The fiber persists exactly one store snapshot — this would
+      // silently overwrite the first store's persisted state
+      createStore({ second: 2 });
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ok: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(() => h(Greedy, {}, "g"), memory, "two-stores");
+
+    await expect(result.ready).rejects.toThrow(/once per component/);
+    result.dispose();
   });
 });

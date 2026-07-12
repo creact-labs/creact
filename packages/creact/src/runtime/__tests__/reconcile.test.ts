@@ -303,6 +303,17 @@ describe("deepEqual (prop diffing)", () => {
     { label: "plain object vs Set", a: {}, b: new Set(), expected: false },
     { label: "object vs array", a: { 0: 1 }, b: [1], expected: false },
     { label: "distinct function instances", a: () => 1, b: () => 1, expected: false },
+    // Class instances are not plain objects: a key walk would call unequal
+    // instances equal (Errors have no enumerable keys) and skip an update
+    { label: "distinct Error instances", a: new Error("a"), b: new Error("b"), expected: false },
+    { label: "Errors with the same message", a: new Error("same"), b: new Error("same"), expected: false },
+    { label: "class instance vs plain object", a: new (class {})(), b: {}, expected: false },
+    { label: "distinct class instances with equal fields", a: Object.assign(new (class {})(), { v: 1 }), b: Object.assign(new (class {})(), { v: 1 }), expected: false },
+    { label: "null-prototype objects with equal keys", a: Object.assign(Object.create(null), { v: 1 }), b: Object.assign(Object.create(null), { v: 1 }), expected: true },
+    // Map keys and Set members compare by identity (SameValueZero): the
+    // safe direction — recreated objects count as changed props
+    { label: "Maps keyed by recreated objects", a: new Map([[{ k: 1 }, "v"]]), b: new Map([[{ k: 1 }, "v"]]), expected: false },
+    { label: "Sets of recreated objects", a: new Set([{ v: 1 }]), b: new Set([{ v: 1 }]), expected: false },
   ])("$label → $expected", ({ a, b, expected }) => {
     expect(deepEqual(a, b)).toBe(expected);
   });
@@ -310,8 +321,19 @@ describe("deepEqual (prop diffing)", () => {
   it("treats the same reference as equal regardless of content", () => {
     const fn = () => 1;
     const obj = { deep: { nested: [new Map()] } };
+    const errorRef = new Error("shared");
 
     expect(deepEqual(fn, fn)).toBe(true);
     expect(deepEqual(obj, obj)).toBe(true);
+    expect(deepEqual(errorRef, errorRef)).toBe(true);
+  });
+
+  it("Maps and Sets sharing key/member references compare their contents", () => {
+    const key = { k: 1 };
+    const member = { v: 1 };
+
+    expect(deepEqual(new Map([[key, { v: 1 }]]), new Map([[key, { v: 1 }]]))).toBe(true);
+    expect(deepEqual(new Map([[key, 1]]), new Map([[key, 2]]))).toBe(false);
+    expect(deepEqual(new Set([member]), new Set([member]))).toBe(true);
   });
 });

@@ -63,6 +63,8 @@ export const TocProvider: ParentComponent = (props) => {
 
   const clearHeadings = () => {
     setHeadings([]);
+    // The next page must not start with the previous page's active link
+    setActiveId("");
     if (observer) observer.disconnect();
   };
 

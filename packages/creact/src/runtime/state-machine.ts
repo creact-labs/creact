@@ -22,6 +22,9 @@ export interface StateMachineOptions {
   enableAuditLog?: boolean;
 }
 
+// How long a backend call may hold a stack mutex before we warn about it
+const STALL_WARNING_MS = 30_000;
+
 /**
  * StateMachine manages deployment lifecycle and resource states
  */
@@ -50,6 +53,30 @@ export class StateMachine {
   }
 
   /**
+   * Backend I/O under the stack mutex that stalls blocks every subsequent
+   * operation on that stack (checkpoints, applying-set updates, deployment
+   * completion) — surface the stall instead of hanging silently.
+   */
+  private async warnIfStalled<T>(
+    stackName: string,
+    operation: string,
+    work: () => Promise<T>,
+  ): Promise<T> {
+    const timer = setTimeout(() => {
+      console.warn(
+        `[CReact] Memory.${operation} for "${stackName}" has been running ` +
+          `for ${STALL_WARNING_MS / 1000}s while holding the stack mutex — ` +
+          "a stalled backend blocks every operation on this stack",
+      );
+    }, STALL_WARNING_MS);
+    try {
+      return await work();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
    * Persist a full deployment snapshot with the given status (mutex-guarded)
    */
   private async saveSnapshot(
@@ -65,7 +92,9 @@ export class StateMachine {
         lastDeployedAt: Date.now(),
         user: this.options.user,
       };
-      await this.memory.saveState(stackName, state);
+      await this.warnIfStalled(stackName, "saveState", () =>
+        this.memory.saveState(stackName, state),
+      );
     });
   }
 
@@ -78,10 +107,14 @@ export class StateMachine {
     mutate: (state: DeploymentState) => void,
   ): Promise<void> {
     await this.getMutex(stackName).runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
+      const state = await this.warnIfStalled(stackName, "getState", () =>
+        this.memory.getState(stackName),
+      );
       if (state) {
         mutate(state);
-        await this.memory.saveState(stackName, state);
+        await this.warnIfStalled(stackName, "saveState", () =>
+          this.memory.saveState(stackName, state),
+        );
       }
     });
   }
@@ -304,6 +337,28 @@ export class StateMachine {
       return this.memory.acquireLock(stackName, holder, ttlSeconds);
     }
     return true; // No locking support, allow
+  }
+
+  /**
+   * Whether the backend can extend a held lock's lease
+   */
+  canRenewLock(): boolean {
+    return typeof this.memory.renewLock === "function";
+  }
+
+  /**
+   * Renew the deployment lock lease (if backend supports it)
+   * @returns true if extended, false if the lock was lost
+   */
+  async renewLock(
+    stackName: string,
+    holder: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    if (this.memory.renewLock) {
+      return this.memory.renewLock(stackName, holder, ttlSeconds);
+    }
+    return true; // No renewal support — nothing to extend
   }
 
   /**

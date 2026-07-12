@@ -85,4 +85,29 @@ describe("serializeNodes", () => {
     expect(serialized.map((s) => s.id)).toEqual([a.id, b.id]);
     expect(serialized.map((s) => s.outputs?.n)).toEqual([1, 2]);
   });
+
+  it("one corrupted node does not abort the snapshot of the others", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const good = nodeWithOutputs({ n: 1 });
+      const corrupted = nodeWithOutputs({ id: ["not", "a", "string"] });
+      const alsoGood = nodeWithOutputs({ n: 3 });
+
+      const serialized = serializeNodes([good, corrupted, alsoGood]);
+
+      // Healthy nodes persist their outputs...
+      expect(serialized[0]!.outputs).toEqual({ n: 1 });
+      expect(serialized[2]!.outputs).toEqual({ n: 3 });
+      // ...the corrupted node degrades to no outputs (handler re-runs
+      // fresh on the next boot) and keeps its identity in the snapshot
+      expect(serialized[1]!.id).toBe(corrupted.id);
+      expect(serialized[1]!.outputs).toBeUndefined();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("without outputs"),
+        expect.anything(),
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

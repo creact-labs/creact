@@ -201,6 +201,41 @@ describe("Switch", () => {
     });
   });
 
+  describe("zero-argument accessor children", () => {
+    it("evaluates accessor children like reactive fallbacks, not returning the raw function", () => {
+      createRoot(() => {
+        const view = h("view", { v: "rendered" });
+        const result = Switch({
+          children: Match({
+            when: true,
+            // CReactNode includes () => CReactNode — a valid child
+            children: () => view,
+          }),
+        }) as unknown as () => any;
+
+        expect(result()).toBe(view);
+        expect(typeof result()).not.toBe("function");
+      });
+    });
+
+    it("accessor children re-evaluate when their dependencies change", () => {
+      createRoot(() => {
+        const [label, setLabel] = createSignal("first");
+        const result = Switch({
+          children: Match({
+            when: true,
+            children: () => h("view", { v: label() }),
+          }),
+        }) as unknown as () => any;
+
+        expect(result().props.v).toBe("first");
+
+        setLabel("second");
+        expect(result().props.v).toBe("second");
+      });
+    });
+  });
+
   describe("condition evaluation counts", () => {
     it("only evaluates conditions up to the first truthy match", () => {
       createRoot(() => {

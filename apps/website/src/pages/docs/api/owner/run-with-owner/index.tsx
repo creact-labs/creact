@@ -31,11 +31,13 @@ const RunWithOwner: Component = () => {
         code={`import { getOwner, runWithOwner, createEffect } from '@creact-labs/creact';
 
 function setup() {
-  const owner = getOwner(); // capture current owner
+  // getOwner() returns Owner | null — null outside a reactive scope
+  const owner = getOwner();
+  if (!owner) return; // nothing to restore later
 
   setTimeout(() => {
     // Without runWithOwner, this effect would have no owner
-    runWithOwner(owner!, () => {
+    runWithOwner(owner, () => {
       createEffect(() => {
         console.log('Works in async context');
       });

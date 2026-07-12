@@ -5,8 +5,9 @@ name: Release
 #   2. Bump the version in packages/creact/package.json on main.
 #   3. Open a PR main → release; merging it is the release action.
 #   4. This workflow re-runs the full quality gate on release, then publishes
-#      to npm (idempotent — skips versions that are already published),
-#      tags vX.Y.Z, and creates a GitHub Release with generated notes.
+#      to npm, tags vX.Y.Z, and creates a GitHub Release with generated notes.
+#      Every step is independently idempotent: a retry after a partial
+#      failure publishes/tags/releases only whatever is still missing.
 #
 # Requires the NPM_TOKEN repository secret (npm automation token).
 
@@ -14,9 +15,9 @@ on:
   push:
     branches: [release]
 
-permissions:
-  contents: write
-  id-token: write # npm provenance
+# No workflow-level grants: repository-controlled code runs in these jobs,
+# so write and OIDC permissions are scoped to the publish job only.
+permissions: {}
 
 concurrency:
   group: release
@@ -25,6 +26,8 @@ concurrency:
 jobs:
   quality:
     name: Quality
+    permissions:
+      contents: read
     uses: ./.github/workflows/code-quality.yml
 
   publish:
@@ -32,8 +35,16 @@ jobs:
     needs: [quality]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write # tag + GitHub Release
+      id-token: write # npm provenance
     steps:
       - uses: actions/checkout@v4
+        with:
+          # npm lifecycle scripts run below — never leave the token in
+          # .git/config for them to read. The tag/release steps
+          # authenticate explicitly through GH_TOKEN instead.
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -66,16 +77,27 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Tag and GitHub Release
-        if: steps.version.outputs.published == 'false'
+      # Not gated on the publish outputs: a retry after "published but not
+      # tagged" (or "tagged but not released") must still heal the rest.
+      - name: Ensure tag exists
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v${{ steps.version.outputs.version }}"
-          if git rev-parse "$TAG" > /dev/null 2>&1; then
+          if gh api "repos/${{ github.repository }}/git/ref/tags/$TAG" > /dev/null 2>&1; then
             echo "Tag $TAG already exists — skipping."
-            exit 0
+          else
+            gh api "repos/${{ github.repository }}/git/refs" \
+              -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA"
           fi
-          git tag "$TAG"
-          git push origin "$TAG"
-          gh release create "$TAG" --generate-notes --title "$TAG"
+
+      - name: Ensure GitHub Release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping."
+          else
+            gh release create "$TAG" --generate-notes --title "$TAG"
+          fi

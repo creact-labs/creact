@@ -1,5 +1,5 @@
 import { faker} from "@faker-js/faker";
-import { describe, expect, it} from "vitest";
+import { describe, expect, it, vi} from "vitest";
 import { InMemoryMemory } from "@creact-labs/testing";
 import { generateDeploymentState, generateSerializedNode} from "../__mocks__/generate-nodes";
 import type { Memory} from "../memory";
@@ -319,5 +319,54 @@ describe("deployment locks", () => {
 
     expect(await sm.acquireLock(stack(), "holder")).toBe(true);
     await expect(sm.releaseLock(stack())).resolves.toBeUndefined();
+  });
+
+  it("renews a held lease through the backend and reports a lost one", async () => {
+    const memory = new InMemoryMemory();
+    const sm = new StateMachine(memory);
+    const stackName = stack();
+
+    expect(sm.canRenewLock()).toBe(true);
+    await sm.acquireLock(stackName, "holder-a", 60);
+
+    expect(await sm.renewLock(stackName, "holder-a", 60)).toBe(true);
+    // A different holder cannot extend someone else's lease
+    expect(await sm.renewLock(stackName, "holder-b", 60)).toBe(false);
+  });
+
+  it("treats renewal as a no-op when the backend cannot renew", async () => {
+    const bare: Memory = {
+      getState: async () => null,
+      saveState: async () => {},
+    };
+    const sm = new StateMachine(bare);
+
+    expect(sm.canRenewLock()).toBe(false);
+    expect(await sm.renewLock(stack(), "holder", 60)).toBe(true);
+  });
+});
+
+describe("stalled backend diagnostics", () => {
+  it("warns when a Memory call stalls while holding the stack mutex", async () => {
+    vi.useFakeTimers();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const stalled: Memory = {
+        getState: async () => null,
+        // Never settles — every later operation on this stack would queue
+        saveState: () => new Promise(() => {}),
+      };
+      const sm = new StateMachine(stalled);
+
+      void sm.completeDeployment(stack(), []);
+      await vi.advanceTimersByTimeAsync(30_000);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("holding the stack mutex"),
+      );
+    } finally {
+      warnSpy.mockRestore();
+      vi.useRealTimers();
+    }
   });
 });

@@ -22,9 +22,9 @@ const On: Component = () => {
 
       <ApiReference
         name="on"
-        signature="on<S, T>(deps: Accessor<S> | Accessor<any>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T"
+        signature="on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T"
         parameters={[
-          [<><code>deps</code></>, <><code>Accessor&lt;S&gt; | Accessor[]</code></>, "Signal(s) to track explicitly."],
+          [<><code>deps</code></>, <><code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code></>, "Signal(s) to track explicitly."],
           [<><code>fn</code></>, <><code>(input, prevInput, prevValue) =&gt; T</code></>, <>Callback. Runs untracked; only <code>deps</code> are tracked.</>],
           [<><code>options.defer</code></>, <><code>boolean</code></>, <>If <code>true</code>, skips the first run.</>],
         ]}

@@ -34,12 +34,16 @@ describe("ApiReference", () => {
     expect(container.textContent).toContain(props.returns);
   });
 
-  it("API without parameters shows no parameters section", () => {
+  it.each([
+    { label: "omitted parameters", parameters: undefined },
+    { label: "an empty parameter list", parameters: [] as string[][] },
+  ])("$label shows no parameters section", ({ parameters }) => {
     const props = generateApiReferenceProps();
     const { container } = renderWithProviders(() => (
       <ApiReference
         name={props.name}
         signature={props.signature}
+        parameters={parameters}
         returns={props.returns}
       />
     ));

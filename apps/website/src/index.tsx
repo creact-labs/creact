@@ -78,7 +78,6 @@ const SwitchMatch = lazy(
 const ErrorBoundaryApi = lazy(
   () => import("@/pages/docs/api/components/error-boundary"),
 );
-const IndexApi = lazy(() => import("@/pages/docs/api/components/index-component"));
 
 // API Reference - Store
 const CreateStore = lazy(() => import("@/pages/docs/api/store/create-store"));
@@ -226,7 +225,6 @@ render(
           path="/api/components/error-boundary"
           component={ErrorBoundaryApi}
         />
-        <Route path="/api/components/index-component" component={IndexApi} />
         {/* API - Store */}
         <Route path="/api/store/create-store" component={CreateStore} />
         <Route path="/api/store/unwrap" component={Unwrap} />

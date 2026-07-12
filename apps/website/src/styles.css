@@ -7,7 +7,7 @@
   --border: rgba(255, 255, 255, 0.15);
   --code-bg: #0a0a0a;
 
-  --font-sans: "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "Sora", -apple-system, blinkmacsystemfont, sans-serif;
   --font-mono: "Fantasque Sans Mono", monospace;
 
   --syn-keyword: #c792ea;

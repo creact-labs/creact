@@ -227,7 +227,7 @@ export function useAsyncOutput<
   // Create or get existing node
   let node = ctx.nodeRegistry.get(nodeId);
   if (!node) {
-    node = createInstanceNode(ctx, nodeId, fullPath, props, handler);
+    node = createInstanceNode(nodeId, fullPath, props, handler);
     ctx.nodeRegistry.set(nodeId, node);
   } else {
     node.props = props;
@@ -361,7 +361,6 @@ function upsertOutputSignal(
 
 /** Build a fresh InstanceNode with its setOutputs implementation */
 function createInstanceNode(
-  ctx: RuntimeContext,
   nodeId: string,
   fullPath: string[],
   props: Record<string, any>,
@@ -385,9 +384,6 @@ function createInstanceNode(
 
       node.outputs = { ...(node.outputs || {}), ...outputs };
 
-      // Re-renders triggered by fresh outputs may re-claim node ids from
-      // new fiber positions — release only this runtime's claims
-      ctx.nodeOwnership.clear();
       batch(() => {
         for (const [key, value] of Object.entries(outputs)) {
           upsertOutputSignal(node, key, value);
@@ -511,6 +507,24 @@ export function getAllNodes(): InstanceNode[] {
 }
 
 /**
+ * Invoke a cleanup best-effort: absorb synchronous throws and async
+ * rejections — teardown failures must never crash the process
+ * @internal
+ */
+export function invokeCleanupSafely(fn: () => void | Promise<void>): void {
+  try {
+    const result = fn();
+    if (result instanceof Promise) {
+      result.catch(() => {
+        // best-effort
+      });
+    }
+  } catch {
+    // best-effort
+  }
+}
+
+/**
  * Call all cleanup functions on registered nodes (best-effort, sync)
  * @internal
  */
@@ -521,11 +535,7 @@ export function callAllCleanupFunctions(ctx?: RuntimeContext): void {
       if (node.cleanupFn) {
         const fn = node.cleanupFn;
         node.cleanupFn = undefined;
-        try {
-          fn();
-        } catch {
-          // best-effort
-        }
+        invokeCleanupSafely(fn);
       }
     }
   }

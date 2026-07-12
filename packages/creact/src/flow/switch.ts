@@ -119,10 +119,15 @@ function isMatchResult(match: unknown): match is MatchResult<unknown> {
 function renderMatch(match: MatchResult<unknown>) {
   const { children } = match;
 
-  if (typeof children === "function" && children.length > 0) {
-    // Children is a render function — pass an accessor over the when value
-    const accessor = () => access(match.when) as NonNullable<unknown>;
-    return untrack(() => children(accessor));
+  if (typeof children === "function") {
+    if (children.length > 0) {
+      // Children is a render function — pass an accessor over the when value
+      const accessor = () => access(match.when) as NonNullable<unknown>;
+      return untrack(() => children(accessor));
+    }
+    // Zero-arg children are accessors (CReactNode includes () => CReactNode)
+    // — evaluate them exactly like reactive fallbacks
+    return access(children as MaybeAccessor<CReactNode>);
   }
 
   return children;

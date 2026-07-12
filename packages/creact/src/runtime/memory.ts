@@ -100,6 +100,17 @@ export interface Memory {
   ): Promise<boolean>;
 
   /**
+   * Optional: Renew a held deployment lock before its TTL expires
+   * @param holder - Must match the current lock holder
+   * @returns true if the lease was extended, false if the lock was lost
+   */
+  renewLock?(
+    stackName: string,
+    holder: string,
+    ttlSeconds: number,
+  ): Promise<boolean>;
+
+  /**
    * Optional: Release deployment lock
    */
   releaseLock?(stackName: string): Promise<void>;
@@ -163,8 +174,29 @@ export function serializeNode(node: InstanceNode): SerializedNode {
 }
 
 /**
- * Serialize multiple nodes
+ * Serialize multiple nodes for a deployment snapshot.
+ *
+ * Best-effort per node: one corrupted node must not abort the whole
+ * snapshot (losing every other node's outputs on crash). A node that
+ * fails to serialize is persisted without outputs — its handler simply
+ * re-runs fresh on the next boot — and the corruption is reported.
  */
 export function serializeNodes(nodes: InstanceNode[]): SerializedNode[] {
-  return nodes.map(serializeNode);
+  return nodes.map((node) => {
+    try {
+      return serializeNode(node);
+    } catch (err) {
+      console.error(
+        `[CReact] Persisting node "${node.id}" without outputs — serialization failed:`,
+        err,
+      );
+      return {
+        id: node.id,
+        path: node.path,
+        props: node.props,
+        outputs: undefined,
+        store: node.store,
+      };
+    }
+  });
 }

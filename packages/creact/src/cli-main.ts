@@ -247,14 +247,22 @@ export async function runCli(
   const entrypoint = resolve(cwd, command.entrypoint);
   logger.banner(loadVersion());
 
-  // Type-check — blocks execution on failure
-  if (runTypeCheck(entrypoint, cwd)) {
-    logger.appStarting();
-    await startApp(runner, entrypoint);
-  }
+  // runCli never throws past this point: any failure (a watcher error, an
+  // unexpected loader crash) is formatted through the CLI logger and
+  // becomes exit code 1 — never Node's default rejection dump
+  try {
+    // Type-check — blocks execution on failure
+    if (runTypeCheck(entrypoint, cwd)) {
+      logger.appStarting();
+      await startApp(runner, entrypoint);
+    }
 
-  if (command.watchMode) {
-    await watchLoop(runner, entrypoint, cwd, watchSignal);
+    if (command.watchMode) {
+      await watchLoop(runner, entrypoint, cwd, watchSignal);
+    }
+    return 0;
+  } catch (err) {
+    logger.error(err instanceof Error ? err.message : String(err));
+    return 1;
   }
-  return 0;
 }

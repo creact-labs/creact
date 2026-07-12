@@ -158,10 +158,16 @@ describe("app lifecycle reporting", () => {
     expect(logged()).toContain("string failure");
   });
 
-  it("restarting shows a spinner and watching prints the hint", () => {
+  it("restarting shows a spinner and watching prints the hint", async () => {
+    const ora = vi.mocked((await import("ora")).default);
+
     logger.restarting();
     logger.watching();
 
+    // The restart spinner was actually started, not just the hint printed
+    expect(ora).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "Restarting…" }),
+    );
     expect(logged()).toContain("Watching for changes");
   });
 

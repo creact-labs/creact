@@ -27,7 +27,8 @@ const ApiReference: Component<ApiReferenceProps> = (props) => {
         {t("docs.reference")}
       </DocHeading>
       <ApiSignature name={props.name} signature={props.signature} />
-      <Show when={props.parameters}>
+      {/* An empty list means "no parameters" — render no section for it */}
+      <Show when={props.parameters?.length ? props.parameters : undefined}>
         {(parameters) => (
           <>
             <DocHeading level={3} id="parameters">

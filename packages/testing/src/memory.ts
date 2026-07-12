@@ -42,6 +42,19 @@ export class InMemoryMemory implements Memory {
     return true;
   }
 
+  async renewLock(
+    stackName: string,
+    holder: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const existing = this.locks.get(stackName);
+    if (!existing || existing.holder !== holder) {
+      return false;
+    }
+    existing.expiry = Date.now() + ttlSeconds * 1000;
+    return true;
+  }
+
   async releaseLock(stackName: string): Promise<void> {
     this.locks.delete(stackName);
   }

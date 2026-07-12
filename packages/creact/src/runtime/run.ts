@@ -27,6 +27,7 @@ import {
   clearNodeOwnership,
   clearNodeRegistry,
   getNodeById,
+  invokeCleanupSafely,
   prepareOutputHydration,
   removeNodeFromRegistry,
 } from "./instance";
@@ -148,6 +149,34 @@ class CReactRuntime {
 
   protected initialRunComplete = false;
 
+  // Extends the lock lease while the runtime is alive (backends that treat
+  // ttlSeconds as a hard lease would otherwise let another deployment in)
+  protected lockRenewTimer: ReturnType<typeof setInterval> | null = null;
+
+  protected startLockRenewal(holder: string, ttlSeconds: number): void {
+    if (!this.stateMachine.canRenewLock()) return;
+
+    const intervalMs = (ttlSeconds * 1000) / 2;
+    this.lockRenewTimer = setInterval(() => {
+      void this.stateMachine
+        .renewLock(this.stackName, holder, ttlSeconds)
+        .then((renewed) => {
+          if (!renewed) {
+            console.warn(
+              `[CReact] Lost the deployment lock for "${this.stackName}" — ` +
+                "another deployment may now be running against this stack",
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn(
+            `[CReact] Failed to renew the deployment lock for "${this.stackName}":`,
+            err,
+          );
+        });
+    }, intervalMs);
+  }
+
   // Called exactly once, synchronously inside render()'s createRoot —
   // dispose() cannot have run yet at that point
   async run(element: unknown): Promise<void> {
@@ -167,17 +196,26 @@ class CReactRuntime {
     }
 
     // Concurrent-deploy protection (when the Memory backend supports locking)
+    const holder = this.options.user ?? "creact-runtime";
+    const ttlSeconds = this.options.lockTtlSeconds ?? 300;
     const acquired = await this.stateMachine.acquireLock(
       this.stackName,
-      this.options.user ?? "creact-runtime",
-      this.options.lockTtlSeconds ?? 300,
+      holder,
+      ttlSeconds,
     );
     if (!acquired) {
       throw new Error(
         `[CReact] Stack "${this.stackName}" is locked by another deployment`,
       );
     }
+    // dispose() may have run while we were awaiting the lock — hand it
+    // straight back instead of resuming a dead runtime
+    if (this.disposed) {
+      await this.stateMachine.releaseLock(this.stackName);
+      return;
+    }
     this.lockHeld = true;
+    this.startLockRenewal(holder, ttlSeconds);
 
     // Check for interrupted deployment
     if (await this.stateMachine.canResume(this.stackName)) {
@@ -204,6 +242,10 @@ class CReactRuntime {
         (n) => n.outputs && Object.keys(n.outputs).length > 0,
       );
     }
+
+    // dispose() may have run during the state reads above (it released the
+    // lock, since lockHeld was already set) — don't render a dead runtime
+    if (this.disposed) return;
 
     clearNodeOwnership(this.ctx);
 
@@ -426,6 +468,15 @@ class CReactRuntime {
     this.stateMachine.setResourceState(nodeId, "applying");
     await this.stateMachine.addApplying(this.stackName, nodeId);
 
+    // Tear down the previous run's side effects before re-running — the
+    // documented contract: cleanup runs on dispose or before re-running
+    // the handler (prop updates would otherwise leak subscriptions)
+    if (node.cleanupFn) {
+      const prevCleanup = node.cleanupFn;
+      node.cleanupFn = undefined;
+      await prevCleanup();
+    }
+
     const cleanup = await node.handler(node.props, (outputs) =>
       node.setOutputs(outputs),
     );
@@ -553,13 +604,24 @@ class CReactRuntime {
   // Debounced state saving for output changes
   protected saveStateTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  // The save in flight after the debounce fired — settled() awaits it, and
+  // its rejection is absorbed here so it can never become unhandled
+  protected pendingSave: Promise<void> | null = null;
+
   protected scheduleSaveState(): void {
     if (this.saveStateTimeout) {
       clearTimeout(this.saveStateTimeout);
     }
     this.saveStateTimeout = setTimeout(() => {
       this.saveStateTimeout = null;
-      this.saveStateNow();
+      const save = this.saveStateNow()
+        .catch((err) => {
+          console.error("[CReact] Failed to save state:", err);
+        })
+        .finally(() => {
+          if (this.pendingSave === save) this.pendingSave = null;
+        });
+      this.pendingSave = save;
     }, 100); // Debounce 100ms
   }
 
@@ -590,6 +652,10 @@ class CReactRuntime {
         await this.activeFlush;
         continue;
       }
+      if (this.pendingSave) {
+        await this.pendingSave;
+        continue;
+      }
       if (this.saveStateTimeout) {
         clearTimeout(this.saveStateTimeout);
         this.saveStateTimeout = null;
@@ -618,6 +684,11 @@ class CReactRuntime {
 
     removeFlushCallback(this.flushCallback);
 
+    if (this.lockRenewTimer) {
+      clearInterval(this.lockRenewTimer);
+      this.lockRenewTimer = null;
+    }
+
     if (this.lockHeld) {
       this.lockHeld = false;
       void this.stateMachine.releaseLock(this.stackName).catch(() => {
@@ -630,7 +701,8 @@ class CReactRuntime {
       this.saveStateTimeout = null;
     }
 
-    // Call cleanup on all current nodes (best-effort, sync)
+    // Call cleanup on all current nodes (best-effort, sync start; async
+    // rejections are absorbed so they can never become unhandled)
     // Note: currentNodes are snapshots from collectInstanceNodes, so we must
     // also clear cleanupFn on the real registry node to avoid double-calls.
     for (const node of this.currentNodes) {
@@ -639,11 +711,7 @@ class CReactRuntime {
         node.cleanupFn = undefined;
         const registryNode = getNodeById(node.id, this.ctx);
         if (registryNode) registryNode.cleanupFn = undefined;
-        try {
-          fn();
-        } catch {
-          // best-effort
-        }
+        invokeCleanupSafely(fn);
       }
     }
 
@@ -721,6 +789,9 @@ export function render(
       .then(() => resolveReady())
       .catch((err) => {
         console.error("[CReact] Render error:", err);
+        // A failed initial run leaves nothing behind: release the lock,
+        // tear down whatever deployed, and unregister the runtime
+        runtime.dispose();
         rejectReady(err instanceof Error ? err : new Error(String(err)));
       });
   });

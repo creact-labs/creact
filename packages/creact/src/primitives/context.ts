@@ -30,14 +30,19 @@ function contextStacks(): Map<symbol, unknown[]> {
 
 /**
  * Create a context for passing values down the tree
+ *
+ * Without a default value the context can resolve to undefined, and the
+ * type reflects that — consumers must handle the missing-provider case.
  */
-export function createContext<T>(defaultValue?: T): Context<T> {
+export function createContext<T>(): Context<T | undefined>;
+export function createContext<T>(defaultValue: T): Context<T>;
+export function createContext<T>(defaultValue?: T): Context<T | undefined> {
   const id = Symbol("context");
 
   const Provider = (props: {
-    value: T;
+    value: T | undefined;
     children: unknown;
-  }): ProviderElement<T> => {
+  }): ProviderElement<T | undefined> => {
     return {
       type: Provider,
       props,

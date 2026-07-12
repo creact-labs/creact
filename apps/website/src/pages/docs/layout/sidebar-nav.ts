@@ -113,7 +113,6 @@ export const sidebarNav: NavSection[] = [
             title: "ErrorBoundary",
             href: "/docs/api/components/error-boundary",
           },
-          { title: "Index", href: "/docs/api/components/index-component" },
         ],
       },
       {

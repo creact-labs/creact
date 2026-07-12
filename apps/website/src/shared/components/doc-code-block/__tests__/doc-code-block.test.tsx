@@ -15,11 +15,15 @@ describe("DocCodeBlock", () => {
     expect(container.querySelector(".doc-code-filename")?.textContent).toBe(
       filename,
     );
+    // Once highlighting resolves, the plain <code> fallback is replaced by
+    // the highlighter's HTML — asserted through the component's own
+    // structure, not markup invented by the mock
     await waitFor(() => {
-      expect(
-        container.querySelector("[data-testid=highlighted]")?.textContent,
-      ).toBe(code);
+      expect(container.querySelector("code")).toBeNull();
     });
+    expect(container.querySelector(".doc-code-block")?.textContent).toContain(
+      code,
+    );
   });
 
   it("copy button copies the source and flips to the copied label", async () => {

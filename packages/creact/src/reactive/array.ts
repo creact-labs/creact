@@ -44,10 +44,18 @@ interface MapState<T, U> {
   itemSignals: Setter<T>[] | null;
 }
 
+/** Where a freshly created row writes its disposer and signal setters */
+interface RowSink<T> {
+  disposers: (() => void)[];
+  indexes: Setter<number>[] | null;
+  itemSignals: Setter<T>[] | null;
+}
+
 /** Row factory: runs mapFn inside its own root, wiring item/index signals */
 type RowMapper<T, U> = (
   j: number,
   arr: readonly T[],
+  sink: RowSink<T>,
 ) => (disposer: () => void) => U;
 
 /**
@@ -81,24 +89,24 @@ export function mapArray<T, U>(
   onCleanup(() => dispose(state.disposers));
 
   const mapper: RowMapper<T, U> =
-    (j, arr) => (disposer: () => void) => {
-      state.disposers[j] = disposer;
+    (j, arr, sink) => (disposer: () => void) => {
+      sink.disposers[j] = disposer;
       const item = arr[j] as T;
 
       // Create item accessor - signal if keyFn is used, static otherwise
       let itemAccessor: Accessor<T>;
-      if (state.itemSignals) {
+      if (sink.itemSignals) {
         const [s, set] = createSignal(item);
-        state.itemSignals[j] = set;
+        sink.itemSignals[j] = set;
         itemAccessor = s;
       } else {
         itemAccessor = () => item;
       }
 
       let element: U;
-      if (state.indexes) {
+      if (sink.indexes) {
         const [s, set] = createSignal(j);
-        state.indexes[j] = set;
+        sink.indexes[j] = set;
         element = mapFn(itemAccessor, s);
       } else {
         element = mapFn(itemAccessor, (() => j) as Accessor<number>);
@@ -144,7 +152,7 @@ function reconcileKeyed<T, U>(
     for (let j = 0; j < newLen; j++) {
       const item = newItems[j] as T;
       state.keys[j] = options.keyFn ? options.keyFn(item) : item;
-      state.mapped[j] = createRoot(mapper(j, newItems));
+      state.mapped[j] = createRoot(mapper(j, newItems, state));
     }
     state.len = newLen;
     return state.mapped;
@@ -213,7 +221,7 @@ function updateKeyed<T, U>(
       // Remove from map so we know what's left over
       keyToIndex.delete(key);
     } else {
-      createRow(state, next, j, newItems, mapper);
+      createRow(next, j, newItems, mapper);
     }
   }
 
@@ -270,23 +278,18 @@ function reuseRow<T, U>(
   }
 }
 
-/** Create a fresh row and copy its freshly-wired signals into the next arrays */
+/**
+ * Create a fresh row, wiring its bookkeeping straight into the
+ * next-generation arrays — writing into the live state arrays would
+ * clobber rows the keyed pass has not yet reused or disposed
+ */
 function createRow<T, U>(
-  state: MapState<T, U>,
   next: NextRows<T, U>,
   j: number,
   newItems: readonly T[],
   mapper: RowMapper<T, U>,
 ): void {
-  next.mapped[j] = createRoot(mapper(j, newItems));
-  // The mapper wrote this row's signals into the state arrays — carry them over
-  next.disposers[j] = state.disposers[j] as () => void;
-  if (next.indexes && state.indexes) {
-    next.indexes[j] = state.indexes[j] as Setter<number>;
-  }
-  if (next.itemSignals && state.itemSignals) {
-    next.itemSignals[j] = state.itemSignals[j] as Setter<T>;
-  }
+  next.mapped[j] = createRoot(mapper(j, newItems, next));
 }
 
 /** Mutable bookkeeping for one indexArray instance */

@@ -352,6 +352,117 @@ describe("context providers through the runtime", () => {
 });
 
 describe("fiber reconciliation across reactive re-renders", () => {
+  it("reordering keyed plain siblings keeps each key's fiber and children", async () => {
+    const [order, setOrder] = createSignal(["a", "b"]);
+    const runs: string[] = [];
+    // Stable accessor children: their reactive boundaries are reused only
+    // when the surrounding keyed fiber is correctly matched by key
+    const accessors: Record<string, () => unknown> = {
+      a: () => {
+        runs.push("a");
+        return { type: "leaf", props: { tag: "a" } };
+      },
+      b: () => {
+        runs.push("b");
+        return { type: "leaf", props: { tag: "b" } };
+      },
+    };
+
+    function App() {
+      return () =>
+        order().map((k) => ({
+          type: "slot",
+          props: { children: accessors[k] },
+          key: k,
+        }));
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "keyed-reorder",
+    );
+    await result.ready;
+    expect(runs).toEqual(["a", "b"]);
+
+    // Reordering must pair each key with its own old fiber — positional
+    // matching would hand b's element a's fiber and remount both children
+    setOrder(["b", "a"]);
+    await result.settled();
+
+    expect(runs).toEqual(["a", "b"]);
+    result.dispose();
+  });
+
+  it("an unkeyed element never steals a keyed fiber at its position", async () => {
+    const [keyed, setKeyed] = createSignal(true);
+    const runs: string[] = [];
+    const accessor = () => {
+      runs.push("child");
+      return { type: "leaf", props: {} };
+    };
+
+    function App() {
+      return () =>
+        keyed()
+          ? [{ type: "slot", props: { children: accessor }, key: "a" }]
+          : [{ type: "slot", props: { children: accessor } }];
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "keyed-vs-unkeyed",
+    );
+    await result.ready;
+    expect(runs).toEqual(["child"]);
+
+    // Swapping to an unkeyed element is an identity change — the keyed
+    // fiber is torn down and the unkeyed element mounts fresh
+    setKeyed(false);
+    await result.settled();
+    expect(runs).toEqual(["child", "child"]);
+
+    result.dispose();
+  });
+
+  it("components inside nested arrays survive parent re-renders", async () => {
+    const [tick, setTick] = createSignal(0);
+    let executions = 0;
+
+    function Leaf() {
+      executions++;
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ok: true });
+      });
+      return h(Fragment, {});
+    }
+    // Stable element reference — mapArray-style reuse across re-renders
+    const leafElement = h(Leaf, {}, "leaf");
+
+    function App() {
+      // The nested array must reconcile against its old fragment fiber
+      // instead of remounting all descendants
+      return () => [[leafElement], { type: "meta", props: { tick: tick() } }];
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "nested-array",
+    );
+    await result.ready;
+    expect(executions).toBe(1);
+    expect(result.getNodes().map((n) => n.id)).toEqual(["leaf-leaf"]);
+
+    setTick(1);
+    await result.settled();
+
+    expect(executions).toBe(1);
+    expect(result.getNodes().map((n) => n.id)).toEqual(["leaf-leaf"]);
+    result.dispose();
+  });
+
   it("swapping the element type at a position replaces the fiber cleanly", async () => {
     const [kind, setKind] = createSignal<"banner" | "panel">("banner");
 

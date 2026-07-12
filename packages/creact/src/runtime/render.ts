@@ -33,6 +33,15 @@ const IS_DEV = process.env.NODE_ENV !== "production";
 setStoreAttachHook((initial) => {
   const fiber = getActiveContext().currentFiber;
   if (!fiber) return undefined; // store created outside a component
+  // The fiber persists exactly one store snapshot — a second createStore
+  // would silently overwrite the first one's persisted state
+  if (fiber.store !== undefined) {
+    throw new Error(
+      "createStore can only be called once per component (its state is " +
+        "persisted per component). Use a nested object for more state, " +
+        "or split into child components.",
+    );
+  }
   const state = hydrateStore<object>(getCurrentResourcePath()) ?? initial;
   fiber.store = state; // live reference — snapshotted on every collect
   return state;
@@ -335,7 +344,8 @@ function renderChildren(
     return [];
   }
 
-  const { oldAccessorMap, oldElementMap } = buildIdentityMaps(oldChildren);
+  const { oldAccessorMap, oldElementMap, oldKeyMap } =
+    buildIdentityMaps(oldChildren);
 
   let newFibers: Fiber[];
   if (Array.isArray(children)) {
@@ -347,6 +357,7 @@ function renderChildren(
         oldAtPos,
         oldAccessorMap,
         oldElementMap,
+        oldKeyMap,
       );
       return fiber.type === null ? [] : [fiber];
     });
@@ -357,6 +368,7 @@ function renderChildren(
       oldChildren[0],
       oldAccessorMap,
       oldElementMap,
+      oldKeyMap,
     );
     // A single non-array child is never null/boolean (caught by the early
     // return above), so it always yields a real fiber
@@ -382,17 +394,21 @@ function renderChildren(
 function buildIdentityMaps(oldChildren: Fiber[]): {
   oldAccessorMap: Map<Function, Fiber>;
   oldElementMap: Map<unknown, Fiber>;
+  oldKeyMap: Map<string | number, Fiber>;
 } {
   const oldAccessorMap = new Map<Function, Fiber>();
   const oldElementMap = new Map<unknown, Fiber>();
+  const oldKeyMap = new Map<string | number, Fiber>();
   for (const old of oldChildren) {
     if (old.type === "reactive-boundary" && old._accessor) {
       oldAccessorMap.set(old._accessor, old);
     } else if (old._element && typeof old.type === "function") {
       oldElementMap.set(old._element, old);
+    } else if (old.key !== undefined) {
+      oldKeyMap.set(old.key, old);
     }
   }
-  return { oldAccessorMap, oldElementMap };
+  return { oldAccessorMap, oldElementMap, oldKeyMap };
 }
 
 /**
@@ -409,6 +425,7 @@ function renderFiberWithReconciliation(
   oldAtPosition: Fiber | undefined,
   oldAccessorMap: Map<Function, Fiber>,
   oldElementMap: Map<unknown, Fiber>,
+  oldKeyMap: Map<string | number, Fiber>,
 ): Fiber {
   const leaf = renderLeafFiber(element, path);
   if (leaf) return leaf;
@@ -419,7 +436,16 @@ function renderFiberWithReconciliation(
   }
 
   if (Array.isArray(element)) {
-    // Same fragment handling as a fresh render
+    // Reuse the fragment at this position so descendants reconcile rather
+    // than remount (stateful components inside nested arrays survive)
+    if (oldAtPosition?.type === "fragment") {
+      oldAtPosition.children = renderChildren(
+        element,
+        path,
+        oldAtPosition.children,
+      );
+      return oldAtPosition;
+    }
     return renderFiber(element, path);
   }
 
@@ -428,9 +454,13 @@ function renderFiberWithReconciliation(
   const name = key !== undefined ? String(key) : getNodeName(type);
   const fiberPath = [...path, name];
 
-  // Provider reconciliation — positional matching
+  // Provider reconciliation — keyed match first, then positional
   if (el.__isProvider && el.__context) {
-    return reconcileProviderFiber(el, fiberPath, oldAtPosition);
+    return reconcileProviderFiber(
+      el,
+      fiberPath,
+      matchOldFiber(el, oldAtPosition, oldKeyMap),
+    );
   }
 
   // Function component reconciliation — match by element object identity
@@ -438,7 +468,34 @@ function renderFiberWithReconciliation(
     return reconcileComponentFiber(element, path, oldElementMap);
   }
 
-  return reconcilePlainFiber(el, fiberPath, path, oldAtPosition);
+  return reconcilePlainFiber(
+    el,
+    fiberPath,
+    path,
+    matchOldFiber(el, oldAtPosition, oldKeyMap),
+  );
+}
+
+/**
+ * Pick the old fiber a plain element/provider reconciles against: keyed
+ * elements match by key (position-independent, so reordered keyed siblings
+ * keep their own fiber state); unkeyed elements match by position, never
+ * stealing a keyed fiber that belongs to some other element.
+ */
+function matchOldFiber(
+  el: RawElement,
+  oldAtPosition: Fiber | undefined,
+  oldKeyMap: Map<string | number, Fiber>,
+): Fiber | undefined {
+  if (el.key !== undefined) {
+    const byKey = oldKeyMap.get(el.key);
+    if (byKey && byKey.type === el.type) {
+      oldKeyMap.delete(el.key);
+      return byKey;
+    }
+    return undefined;
+  }
+  return oldAtPosition?.key === undefined ? oldAtPosition : undefined;
 }
 
 /** Match accessors by identity (handles For reorder correctly) */
@@ -474,44 +531,50 @@ function reconcileComponentFiber(
   return renderFiber(element, path);
 }
 
-/** Plain JSX element reconciliation — positional matching, update in place */
+/** Plain JSX element reconciliation — update the matched fiber in place */
 function reconcilePlainFiber(
   element: RawElement,
   fiberPath: string[],
   path: string[],
-  oldAtPosition: Fiber | undefined,
+  oldMatch: Fiber | undefined,
 ): Fiber {
   const { type, props = {} } = element;
   const { children, ...restProps } = props;
 
-  if (oldAtPosition && oldAtPosition.type === type) {
-    oldAtPosition.props = restProps;
-    oldAtPosition.children = renderChildren(
+  if (oldMatch && oldMatch.type === type) {
+    oldMatch.props = restProps;
+    // A keyed fiber may have moved position — refresh its path
+    oldMatch.path = fiberPath;
+    oldMatch.children = renderChildren(
       children,
       fiberPath,
-      oldAtPosition.children,
+      oldMatch.children,
     );
-    return oldAtPosition;
+    return oldMatch;
   }
 
   return renderFiber(element, path);
 }
 
 /**
- * Provider reconciliation — reuse the fiber at the same position when it is
- * the same provider, pushing the (possibly new) context value for children
+ * Provider reconciliation — reuse the matched fiber when it is the same
+ * provider, pushing the (possibly new) context value for children
  */
 function reconcileProviderFiber(
   element: RawElement,
   fiberPath: string[],
-  oldAtPosition: Fiber | undefined,
+  oldMatch: Fiber | undefined,
 ): Fiber {
   const { type, props = {}, key } = element;
   const { children, ...restProps } = props;
 
-  const oldFiber =
-    oldAtPosition && oldAtPosition.type === type ? oldAtPosition : undefined;
+  const oldFiber = oldMatch && oldMatch.type === type ? oldMatch : undefined;
   const fiber = oldFiber ?? createFiber(type, restProps, fiberPath, key);
+  if (oldFiber) {
+    oldFiber.props = restProps;
+    // A keyed fiber may have moved position — refresh its path
+    oldFiber.path = fiberPath;
+  }
 
   // the caller's __isProvider branch guarantees __context is present
   pushContext(element.__context as symbol, props.value);
