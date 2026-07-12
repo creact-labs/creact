@@ -54,6 +54,10 @@ export const sidebarNav: NavSection[] = [
       { title: "Fiber Model", href: "/docs/architecture/fiber-model" },
       { title: "State Machine", href: "/docs/architecture/state-machine" },
       { title: "Memory System", href: "/docs/architecture/memory-system" },
+      {
+        title: "Runtime Boundaries",
+        href: "/docs/architecture/runtime-boundaries",
+      },
     ],
   },
   {
@@ -123,6 +127,10 @@ export const sidebarNav: NavSection[] = [
         label: "Runtime",
         links: [
           { title: "render", href: "/docs/api/runtime/render" },
+          {
+            title: "createRuntime",
+            href: "/docs/api/runtime/create-runtime",
+          },
           {
             title: "useAsyncOutput",
             href: "/docs/api/runtime/use-async-output",

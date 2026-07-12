@@ -86,6 +86,9 @@ const Unwrap = lazy(() => import("@/pages/docs/api/store/unwrap"));
 
 // API Reference - Runtime
 const Render = lazy(() => import("@/pages/docs/api/runtime/render"));
+const CreateRuntime = lazy(
+  () => import("@/pages/docs/api/runtime/create-runtime"),
+);
 const UseAsyncOutput = lazy(
   () => import("@/pages/docs/api/runtime/use-async-output"),
 );
@@ -135,6 +138,9 @@ const StateMachine = lazy(
 );
 const MemorySystem = lazy(
   () => import("@/pages/docs/architecture/memory-system"),
+);
+const RuntimeBoundaries = lazy(
+  () => import("@/pages/docs/architecture/runtime-boundaries"),
 );
 
 const root = document.getElementById("root");
@@ -227,6 +233,10 @@ render(
         {/* API - Runtime */}
         <Route path="/api/runtime/render" component={Render} />
         <Route
+          path="/api/runtime/create-runtime"
+          component={CreateRuntime}
+        />
+        <Route
           path="/api/runtime/use-async-output"
           component={UseAsyncOutput}
         />
@@ -262,6 +272,10 @@ render(
         <Route path="/architecture/fiber-model" component={FiberModel} />
         <Route path="/architecture/state-machine" component={StateMachine} />
         <Route path="/architecture/memory-system" component={MemorySystem} />
+        <Route
+          path="/architecture/runtime-boundaries"
+          component={RuntimeBoundaries}
+        />
       </Route>
     </HashRouter>
   ),

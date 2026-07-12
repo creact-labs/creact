@@ -11,12 +11,18 @@ import {
   type Setter,
 } from "../reactive/signal";
 import { batch, untrack } from "../reactive/tracking";
+import type { Fiber } from "./fiber";
 import { plainObjectsEqualWith } from "./plain-objects-equal";
 import {
   getCurrentFiber,
   getCurrentResourcePath,
   pushResourcePath,
 } from "./render";
+import {
+  allContexts,
+  getActiveContext,
+  type RuntimeContext,
+} from "./runtime-context";
 
 /**
  * Shallow equality check for output deduplication
@@ -114,14 +120,9 @@ export interface InstanceNode {
   ): void;
 }
 
-// Registry of all instance nodes by ID
-const nodeRegistry = new Map<string, InstanceNode>();
-
-// Track which fiber path owns each nodeId
-const nodeOwnership = new Map<string, string>();
-
-// Output hydration map
-const outputHydrationMap = new Map<string, Record<string, unknown>>();
+// The node registry, ownership map, and output hydration map live on each
+// RuntimeContext — helpers below default to the active context but accept
+// an explicit one (the runtime passes its own).
 
 interface SerializedNodeForHydration {
   id: string;
@@ -134,22 +135,15 @@ interface SerializedNodeForHydration {
  */
 export function prepareOutputHydration(
   serializedNodes: SerializedNodeForHydration[],
+  ctx: RuntimeContext = getActiveContext(),
 ): void {
-  outputHydrationMap.clear();
+  ctx.outputHydration.clear();
 
   for (const node of serializedNodes) {
     if (node.outputs && Object.keys(node.outputs).length > 0) {
-      outputHydrationMap.set(node.id, node.outputs);
+      ctx.outputHydration.set(node.id, node.outputs);
     }
   }
-}
-
-/**
- * Clear output hydration map
- * @internal
- */
-export function clearOutputHydration(): void {
-  outputHydrationMap.clear();
 }
 
 /**
@@ -210,6 +204,8 @@ export function useAsyncOutput<
   if (!fiber) {
     throw new Error("useAsyncOutput must be called during render");
   }
+  // The owning runtime is resolved through the fiber, never module globals
+  const ctx = fiber.ctx;
   assertSingleInstancePerComponent(fiber);
 
   // Only function components execute code, so fiber.type is always a function
@@ -218,30 +214,28 @@ export function useAsyncOutput<
   requireKey(fiber, componentName);
 
   // Generate deterministic ID using resource path + key
-  const name = `${toKebabCase(componentName)}-${fiber.key}`;
-  const fullPath = [...getCurrentResourcePath(), name];
-  const nodeId = fullPath.join(".");
+  const { name, fullPath, nodeId } = deriveInstanceAddress(fiber);
 
   // A resource with undefined deps and no prior state waits for its deps
   const isDeferred =
     hasUndefinedValues(props) &&
-    !outputHydrationMap.has(nodeId) &&
-    !nodeRegistry.has(nodeId);
+    !ctx.outputHydration.has(nodeId) &&
+    !ctx.nodeRegistry.has(nodeId);
 
-  claimOwnership(nodeId, fiber, componentName);
+  claimOwnership(ctx, nodeId, fiber, componentName);
 
   // Create or get existing node
-  let node = nodeRegistry.get(nodeId);
+  let node = ctx.nodeRegistry.get(nodeId);
   if (!node) {
-    node = createInstanceNode(nodeId, fullPath, props, handler);
-    nodeRegistry.set(nodeId, node);
+    node = createInstanceNode(ctx, nodeId, fullPath, props, handler);
+    ctx.nodeRegistry.set(nodeId, node);
   } else {
     node.props = props;
     node.handler = handler;
   }
 
   pushResourcePath(name);
-  hydrateNodeOutputs(node, nodeId);
+  hydrateNodeOutputs(ctx, node, nodeId);
 
   if (isDeferred) {
     fiber.hasPlaceholderInstance = true;
@@ -254,6 +248,24 @@ export function useAsyncOutput<
   }
 
   return createOutputProxy<O>(node);
+}
+
+/**
+ * The one identity scheme at every level: a component's node address is the
+ * current resource path plus `<kebab-name>-<key>`. Shared by useAsyncOutput
+ * (node ids) and createRuntime (child stack names).
+ * @internal
+ */
+export function deriveInstanceAddress(fiber: Fiber): {
+  name: string;
+  fullPath: string[];
+  nodeId: string;
+} {
+  const componentType = fiber.type as (props: unknown) => unknown;
+  const componentName = componentType.name || "Instance";
+  const name = `${toKebabCase(componentName)}-${fiber.key}`;
+  const fullPath = [...getCurrentResourcePath(), name];
+  return { name, fullPath, nodeId: fullPath.join(".") };
 }
 
 /** Enforce one useAsyncOutput per component */
@@ -313,12 +325,13 @@ function hasUndefinedValues(props: Record<string, unknown>): boolean {
 
 /** Check for collisions (multiple instances with same resource path) */
 function claimOwnership(
+  ctx: RuntimeContext,
   nodeId: string,
-  fiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
+  fiber: Fiber,
   componentName: string,
 ): void {
   const currentFiberPath = fiber.path.join(".");
-  const existingOwnerPath = nodeOwnership.get(nodeId);
+  const existingOwnerPath = ctx.nodeOwnership.get(nodeId);
   if (existingOwnerPath && existingOwnerPath !== currentFiberPath) {
     throw new Error(
       `Duplicate resource ID "${nodeId}".\n\n` +
@@ -327,7 +340,7 @@ function claimOwnership(
         keyHint(componentName),
     );
   }
-  nodeOwnership.set(nodeId, currentFiberPath);
+  ctx.nodeOwnership.set(nodeId, currentFiberPath);
 }
 
 /** Create or update one output signal, deduplicating shallow-equal writes */
@@ -348,6 +361,7 @@ function upsertOutputSignal(
 
 /** Build a fresh InstanceNode with its setOutputs implementation */
 function createInstanceNode(
+  ctx: RuntimeContext,
   nodeId: string,
   fullPath: string[],
   props: Record<string, any>,
@@ -371,7 +385,9 @@ function createInstanceNode(
 
       node.outputs = { ...(node.outputs || {}), ...outputs };
 
-      nodeOwnership.clear();
+      // Re-renders triggered by fresh outputs may re-claim node ids from
+      // new fiber positions — release only this runtime's claims
+      ctx.nodeOwnership.clear();
       batch(() => {
         for (const [key, value] of Object.entries(outputs)) {
           upsertOutputSignal(node, key, value);
@@ -398,8 +414,12 @@ function outputsDiffer(
 /**
  * Hydrate outputs from a previous run, so setOutputs(prev => ...) sees them
  */
-function hydrateNodeOutputs(node: InstanceNode, nodeId: string): void {
-  const hydratedOutputs = outputHydrationMap.get(nodeId);
+function hydrateNodeOutputs(
+  ctx: RuntimeContext,
+  node: InstanceNode,
+  nodeId: string,
+): void {
+  const hydratedOutputs = ctx.outputHydration.get(nodeId);
   if (!hydratedOutputs) return;
 
   node.outputs = { ...hydratedOutputs };
@@ -466,8 +486,16 @@ function toKebabCase(str: string): string {
  * Get a node by ID
  * @internal
  */
-export function getNodeById(nodeId: string): InstanceNode | undefined {
-  return nodeRegistry.get(nodeId);
+export function getNodeById(
+  nodeId: string,
+  ctx?: RuntimeContext,
+): InstanceNode | undefined {
+  if (ctx) return ctx.nodeRegistry.get(nodeId);
+  for (const c of allContexts) {
+    const node = c.nodeRegistry.get(nodeId);
+    if (node) return node;
+  }
+  return undefined;
 }
 
 /**
@@ -475,22 +503,29 @@ export function getNodeById(nodeId: string): InstanceNode | undefined {
  * @internal
  */
 export function getAllNodes(): InstanceNode[] {
-  return Array.from(nodeRegistry.values());
+  const nodes: InstanceNode[] = [];
+  for (const c of allContexts) {
+    nodes.push(...c.nodeRegistry.values());
+  }
+  return nodes;
 }
 
 /**
  * Call all cleanup functions on registered nodes (best-effort, sync)
  * @internal
  */
-export function callAllCleanupFunctions(): void {
-  for (const node of nodeRegistry.values()) {
-    if (node.cleanupFn) {
-      const fn = node.cleanupFn;
-      node.cleanupFn = undefined;
-      try {
-        fn();
-      } catch {
-        // best-effort
+export function callAllCleanupFunctions(ctx?: RuntimeContext): void {
+  const contexts = ctx ? [ctx] : allContexts;
+  for (const c of contexts) {
+    for (const node of c.nodeRegistry.values()) {
+      if (node.cleanupFn) {
+        const fn = node.cleanupFn;
+        node.cleanupFn = undefined;
+        try {
+          fn();
+        } catch {
+          // best-effort
+        }
       }
     }
   }
@@ -501,13 +536,19 @@ export function callAllCleanupFunctions(): void {
  * Clears cleanupFn so later sweeps (dispose/resetRuntime) can't double-call it.
  * @internal
  */
-export function removeNodeFromRegistry(nodeId: string): void {
-  const node = nodeRegistry.get(nodeId);
-  if (node) {
-    node.cleanupFn = undefined;
-    nodeRegistry.delete(nodeId);
+export function removeNodeFromRegistry(
+  nodeId: string,
+  ctx?: RuntimeContext,
+): void {
+  const contexts = ctx ? [ctx] : allContexts;
+  for (const c of contexts) {
+    const node = c.nodeRegistry.get(nodeId);
+    if (node) {
+      node.cleanupFn = undefined;
+      c.nodeRegistry.delete(nodeId);
+    }
+    c.nodeOwnership.delete(nodeId);
   }
-  nodeOwnership.delete(nodeId);
 }
 
 /**
@@ -515,14 +556,18 @@ export function removeNodeFromRegistry(nodeId: string): void {
  * @internal
  */
 export function clearNodeRegistry(): void {
-  nodeRegistry.clear();
-  nodeOwnership.clear();
+  for (const c of allContexts) {
+    c.nodeRegistry.clear();
+    c.nodeOwnership.clear();
+  }
 }
 
 /**
  * Clear node ownership (call at start of each render pass)
  * @internal
  */
-export function clearNodeOwnership(): void {
-  nodeOwnership.clear();
+export function clearNodeOwnership(
+  ctx: RuntimeContext = getActiveContext(),
+): void {
+  ctx.nodeOwnership.clear();
 }

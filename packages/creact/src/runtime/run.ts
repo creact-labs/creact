@@ -9,7 +9,6 @@
  * 5. When signals change -> effects run -> may create new nodes -> applies new changes
  */
 
-import { clearContextStacks } from "../primitives/context";
 import {
   cleanupOwner,
   createRoot,
@@ -20,14 +19,13 @@ import {
   addFlushCallback,
   removeFlushCallback,
 } from "../reactive/tracking";
-import { clearHydration, prepareHydration } from "../store/store";
+import { prepareHydration } from "../store/store";
 import type { Fiber } from "./fiber";
 import type { InstanceNode } from "./instance";
 import {
   callAllCleanupFunctions,
   clearNodeOwnership,
   clearNodeRegistry,
-  clearOutputHydration,
   getNodeById,
   prepareOutputHydration,
   removeNodeFromRegistry,
@@ -48,8 +46,14 @@ import {
   cleanupFiber,
   collectInstanceNodes,
   renderFiber,
-  resetResourcePath,
 } from "./render";
+import {
+  allContexts,
+  createRuntimeContext,
+  defaultContext,
+  type RuntimeContext,
+  setActiveContext,
+} from "./runtime-context";
 import { StateMachine } from "./state-machine";
 
 export interface RenderOptions {
@@ -119,11 +123,18 @@ class CReactRuntime {
   protected options: RenderOptions;
   protected lockHeld = false;
   protected flushCallback: () => void;
+  /** All per-runtime mutable state — registries, hydration, render context */
+  protected ctx: RuntimeContext;
 
   constructor(memory: Memory, stackName: string, options: RenderOptions = {}) {
     this.memory = memory;
     this.stackName = stackName;
     this.options = options;
+
+    this.ctx = createRuntimeContext();
+    this.ctx.memory = memory;
+    this.ctx.options = options;
+    allContexts.add(this.ctx);
 
     this.stateMachine = new StateMachine(memory, {
       user: options.user,
@@ -187,17 +198,24 @@ class CReactRuntime {
     const prevState = await this.stateMachine.getPreviousState(this.stackName);
     if (prevState) {
       this.stateMachine.restoreResourceStates(prevState.nodes);
-      prepareHydration(prevState.nodes);
-      prepareOutputHydration(prevState.nodes);
+      prepareHydration(prevState.nodes, this.ctx);
+      prepareOutputHydration(prevState.nodes, this.ctx);
       previousNodes = prevState.nodes.filter(
         (n) => n.outputs && Object.keys(n.outputs).length > 0,
       );
     }
 
-    clearNodeOwnership();
+    clearNodeOwnership(this.ctx);
 
-    // Render (components run once) - runs inside the createRoot from render()
-    this.rootFiber = renderFiber(element, []);
+    // Render (components run once) — the synchronous render section runs
+    // with this runtime's context active so every fiber, registry entry,
+    // and hydration lookup lands on it
+    const prevCtx = setActiveContext(this.ctx);
+    try {
+      this.rootFiber = renderFiber(element, []);
+    } finally {
+      setActiveContext(prevCtx);
+    }
     this.currentNodes = collectInstanceNodes(this.rootFiber);
 
     // Apply changes (isInitialRun=true to run all handlers)
@@ -306,11 +324,11 @@ class CReactRuntime {
 
       // Prefer the live registry node — snapshots may predate the
       // handler run and therefore miss the cleanupFn it returned
-      const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
+      const cleanup = getNodeById(nodeId, this.ctx)?.cleanupFn ?? node.cleanupFn;
       if (cleanup) {
         await cleanup();
       }
-      removeNodeFromRegistry(nodeId);
+      removeNodeFromRegistry(nodeId, this.ctx);
 
       await this.stateMachine.recordResourceDestroyed(this.stackName, nodeId);
     }
@@ -403,7 +421,7 @@ class CReactRuntime {
   protected async executeNode(nodeId: string): Promise<string> {
     // Scheduled ids always exist in the registry: deletions happen before
     // the executor starts or after it drains, never while it runs
-    const node = getNodeById(nodeId)!;
+    const node = getNodeById(nodeId, this.ctx)!;
 
     this.stateMachine.setResourceState(nodeId, "applying");
     await this.stateMachine.addApplying(this.stackName, nodeId);
@@ -585,7 +603,7 @@ class CReactRuntime {
   getNodes(): InstanceNode[] {
     // Return live nodes with current outputs from the registry
     return this.currentNodes.map(snapshot => {
-      const live = getNodeById(snapshot.id);
+      const live = getNodeById(snapshot.id, this.ctx);
       if (live) {
         return { ...snapshot, outputs: live.outputs };
       }
@@ -619,7 +637,7 @@ class CReactRuntime {
       if (node.cleanupFn) {
         const fn = node.cleanupFn;
         node.cleanupFn = undefined;
-        const registryNode = getNodeById(node.id);
+        const registryNode = getNodeById(node.id, this.ctx);
         if (registryNode) registryNode.cleanupFn = undefined;
         try {
           fn();
@@ -628,6 +646,12 @@ class CReactRuntime {
         }
       }
     }
+
+    // Sweep the rest of this runtime's registry (nodes not in currentNodes),
+    // then retire the context — a disposed runtime leaves no global residue.
+    // Detach-and-resume semantics hold: the ledger in Memory is untouched.
+    callAllCleanupFunctions(this.ctx);
+    allContexts.delete(this.ctx);
 
     if (this.rootFiber) {
       cleanupFiber(this.rootFiber);
@@ -713,17 +737,25 @@ export function render(
  * Reset all runtime state (for testing)
  */
 export function resetRuntime(): void {
-  // Dispose all active runtimes (aborts cleanupFns, cancels timers)
+  // Dispose all active runtimes (aborts cleanupFns, cancels timers,
+  // sweeps and retires each runtime's context)
   for (const runtime of activeRuntimes) {
     runtime.dispose();
   }
   activeRuntimes.clear();
 
-  // Call cleanup on any orphaned nodes in the global registry
+  // Sweep whatever contexts remain (the default one, plus any leftovers)
   callAllCleanupFunctions();
   clearNodeRegistry();
-  clearHydration();
-  clearOutputHydration();
-  clearContextStacks();
-  resetResourcePath();
+  for (const ctx of allContexts) {
+    ctx.outputHydration.clear();
+    ctx.storeHydration.clear();
+    ctx.contextStacks.clear();
+    ctx.currentFiber = null;
+    ctx.currentPath = [];
+    ctx.resourcePath = [];
+  }
+  allContexts.clear();
+  allContexts.add(defaultContext);
+  setActiveContext(null);
 }

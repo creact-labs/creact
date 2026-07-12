@@ -1,10 +1,13 @@
 /**
  * Context - pass values down the component tree
  *
- * Owner-based context lookup for CReact reactivity.
+ * Owner-based context lookup for CReact reactivity. The render-time value
+ * stacks live on the active runtime context, so concurrent runtimes never
+ * see each other's providers.
  */
 
 import { lookupContext, setContext } from "../reactive/owner";
+import { getActiveContext } from "../runtime/runtime-context";
 
 /** Element shape produced by a context Provider (consumed by the renderer) */
 export interface ProviderElement<T> {
@@ -20,8 +23,10 @@ export interface Context<T> {
   Provider: (props: { value: T; children: unknown }) => ProviderElement<T>;
 }
 
-// Stack of values per context ID (used during render traversal)
-const contextStacks = new Map<symbol, unknown[]>();
+/** Stacks of values per context ID for the currently rendering runtime */
+function contextStacks(): Map<symbol, unknown[]> {
+  return getActiveContext().contextStacks;
+}
 
 /**
  * Create a context for passing values down the tree
@@ -64,7 +69,7 @@ export function useContext<T>(context: Context<T>): T {
   // Fall back to render-time stack. Values are stored untyped because one
   // map holds every context's stack; each context id only ever receives
   // values pushed through its own typed Provider.
-  const stack = contextStacks.get(context.id);
+  const stack = contextStacks().get(context.id);
   if (stack?.length) {
     return stack[stack.length - 1] as T;
   }
@@ -77,10 +82,11 @@ export function useContext<T>(context: Context<T>): T {
  * @internal
  */
 export function pushContext<T>(contextId: symbol, value: T): void {
-  let stack = contextStacks.get(contextId);
+  const stacks = contextStacks();
+  let stack = stacks.get(contextId);
   if (!stack) {
     stack = [];
-    contextStacks.set(contextId, stack);
+    stacks.set(contextId, stack);
   }
   stack.push(value);
 
@@ -93,16 +99,16 @@ export function pushContext<T>(contextId: symbol, value: T): void {
  * @internal
  */
 export function popContext(contextId: symbol): void {
-  const stack = contextStacks.get(contextId);
+  const stack = contextStacks().get(contextId);
   stack?.pop();
 }
 
 /**
- * Clear all context stacks (for testing)
+ * Clear the active runtime's context stacks (for testing)
  * @internal
  */
 export function clearContextStacks(): void {
-  contextStacks.clear();
+  contextStacks().clear();
 }
 
 /**
@@ -116,7 +122,7 @@ export type ContextSnapshot = Map<symbol, unknown[]>;
  */
 export function getContextSnapshot(): ContextSnapshot {
   const snapshot: ContextSnapshot = new Map();
-  for (const [id, stack] of contextStacks) {
+  for (const [id, stack] of contextStacks()) {
     snapshot.set(id, [...stack]);
   }
   return snapshot;
@@ -127,8 +133,9 @@ export function getContextSnapshot(): ContextSnapshot {
  * @internal
  */
 export function restoreContextSnapshot(snapshot: ContextSnapshot): void {
-  contextStacks.clear();
+  const stacks = contextStacks();
+  stacks.clear();
   for (const [id, stack] of snapshot) {
-    contextStacks.set(id, [...stack]);
+    stacks.set(id, [...stack]);
   }
 }

@@ -13,6 +13,10 @@ import {
   scheduleComputation,
   trackRead,
 } from "../reactive/tracking";
+import {
+  getActiveContext,
+  type RuntimeContext,
+} from "../runtime/runtime-context";
 
 export type SetStoreFunction<T> = {
   <K extends keyof T>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void;
@@ -271,8 +275,8 @@ export function unwrap<T>(item: T): T {
   return item;
 }
 
-// Hydration map for restoring state from Memory
-const hydrationMap = new Map<string, object>();
+// The store hydration map lives on each RuntimeContext — helpers below
+// default to the active context but accept an explicit one.
 
 /**
  * The structural surface hydration needs from persisted nodes
@@ -288,13 +292,16 @@ export interface HydratableNode {
  * Prepare hydration from previous nodes
  * @internal
  */
-export function prepareHydration(previousNodes: HydratableNode[]): void {
-  hydrationMap.clear();
+export function prepareHydration(
+  previousNodes: HydratableNode[],
+  ctx: RuntimeContext = getActiveContext(),
+): void {
+  ctx.storeHydration.clear();
 
   for (const node of flattenNodes(previousNodes)) {
     if (node.store) {
       const componentPath = node.path.slice(0, -1).join(".");
-      hydrationMap.set(componentPath, node.store);
+      ctx.storeHydration.set(componentPath, node.store);
     }
   }
 }
@@ -306,7 +313,7 @@ export function prepareHydration(previousNodes: HydratableNode[]): void {
 export function hydrateStore<T>(fiberPath?: string[]): T | undefined {
   if (!fiberPath) return undefined;
   const key = fiberPath.join(".");
-  const stored = hydrationMap.get(key);
+  const stored = getActiveContext().storeHydration.get(key);
   // Persisted store state carries no type information — the caller declares
   // the shape it originally stored.
   return stored ? (structuredClone(stored) as T) : undefined;
@@ -335,6 +342,8 @@ function flattenNodes(nodes: HydratableNode[]): HydratableNode[] {
  * Clear hydration map (for testing)
  * @internal
  */
-export function clearHydration(): void {
-  hydrationMap.clear();
+export function clearHydration(
+  ctx: RuntimeContext = getActiveContext(),
+): void {
+  ctx.storeHydration.clear();
 }

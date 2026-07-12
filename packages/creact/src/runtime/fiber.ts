@@ -7,6 +7,7 @@
 import type { ContextSnapshot } from "../primitives/context";
 import type { Owner } from "../reactive/owner";
 import type { InstanceNode } from "./instance";
+import { getActiveContext, type RuntimeContext } from "./runtime-context";
 
 /**
  * What a fiber can represent: a function component, an intrinsic tag or
@@ -26,6 +27,13 @@ export interface Fiber {
   children: Fiber[];
   path: string[];
   key?: string | number;
+
+  /**
+   * The runtime this fiber belongs to — useAsyncOutput and the store attach
+   * hook resolve their owning runtime through this handle, never through
+   * module globals. Stamped at creation from the active render context.
+   */
+  ctx: RuntimeContext;
 
   // Instance bindings (from useAsyncOutput) - supports multiple instances per component
   instanceNodes: InstanceNode[];
@@ -73,6 +81,7 @@ export function createFiber(
     children: [],
     path,
     key,
+    ctx: getActiveContext(),
     instanceNodes: [],
   };
 }

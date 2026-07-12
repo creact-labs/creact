@@ -19,6 +19,8 @@ export type {
   DeploymentState,
   Memory,
 } from "./runtime/memory";
+export type { RuntimeOutputs } from "./runtime/create-runtime";
+export { createRuntime } from "./runtime/create-runtime";
 export type { RenderOptions, RenderResult } from "./runtime/run";
 // Runtime
 export { render, resetRuntime } from "./runtime/run";

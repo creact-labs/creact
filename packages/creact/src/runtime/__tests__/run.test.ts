@@ -1,7 +1,16 @@
 import { faker} from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi} from "vitest";
 import { InMemoryMemory, delay, h } from "@creact-labs/testing";
-import { For, Fragment, Show, createEffect, createSignal} from "../../index";
+import {
+  For,
+  Fragment,
+  Show,
+  createContext,
+  createEffect,
+  createSignal,
+  createStore,
+  useContext,
+} from "../../index";
 import { removeNodeFromRegistry, useAsyncOutput} from "../instance";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
@@ -311,6 +320,199 @@ describe("multiple concurrent runtimes", () => {
     await second.settled();
 
     expect(gatedDeployed).toBe(true);
+    second.dispose();
+  });
+
+  it("runtimes with identical component keys keep separate nodes and outputs", async () => {
+    // Same component + key in both trees derives the same node id — with a
+    // shared registry the second runtime would silently adopt the first
+    // runtime's node
+    const memoryA = new InMemoryMemory();
+    const memoryB = new InMemoryMemory();
+    const tagA = faker.string.uuid();
+    const tagB = faker.string.uuid();
+
+    function Tagged(props: { tag: string }) {
+      useAsyncOutput({ tag: props.tag }, async (p, setOutputs) => {
+        setOutputs({ tag: p.tag });
+      });
+      return h(Fragment, {});
+    }
+
+    const first = render(
+      () => h(Tagged, { tag: tagA }, "shared"),
+      memoryA,
+      "stack-a",
+    );
+    const second = render(
+      () => h(Tagged, { tag: tagB }, "shared"),
+      memoryB,
+      "stack-b",
+    );
+    await first.ready;
+    await second.ready;
+
+    expect(first.getNodes()).toHaveLength(1);
+    expect(second.getNodes()).toHaveLength(1);
+    expect(first.getNodes()[0]!.outputs).toEqual({ tag: tagA });
+    expect(second.getNodes()[0]!.outputs).toEqual({ tag: tagB });
+
+    await first.settled();
+    await second.settled();
+    expect((await memoryA.getState("stack-a"))!.nodes[0]!.outputs).toEqual({
+      tag: tagA,
+    });
+    expect((await memoryB.getState("stack-b"))!.nodes[0]!.outputs).toEqual({
+      tag: tagB,
+    });
+
+    first.dispose();
+    second.dispose();
+  });
+
+  it("each runtime holds its own lock on its own stack", async () => {
+    const memory = new InMemoryMemory();
+
+    function Simple() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ok: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const first = render(() => h(Simple, {}, "s"), memory, "stack-a");
+    const second = render(() => h(Simple, {}, "s"), memory, "stack-b");
+    await first.ready;
+    await second.ready;
+
+    // Both stacks are protected simultaneously, each by its own runtime
+    expect(await memory.acquireLock("stack-a", "intruder", 60)).toBe(false);
+    expect(await memory.acquireLock("stack-b", "intruder", 60)).toBe(false);
+
+    // Releasing one lock (via dispose) leaves the other held
+    first.dispose();
+    expect(await memory.acquireLock("stack-a", "intruder", 60)).toBe(true);
+    expect(await memory.acquireLock("stack-b", "intruder", 60)).toBe(false);
+
+    second.dispose();
+  });
+
+  it("a reactive flush in one runtime is a no-op for every other runtime", async () => {
+    const memoryA = new InMemoryMemory();
+    const memoryB = new InMemoryMemory();
+    const [gate, setGate] = createSignal(false);
+    let executionsB = 0;
+
+    function Gated() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        setOutputs({ ok: true });
+      });
+      return h(Fragment, {});
+    }
+
+    function AppA() {
+      return Show({ when: gate, children: () => h(Gated, {}, "gated") });
+    }
+
+    function CountedB() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        executionsB++;
+        setOutputs({ ok: true });
+      });
+      return h(Fragment, {});
+    }
+
+    const first = render(() => h(AppA, {}, "a"), memoryA, "stack-a");
+    const second = render(() => h(CountedB, {}, "b"), memoryB, "stack-b");
+    await first.ready;
+    await second.ready;
+    expect(executionsB).toBe(1);
+    const nodesBefore = second.getNodes().map((n) => n.id);
+
+    // Flush driven entirely by runtime A's tree
+    setGate(true);
+    await first.settled();
+    await second.settled();
+
+    expect(first.getNodes().map((n) => n.id)).toContain("gated-gated");
+    expect(executionsB).toBe(1);
+    expect(second.getNodes().map((n) => n.id)).toEqual(nodesBefore);
+
+    first.dispose();
+    second.dispose();
+  });
+
+  it("context providers in one runtime are invisible to the other", async () => {
+    const memoryA = new InMemoryMemory();
+    const memoryB = new InMemoryMemory();
+    const Ctx = createContext<string>("default");
+    const valueA = faker.string.uuid();
+    const valueB = faker.string.uuid();
+    const seen: Record<string, string> = {};
+
+    function Reader(props: { slot: string }) {
+      const value = useContext(Ctx);
+      useAsyncOutput({ slot: props.slot }, async (p, setOutputs) => {
+        seen[p.slot] = value;
+        setOutputs({ value });
+      });
+      return h(Fragment, {});
+    }
+
+    function makeApp(value: string, slot: string) {
+      return () =>
+        Ctx.Provider({
+          value,
+          children: h(Reader, { slot }, slot),
+        });
+    }
+
+    const first = render(makeApp(valueA, "a"), memoryA, "stack-a");
+    const second = render(makeApp(valueB, "b"), memoryB, "stack-b");
+    await first.ready;
+    await second.ready;
+
+    expect(seen).toEqual({ a: valueA, b: valueB });
+
+    first.dispose();
+    second.dispose();
+  });
+
+  it("stores with identical component paths persist to their own ledgers", async () => {
+    const memoryA = new InMemoryMemory();
+    const memoryB = new InMemoryMemory();
+    const labelA = faker.lorem.word();
+    const labelB = faker.lorem.word();
+
+    function makeApp(label: string) {
+      return function StoreApp() {
+        const [state] = createStore({ label });
+        useAsyncOutput({}, async (_p, setOutputs) => {
+          setOutputs({ label: state.label });
+        });
+        return h(Fragment, {});
+      };
+    }
+
+    const first = render(() => h(makeApp(labelA), {}, "s"), memoryA, "stack-a");
+    const second = render(
+      () => h(makeApp(labelB), {}, "s"),
+      memoryB,
+      "stack-b",
+    );
+    await first.ready;
+    await second.ready;
+    await first.settled();
+    await second.settled();
+
+    expect((await memoryA.getState("stack-a"))!.nodes[0]!.store).toEqual({
+      label: labelA,
+    });
+    expect((await memoryB.getState("stack-b"))!.nodes[0]!.store).toEqual({
+      label: labelB,
+    });
+
+    first.dispose();
     second.dispose();
   });
 });

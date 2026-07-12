@@ -21,6 +21,7 @@ import {
 import type { Fiber, FiberType } from "./fiber";
 import { createFiber } from "./fiber";
 import type { InstanceNode } from "./instance";
+import { getActiveContext, setActiveContext } from "./runtime-context";
 
 // Dev mode flag
 const IS_DEV = process.env.NODE_ENV !== "production";
@@ -30,26 +31,22 @@ const IS_DEV = process.env.NODE_ENV !== "production";
 // and hydrated from the previous run's state. Keyed by the component's
 // resource path — matches prepareHydration's node.path.slice(0, -1).
 setStoreAttachHook((initial) => {
-  const fiber = currentFiber;
+  const fiber = getActiveContext().currentFiber;
   if (!fiber) return undefined; // store created outside a component
   const state = hydrateStore<object>(getCurrentResourcePath()) ?? initial;
   fiber.store = state; // live reference — snapshotted on every collect
   return state;
 });
 
-// Current render context
-let currentFiber: Fiber | null = null;
-let currentPath: string[] = [];
-
-// Resource path - only components with useAsyncOutput contribute to this
-let resourcePath: string[] = [];
+// The render context (currentFiber/currentPath/resourcePath) lives on the
+// active RuntimeContext — accessors below resolve it through the slot.
 
 /**
  * Get current fiber (for useAsyncOutput)
  * @internal
  */
 export function getCurrentFiber(): Fiber | null {
-  return currentFiber;
+  return getActiveContext().currentFiber;
 }
 
 /**
@@ -57,7 +54,7 @@ export function getCurrentFiber(): Fiber | null {
  * @internal
  */
 export function getCurrentPath(): string[] {
-  return [...currentPath];
+  return [...getActiveContext().currentPath];
 }
 
 /**
@@ -65,7 +62,7 @@ export function getCurrentPath(): string[] {
  * @internal
  */
 export function getCurrentResourcePath(): string[] {
-  return [...resourcePath];
+  return [...getActiveContext().resourcePath];
 }
 
 /**
@@ -73,7 +70,7 @@ export function getCurrentResourcePath(): string[] {
  * @internal
  */
 export function pushResourcePath(segment: string): void {
-  resourcePath.push(segment);
+  getActiveContext().resourcePath.push(segment);
 }
 
 /**
@@ -81,15 +78,7 @@ export function pushResourcePath(segment: string): void {
  * @internal
  */
 export function popResourcePath(): void {
-  resourcePath.pop();
-}
-
-/**
- * Reset resource path
- * @internal
- */
-export function resetResourcePath(): void {
-  resourcePath = [];
+  getActiveContext().resourcePath.pop();
 }
 
 /**
@@ -111,8 +100,9 @@ function createReactiveBoundaryFiber(
   fiber._accessor = element;
 
   // Capture all render-time context for when the computation re-runs later
+  const ctx = fiber.ctx;
   const contextSnapshot = getContextSnapshot();
-  const capturedResourcePath = [...resourcePath];
+  const capturedResourcePath = [...ctx.resourcePath];
   const capturedOwner = getOwner();
 
   // Create owner for the reactive boundary
@@ -129,15 +119,16 @@ function createReactiveBoundaryFiber(
 
   try {
     createComputed(() => {
-      // Restore all render-time context when computation re-runs
+      // Re-enter the owning runtime first, then restore its render-time
+      // context — a re-run may fire while another runtime (or none) is
+      // active, and all state below lives on this boundary's context
+      const prevCtx = setActiveContext(ctx);
       const prevContextSnapshot = getContextSnapshot();
-      const prevResourcePath = [...resourcePath];
+      const prevResourcePath = [...ctx.resourcePath];
       const prevOwnerInEffect = getOwner();
 
-      if (contextSnapshot) {
-        restoreContextSnapshot(contextSnapshot);
-      }
-      resourcePath = [...capturedResourcePath];
+      restoreContextSnapshot(contextSnapshot);
+      ctx.resourcePath = [...capturedResourcePath];
       setOwner(owner);
 
       try {
@@ -147,11 +138,10 @@ function createReactiveBoundaryFiber(
         fiber.children = renderChildren(value, path, fiber.children);
       } finally {
         // Restore previous context
-        if (prevContextSnapshot) {
-          restoreContextSnapshot(prevContextSnapshot);
-        }
-        resourcePath = prevResourcePath;
+        restoreContextSnapshot(prevContextSnapshot);
+        ctx.resourcePath = prevResourcePath;
         setOwner(prevOwnerInEffect);
+        setActiveContext(prevCtx);
       }
     });
   } finally {
@@ -238,7 +228,7 @@ export function renderFiber(element: unknown, path: string[]): Fiber {
   // Handle function components
   if (typeof type === "function") {
     fiber._element = element;
-    fiber.incomingResourcePath = [...resourcePath];
+    fiber.incomingResourcePath = [...getActiveContext().resourcePath];
     executeComponent(fiber, type, { ...restProps, children });
   } else {
     fiber.children = renderChildren(children, fiberPath);
@@ -258,19 +248,18 @@ function executeComponent(
   fiber.props = props;
   fiber.contextSnapshot = getContextSnapshot();
 
-  const prevFiber = currentFiber;
-  const prevPath = currentPath;
+  const ctx = fiber.ctx;
+  const prevFiber = ctx.currentFiber;
+  const prevPath = ctx.currentPath;
 
-  if (fiber.contextSnapshot) {
-    restoreContextSnapshot(fiber.contextSnapshot);
-  }
+  restoreContextSnapshot(fiber.contextSnapshot);
 
   const prevContextSnapshot = getContextSnapshot();
 
-  currentFiber = fiber;
-  currentPath = fiber.path;
+  ctx.currentFiber = fiber;
+  ctx.currentPath = fiber.path;
   // renderFiber assigns incomingResourcePath right before calling us
-  resourcePath = [...fiber.incomingResourcePath!];
+  ctx.resourcePath = [...fiber.incomingResourcePath!];
 
   const componentName = type.name || "Component";
 
@@ -320,8 +309,8 @@ function executeComponent(
     restoreContextSnapshot(prevContextSnapshot);
 
     setOwner(prevOwner);
-    currentFiber = prevFiber;
-    currentPath = prevPath;
+    ctx.currentFiber = prevFiber;
+    ctx.currentPath = prevPath;
   }
 }
 
