@@ -19,40 +19,51 @@ import {
 
 /**
  * Shallow equality check for output deduplication
+ * @internal exported for tests
  */
-function shallowEqual(a: any, b: any): boolean {
+export function shallowEqual(a: any, b: any): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (typeof a !== "object" || typeof b !== "object") return false;
 
-  // Array: compare length + elements by identity
-  if (Array.isArray(a)) {
-    if (!Array.isArray(b) || a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
-  }
+  if (Array.isArray(a)) return arraysShallowEqual(a, b);
+  if (a instanceof Map) return mapsShallowEqual(a, b);
+  if (a instanceof Set) return setsShallowEqual(a, b);
+  return plainObjectsShallowEqual(a, b);
+}
 
-  // Map: compare size + entries by identity
-  if (a instanceof Map) {
-    if (!(b instanceof Map) || a.size !== b.size) return false;
-    for (const [key, val] of a) {
-      if (!b.has(key) || b.get(key) !== val) return false;
-    }
-    return true;
+/** Array: compare length + elements by identity */
+function arraysShallowEqual(a: any[], b: any): boolean {
+  if (!Array.isArray(b) || a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
   }
+  return true;
+}
 
-  // Set: compare size + membership
-  if (a instanceof Set) {
-    if (!(b instanceof Set) || a.size !== b.size) return false;
-    for (const val of a) {
-      if (!b.has(val)) return false;
-    }
-    return true;
+/** Map: compare size + entries by identity */
+function mapsShallowEqual(a: Map<any, any>, b: any): boolean {
+  if (!(b instanceof Map) || a.size !== b.size) return false;
+  for (const [key, val] of a) {
+    if (!b.has(key) || b.get(key) !== val) return false;
   }
+  return true;
+}
 
-  // Plain object
+/** Set: compare size + membership */
+function setsShallowEqual(a: Set<any>, b: any): boolean {
+  if (!(b instanceof Set) || a.size !== b.size) return false;
+  for (const val of a) {
+    if (!b.has(val)) return false;
+  }
+  return true;
+}
+
+/** Plain object: compare key sets + values by identity */
+function plainObjectsShallowEqual(
+  a: Record<string, any>,
+  b: Record<string, any>,
+): boolean {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
   if (keysA.length !== keysB.length) return false;
@@ -190,14 +201,63 @@ export function useAsyncOutput<
   const getProps = isGetter ? (propsOrGetter as () => P) : () => propsOrGetter;
 
   // Get initial props (untracked to avoid triggering during setup)
-  const props = untrack(getProps);
+  const props = untrack(getProps) as Record<string, any>;
   const fiber = getCurrentFiber();
 
   if (!fiber) {
     throw new Error("useAsyncOutput must be called during render");
   }
+  assertSingleInstancePerComponent(fiber);
 
-  // Enforce one instance per component
+  const componentName =
+    typeof fiber.type === "function"
+      ? fiber.type.name || "Instance"
+      : "Instance";
+  requireKey(fiber, componentName);
+
+  // Generate deterministic ID using resource path + key
+  const name = `${toKebabCase(componentName)}-${fiber.key}`;
+  const fullPath = [...getCurrentResourcePath(), name];
+  const nodeId = fullPath.join(".");
+
+  // A resource with undefined deps and no prior state waits for its deps
+  const isDeferred =
+    hasUndefinedValues(props) &&
+    !outputHydrationMap.has(nodeId) &&
+    !nodeRegistry.has(nodeId);
+
+  claimOwnership(nodeId, fiber, componentName);
+
+  // Create or get existing node
+  let node = nodeRegistry.get(nodeId);
+  if (!node) {
+    node = createInstanceNode(nodeId, fullPath, props, handler);
+    nodeRegistry.set(nodeId, node);
+  } else {
+    node.props = props;
+    node.handler = handler;
+  }
+
+  pushResourcePath(name);
+  hydrateNodeOutputs(node, nodeId);
+
+  if (isDeferred) {
+    fiber.hasPlaceholderInstance = true;
+  } else {
+    fiber.instanceNodes.push(node);
+  }
+
+  if (isGetter) {
+    trackReactiveProps(fiber, node, getProps);
+  }
+
+  return createOutputProxy<O>(node);
+}
+
+/** Enforce one useAsyncOutput per component */
+function assertSingleInstancePerComponent(fiber: NonNullable<
+  ReturnType<typeof getCurrentFiber>
+>): void {
   if (fiber.instanceNodes.length > 0 || fiber.hasPlaceholderInstance) {
     throw new Error(
       "useAsyncOutput can only be called once per component. " +
@@ -212,43 +272,49 @@ export function useAsyncOutput<
         "  }",
     );
   }
+}
 
-  // Generate deterministic ID using resource path + key
-  const currentResourcePath = getCurrentResourcePath();
-  const componentName =
-    typeof fiber.type === "function"
-      ? fiber.type.name || "Instance"
-      : "Instance";
-  const kebabName = toKebabCase(componentName);
+/** Shared "add a key" hint for identity errors */
+function keyHint(componentName: string): string {
+  return (
+    `  <${componentName} key="unique-id" ... />\n\n` +
+    `Or use keyFn in For loops:\n\n` +
+    `  <For each={items} keyFn={(item) => item.id}>\n` +
+    `    {(item) => <${componentName} ... />}\n` +
+    `  </For>`
+  );
+}
 
-  // Key is required for components using useAsyncOutput
+/** Key is required for components using useAsyncOutput */
+function requireKey(
+  fiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
+  componentName: string,
+): void {
   if (fiber.key === undefined) {
     throw new Error(
       `Component "${componentName}" uses useAsyncOutput but has no key.\n\n` +
         `Components with useAsyncOutput require a unique key for state persistence:\n\n` +
-        `  <${componentName} key="unique-id" ... />\n\n` +
-        `Or use keyFn in For loops:\n\n` +
-        `  <For each={items} keyFn={(item) => item.id}>\n` +
-        `    {(item) => <${componentName} ... />}\n` +
-        `  </For>`,
+        keyHint(componentName),
     );
   }
+}
 
-  const name = `${kebabName}-${fiber.key}`;
-
-  const fullPath = [...currentResourcePath, name];
-  const nodeId = fullPath.join(".");
-
-  // Check for undefined dependencies (excluding 'children' which JSX always passes even when undefined)
-  const hasUndefinedDeps = Object.entries(props as Record<string, any>).some(
+/**
+ * Any prop other than 'children' undefined?
+ * (JSX always passes 'children', even when undefined)
+ */
+function hasUndefinedValues(props: Record<string, any>): boolean {
+  return Object.entries(props).some(
     ([key, value]) => key !== "children" && value === undefined,
   );
-  const hasHydrationData = outputHydrationMap.has(nodeId);
-  const hasExistingNode = nodeRegistry.has(nodeId);
+}
 
-  const isDeferred = hasUndefinedDeps && !hasHydrationData && !hasExistingNode;
-
-  // Check for collisions (multiple instances with same resource path)
+/** Check for collisions (multiple instances with same resource path) */
+function claimOwnership(
+  nodeId: string,
+  fiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
+  componentName: string,
+): void {
   const currentFiberPath = fiber.path.join(".");
   const existingOwnerPath = nodeOwnership.get(nodeId);
   if (existingOwnerPath && existingOwnerPath !== currentFiberPath) {
@@ -256,126 +322,119 @@ export function useAsyncOutput<
       `Duplicate resource ID "${nodeId}".\n\n` +
         `Multiple ${componentName} components share the same resource path.\n` +
         `Add a unique key to each instance:\n\n` +
-        `  <${componentName} key="unique-id" ... />\n\n` +
-        `Or use keyFn in For loops:\n\n` +
-        `  <For each={items} keyFn={(item) => item.id}>\n` +
-        `    {(item) => <${componentName} ... />}\n` +
-        `  </For>`,
+        keyHint(componentName),
     );
   }
   nodeOwnership.set(nodeId, currentFiberPath);
+}
 
-  // Create or get existing node
-  let node = nodeRegistry.get(nodeId);
-  if (!node) {
-    node = {
-      id: nodeId,
-      path: fullPath,
-      props: props as Record<string, any>,
-      handler,
-      outputSignals: new Map(),
-      children: [],
-      setOutputs(
-        outputsOrFn:
-          | Record<string, any>
-          | ((prev: Record<string, any> | undefined) => Record<string, any>),
-      ) {
-        // Support functional updates like React's setState
-        const outputs =
-          typeof outputsOrFn === "function"
-            ? outputsOrFn(this.outputs)
-            : outputsOrFn;
+/** Create or update one output signal, deduplicating shallow-equal writes */
+function upsertOutputSignal(
+  node: InstanceNode,
+  key: string,
+  value: any,
+): void {
+  if (!node.outputSignals.has(key)) {
+    node.outputSignals.set(key, createSignal(value));
+    return;
+  }
+  const [read, write] = node.outputSignals.get(key)!;
+  if (!shallowEqual(read(), value)) {
+    write(value);
+  }
+}
 
-        let hasChanges = false;
+/** Build a fresh InstanceNode with its setOutputs implementation */
+function createInstanceNode(
+  nodeId: string,
+  fullPath: string[],
+  props: Record<string, any>,
+  handler: Handler<any, any>,
+): InstanceNode {
+  const node: InstanceNode = {
+    id: nodeId,
+    path: fullPath,
+    props,
+    handler,
+    outputSignals: new Map(),
+    children: [],
+    setOutputs(outputsOrFn) {
+      // Support functional updates like React's setState
+      const outputs =
+        typeof outputsOrFn === "function"
+          ? outputsOrFn(node.outputs)
+          : outputsOrFn;
+
+      if (!outputsDiffer(node, outputs)) return;
+
+      node.outputs = { ...(node.outputs || {}), ...outputs };
+
+      nodeOwnership.clear();
+      batch(() => {
         for (const [key, value] of Object.entries(outputs)) {
-          if (!this.outputSignals.has(key)) {
-            hasChanges = true;
-            break;
-          }
-          const [read] = this.outputSignals.get(key)!;
-          if (!shallowEqual(read(), value)) {
-            hasChanges = true;
-            break;
-          }
+          upsertOutputSignal(node, key, value);
         }
+      });
+    },
+  };
+  return node;
+}
 
-        if (!hasChanges) return;
-
-        this.outputs = { ...(this.outputs || {}), ...outputs };
-
-        nodeOwnership.clear();
-        batch(() => {
-          for (const [key, value] of Object.entries(outputs)) {
-            if (!this.outputSignals.has(key)) {
-              this.outputSignals.set(key, createSignal(value));
-            } else {
-              const [read, write] = this.outputSignals.get(key)!;
-              if (!shallowEqual(read(), value)) {
-                write(value);
-              }
-            }
-          }
-        });
-      },
-    };
-    nodeRegistry.set(nodeId, node);
-  } else {
-    node.props = props as Record<string, any>;
-    node.handler = handler;
+/** Does any output differ from what its signal currently holds? */
+function outputsDiffer(
+  node: InstanceNode,
+  outputs: Record<string, any>,
+): boolean {
+  for (const [key, value] of Object.entries(outputs)) {
+    if (!node.outputSignals.has(key)) return true;
+    const [read] = node.outputSignals.get(key)!;
+    if (!shallowEqual(read(), value)) return true;
   }
+  return false;
+}
 
-  pushResourcePath(name);
-
-  // Hydrate outputs from previous run
+/**
+ * Hydrate outputs from a previous run, so setOutputs(prev => ...) sees them
+ */
+function hydrateNodeOutputs(node: InstanceNode, nodeId: string): void {
   const hydratedOutputs = outputHydrationMap.get(nodeId);
-  if (hydratedOutputs) {
-    // Set node.outputs so setOutputs(prev => ...) can access previous values
-    node.outputs = { ...hydratedOutputs };
+  if (!hydratedOutputs) return;
 
-    for (const [key, value] of Object.entries(hydratedOutputs)) {
-      if (!node.outputSignals.has(key)) {
-        node.outputSignals.set(key, createSignal(value));
-      } else {
-        const [read, write] = node.outputSignals.get(key)!;
-        if (!shallowEqual(read(), value)) {
-          write(value);
-        }
-      }
+  node.outputs = { ...hydratedOutputs };
+  for (const [key, value] of Object.entries(hydratedOutputs)) {
+    upsertOutputSignal(node, key, value);
+  }
+}
+
+/**
+ * Reactive (getter) props: track changes and update node.props.
+ * Also upgrades deferred placeholders once their undefined deps resolve.
+ */
+function trackReactiveProps(
+  ownerFiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
+  node: InstanceNode,
+  getProps: () => any,
+): void {
+  createEffect(() => {
+    const newProps = getProps() as Record<string, any>;
+    node.props = newProps;
+
+    // Upgrade deferred placeholder → real instance node when deps resolve
+    if (
+      ownerFiber.hasPlaceholderInstance &&
+      !ownerFiber.instanceNodes.includes(node) &&
+      !hasUndefinedValues(newProps)
+    ) {
+      ownerFiber.hasPlaceholderInstance = false;
+      ownerFiber.instanceNodes.push(node);
     }
-  }
+  });
+}
 
-  if (isDeferred) {
-    fiber.hasPlaceholderInstance = true;
-  } else {
-    fiber.instanceNodes.push(node);
-  }
-
-  // If props are reactive (getter function), track changes and update node.props.
-  // Also handles deferred nodes: when undefined deps become defined, push to fiber.
-  if (isGetter) {
-    const ownerFiber = fiber;
-    createEffect(() => {
-      const newProps = getProps();
-      node.props = newProps as Record<string, any>;
-
-      // Upgrade deferred placeholder → real instance node when deps resolve
-      if (
-        ownerFiber.hasPlaceholderInstance &&
-        !ownerFiber.instanceNodes.includes(node)
-      ) {
-        const stillUndefined = Object.entries(
-          newProps as Record<string, any>,
-        ).some(([key, value]) => key !== "children" && value === undefined);
-
-        if (!stillUndefined) {
-          ownerFiber.hasPlaceholderInstance = false;
-          ownerFiber.instanceNodes.push(node);
-        }
-      }
-    });
-  }
-
-  // Return proxy for output accessors
+/** Proxy exposing each output as a reactive accessor */
+function createOutputProxy<O extends Record<string, any>>(
+  node: InstanceNode,
+): OutputAccessors<O> {
   return new Proxy({} as OutputAccessors<O>, {
     get(_, key: string) {
       if (!node.outputSignals.has(key)) {

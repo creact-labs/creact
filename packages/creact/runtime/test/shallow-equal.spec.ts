@@ -1,44 +1,5 @@
 import { describe, expect, it } from "vitest";
-
-// shallowEqual is not exported, so we test it indirectly through a copy.
-// This ensures the logic is correct independent of the runtime.
-function shallowEqual(a: any, b: any): boolean {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (typeof a !== "object" || typeof b !== "object") return false;
-
-  if (Array.isArray(a)) {
-    if (!Array.isArray(b) || a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
-  }
-
-  if (a instanceof Map) {
-    if (!(b instanceof Map) || a.size !== b.size) return false;
-    for (const [key, val] of a) {
-      if (!b.has(key) || b.get(key) !== val) return false;
-    }
-    return true;
-  }
-
-  if (a instanceof Set) {
-    if (!(b instanceof Set) || a.size !== b.size) return false;
-    for (const val of a) {
-      if (!b.has(val)) return false;
-    }
-    return true;
-  }
-
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (const key of keysA) {
-    if (a[key] !== b[key]) return false;
-  }
-  return true;
-}
+import { shallowEqual } from "../src/instance";
 
 describe("shallowEqual", () => {
   // Reference equality

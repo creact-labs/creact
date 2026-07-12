@@ -36,6 +36,8 @@ import type { Memory } from "./memory";
 import { serializeNodes } from "./memory";
 import {
   buildDependencyGraph,
+  type ChangeSet,
+  type DependencyGraph,
   getReadyNodes,
   hasChanges,
   reconcile,
@@ -74,6 +76,29 @@ export interface RenderResult {
 
 // Track all active runtimes for resetRuntime() cleanup
 const activeRuntimes = new Set<CReactRuntime>();
+
+// Backstop against handlers that never stop cascading
+const MAX_EXECUTIONS = 1_000_000;
+
+/**
+ * Bookkeeping shared between the executor loop and cascade absorption
+ */
+interface ExecutorState {
+  /** Nodes waiting for their dependencies */
+  pending: Set<string>;
+  /** In-flight handlers by node id */
+  running: Map<string, Promise<string>>;
+  /** Nodes whose handler completed this deployment */
+  deployed: Set<string>;
+  /** Nodes whose props changed while their handler was in flight */
+  dirtyWhileRunning: Set<string>;
+  /** Nodes removed mid-cascade, torn down after the executor drains */
+  deferredDeletes: InstanceNode[];
+  /** Dependency graph over the current node set */
+  graph: DependencyGraph;
+  /** Lifetime handler-execution counter (infinite-cascade backstop) */
+  totalExecutions: number;
+}
 
 /**
  * Internal runtime class
@@ -238,214 +263,231 @@ class CReactRuntime {
     );
 
     try {
-      // Apply deletes (reverse order)
-      const deleteIds = changes.deletes.map((n) => n.id);
-      const deleteGraph = buildDependencyGraph(changes.deletes);
-      const deleteOrder = topologicalSort(deleteIds, deleteGraph).reverse();
+      await this.destroyNodes(changes.deletes);
 
-      for (const nodeId of deleteOrder) {
-        const node = changes.deletes.find((n) => n.id === nodeId);
-        if (node) {
-          this.stateMachine.setResourceState(nodeId, "applying");
+      const deferredDeletes = await this.runExecutor(changes, unchangedNodes);
 
-          // Prefer the live registry node — snapshots may predate the
-          // handler run and therefore miss the cleanupFn it returned
-          const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
-          if (cleanup) {
-            await cleanup();
-          }
-          removeNodeFromRegistry(nodeId);
+      // Nodes removed mid-cascade are destroyed after the executor drains
+      await this.destroyNodes(deferredDeletes);
 
-          await this.stateMachine.recordResourceDestroyed(
-            this.stackName,
-            nodeId,
-          );
-        }
-      }
-
-      // Concurrent executor with eager cascading
-      const deployed = new Set<string>();
-      const running = new Map<string, Promise<string>>();
-      // Nodes whose props changed while their handler was in flight —
-      // they must re-run after completion so the handler sees fresh props
-      const dirtyWhileRunning = new Set<string>();
-      const pending = new Set<string>([
-        ...changes.deploymentOrder,
-        ...unchangedNodes.map((n) => n.id),
-      ]);
-      let graph = buildDependencyGraph(this.currentNodes);
-      const deferredDeletes: InstanceNode[] = [];
-      const MAX_EXECUTIONS = 1_000_000;
-      let totalExecutions = 0;
-
-      while (pending.size > 0 || running.size > 0) {
-        // 1. Find nodes whose deps are all satisfied
-        const ready = getReadyNodes(
-          pending,
-          new Set(running.keys()),
-          graph,
-          deployed,
-        );
-
-        // 2. Deadlock check
-        if (ready.length === 0 && running.size === 0 && pending.size > 0) {
-          console.warn(
-            "[CReact] Deadlock detected: pending nodes have unsatisfied dependencies:",
-            [...pending],
-          );
-          break;
-        }
-
-        // 3. Launch ready nodes
-        for (const nodeId of ready) {
-          if (totalExecutions >= MAX_EXECUTIONS) {
-            throw new Error(
-              `[CReact] Max handler executions (${MAX_EXECUTIONS}) exceeded — possible infinite cascade`,
-            );
-          }
-          totalExecutions++;
-          pending.delete(nodeId);
-
-          const handlerPromise = (async (): Promise<string> => {
-            const node = getNodeById(nodeId);
-            if (!node) return nodeId;
-
-            this.stateMachine.setResourceState(nodeId, "applying");
-            await this.stateMachine.addApplying(this.stackName, nodeId);
-
-            const cleanup = await node.handler(node.props, (outputs) =>
-              node.setOutputs(outputs),
-            );
-            if (cleanup) {
-              node.cleanupFn = cleanup;
-            }
-
-            const outputs = node.outputs ?? {};
-
-            this.stateMachine.setResourceState(nodeId, "deployed");
-            await this.stateMachine.removeApplying(this.stackName, nodeId);
-            await this.stateMachine.updateNodeOutputs(
-              this.stackName,
-              nodeId,
-              outputs,
-            );
-            await this.stateMachine.recordResourceApplied(
-              this.stackName,
-              nodeId,
-              outputs,
-            );
-
-            return nodeId;
-          })();
-
-          running.set(nodeId, handlerPromise);
-        }
-
-        // If nothing is running (all pending are blocked), break
-        if (running.size === 0) break;
-
-        // 4. Wait for any one handler to complete
-        let completedId: string;
-        try {
-          completedId = await Promise.race(running.values());
-        } catch (error) {
-          // Fail-fast: cancel remaining by awaiting all (let them settle)
-          const remaining = [...running.values()];
-          await Promise.allSettled(remaining);
-          throw error;
-        }
-
-        // 5. Move running → deployed (or re-queue if props changed mid-run)
-        running.delete(completedId);
-        if (dirtyWhileRunning.delete(completedId)) {
-          pending.add(completedId);
-        } else {
-          deployed.add(completedId);
-        }
-
-        // 6. Eager cascade: re-collect nodes from fiber tree
-        const newNodes = collectInstanceNodes(this.rootFiber!);
-        if (hasChanges(this.currentNodes, newNodes)) {
-          const cascadeChanges = reconcile(this.currentNodes, newNodes);
-          this.currentNodes = newNodes;
-
-          // Add new creates to pending
-          for (const node of cascadeChanges.creates) {
-            if (!deployed.has(node.id) && !running.has(node.id)) {
-              pending.add(node.id);
-            }
-          }
-          // Prop updates must re-run their handler — even for nodes that
-          // already deployed this pass (re-queue) or are running (mark dirty)
-          for (const node of cascadeChanges.updates) {
-            if (running.has(node.id)) {
-              dirtyWhileRunning.add(node.id);
-            } else {
-              deployed.delete(node.id);
-              pending.add(node.id);
-            }
-          }
-
-          // Defer mid-cascade deletes
-          deferredDeletes.push(...cascadeChanges.deletes);
-
-          // Rebuild graph with all current nodes
-          graph = buildDependencyGraph(this.currentNodes);
-
-          // Keep persisted node list in sync so cascade-born nodes are
-          // checkpointable (crash recovery) before completeDeployment
-          await this.stateMachine.syncNodes(
-            this.stackName,
-            serializeNodes(this.currentNodes),
-          );
-        }
-      }
-
-      // Process deferred deletes (reverse topological order)
-      if (deferredDeletes.length > 0) {
-        const deferredIds = deferredDeletes.map((n) => n.id);
-        const deferredGraph = buildDependencyGraph(deferredDeletes);
-        const deferredOrder = topologicalSort(
-          deferredIds,
-          deferredGraph,
-        ).reverse();
-
-        for (const nodeId of deferredOrder) {
-          const node = deferredDeletes.find((n) => n.id === nodeId);
-          if (node) {
-            this.stateMachine.setResourceState(nodeId, "applying");
-            const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
-            if (cleanup) {
-              await cleanup();
-            }
-            removeNodeFromRegistry(nodeId);
-            await this.stateMachine.recordResourceDestroyed(
-              this.stackName,
-              nodeId,
-            );
-          }
-        }
-      }
-
-      // Safety-net final re-collect
-      const finalNodes = collectInstanceNodes(this.rootFiber!);
-      if (hasChanges(this.currentNodes, finalNodes)) {
-        const prevNodes = this.currentNodes;
-        this.currentNodes = finalNodes;
-        await this.applyChangesInternal(prevNodes);
-      } else {
-        this.currentNodes = finalNodes;
-        await this.stateMachine.completeDeployment(
-          this.stackName,
-          serializeNodes(this.currentNodes),
-        );
-      }
+      await this.finishOrReapply();
     } catch (error) {
       await this.stateMachine.failDeployment(
         this.stackName,
         error instanceof Error ? error : new Error(String(error)),
       );
       throw error;
+    }
+  }
+
+  /**
+   * Tear down deleted resources in reverse topological order
+   * (children before parents).
+   */
+  protected async destroyNodes(deletes: InstanceNode[]): Promise<void> {
+    if (deletes.length === 0) return;
+
+    const deleteGraph = buildDependencyGraph(deletes);
+    const deleteOrder = topologicalSort(
+      deletes.map((n) => n.id),
+      deleteGraph,
+    ).reverse();
+
+    for (const nodeId of deleteOrder) {
+      const node = deletes.find((n) => n.id === nodeId);
+      if (!node) continue;
+
+      this.stateMachine.setResourceState(nodeId, "applying");
+
+      // Prefer the live registry node — snapshots may predate the
+      // handler run and therefore miss the cleanupFn it returned
+      const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
+      if (cleanup) {
+        await cleanup();
+      }
+      removeNodeFromRegistry(nodeId);
+
+      await this.stateMachine.recordResourceDestroyed(this.stackName, nodeId);
+    }
+  }
+
+  /**
+   * Concurrent executor with eager cascading: launches every dependency-free
+   * node, and after each completion re-collects the fiber tree so nodes
+   * materialized by fresh outputs join the same deployment.
+   * Returns nodes deleted mid-cascade (torn down by the caller afterwards).
+   */
+  protected async runExecutor(
+    changes: ChangeSet,
+    unchangedNodes: InstanceNode[],
+  ): Promise<InstanceNode[]> {
+    const state: ExecutorState = {
+      pending: new Set([
+        ...changes.deploymentOrder,
+        ...unchangedNodes.map((n) => n.id),
+      ]),
+      running: new Map(),
+      deployed: new Set(),
+      dirtyWhileRunning: new Set(),
+      deferredDeletes: [],
+      graph: buildDependencyGraph(this.currentNodes),
+      totalExecutions: 0,
+    };
+
+    while (state.pending.size > 0 || state.running.size > 0) {
+      const ready = getReadyNodes(
+        state.pending,
+        new Set(state.running.keys()),
+        state.graph,
+        state.deployed,
+      );
+
+      if (ready.length === 0 && state.running.size === 0) {
+        if (state.pending.size > 0) {
+          console.warn(
+            "[CReact] Deadlock detected: pending nodes have unsatisfied dependencies:",
+            [...state.pending],
+          );
+        }
+        break;
+      }
+
+      this.launchReadyNodes(state, ready);
+
+      // If nothing is running (all pending are blocked), the next iteration's
+      // ready/deadlock check reports and exits
+      if (state.running.size === 0) continue;
+
+      const completedId = await this.awaitOneCompletion(state);
+
+      // Move running → deployed (or re-queue if props changed mid-run)
+      state.running.delete(completedId);
+      if (state.dirtyWhileRunning.delete(completedId)) {
+        state.pending.add(completedId);
+      } else {
+        state.deployed.add(completedId);
+      }
+
+      await this.absorbCascade(state);
+    }
+
+    return state.deferredDeletes;
+  }
+
+  /** Start handlers for every dependency-satisfied node */
+  protected launchReadyNodes(state: ExecutorState, ready: string[]): void {
+    for (const nodeId of ready) {
+      if (state.totalExecutions >= MAX_EXECUTIONS) {
+        throw new Error(
+          `[CReact] Max handler executions (${MAX_EXECUTIONS}) exceeded — possible infinite cascade`,
+        );
+      }
+      state.totalExecutions++;
+      state.pending.delete(nodeId);
+      state.running.set(nodeId, this.executeNode(nodeId));
+    }
+  }
+
+  /** Race the in-flight handlers; on failure let the rest settle, then rethrow */
+  protected async awaitOneCompletion(state: ExecutorState): Promise<string> {
+    try {
+      return await Promise.race(state.running.values());
+    } catch (error) {
+      // Fail-fast: cancel remaining by awaiting all (let them settle)
+      await Promise.allSettled([...state.running.values()]);
+      throw error;
+    }
+  }
+
+  /**
+   * Run a single node's handler and checkpoint its outputs.
+   */
+  protected async executeNode(nodeId: string): Promise<string> {
+    const node = getNodeById(nodeId);
+    if (!node) return nodeId;
+
+    this.stateMachine.setResourceState(nodeId, "applying");
+    await this.stateMachine.addApplying(this.stackName, nodeId);
+
+    const cleanup = await node.handler(node.props, (outputs) =>
+      node.setOutputs(outputs),
+    );
+    if (cleanup) {
+      node.cleanupFn = cleanup;
+    }
+
+    const outputs = node.outputs ?? {};
+
+    this.stateMachine.setResourceState(nodeId, "deployed");
+    await this.stateMachine.removeApplying(this.stackName, nodeId);
+    await this.stateMachine.updateNodeOutputs(this.stackName, nodeId, outputs);
+    await this.stateMachine.recordResourceApplied(
+      this.stackName,
+      nodeId,
+      outputs,
+    );
+
+    return nodeId;
+  }
+
+  /**
+   * Eager cascade: re-collect the fiber tree and fold any changes into the
+   * executor state — new nodes join pending, prop updates re-queue their
+   * node (even if already deployed, or dirty-mark it while running), and
+   * deletes are deferred until the executor drains.
+   */
+  protected async absorbCascade(state: ExecutorState): Promise<void> {
+    const newNodes = collectInstanceNodes(this.rootFiber!);
+    if (!hasChanges(this.currentNodes, newNodes)) return;
+
+    const cascadeChanges = reconcile(this.currentNodes, newNodes);
+    this.currentNodes = newNodes;
+
+    for (const node of cascadeChanges.creates) {
+      if (!state.deployed.has(node.id) && !state.running.has(node.id)) {
+        state.pending.add(node.id);
+      }
+    }
+    // Prop updates must re-run their handler — even for nodes that
+    // already deployed this pass (re-queue) or are running (mark dirty)
+    for (const node of cascadeChanges.updates) {
+      if (state.running.has(node.id)) {
+        state.dirtyWhileRunning.add(node.id);
+      } else {
+        state.deployed.delete(node.id);
+        state.pending.add(node.id);
+      }
+    }
+
+    state.deferredDeletes.push(...cascadeChanges.deletes);
+
+    // Rebuild graph with all current nodes
+    state.graph = buildDependencyGraph(this.currentNodes);
+
+    // Keep persisted node list in sync so cascade-born nodes are
+    // checkpointable (crash recovery) before completeDeployment
+    await this.stateMachine.syncNodes(
+      this.stackName,
+      serializeNodes(this.currentNodes),
+    );
+  }
+
+  /**
+   * Safety-net final re-collect: re-apply if the tree changed after the
+   * last handler completed, otherwise persist the deployed state.
+   */
+  protected async finishOrReapply(): Promise<void> {
+    const finalNodes = collectInstanceNodes(this.rootFiber!);
+    if (hasChanges(this.currentNodes, finalNodes)) {
+      const prevNodes = this.currentNodes;
+      this.currentNodes = finalNodes;
+      await this.applyChangesInternal(prevNodes);
+    } else {
+      this.currentNodes = finalNodes;
+      await this.stateMachine.completeDeployment(
+        this.stackName,
+        serializeNodes(this.currentNodes),
+      );
     }
   }
 

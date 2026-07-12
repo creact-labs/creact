@@ -46,8 +46,9 @@ describe("deferred resources (undefined dependencies)", () => {
     function Waiting() {
       useAsyncOutput(
         () => ({ dep: dep() }),
-        async (p: { dep: string }, setOutputs) => {
-          runs.push(p.dep);
+        async (p: { dep: string | undefined }, setOutputs) => {
+          // the runtime defers the handler until dep is defined
+          runs.push(p.dep!);
           setOutputs({ ok: true });
         },
       );

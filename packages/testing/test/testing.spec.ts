@@ -11,7 +11,6 @@ import {
   queryNodes,
   readOutput,
   waitFor,
-  NoopMemory,
   InMemoryMemory,
 } from "../src/index";
 

@@ -21,6 +21,8 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
+      // text for humans, json (Istanbul coverage-final.json) for fallow CRAP scoring
+      reporter: ["text", "json"],
       include: [
         "src/**/*.ts",
         "flow/src/**/*.ts",

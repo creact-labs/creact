@@ -10,7 +10,6 @@ describe("mapArray with keys", () => {
         { id: "a" },
         { id: "c" },
       ]);
-      const createdFor: string[] = [];
 
       const mapped = createMemo(
         mapArray(

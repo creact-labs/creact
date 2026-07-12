@@ -1,8 +1,15 @@
 /**
  * Owner - ownership and cleanup tracking for reactive system
+ *
+ * The CurrentOwner slot itself lives in current-owner.ts so that
+ * tracking.ts can flip owners without importing this module (which
+ * would create an import cycle).
  */
 
+import { getOwner, type Owner, setOwner } from "./current-owner";
 import { runUpdates, setListener, untrack } from "./tracking";
+
+export { getOwner, type Owner, setOwner };
 
 // Late-bound handleError to avoid circular dependency with signal.ts
 let _handleError: ((err: unknown) => void) | null = null;
@@ -15,24 +22,6 @@ export function setOwnerHandleError(fn: (err: unknown) => void): void {
   _handleError = fn;
 }
 
-/**
- * Owner represents a reactive scope that owns computations and cleanups
- * Computation extends Owner - computations can own other computations
- */
-export interface Owner {
-  /** Child owners/computations owned by this owner */
-  owned: Owner[] | null;
-  /** Cleanup functions to run when this owner is disposed */
-  cleanups: (() => void)[] | null;
-  /** Parent owner in the ownership chain */
-  owner: Owner | null;
-  /** Context values accessible in this scope */
-  context: Record<symbol, unknown> | null;
-}
-
-/** Current owner in the reactive system */
-let CurrentOwner: Owner | null = null;
-
 /** Sentinel for unowned root */
 const UNOWNED: Owner = {
   owned: null,
@@ -42,30 +31,12 @@ const UNOWNED: Owner = {
 };
 
 /**
- * Get the current owner
- */
-export function getOwner(): Owner | null {
-  return CurrentOwner;
-}
-
-/**
- * Set the current owner (internal use)
- * @internal
- */
-export function setOwner(owner: Owner | null): Owner | null {
-  const prev = CurrentOwner;
-  CurrentOwner = owner;
-  return prev;
-}
-
-/**
  * Run a function with a specific owner context
  * Clears Listener and uses runUpdates for proper batching
  */
 export function runWithOwner<T>(o: Owner | null, fn: () => T): T | undefined {
-  const prev = CurrentOwner;
+  const prev = setOwner(o);
   const prevListener = setListener(null); // Clear listener - critical!
-  CurrentOwner = o;
 
   try {
     return runUpdates(fn, true)!;
@@ -74,7 +45,7 @@ export function runWithOwner<T>(o: Owner | null, fn: () => T): T | undefined {
     else throw err;
     return undefined;
   } finally {
-    CurrentOwner = prev;
+    setOwner(prev);
     setListener(prevListener);
   }
 }
@@ -93,7 +64,7 @@ export function createRoot<T>(
   detachedOwner?: Owner,
 ): T {
   const listener = setListener(null); // Save and clear listener
-  const owner = CurrentOwner;
+  const owner = getOwner();
   const unowned = fn.length === 0;
   const current = detachedOwner === undefined ? owner : detachedOwner;
 
@@ -108,29 +79,33 @@ export function createRoot<T>(
 
   // Root is not registered with parent - createRoot creates an independent scope
 
-  CurrentOwner = root;
+  setOwner(root);
 
   try {
     return runUpdates(() => fn(() => untrack(() => cleanupOwner(root))), true)!;
   } finally {
     setListener(listener);
-    CurrentOwner = owner;
+    setOwner(owner);
   }
 }
 
 /**
- * Register a cleanup function on the current owner
+ * Register a cleanup function on the current owner/computation
+ * (Computation extends Owner, so this also works inside effects).
+ * Returns the function for chaining.
  */
-export function onCleanup(fn: () => void): void {
-  if (CurrentOwner === null) {
+export function onCleanup<T extends () => any>(fn: T): T {
+  const owner = getOwner();
+  if (owner === null) {
     console.warn(
       "cleanups created outside a `createRoot` or `render` will never be run",
     );
-  } else if (CurrentOwner.cleanups === null) {
-    CurrentOwner.cleanups = [fn];
+  } else if (owner.cleanups === null) {
+    owner.cleanups = [fn];
   } else {
-    CurrentOwner.cleanups.push(fn);
+    owner.cleanups.push(fn);
   }
+  return fn;
 }
 
 /**
@@ -147,20 +122,23 @@ export function cleanupOwner(owner: Owner): void {
     owner.owned = null;
   }
 
-  // Run cleanup functions
-  if (owner.cleanups) {
-    for (let i = owner.cleanups.length - 1; i >= 0; i--) {
-      const cleanup = owner.cleanups[i];
-      if (cleanup) {
-        try {
-          cleanup();
-        } catch (e) {
-          console.error("[CReact] Error in cleanup:", e);
-        }
-      }
+  runOwnerCleanups(owner);
+}
+
+/** Run registered cleanup functions in reverse order, best-effort */
+function runOwnerCleanups(owner: Owner): void {
+  if (!owner.cleanups) return;
+
+  for (let i = owner.cleanups.length - 1; i >= 0; i--) {
+    const cleanup = owner.cleanups[i];
+    if (!cleanup) continue;
+    try {
+      cleanup();
+    } catch (e) {
+      console.error("[CReact] Error in cleanup:", e);
     }
-    owner.cleanups = null;
   }
+  owner.cleanups = null;
 }
 
 /**
@@ -168,7 +146,7 @@ export function cleanupOwner(owner: Owner): void {
  * @internal
  */
 export function lookupContext<T>(key: symbol): T | undefined {
-  let current = CurrentOwner;
+  let current = getOwner();
   while (current) {
     if (current.context && key in current.context) {
       return current.context[key] as T;
@@ -183,8 +161,9 @@ export function lookupContext<T>(key: symbol): T | undefined {
  * @internal
  */
 export function setContext(key: symbol, value: unknown): void {
-  if (CurrentOwner) {
-    if (!CurrentOwner.context) CurrentOwner.context = {};
-    CurrentOwner.context[key] = value;
+  const owner = getOwner();
+  if (owner) {
+    if (!owner.context) owner.context = {};
+    owner.context[key] = value;
   }
 }

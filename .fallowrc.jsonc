@@ -1,0 +1,64 @@
+{
+  // CReact monorepo fallow configuration
+  // Run `fallow dead-code`, `fallow dupes`, `fallow health --coverage packages/creact/coverage`, `fallow audit`
+
+  // The creact CLI bin entry: package.json bin points at the dist build, so the
+  // source file needs to be declared as an entry explicitly.
+  "entry": ["packages/creact/src/cli.ts"],
+
+  // These are published libraries — their entry-point exports ARE the product
+  // and have external consumers, so they must not be flagged as unused.
+  "publicPackages": ["@creact-labs/*"],
+
+  "ignoreDependencies": [
+    // Workspace self-dependency: packages/testing imports @creact-labs/creact
+    // (render, Memory types), but the dep points at the unbuilt dist/ so the
+    // analyzer can't attribute the imports to it.
+    "@creact-labs/creact"
+  ],
+
+  // Memory backends implement the creact `Memory` interface — their methods
+  // are called by the runtime through the interface, never by name.
+  "usedClassMembers": [
+    "getState",
+    "saveState",
+    "acquireLock",
+    "releaseLock",
+    "appendAuditLog",
+    "getAuditLog",
+    // Public test-reset helper on the published @creact-labs/testing InMemoryMemory
+    "clear"
+  ],
+
+  "health": {
+    // Goal: every production function's CRAP score stays below 35
+    "maxCrap": 35,
+    "ignore": [
+      // Complexity gates apply to production code; specs are structured as
+      // long describe/it blocks by design.
+      "**/test/**",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      // Process entry: runs main() at import, spawns watchers, exits the
+      // process — excluded from vitest coverage for the same reason, and
+      // CRAP cannot be scored without coverage.
+      "packages/creact/src/cli.ts",
+      // Docs pages are page-sized JSX content (prose + code samples), not
+      // logic — unit-size limits don't apply to content.
+      "packages/website/src/pages/docs/**"
+    ]
+  },
+
+  "duplicates": {
+    "ignore": [
+      // Test suites repeat setup scaffolding by design
+      "**/test/**",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      // Hand-written docs pages share an intentional page skeleton
+      // (hero → signature → example → notes) — repetition here is the
+      // documentation format, not extractable logic.
+      "packages/website/src/pages/docs/**"
+    ]
+  }
+}

@@ -19,7 +19,22 @@ import * as logger from "./cli-logger.js";
 import { loadTypeScript, typeCheck } from "./cli-typecheck.js";
 
 const require = createRequire(import.meta.url);
-const { version } = require("../../package.json");
+
+function loadVersion(): string {
+  // dist layout: dist/src/cli.js → ../../package.json
+  // source layout (tsx): src/cli.ts → ../package.json
+  for (const candidate of ["../../package.json", "../package.json"]) {
+    try {
+      // fallow-ignore-next-line unresolved-imports
+      return require(candidate).version;
+    } catch {
+      // try next layout
+    }
+  }
+  return "unknown";
+}
+
+const version = loadVersion();
 
 let currentResult: { dispose?: () => void } | null = null;
 

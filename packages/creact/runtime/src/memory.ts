@@ -21,17 +21,6 @@ export type ResourceState = "pending" | "applying" | "deployed" | "failed";
 export type DeploymentStatus = "pending" | "applying" | "deployed" | "failed";
 
 /**
- * Change set with deployment ordering
- */
-export interface ChangeSet {
-  creates: InstanceNode[];
-  updates: InstanceNode[];
-  deletes: InstanceNode[];
-  deploymentOrder: string[]; // Topologically sorted node IDs
-  parallelBatches: string[][]; // Groups that can be deployed in parallel
-}
-
-/**
  * Serializable node state for persistence
  */
 export interface SerializedNode {
@@ -130,6 +119,30 @@ export interface Memory {
 }
 
 /**
+ * Guard: detect corrupted outputs (e.g. `id` should be string, not array) —
+ * indicates a signal/proxy bug where outputs are read from the wrong node
+ */
+function assertOutputIntegrity(node: InstanceNode, key: string, value: any) {
+  if (key !== "id" || typeof value === "string") return;
+
+  const valueType = Array.isArray(value) ? "array" : typeof value;
+  console.error(`[serializeNode] CORRUPTION DETECTED:`);
+  console.error(`  node.id: ${node.id}`);
+  console.error(
+    `  signal keys: [${Array.from(node.outputSignals.keys()).join(", ")}]`,
+  );
+  console.error(`  corrupted 'id' value type: ${valueType}`);
+  console.error(
+    `  corrupted 'id' value preview: ${JSON.stringify(value).slice(0, 300)}`,
+  );
+  throw new Error(
+    `[serializeNode] Corrupted output detected for ${node.id}: ` +
+      `'id' should be string but got ${valueType}. ` +
+      `This indicates a signal/proxy bug where outputs are being read from wrong node.`,
+  );
+}
+
+/**
  * Serialize an InstanceNode for persistence
  */
 export function serializeNode(node: InstanceNode): SerializedNode {
@@ -138,25 +151,7 @@ export function serializeNode(node: InstanceNode): SerializedNode {
   for (const [key, [read]] of node.outputSignals) {
     const value = read();
     if (value !== undefined) {
-      // Guard: Detect corrupted outputs (e.g., id should be string, not array)
-      if (key === "id" && typeof value !== "string") {
-        console.error(`[serializeNode] CORRUPTION DETECTED:`);
-        console.error(`  node.id: ${node.id}`);
-        console.error(
-          `  signal keys: [${Array.from(node.outputSignals.keys()).join(", ")}]`,
-        );
-        console.error(
-          `  corrupted 'id' value type: ${Array.isArray(value) ? "array" : typeof value}`,
-        );
-        console.error(
-          `  corrupted 'id' value preview: ${JSON.stringify(value).slice(0, 300)}`,
-        );
-        throw new Error(
-          `[serializeNode] Corrupted output detected for ${node.id}: ` +
-            `'id' should be string but got ${Array.isArray(value) ? "array" : typeof value}. ` +
-            `This indicates a signal/proxy bug where outputs are being read from wrong node.`,
-        );
-      }
+      assertOutputIntegrity(node, key, value);
       outputs[key] = value;
     }
   }

@@ -42,11 +42,15 @@ export {
   createEffect,
   createReaction,
   createRenderEffect,
-  onCleanup,
   onMount,
 } from "./reactive/effect";
 export type { Owner } from "./reactive/owner";
-export { createRoot, getOwner, runWithOwner } from "./reactive/owner";
+export {
+  createRoot,
+  getOwner,
+  onCleanup,
+  runWithOwner,
+} from "./reactive/owner";
 export { createSelector } from "./reactive/selector";
 // Types
 export type {

@@ -79,76 +79,97 @@ export function resetResourcePath(): void {
 }
 
 /**
- * Render a JSX element to a Fiber
+ * Create a reactive-boundary fiber for a zero-arg accessor (from Show,
+ * Switch, For, or plain accessor children).
+ *
+ * Captures the render-time context (context stacks, resource path, owner)
+ * and re-renders its children through a createComputed whenever the
+ * accessor's dependencies change. createComputed (pure) is used so fiber
+ * updates propagate synchronously through the Updates queue rather than
+ * being deferred to the Effects queue — fiber tree mutations must be
+ * visible immediately after signal writes within the same runUpdates batch.
  */
-export function renderFiber(element: any, path: string[]): Fiber {
-  // Handle null/undefined/boolean
+function createReactiveBoundaryFiber(element: () => any, path: string[]): Fiber {
+  const fiber = createFiber("reactive-boundary", {}, path);
+  fiber._accessor = element;
+
+  // Capture all render-time context for when the computation re-runs later
+  const contextSnapshot = getContextSnapshot();
+  const capturedResourcePath = [...resourcePath];
+  const capturedOwner = getOwner();
+
+  // Create owner for the reactive boundary
+  const owner: Owner = {
+    owner: capturedOwner,
+    context: null,
+    cleanups: null,
+    owned: null,
+  };
+
+  const prevOwner = setOwner(owner);
+  fiber.owner = owner;
+  fiber.contextSnapshot = contextSnapshot;
+
+  try {
+    createComputed(() => {
+      // Restore all render-time context when computation re-runs
+      const prevContextSnapshot = getContextSnapshot();
+      const prevResourcePath = [...resourcePath];
+      const prevOwnerInEffect = getOwner();
+
+      if (contextSnapshot) {
+        restoreContextSnapshot(contextSnapshot);
+      }
+      resourcePath = [...capturedResourcePath];
+      setOwner(owner);
+
+      try {
+        const value = element(); // This tracks dependencies
+
+        // Render the new value into children (orphan cleanup happens inside renderChildren)
+        fiber.children = renderChildren(value, path, fiber.children);
+      } finally {
+        // Restore previous context
+        if (prevContextSnapshot) {
+          restoreContextSnapshot(prevContextSnapshot);
+        }
+        resourcePath = prevResourcePath;
+        setOwner(prevOwnerInEffect);
+      }
+    });
+  } finally {
+    setOwner(prevOwner);
+  }
+
+  return fiber;
+}
+
+/**
+ * Handle empty children (null/undefined/boolean) and primitive text —
+ * shared prologue of both render paths. Returns null for anything else.
+ */
+function renderLeafFiber(element: any, path: string[]): Fiber | null {
   if (element == null || typeof element === "boolean") {
     return createFiber(null, {}, path);
   }
 
-  // Handle primitives (text)
   if (typeof element === "string" || typeof element === "number") {
     return createFiber("text", { value: element }, path);
   }
 
+  return null;
+}
+
+/**
+ * Render a JSX element to a Fiber
+ */
+export function renderFiber(element: any, path: string[]): Fiber {
+  const leaf = renderLeafFiber(element, path);
+  if (leaf) return leaf;
+
   // Handle accessor functions (from Show, Switch, etc.) - create reactive boundary
   if (typeof element === "function" && element.length === 0) {
-    const fiber = createFiber("reactive-boundary", {}, path);
-    fiber._accessor = element;
-
-    // Capture all render-time context for when effect re-runs later
-    const contextSnapshot = getContextSnapshot();
-    const capturedResourcePath = [...resourcePath];
-    const capturedOwner = getOwner();
-
-    // Create owner for the reactive boundary
-    const owner: Owner = {
-      owner: capturedOwner,
-      context: null,
-      cleanups: null,
-      owned: null,
-    };
-
-    const prevOwner = setOwner(owner);
-    fiber.owner = owner;
-    fiber.contextSnapshot = contextSnapshot;
-
-    try {
-      // Use createComputed (pure) so fiber updates propagate synchronously through the Updates queue,
-      // rather than being deferred to the Effects queue. This ensures fiber tree mutations
-      // are visible immediately after signal writes within the same runUpdates batch.
-      createComputed(() => {
-        // Restore all render-time context when computation re-runs
-        const prevContextSnapshot = getContextSnapshot();
-        const prevResourcePath = [...resourcePath];
-        const prevOwnerInEffect = getOwner();
-
-        if (contextSnapshot) {
-          restoreContextSnapshot(contextSnapshot);
-        }
-        resourcePath = [...capturedResourcePath];
-        setOwner(owner);
-
-        try {
-          const value = element(); // This tracks dependencies
-
-          // Render the new value into children (orphan cleanup happens inside renderChildren)
-          fiber.children = renderChildren(value, path, fiber.children);
-        } finally {
-          // Restore previous context
-          if (prevContextSnapshot) {
-            restoreContextSnapshot(prevContextSnapshot);
-          }
-          resourcePath = prevResourcePath;
-          setOwner(prevOwnerInEffect);
-        }
-      });
-    } finally {
-      setOwner(prevOwner);
-    }
-
-    return fiber;
+    return createReactiveBoundaryFiber(element, path);
   }
 
   // Handle arrays
@@ -293,17 +314,7 @@ function renderChildren(
     return [];
   }
 
-  // Build accessor identity map from old reactive-boundary children
-  const oldAccessorMap = new Map<Function, Fiber>();
-  // Build element identity map from old function component children
-  const oldElementMap = new Map<any, Fiber>();
-  for (const old of oldChildren) {
-    if (old.type === "reactive-boundary" && old._accessor) {
-      oldAccessorMap.set(old._accessor, old);
-    } else if (old._element && typeof old.type === "function") {
-      oldElementMap.set(old._element, old);
-    }
-  }
+  const { oldAccessorMap, oldElementMap } = buildIdentityMaps(oldChildren);
 
   let newFibers: Fiber[];
   if (Array.isArray(children)) {
@@ -341,6 +352,27 @@ function renderChildren(
 }
 
 /**
+ * Identity maps over the previous children:
+ * - accessor identity for reactive-boundary fibers (from Show, For accessors)
+ * - element object identity for function component fibers (from mapArray reuse)
+ */
+function buildIdentityMaps(oldChildren: Fiber[]): {
+  oldAccessorMap: Map<Function, Fiber>;
+  oldElementMap: Map<any, Fiber>;
+} {
+  const oldAccessorMap = new Map<Function, Fiber>();
+  const oldElementMap = new Map<any, Fiber>();
+  for (const old of oldChildren) {
+    if (old.type === "reactive-boundary" && old._accessor) {
+      oldAccessorMap.set(old._accessor, old);
+    } else if (old._element && typeof old.type === "function") {
+      oldElementMap.set(old._element, old);
+    }
+  }
+  return { oldAccessorMap, oldElementMap };
+}
+
+/**
  * Render a fiber with reconciliation against old fibers
  *
  * Uses three reconciliation strategies:
@@ -355,126 +387,79 @@ function renderFiberWithReconciliation(
   oldAccessorMap: Map<Function, Fiber>,
   oldElementMap: Map<any, Fiber>,
 ): Fiber {
-  if (element == null || typeof element === "boolean") {
-    return createFiber(null, {}, path);
-  }
-
-  if (typeof element === "string" || typeof element === "number") {
-    return createFiber("text", { value: element }, path);
-  }
+  const leaf = renderLeafFiber(element, path);
+  if (leaf) return leaf;
 
   // Handle accessor functions (from Show, Switch, etc.) - create reactive boundary
   if (typeof element === "function" && element.length === 0) {
-    // Match by accessor identity (handles For reorder correctly)
-    const byAccessor = oldAccessorMap.get(element);
-    if (byAccessor) {
-      oldAccessorMap.delete(element);
-      return byAccessor; // same accessor = same effect, reuse entirely
-    }
-
-    const fiber = createFiber("reactive-boundary", {}, path);
-    fiber._accessor = element;
-
-    // Capture all render-time context for when effect re-runs later
-    const contextSnapshot = getContextSnapshot();
-    const capturedResourcePath = [...resourcePath];
-    const capturedOwner = getOwner();
-
-    // Create owner for the reactive boundary
-    const owner: Owner = {
-      owner: capturedOwner,
-      context: null,
-      cleanups: null,
-      owned: null,
-    };
-
-    const prevOwner = setOwner(owner);
-    fiber.owner = owner;
-    fiber.contextSnapshot = contextSnapshot;
-
-    try {
-      // Use createComputed (pure) so fiber updates propagate synchronously through the Updates queue
-      createComputed(() => {
-        // Restore all render-time context when computation re-runs
-        const prevContextSnapshot = getContextSnapshot();
-        const prevResourcePath = [...resourcePath];
-        const prevOwnerInEffect = getOwner();
-
-        if (contextSnapshot) {
-          restoreContextSnapshot(contextSnapshot);
-        }
-        resourcePath = [...capturedResourcePath];
-        setOwner(owner);
-
-        try {
-          const value = element(); // This tracks dependencies
-
-          // Render the new value into children (orphan cleanup happens inside renderChildren)
-          fiber.children = renderChildren(value, path, fiber.children);
-        } finally {
-          // Restore previous context
-          if (prevContextSnapshot) {
-            restoreContextSnapshot(prevContextSnapshot);
-          }
-          resourcePath = prevResourcePath;
-          setOwner(prevOwnerInEffect);
-        }
-      });
-    } finally {
-      setOwner(prevOwner);
-    }
-
-    return fiber;
+    return reconcileAccessorFiber(element, path, oldAccessorMap);
   }
 
   if (Array.isArray(element)) {
-    const fiber = createFiber("fragment", {}, path);
-    fiber.children = element.map((child, i) => {
-      return renderFiber(child, [...path, String(i)]);
-    });
-    return fiber;
+    // Same fragment handling as a fresh render
+    return renderFiber(element, path);
   }
 
-  const { type, props = {}, key } = element;
-  const { children, ...restProps } = props;
-
+  const { type, key } = element;
   const name = key !== undefined ? String(key) : getNodeName(type);
   const fiberPath = [...path, name];
 
   // Provider reconciliation — positional matching
   if (element.__isProvider && element.__context) {
-    const oldFiber =
-      oldAtPosition && oldAtPosition.type === type ? oldAtPosition : undefined;
-    const fiber = oldFiber ?? createFiber(type, restProps, fiberPath, key);
-
-    pushContext(element.__context, props.value);
-
-    try {
-      fiber.children = renderChildren(
-        children,
-        fiberPath,
-        oldFiber?.children ?? [],
-      );
-    } finally {
-      popContext(element.__context);
-    }
-
-    return fiber;
+    return reconcileProviderFiber(element, fiberPath, oldAtPosition);
   }
 
   // Function component reconciliation — match by element object identity
-  // mapArray preserves the same JSX element object for reused items, so same reference = same component
   if (typeof type === "function") {
-    const byElement = oldElementMap.get(element);
-    if (byElement) {
-      oldElementMap.delete(element);
-      return byElement; // same element object = same component execution, reuse entirely
-    }
-    // No match — create new (falls through to renderFiber)
-    return renderFiber(element, path);
+    return reconcileComponentFiber(element, path, oldElementMap);
   }
 
-  // Plain JSX element reconciliation — positional matching
+  return reconcilePlainFiber(element, fiberPath, path, oldAtPosition);
+}
+
+/** Match accessors by identity (handles For reorder correctly) */
+function reconcileAccessorFiber(
+  element: () => any,
+  path: string[],
+  oldAccessorMap: Map<Function, Fiber>,
+): Fiber {
+  const byAccessor = oldAccessorMap.get(element);
+  if (byAccessor) {
+    oldAccessorMap.delete(element);
+    return byAccessor; // same accessor = same effect, reuse entirely
+  }
+
+  return createReactiveBoundaryFiber(element, path);
+}
+
+/**
+ * Function component reconciliation — mapArray preserves the same JSX element
+ * object for reused items, so same reference = same component execution
+ */
+function reconcileComponentFiber(
+  element: any,
+  path: string[],
+  oldElementMap: Map<any, Fiber>,
+): Fiber {
+  const byElement = oldElementMap.get(element);
+  if (byElement) {
+    oldElementMap.delete(element);
+    return byElement; // same element object = same component execution, reuse entirely
+  }
+  // No match — create new (falls through to renderFiber)
+  return renderFiber(element, path);
+}
+
+/** Plain JSX element reconciliation — positional matching, update in place */
+function reconcilePlainFiber(
+  element: any,
+  fiberPath: string[],
+  path: string[],
+  oldAtPosition: Fiber | undefined,
+): Fiber {
+  const { type, props = {} } = element;
+  const { children, ...restProps } = props;
+
   if (oldAtPosition && oldAtPosition.type === type) {
     oldAtPosition.props = restProps;
     oldAtPosition.children = renderChildren(
@@ -486,6 +471,37 @@ function renderFiberWithReconciliation(
   }
 
   return renderFiber(element, path);
+}
+
+/**
+ * Provider reconciliation — reuse the fiber at the same position when it is
+ * the same provider, pushing the (possibly new) context value for children
+ */
+function reconcileProviderFiber(
+  element: any,
+  fiberPath: string[],
+  oldAtPosition: Fiber | undefined,
+): Fiber {
+  const { type, props = {}, key } = element;
+  const { children, ...restProps } = props;
+
+  const oldFiber =
+    oldAtPosition && oldAtPosition.type === type ? oldAtPosition : undefined;
+  const fiber = oldFiber ?? createFiber(type, restProps, fiberPath, key);
+
+  pushContext(element.__context, props.value);
+
+  try {
+    fiber.children = renderChildren(
+      children,
+      fiberPath,
+      oldFiber?.children ?? [],
+    );
+  } finally {
+    popContext(element.__context);
+  }
+
+  return fiber;
 }
 
 /**

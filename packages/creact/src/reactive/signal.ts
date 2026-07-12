@@ -11,6 +11,7 @@ import {
   runUpdates,
   STALE,
   scheduleComputation,
+  trackRead,
   untrack,
   updateComputation,
 } from "./tracking";
@@ -49,7 +50,7 @@ export interface Computation<T> {
 /**
  * Memo extends both Signal and Computation
  */
-export interface Memo<T> extends Signal<T>, Computation<T> {
+interface Memo<T> extends Signal<T>, Computation<T> {
   value: T | undefined;
 }
 
@@ -111,25 +112,7 @@ export function createSignal<T>(
 
     // If there's an active computation, register it
     if (listener) {
-      const sSlot = signal.observers?.length ?? 0;
-
-      // Listener tracks this signal
-      if (!listener.sources) {
-        listener.sources = [signal];
-        listener.sourceSlots = [sSlot];
-      } else {
-        listener.sources.push(signal);
-        listener.sourceSlots?.push(sSlot);
-      }
-
-      // Signal tracks this listener
-      if (!signal.observers) {
-        signal.observers = [listener];
-        signal.observerSlots = [listener.sources.length - 1];
-      } else {
-        signal.observers.push(listener);
-        signal.observerSlots?.push(listener.sources.length - 1);
-      }
+      trackRead(signal, listener);
     }
 
     return signal.value;
@@ -216,23 +199,7 @@ export function createMemo<T>(
 
     const listener = getListener();
     if (listener) {
-      const sSlot = c.observers?.length ?? 0;
-
-      if (!listener.sources) {
-        listener.sources = [c];
-        listener.sourceSlots = [sSlot];
-      } else {
-        listener.sources.push(c);
-        listener.sourceSlots?.push(sSlot);
-      }
-
-      if (!c.observers) {
-        c.observers = [listener];
-        c.observerSlots = [listener.sources.length - 1];
-      } else {
-        c.observers.push(listener);
-        c.observerSlots?.push(listener.sources.length - 1);
-      }
+      trackRead(c, listener);
     }
 
     return c.value as T;

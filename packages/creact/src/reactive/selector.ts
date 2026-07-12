@@ -2,7 +2,8 @@
  * createSelector — O(2) reactive selection primitive
  */
 
-import { createComputation, onCleanup } from "./effect";
+import { createComputation } from "./effect";
+import { onCleanup } from "./owner";
 import type { Accessor, Computation } from "./signal";
 import {
   getListener,

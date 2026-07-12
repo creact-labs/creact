@@ -21,6 +21,25 @@
  * }
  * ```
  */
+/**
+ * Copy one property onto target, preserving getters for reactivity
+ */
+function copyDescriptor(
+  target: Record<string, unknown>,
+  key: string,
+  descriptor: PropertyDescriptor,
+): void {
+  if (descriptor.get) {
+    Object.defineProperty(target, key, {
+      enumerable: true,
+      configurable: true,
+      get: descriptor.get,
+    });
+  } else {
+    target[key] = descriptor.value;
+  }
+}
+
 export function mergeProps<T extends object[]>(...sources: T): MergeProps<T> {
   const target = {} as Record<string, unknown>;
 
@@ -28,21 +47,8 @@ export function mergeProps<T extends object[]>(...sources: T): MergeProps<T> {
     if (!source) continue;
 
     const descriptors = Object.getOwnPropertyDescriptors(source);
-
     for (const key of Object.keys(descriptors)) {
-      const descriptor = descriptors[key];
-      if (!descriptor) continue;
-
-      // Preserve getters for reactivity
-      if ("get" in descriptor && descriptor.get) {
-        Object.defineProperty(target, key, {
-          enumerable: true,
-          configurable: true,
-          get: descriptor.get,
-        });
-      } else {
-        target[key] = descriptor.value;
-      }
+      copyDescriptor(target, key, descriptors[key]!);
     }
   }
 
@@ -88,20 +94,7 @@ export function splitProps<T extends object, K extends (keyof T)[][]>(
     for (const key of keyGroup) {
       const keyStr = key as string;
       if (keyStr in descriptors) {
-        const descriptor = descriptors[keyStr];
-        if (!descriptor) continue;
-
-        // Preserve getters for reactivity
-        if ("get" in descriptor && descriptor.get) {
-          Object.defineProperty(obj, keyStr, {
-            enumerable: true,
-            configurable: true,
-            get: descriptor.get,
-          });
-        } else {
-          obj[keyStr] = descriptor.value;
-        }
-
+        copyDescriptor(obj, keyStr, descriptors[keyStr]!);
         usedKeys.add(keyStr);
       }
     }
@@ -113,18 +106,7 @@ export function splitProps<T extends object, K extends (keyof T)[][]>(
   const rest: Record<string, unknown> = {};
   for (const key of Object.keys(descriptors)) {
     if (!usedKeys.has(key)) {
-      const descriptor = descriptors[key];
-      if (!descriptor) continue;
-
-      if ("get" in descriptor && descriptor.get) {
-        Object.defineProperty(rest, key, {
-          enumerable: true,
-          configurable: true,
-          get: descriptor.get,
-        });
-      } else {
-        rest[key] = descriptor.value;
-      }
+      copyDescriptor(rest, key, descriptors[key]!);
     }
   }
   result.push(rest);

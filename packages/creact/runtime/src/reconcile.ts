@@ -83,20 +83,8 @@ export function topologicalSort(
   graph: DependencyGraph,
 ): string[] {
   const result: string[] = [];
-  const inDegree = new Map<string, number>();
-  const queue: string[] = [];
-
-  // Initialize in-degree counts
-  for (const id of nodeIds) {
-    const deps = graph.dependencies.get(id) ?? [];
-    // Only count dependencies that are in our nodeIds set
-    const relevantDeps = deps.filter((d) => nodeIds.includes(d));
-    inDegree.set(id, relevantDeps.length);
-
-    if (relevantDeps.length === 0) {
-      queue.push(id);
-    }
-  }
+  const inDegree = initInDegrees(nodeIds, graph);
+  const queue = nodeIds.filter((id) => inDegree.get(id) === 0);
 
   // Process nodes with no remaining dependencies
   while (queue.length > 0) {
@@ -117,18 +105,33 @@ export function topologicalSort(
     }
   }
 
-  // Check for cycles (but not for duplicate IDs, which are handled normally)
-  if (result.length !== nodeIds.length) {
-    const remaining = nodeIds.filter((id) => !result.includes(id));
-    // Only warn if there are actual stuck nodes (not just duplicates)
-    if (remaining.length > 0) {
-      console.warn("Circular dependency detected. Remaining nodes:", remaining);
-      // Still include remaining nodes at the end
-      result.push(...remaining);
-    }
-  }
-
+  appendCycleRemainder(nodeIds, result);
   return result;
+}
+
+/** In-degree per node, counting only dependencies inside the sorted set */
+function initInDegrees(
+  nodeIds: string[],
+  graph: DependencyGraph,
+): Map<string, number> {
+  const inDegree = new Map<string, number>();
+  for (const id of nodeIds) {
+    const deps = graph.dependencies.get(id) ?? [];
+    const relevantDeps = deps.filter((d) => nodeIds.includes(d));
+    inDegree.set(id, relevantDeps.length);
+  }
+  return inDegree;
+}
+
+/** Nodes stuck in a cycle are warned about and appended at the end */
+function appendCycleRemainder(nodeIds: string[], result: string[]): void {
+  if (result.length === nodeIds.length) return;
+
+  const remaining = nodeIds.filter((id) => !result.includes(id));
+  if (remaining.length > 0) {
+    console.warn("Circular dependency detected. Remaining nodes:", remaining);
+    result.push(...remaining);
+  }
 }
 
 /**
@@ -236,65 +239,90 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   }
 
   if (typeof a === "object") {
-    // Type guard: both are objects at this point
-    const objA = a as Record<string, unknown>;
-    const objB = b as Record<string, unknown>;
-
-    // Built-ins with no enumerable keys — compare by value, not by key walk
-    if (a instanceof Date || b instanceof Date) {
-      return (
-        a instanceof Date &&
-        b instanceof Date &&
-        a.getTime() === (b as Date).getTime()
-      );
-    }
-    if (a instanceof RegExp || b instanceof RegExp) {
-      return (
-        a instanceof RegExp &&
-        b instanceof RegExp &&
-        a.source === (b as RegExp).source &&
-        a.flags === (b as RegExp).flags
-      );
-    }
-    if (a instanceof Map || b instanceof Map) {
-      if (!(a instanceof Map) || !(b instanceof Map)) return false;
-      if (a.size !== b.size) return false;
-      for (const [key, value] of a) {
-        if (!b.has(key) || !deepEqual(value, b.get(key))) return false;
-      }
-      return true;
-    }
-    if (a instanceof Set || b instanceof Set) {
-      if (!(a instanceof Set) || !(b instanceof Set)) return false;
-      if (a.size !== b.size) return false;
-      for (const value of a) {
-        if (!b.has(value)) return false;
-      }
-      return true;
-    }
-
-    if (Array.isArray(objA) !== Array.isArray(objB)) return false;
-
-    if (Array.isArray(objA) && Array.isArray(objB)) {
-      if (objA.length !== objB.length) return false;
-      for (let i = 0; i < objA.length; i++) {
-        if (!deepEqual(objA[i], objB[i])) return false;
-      }
-      return true;
-    }
-
-    const keysA = Object.keys(objA);
-    const keysB = Object.keys(objB);
-    if (keysA.length !== keysB.length) return false;
-
-    for (const key of keysA) {
-      if (!Object.hasOwn(objB, key)) return false;
-      if (!deepEqual(objA[key], objB[key])) return false;
-    }
-    return true;
+    return objectsDeepEqual(a as object, b as object);
   }
 
   return false;
+}
+
+function objectsDeepEqual(a: object, b: object): boolean {
+  const builtin = builtinsDeepEqual(a, b);
+  if (builtin !== undefined) return builtin;
+
+  if (Array.isArray(a) || Array.isArray(b)) return arraysDeepEqual(a, b);
+  return plainObjectsDeepEqual(
+    a as Record<string, unknown>,
+    b as Record<string, unknown>,
+  );
+}
+
+/**
+ * Built-ins with no enumerable keys — compared by value, not by key walk.
+ * Returns undefined when neither side is a comparable built-in.
+ */
+function builtinsDeepEqual(a: object, b: object): boolean | undefined {
+  if (a instanceof Date || b instanceof Date) return datesEqual(a, b);
+  if (a instanceof RegExp || b instanceof RegExp) return regExpsEqual(a, b);
+  if (a instanceof Map || b instanceof Map) return mapsDeepEqual(a, b);
+  if (a instanceof Set || b instanceof Set) return setsEqual(a, b);
+  return undefined;
+}
+
+function datesEqual(a: object, b: object): boolean {
+  return (
+    a instanceof Date && b instanceof Date && a.getTime() === b.getTime()
+  );
+}
+
+function regExpsEqual(a: object, b: object): boolean {
+  return (
+    a instanceof RegExp &&
+    b instanceof RegExp &&
+    a.source === b.source &&
+    a.flags === b.flags
+  );
+}
+
+function mapsDeepEqual(a: object, b: object): boolean {
+  if (!(a instanceof Map) || !(b instanceof Map)) return false;
+  if (a.size !== b.size) return false;
+  for (const [key, value] of a) {
+    if (!b.has(key) || !deepEqual(value, b.get(key))) return false;
+  }
+  return true;
+}
+
+function setsEqual(a: object, b: object): boolean {
+  if (!(a instanceof Set) || !(b instanceof Set)) return false;
+  if (a.size !== b.size) return false;
+  for (const value of a) {
+    if (!b.has(value)) return false;
+  }
+  return true;
+}
+
+function arraysDeepEqual(a: object, b: object): boolean {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (!deepEqual(a[i], b[i])) return false;
+  }
+  return true;
+}
+
+function plainObjectsDeepEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  for (const key of keysA) {
+    if (!Object.hasOwn(b, key)) return false;
+    if (!deepEqual(a[key], b[key])) return false;
+  }
+  return true;
 }
 
 /**

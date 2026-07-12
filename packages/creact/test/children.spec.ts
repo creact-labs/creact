@@ -20,7 +20,7 @@ describe("children", () => {
     createRoot(() => {
       const el = element("cache");
 
-      const resolved = children(() => () => () => el as any);
+      const resolved = children((() => () => () => el) as any);
 
       expect(resolved()).toBe(el);
     });

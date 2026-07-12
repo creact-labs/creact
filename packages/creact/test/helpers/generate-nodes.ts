@@ -11,7 +11,7 @@ import type {
 } from "../../runtime/src/memory";
 
 /** A unique kebab-case resource id segment */
-export function generateNodeId(): string {
+function generateNodeId(): string {
   return `${faker.word.sample()}-${faker.string.alphanumeric(6)}`.toLowerCase();
 }
 

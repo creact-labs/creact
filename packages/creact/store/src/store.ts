@@ -11,6 +11,7 @@ import {
   markDownstream,
   runUpdates,
   scheduleComputation,
+  trackRead,
 } from "../../src/reactive/tracking";
 
 export type SetStoreFunction<T> = {
@@ -168,24 +169,11 @@ function trackProperty(node: StoreNode, prop: string | symbol): void {
     node.signals.set(prop, signal);
   }
 
-  const sSlot = signal.observers?.length ?? 0;
+  // Re-reading the same property within one computation must not
+  // double-subscribe
+  if (listener.sources?.includes(signal)) return;
 
-  if (!listener.sources) {
-    listener.sources = [signal];
-    listener.sourceSlots = [sSlot];
-  } else {
-    if (listener.sources.includes(signal)) return;
-    listener.sources.push(signal);
-    listener.sourceSlots?.push(sSlot);
-  }
-
-  if (!signal.observers) {
-    signal.observers = [listener];
-    signal.observerSlots = [listener.sources.length - 1];
-  } else {
-    signal.observers.push(listener);
-    signal.observerSlots?.push(listener.sources.length - 1);
-  }
+  trackRead(signal, listener);
 }
 
 function notifyProperty(node: StoreNode, prop: string | symbol): void {

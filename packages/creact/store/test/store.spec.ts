@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { createEffect } from "../../src/reactive/effect";
 import { createRoot } from "../../src/reactive/owner";
 import {

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createContext, useContext } from "../../src/primitives/context";
-import { onCleanup } from "../../src/reactive/effect";
+import { onCleanup } from "../../src/reactive/owner";
 import { createSignal } from "../../src/reactive/signal";
 import { Fragment, Show } from "../../src/index";
 import { InMemoryMemory } from "../../test/helpers/setup";
@@ -158,7 +158,7 @@ describe("reactive boundaries producing non-component children", () => {
   });
 
   it("an accessor resolving to nested arrays flattens into fragments", async () => {
-    const [tick, setTick] = createSignal(0);
+    const [tick] = createSignal(0);
     const deployed: string[] = [];
 
     function Item(props: { id: string }) {
@@ -264,6 +264,80 @@ describe("context providers through the runtime", () => {
 });
 
 describe("fiber reconciliation across reactive re-renders", () => {
+  it("swapping the element type at a position replaces the fiber cleanly", async () => {
+    const [kind, setKind] = createSignal<"banner" | "panel">("banner");
+
+    function App() {
+      // accessor child re-runs on kind change, alternating plain element types
+      return () => ({ type: kind(), props: { label: kind() } });
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "type-swap",
+    );
+    await result.ready;
+
+    setKind("panel");
+    setKind("banner");
+    await result.settled();
+
+    expect(result.getNodes()).toEqual([]);
+    result.dispose();
+  });
+
+  it("keyed plain elements re-render under their key path", async () => {
+    const [tick, setTick] = createSignal(0);
+
+    function App() {
+      return () => ({
+        type: "row",
+        props: { tick: tick() },
+        key: "stable-key",
+      });
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "keyed-plain",
+    );
+    await result.ready;
+
+    setTick(1);
+    await result.settled();
+
+    expect(result.getNodes()).toEqual([]);
+    result.dispose();
+  });
+
+  it("a provider replaced by a plain element tears down and rebuilds", async () => {
+    const Mode = createContext("none");
+    const [showProvider, setShowProvider] = createSignal(true);
+
+    function App() {
+      return () =>
+        showProvider()
+          ? Mode.Provider({ value: "on", children: h(Fragment, {}) })
+          : { type: "plain", props: {} };
+    }
+
+    const result = render(
+      () => h(App, {}, "app"),
+      new InMemoryMemory(),
+      "provider-swap",
+    );
+    await result.ready;
+
+    setShowProvider(false);
+    setShowProvider(true);
+    await result.settled();
+
+    expect(result.getNodes()).toEqual([]);
+    result.dispose();
+  });
+
   it("plain elements at the same position are updated in place", async () => {
     const [label, setLabel] = createSignal("first");
 

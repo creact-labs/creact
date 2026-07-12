@@ -1,12 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  createEffect,
-  createReaction,
-  onCleanup as effectOnCleanup,
-} from "../src/reactive/effect";
+import { createEffect, createReaction } from "../src/reactive/effect";
 import {
   createRoot,
-  onCleanup as ownerOnCleanup,
+  onCleanup,
   runWithOwner,
   setOwnerHandleError,
 } from "../src/reactive/owner";
@@ -102,10 +98,12 @@ describe("owner-level cleanups", () => {
   it("warns when registered outside a reactive root", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     try {
-      ownerOnCleanup(() => {});
-      effectOnCleanup(() => {});
+      const fn = () => {};
 
-      expect(warnSpy).toHaveBeenCalledTimes(2);
+      const returned = onCleanup(fn);
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(returned).toBe(fn); // chaining contract
     } finally {
       warnSpy.mockRestore();
     }
@@ -116,8 +114,8 @@ describe("owner-level cleanups", () => {
     const order: string[] = [];
     try {
       createRoot((dispose) => {
-        ownerOnCleanup(() => order.push("first"));
-        ownerOnCleanup(() => {
+        onCleanup(() => order.push("first"));
+        onCleanup(() => {
           order.push("second");
           throw new Error("cleanup-explosion");
         });

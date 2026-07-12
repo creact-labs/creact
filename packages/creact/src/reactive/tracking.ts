@@ -2,15 +2,15 @@
  * Global tracking context for reactive system
  */
 
-import { setOwner } from "./owner";
+import { setOwner } from "./current-owner";
 import type { Computation, Signal } from "./signal";
 
 // Computation states
 export const STALE = 1;
-export const PENDING = 2;
+const PENDING = 2;
 
 // Currently executing computation (for dependency tracking)
-export let Listener: Computation<any> | null = null;
+let Listener: Computation<any> | null = null;
 
 // Dual queue system: Updates for pure computations, Effects for side effects
 let Updates: Computation<any>[] | null = null;
@@ -49,6 +49,36 @@ export function addFlushCallback(callback: () => void): void {
  */
 export function removeFlushCallback(callback: () => void): void {
   onFlushCallbacks.delete(callback);
+}
+
+/**
+ * Register a signal read on the current listener: the listener tracks the
+ * signal as a source, and the signal tracks the listener as an observer
+ * (slot indices kept in sync for O(1) unsubscription).
+ * Shared by createSignal, createMemo, and store property tracking.
+ * @internal
+ */
+export function trackRead(
+  signal: Pick<Signal<any>, "observers" | "observerSlots">,
+  listener: Computation<any>,
+): void {
+  const sSlot = signal.observers?.length ?? 0;
+
+  if (!listener.sources) {
+    listener.sources = [signal as Signal<any>];
+    listener.sourceSlots = [sSlot];
+  } else {
+    listener.sources.push(signal as Signal<any>);
+    listener.sourceSlots?.push(sSlot);
+  }
+
+  if (!signal.observers) {
+    signal.observers = [listener];
+    signal.observerSlots = [listener.sources.length - 1];
+  } else {
+    signal.observers.push(listener);
+    signal.observerSlots?.push(listener.sources.length - 1);
+  }
 }
 
 /**
@@ -272,7 +302,7 @@ export function updateComputation(node: Computation<any>): void {
  * Run a computation with tracking
  * Sets both Listener (for dependency tracking) and Owner (for onCleanup/ownership)
  */
-export function runComputation(
+function runComputation(
   node: Computation<any>,
   value: any,
   time: number,
@@ -285,15 +315,7 @@ export function runComputation(
   try {
     nextValue = node.fn(value);
   } catch (err) {
-    if (node.pure) {
-      node.state = STALE;
-      if (node.owned) {
-        for (let i = node.owned.length - 1; i >= 0; i--) {
-          cleanComputation(node.owned[i] as Computation<any>);
-        }
-        node.owned = null;
-      }
-    }
+    resetPureOnError(node);
     node.updatedAt = time + 1;
     Listener = prevListener;
     setOwner(prevOwner);
@@ -308,54 +330,70 @@ export function runComputation(
   Listener = prevListener;
   setOwner(prevOwner);
 
-  if (!node.updatedAt || node.updatedAt <= time) {
-    // If this is a memo (has observers), check if value changed and propagate
-    if (node.updatedAt != null && "observers" in node) {
-      const memo = node as any;
-      if (!memo.comparator || !memo.comparator(memo.value, nextValue)) {
-        memo.value = nextValue;
-        if (memo.observers?.length) {
-          for (let i = 0; i < memo.observers.length; i++) {
-            const o = memo.observers[i]!;
-            if (!o.state) {
-              if (o.pure) Updates?.push(o);
-              else Effects?.push(o);
-              if (o.observers) markDownstream(o);
-            }
-            o.state = STALE;
-          }
-        }
-      }
-    } else {
-      node.value = nextValue;
+  commitComputationValue(node, nextValue, time);
+}
+
+/**
+ * A pure computation that threw goes back to STALE with its owned
+ * computations cleaned, so it can re-run cleanly next time
+ */
+function resetPureOnError(node: Computation<any>): void {
+  if (!node.pure) return;
+  node.state = STALE;
+  if (node.owned) {
+    for (let i = node.owned.length - 1; i >= 0; i--) {
+      cleanComputation(node.owned[i] as Computation<any>);
     }
-    node.updatedAt = time;
+    node.owned = null;
+  }
+}
+
+/**
+ * Store the computed value; memos additionally propagate to observers
+ * when the value actually changed
+ */
+function commitComputationValue(
+  node: Computation<any>,
+  nextValue: any,
+  time: number,
+): void {
+  if (node.updatedAt && node.updatedAt > time) return;
+
+  // If this is a memo (has observers), check if value changed and propagate
+  if (node.updatedAt != null && "observers" in node) {
+    propagateMemoValue(node as any, nextValue);
+  } else {
+    node.value = nextValue;
+  }
+  node.updatedAt = time;
+}
+
+/**
+ * Update a memo's value and mark its observers stale (skips when the
+ * comparator reports no change)
+ */
+function propagateMemoValue(memo: any, nextValue: any): void {
+  if (memo.comparator?.(memo.value, nextValue)) return;
+
+  memo.value = nextValue;
+  if (!memo.observers?.length) return;
+
+  for (let i = 0; i < memo.observers.length; i++) {
+    const o = memo.observers[i]!;
+    if (!o.state) {
+      if (o.pure) Updates?.push(o);
+      else Effects?.push(o);
+      if (o.observers) markDownstream(o);
+    }
+    o.state = STALE;
   }
 }
 
 /**
  * Clean up a computation's subscriptions (swap-and-pop for O(1))
  */
-export function cleanComputation(comp: Computation<any>): void {
-  // Remove from all sources' observer lists
-  if (comp.sources && comp.sourceSlots) {
-    while (comp.sources.length) {
-      const source: Signal<any> = comp.sources.pop()!;
-      const index = comp.sourceSlots.pop()!;
-
-      // Swap-and-pop removal from source.observers
-      if (source.observers?.length && source.observerSlots) {
-        const last = source.observers.pop()!;
-        const lastSlot = source.observerSlots.pop()!;
-
-        if (index < source.observers.length) {
-          source.observers[index] = last;
-          source.observerSlots[index] = lastSlot;
-          last.sourceSlots![lastSlot] = index;
-        }
-      }
-    }
-  }
+function cleanComputation(comp: Computation<any>): void {
+  unsubscribeSources(comp);
 
   // Clean owned computations
   if (comp.owned) {
@@ -372,6 +410,30 @@ export function cleanComputation(comp: Computation<any>): void {
   }
 
   comp.state = 0;
+}
+
+/**
+ * Remove a computation from all its sources' observer lists
+ * (swap-and-pop keeps every removal O(1))
+ */
+function unsubscribeSources(comp: Computation<any>): void {
+  if (!comp.sources || !comp.sourceSlots) return;
+
+  while (comp.sources.length) {
+    const source: Signal<any> = comp.sources.pop()!;
+    const index = comp.sourceSlots.pop()!;
+
+    if (source.observers?.length && source.observerSlots) {
+      const last = source.observers.pop()!;
+      const lastSlot = source.observerSlots.pop()!;
+
+      if (index < source.observers.length) {
+        source.observers[index] = last;
+        source.observerSlots[index] = lastSlot;
+        last.sourceSlots![lastSlot] = index;
+      }
+    }
+  }
 }
 
 /**

@@ -9,8 +9,6 @@
     "build": "npm run build -w packages/creact",
     "test": "npm test -w packages/creact",
     "typecheck": "npm run typecheck -w packages/creact",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
@@ -24,15 +22,8 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.37.0",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.45.0",
-    "@typescript-eslint/parser": "^8.45.0",
-    "eslint": "^9.37.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
-    "typescript": "^5.0.0",
-    "typescript-eslint": "^8.45.0"
+    "typescript": "^5.0.0"
   }
 }

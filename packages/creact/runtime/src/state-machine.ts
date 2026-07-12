@@ -9,7 +9,9 @@
 
 import { AsyncMutex } from "./async-mutex";
 import type {
+  AuditLogEntry,
   DeploymentState,
+  DeploymentStatus,
   Memory,
   ResourceState,
   SerializedNode,
@@ -45,6 +47,61 @@ export class StateMachine {
       this.stackMutexes.set(stackName, mutex);
     }
     return mutex;
+  }
+
+  /**
+   * Persist a full deployment snapshot with the given status (mutex-guarded)
+   */
+  private async saveSnapshot(
+    stackName: string,
+    nodes: SerializedNode[],
+    status: DeploymentStatus,
+  ): Promise<void> {
+    await this.getMutex(stackName).runExclusive(async () => {
+      const state: DeploymentState = {
+        nodes,
+        status,
+        stackName,
+        lastDeployedAt: Date.now(),
+        user: this.options.user,
+      };
+      await this.memory.saveState(stackName, state);
+    });
+  }
+
+  /**
+   * Load-mutate-save the persisted state under the stack mutex.
+   * No-op when no state exists yet.
+   */
+  private async mutateState(
+    stackName: string,
+    mutate: (state: DeploymentState) => void,
+  ): Promise<void> {
+    await this.getMutex(stackName).runExclusive(async () => {
+      const state = await this.memory.getState(stackName);
+      if (state) {
+        mutate(state);
+        await this.memory.saveState(stackName, state);
+      }
+    });
+  }
+
+  /**
+   * Append an audit entry when audit logging is enabled
+   */
+  private async audit(
+    stackName: string,
+    action: AuditLogEntry["action"],
+    extra: Partial<AuditLogEntry> = {},
+  ): Promise<void> {
+    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
+      await this.memory.appendAuditLog(stackName, {
+        timestamp: Date.now(),
+        action,
+        user: this.options.user,
+        ...extra,
+      });
+    }
   }
 
   /**
@@ -95,27 +152,8 @@ export class StateMachine {
       resumed?: number;
     },
   ): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state: DeploymentState = {
-        nodes,
-        status: "applying",
-        stackName,
-        lastDeployedAt: Date.now(),
-        user: this.options.user,
-      };
-
-      await this.memory.saveState(stackName, state);
-    });
-
-    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
-      await this.memory.appendAuditLog(stackName, {
-        timestamp: Date.now(),
-        action: "deploy_start",
-        user: this.options.user,
-        details: changeStats,
-      });
-    }
+    await this.saveSnapshot(stackName, nodes, "applying");
+    await this.audit(stackName, "deploy_start", { details: changeStats });
   }
 
   /**
@@ -127,15 +165,10 @@ export class StateMachine {
     nodeId: string,
     outputs: Record<string, any>,
   ): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
-      if (state) {
-        const node = state.nodes.find((n) => n.id === nodeId);
-        if (node) {
-          node.outputs = outputs;
-          await this.memory.saveState(stackName, state);
-        }
+    await this.mutateState(stackName, (state) => {
+      const node = state.nodes.find((n) => n.id === nodeId);
+      if (node) {
+        node.outputs = outputs;
       }
     });
   }
@@ -146,19 +179,14 @@ export class StateMachine {
    * Ensures nodes born mid-cascade are checkpointable by updateNodeOutputs.
    */
   async syncNodes(stackName: string, nodes: SerializedNode[]): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
-      if (state) {
-        // Keep outputs already checkpointed for nodes the new snapshot lacks
-        const persisted = new Map(state.nodes.map((n) => [n.id, n]));
-        state.nodes = nodes.map((n) => {
-          if (n.outputs) return n;
-          const prev = persisted.get(n.id);
-          return prev?.outputs ? { ...n, outputs: prev.outputs } : n;
-        });
-        await this.memory.saveState(stackName, state);
-      }
+    await this.mutateState(stackName, (state) => {
+      // Keep outputs already checkpointed for nodes the new snapshot lacks
+      const persisted = new Map(state.nodes.map((n) => [n.id, n]));
+      state.nodes = nodes.map((n) => {
+        if (n.outputs) return n;
+        const prev = persisted.get(n.id);
+        return prev?.outputs ? { ...n, outputs: prev.outputs } : n;
+      });
     });
   }
 
@@ -166,15 +194,10 @@ export class StateMachine {
    * Add a node to the in-flight applying set (for crash recovery)
    */
   async addApplying(stackName: string, nodeId: string): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
-      if (state) {
-        if (!state.applyingNodeIds) state.applyingNodeIds = [];
-        if (!state.applyingNodeIds.includes(nodeId)) {
-          state.applyingNodeIds.push(nodeId);
-        }
-        await this.memory.saveState(stackName, state);
+    await this.mutateState(stackName, (state) => {
+      if (!state.applyingNodeIds) state.applyingNodeIds = [];
+      if (!state.applyingNodeIds.includes(nodeId)) {
+        state.applyingNodeIds.push(nodeId);
       }
     });
   }
@@ -183,19 +206,14 @@ export class StateMachine {
    * Remove a node from the in-flight applying set after successful apply
    */
   async removeApplying(stackName: string, nodeId: string): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
-      if (state) {
-        if (state.applyingNodeIds) {
-          state.applyingNodeIds = state.applyingNodeIds.filter(
-            (id) => id !== nodeId,
-          );
-          if (state.applyingNodeIds.length === 0) {
-            state.applyingNodeIds = undefined;
-          }
+    await this.mutateState(stackName, (state) => {
+      if (state.applyingNodeIds) {
+        state.applyingNodeIds = state.applyingNodeIds.filter(
+          (id) => id !== nodeId,
+        );
+        if (state.applyingNodeIds.length === 0) {
+          state.applyingNodeIds = undefined;
         }
-        await this.memory.saveState(stackName, state);
       }
     });
   }
@@ -209,16 +227,10 @@ export class StateMachine {
     outputs: Record<string, any>,
   ): Promise<void> {
     this.setResourceState(nodeId, "deployed");
-
-    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
-      await this.memory.appendAuditLog(stackName, {
-        timestamp: Date.now(),
-        action: "resource_applied",
-        nodeId,
-        user: this.options.user,
-        details: { outputKeys: Object.keys(outputs) },
-      });
-    }
+    await this.audit(stackName, "resource_applied", {
+      nodeId,
+      details: { outputKeys: Object.keys(outputs) },
+    });
   }
 
   /**
@@ -229,15 +241,7 @@ export class StateMachine {
     nodeId: string,
   ): Promise<void> {
     this.resourceStates.delete(nodeId);
-
-    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
-      await this.memory.appendAuditLog(stackName, {
-        timestamp: Date.now(),
-        action: "resource_destroyed",
-        nodeId,
-        user: this.options.user,
-      });
-    }
+    await this.audit(stackName, "resource_destroyed", { nodeId });
   }
 
   /**
@@ -247,50 +251,22 @@ export class StateMachine {
     stackName: string,
     nodes: SerializedNode[],
   ): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state: DeploymentState = {
-        nodes,
-        status: "deployed",
-        stackName,
-        lastDeployedAt: Date.now(),
-        user: this.options.user,
-      };
-
-      await this.memory.saveState(stackName, state);
+    await this.saveSnapshot(stackName, nodes, "deployed");
+    await this.audit(stackName, "deploy_complete", {
+      details: { nodeCount: nodes.length },
     });
-
-    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
-      await this.memory.appendAuditLog(stackName, {
-        timestamp: Date.now(),
-        action: "deploy_complete",
-        user: this.options.user,
-        details: { nodeCount: nodes.length },
-      });
-    }
   }
 
   /**
    * Record a failed deployment
    */
   async failDeployment(stackName: string, error: Error): Promise<void> {
-    const mutex = this.getMutex(stackName);
-    await mutex.runExclusive(async () => {
-      const state = await this.memory.getState(stackName);
-      if (state) {
-        state.status = "failed";
-        await this.memory.saveState(stackName, state);
-      }
+    await this.mutateState(stackName, (state) => {
+      state.status = "failed";
     });
-
-    if (this.options.enableAuditLog && this.memory.appendAuditLog) {
-      await this.memory.appendAuditLog(stackName, {
-        timestamp: Date.now(),
-        action: "deploy_failed",
-        user: this.options.user,
-        details: { error: error.message },
-      });
-    }
+    await this.audit(stackName, "deploy_failed", {
+      details: { error: error.message },
+    });
   }
 
   /**

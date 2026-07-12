@@ -58,11 +58,4 @@ export class InMemoryMemory implements Memory {
     const logs = this.auditLogs.get(stackName) ?? [];
     return limit ? logs.slice(-limit) : logs;
   }
-
-  /** Test helper: clear all state */
-  clear(): void {
-    this.states.clear();
-    this.auditLogs.clear();
-    this.locks.clear();
-  }
 }
