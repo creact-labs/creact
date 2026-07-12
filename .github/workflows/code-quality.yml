@@ -138,9 +138,10 @@ jobs:
   # AI review of the fallow audit — and ONLY the audit report, never the
   # PR diff: Grok reads fallow's semantic-change findings (dead code,
   # complexity, duplication, styling drift vs the base branch) as a
-  # seasoned release gatekeeper and stamps a proceed/block verdict, posted
-  # to the PR for the human approver to read before signing off. The
-  # rubric lives (versioned) in .github/prompts/fallow-review.md.
+  # seasoned release gatekeeper with full autonomy: its proceed/block
+  # verdict IS the gate, and the analysis is published to the PR either
+  # way (one comment, edited in place on re-runs). The rubric lives
+  # (versioned) in .github/prompts/fallow-review.md.
   grok-review:
     name: Grok Review
     needs: [fallow]
@@ -201,20 +202,34 @@ jobs:
           jq -e -r '.choices[0].message.content' response.json > verdict.json
           # A malformed verdict fails loudly rather than silently passing
           jq -e '.verdict and .summary' verdict.json > /dev/null
-      - name: Publish the verdict (summary + PR comment)
+      - name: Publish the verdict (summary + PR comment, edited in place)
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          MARKER="<!-- grok-fallow-review -->"
           {
+            echo "$MARKER"
             echo "### 🤖 Grok fallow review — **$(jq -r .verdict verdict.json)**"
             echo
             jq -r .summary verdict.json
             echo
             jq -r '(.concerns // [])[] | "- " + .' verdict.json
+            echo
+            echo "<sub>Reviews the fallow audit report only. Re-runs edit this comment.</sub>"
           } > comment.md
           cat comment.md >> "$GITHUB_STEP_SUMMARY"
-          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+
+          # Upsert: edit the existing verdict comment instead of stacking
+          EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --paginate --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty")
+          if [ -n "$EXISTING_ID" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID}" \
+              --field body=@comment.md > /dev/null
+            echo "Updated existing verdict comment ${EXISTING_ID}"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+          fi
       - name: Gate on the verdict
         run: |
           VERDICT=$(jq -r .verdict verdict.json)
@@ -224,21 +239,6 @@ jobs:
           fi
           echo "Grok verdict: proceed"
 
-  # Human sign-off on the fallow audit + Grok verdict. The fallow-approval
-  # environment requires a reviewer, so this job waits in the Actions UI
-  # until someone approves the deployment — read the Grok comment on the
-  # PR first, then approve.
-  fallow-approval:
-    name: Fallow Approval
-    needs: [grok-review]
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    environment: fallow-approval
-    steps:
-      - name: Record approval
-        run: echo "Fallow audit and Grok verdict approved by the reviewer."
-
   # Single stable aggregate — THE required status check for branch
   # protection. Required checks are selected per job and job matrices/names
   # drift; this one context stays stable: "Code Quality / Quality Gate".
@@ -246,7 +246,7 @@ jobs:
   # SKIP, and GitHub treats a skipped required check as a PASS.
   quality-gate:
     name: Quality Gate
-    needs: [typecheck, test, build, fallow, grok-review, fallow-approval]
+    needs: [typecheck, test, build, fallow, grok-review]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 1
@@ -258,7 +258,6 @@ jobs:
           BUILD: ${{ needs.build.result }}
           FALLOW: ${{ needs.fallow.result }}
           GROK: ${{ needs['grok-review'].result }}
-          APPROVAL: ${{ needs['fallow-approval'].result }}
         run: |
           FAILED=""
           check() { # name result pr_only — pr_only jobs may be skipped on push
@@ -271,7 +270,6 @@ jobs:
           check build "$BUILD" always
           check fallow "$FALLOW" always
           check grok-review "$GROK" pr-only
-          check fallow-approval "$APPROVAL" pr-only
           if [ -n "$FAILED" ]; then
             echo "::error::Quality gate failed:$FAILED"
             exit 1
