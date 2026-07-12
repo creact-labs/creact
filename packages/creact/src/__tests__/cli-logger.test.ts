@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import { spinnerMock} from "../__mocks__/mock-ora";
-import * as logger from "../cli-logger";
-import type { TypeCheckResult} from "../cli-typecheck";
+import * as logger from "../cli-logger.js";
+import type { TypeCheckResult} from "../cli-typecheck.js";
 
 vi.mock("ora", async () =>
   (await import("../__mocks__/mock-ora")).mockOraModule(),

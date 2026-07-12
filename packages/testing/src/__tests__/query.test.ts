@@ -4,12 +4,12 @@ import {
   useAsyncOutput,
 } from "@creact-labs/creact";
 import {
+  h,
   renderTest,
   findNode,
   queryNodes,
   readOutput,
 } from "../index";
-import { h } from "../testing/testing";
 
 afterEach(() => {
   resetRuntime();

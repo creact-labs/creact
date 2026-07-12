@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocTable from "@/shared/components/doc-table";
 
 const CreactCli: Component = () => {
   return (
@@ -23,51 +24,24 @@ const CreactCli: Component = () => {
       <DocHeading level={2} id="arguments">
         Arguments
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Argument</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>&lt;entry-file&gt;</code>
-            </td>
-            <td>
-              Path to the entry TypeScript/TSX file (e.g. <code>index.tsx</code>
-              ).
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Argument", "Description"]}
+        rows={[
+          [<><code>&lt;entry-file&gt;</code></>, <>Path to the entry TypeScript/TSX file (e.g. <code>index.tsx</code>
+              ).</>],
+        ]}
+      />
 
       <DocHeading level={2} id="options">
         Options
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Flag</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>--watch</code>
-            </td>
-            <td>Watch source files and restart on changes.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>--help</code>
-            </td>
-            <td>Show help message.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Flag", "Description"]}
+        rows={[
+          [<><code>--watch</code></>, "Watch source files and restart on changes."],
+          [<><code>--help</code></>, "Show help message."],
+        ]}
+      />
 
       <DocHeading level={2} id="examples">
         Examples

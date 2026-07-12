@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
+import { t } from "@/i18n";
 import { useToc } from "@/shared/context/toc";
 
 const TableOfContents: Component = () => {
@@ -8,7 +9,7 @@ const TableOfContents: Component = () => {
   return (
     <Show when={headings().length > 0}>
       <nav class="docs-toc">
-        <div class="docs-toc-title">On this page</div>
+        <div class="docs-toc-title">{t("docs.toc_title")}</div>
         <For each={headings()}>
           {(heading) => (
             <a

@@ -35,7 +35,7 @@ export interface ForProps<T, U extends CReactNode> {
    * When provided, items are matched by key instead of reference identity,
    * allowing efficient updates when item objects are replaced.
    */
-  keyFn?: (item: T) => any;
+  keyFn?: (item: T) => unknown;
   /** Render function for each item - receives item accessor and index accessor */
   children: (item: Accessor<T>, index: Accessor<number>) => U;
 }
@@ -69,7 +69,7 @@ export interface ForProps<T, U extends CReactNode> {
 export function For<T, U extends CReactNode>(
   props: ForProps<T, U>,
 ): JSXElement {
-  const options: { fallback?: () => any; keyFn?: (item: T) => any } = {};
+  const options: { fallback?: () => unknown; keyFn?: (item: T) => unknown } = {};
   if ("fallback" in props) options.fallback = () => access(props.fallback);
   if ("keyFn" in props) options.keyFn = props.keyFn;
   return createMemo(

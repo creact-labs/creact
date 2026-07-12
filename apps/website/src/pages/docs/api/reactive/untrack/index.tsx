@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const Untrack: Component = () => {
   return (
@@ -13,42 +16,15 @@ const Untrack: Component = () => {
 
       <DocCodeBlock code={`const value = untrack(() => signal());`} />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature name="untrack" signature="untrack<T>(fn: () => T): T" />
+      <ApiReference
+        name="untrack"
+        signature="untrack<T>(fn: () => T): T"
+        parameters={[
+          [<><code>fn</code></>, <><code>() =&gt; T</code></>, "Function to run without tracking. Signal reads inside won't register dependencies."],
+        ]}
+      />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; T</code>
-            </td>
-            <td>
-              Function to run without tracking. Signal reads inside won't
-              register dependencies.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`createEffect(() => {
   // Re-runs when a() changes, but NOT when b() changes
   console.log(a(), untrack(() => b()));

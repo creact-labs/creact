@@ -80,11 +80,12 @@ it('Show renders when truthy', () => {
     const [show, setShow] = createSignal(false);
 
     const result = createMemo(() => {
-      const r = (Show as any)({
+      // Flow components return reactive accessors when called directly
+      const r = Show({
         when: show,
         children: () => 'visible'
-      });
-      return typeof r === 'function' ? r() : r;
+      }) as unknown as () => unknown;
+      return r();
     });
 
     expect(result()).toBeFalsy();

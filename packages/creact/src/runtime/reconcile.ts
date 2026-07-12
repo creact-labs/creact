@@ -8,7 +8,19 @@
  * - Parallel batches for concurrent deployment
  */
 
-import type { InstanceNode } from "./instance";
+import { plainObjectsEqualWith } from "./plain-objects-equal";
+
+/**
+ * The structural surface reconciliation needs: identity, tree position,
+ * props for diffing, and (for deletes) the teardown handle. Both live
+ * ReconcilableNode snapshots and persisted SerializedNodes satisfy it.
+ */
+export interface ReconcilableNode {
+  id: string;
+  path: string[];
+  props: Record<string, unknown>;
+  cleanupFn?: () => void | Promise<void>;
+}
 
 /**
  * Dependency graph
@@ -24,9 +36,9 @@ export interface DependencyGraph {
  * Change set with deployment ordering
  */
 export interface ChangeSet {
-  creates: InstanceNode[];
-  updates: InstanceNode[];
-  deletes: InstanceNode[];
+  creates: ReconcilableNode[];
+  updates: ReconcilableNode[];
+  deletes: ReconcilableNode[];
   /** Topologically sorted node IDs for deployment */
   deploymentOrder: string[];
   /** Groups of nodes that can be deployed in parallel */
@@ -40,7 +52,7 @@ export interface ChangeSet {
  * - Parent must be deployed before children
  * - Node with path ['App', 'DB', 'Cache'] depends on ['App', 'DB']
  */
-export function buildDependencyGraph(nodes: InstanceNode[]): DependencyGraph {
+export function buildDependencyGraph(nodes: ReconcilableNode[]): DependencyGraph {
   const dependencies = new Map<string, string[]>();
   const dependents = new Map<string, string[]>();
   const nodeIds = new Set(nodes.map((n) => n.id));
@@ -178,16 +190,16 @@ export function computeParallelBatches(
  * Uses path-based id for matching - each node has unique position in tree
  */
 export function reconcile(
-  previous: InstanceNode[],
-  current: InstanceNode[],
+  previous: ReconcilableNode[],
+  current: ReconcilableNode[],
 ): ChangeSet {
   // Use path-based id for matching (unique per position in tree)
   const prevMap = new Map(previous.map((n) => [n.id, n]));
   const currMap = new Map(current.map((n) => [n.id, n]));
 
-  const creates: InstanceNode[] = [];
-  const updates: InstanceNode[] = [];
-  const deletes: InstanceNode[] = [];
+  const creates: ReconcilableNode[] = [];
+  const updates: ReconcilableNode[] = [];
+  const deletes: ReconcilableNode[] = [];
 
   // Find creates and updates
   for (const node of current) {
@@ -314,15 +326,7 @@ function plainObjectsDeepEqual(
   a: Record<string, unknown>,
   b: Record<string, unknown>,
 ): boolean {
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-
-  for (const key of keysA) {
-    if (!Object.hasOwn(b, key)) return false;
-    if (!deepEqual(a[key], b[key])) return false;
-  }
-  return true;
+  return plainObjectsEqualWith(a, b, deepEqual);
 }
 
 /**
@@ -352,8 +356,8 @@ export function getReadyNodes(
  * Uses id for matching consistency with reconcile()
  */
 export function hasNewNodes(
-  previous: InstanceNode[],
-  current: InstanceNode[],
+  previous: ReconcilableNode[],
+  current: ReconcilableNode[],
 ): boolean {
   const prevIds = new Set(previous.map((n) => n.id));
   return current.some((n) => !prevIds.has(n.id));
@@ -363,8 +367,8 @@ export function hasNewNodes(
  * Check if there are removed nodes that aren't in current
  */
 export function hasRemovedNodes(
-  previous: InstanceNode[],
-  current: InstanceNode[],
+  previous: ReconcilableNode[],
+  current: ReconcilableNode[],
 ): boolean {
   const currIds = new Set(current.map((n) => n.id));
   return previous.some((n) => !currIds.has(n.id));
@@ -374,8 +378,8 @@ export function hasRemovedNodes(
  * Check if any existing nodes have changed props
  */
 export function hasPropChanges(
-  previous: InstanceNode[],
-  current: InstanceNode[],
+  previous: ReconcilableNode[],
+  current: ReconcilableNode[],
 ): boolean {
   const prevMap = new Map(previous.map((n) => [n.id, n]));
   for (const node of current) {
@@ -391,8 +395,8 @@ export function hasPropChanges(
  * Check if there are any changes (new, removed, or prop changes)
  */
 export function hasChanges(
-  previous: InstanceNode[],
-  current: InstanceNode[],
+  previous: ReconcilableNode[],
+  current: ReconcilableNode[],
 ): boolean {
   return (
     hasNewNodes(previous, current) ||

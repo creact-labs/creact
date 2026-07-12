@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
@@ -13,18 +15,12 @@ const IndexApi: Component = () => {
         primitive values or when the array position matters more than identity.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="indexArray"
         signature="indexArray<T, U>(list: Accessor<T[]>, mapFn: (v: Accessor<T>, i: number) => U): Accessor<U[]>"
       />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`import { indexArray, createSignal } from '@creact-labs/creact';
 
 const [items, setItems] = createSignal(['a', 'b', 'c']);

@@ -3,6 +3,7 @@ import DocHeading from "@/shared/components/doc-heading";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocTable from "@/shared/components/doc-table";
 
 const MemorySystem: Component = () => {
   return (
@@ -45,72 +46,28 @@ const MemorySystem: Component = () => {
       <DocHeading level={3} id="required-methods">
         Required Methods
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Method</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>getState(stackName)</code>
-            </td>
-            <td>
-              Retrieve previously saved state. Return <code>null</code> on first
-              run.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>saveState(stackName, state)</code>
-            </td>
-            <td>Persist the current state after each render cycle.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Method", "Description"]}
+        rows={[
+          [<><code>getState(stackName)</code></>, <>Retrieve previously saved state. Return <code>null</code> on first
+              run.</>],
+          [<><code>saveState(stackName, state)</code></>, "Persist the current state after each render cycle."],
+        ]}
+      />
 
       <DocHeading level={3} id="optional-methods">
         Optional Methods
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Method</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>acquireLock(stackName, holder, ttlSeconds)</code>
-            </td>
-            <td>
-              Acquire a deploy lock to prevent concurrent deploys. Returns{" "}
-              <code>true</code> if acquired.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>releaseLock(stackName)</code>
-            </td>
-            <td>Release a previously acquired lock.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>appendAuditLog(stackName, entry)</code>
-            </td>
-            <td>Append an entry to the deployment audit trail.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>getAuditLog(stackName, limit?)</code>
-            </td>
-            <td>Retrieve audit log entries for a stack.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Method", "Description"]}
+        rows={[
+          [<><code>acquireLock(stackName, holder, ttlSeconds)</code></>, <>Acquire a deploy lock to prevent concurrent deploys. Returns{" "}
+              <code>true</code> if acquired.</>],
+          [<><code>releaseLock(stackName)</code></>, "Release a previously acquired lock."],
+          [<><code>appendAuditLog(stackName, entry)</code></>, "Append an entry to the deployment audit trail."],
+          [<><code>getAuditLog(stackName, limit?)</code></>, "Retrieve audit log entries for a stack."],
+        ]}
+      />
 
       <DocHeading level={2} id="deployment-state">
         DeploymentState
@@ -240,48 +197,16 @@ const MemorySystem: Component = () => {
       <p>
         The interface works with any storage backend. Common implementations:
       </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Backend</th>
-            <th>Best For</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <strong>Local files</strong>
-            </td>
-            <td>Development, single-machine deploys</td>
-          </tr>
-          <tr>
-            <td>
-              <strong>DynamoDB</strong>
-            </td>
-            <td>
-              Serverless, low-latency, supports conditional writes for locking
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>S3</strong>
-            </td>
-            <td>Large state files, cheap storage</td>
-          </tr>
-          <tr>
-            <td>
-              <strong>PostgreSQL</strong>
-            </td>
-            <td>Transactional, native audit log support</td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Redis</strong>
-            </td>
-            <td>Fast, TTL-based cleanup for short-lived stacks</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Backend", "Best For"]}
+        rows={[
+          [<><strong>Local files</strong></>, "Development, single-machine deploys"],
+          [<><strong>DynamoDB</strong></>, "Serverless, low-latency, supports conditional writes for locking"],
+          [<><strong>S3</strong></>, "Large state files, cheap storage"],
+          [<><strong>PostgreSQL</strong></>, "Transactional, native audit log support"],
+          [<><strong>Redis</strong></>, "Fast, TTL-based cleanup for short-lived stacks"],
+        ]}
+      />
 
       <Callout type="tip">
         <p>

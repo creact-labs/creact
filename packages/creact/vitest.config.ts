@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@creact-labs/creact": resolve(__dirname, "src"),
+      "@creact-labs/testing": resolve(__dirname, "../testing/src"),
     },
   },
   esbuild: {
@@ -24,7 +25,6 @@ export default defineConfig({
         // product code — coverage measures what they exercise, not them
         "src/**/__tests__/**",
         "src/**/__mocks__/**",
-        "src/testing/**",
         // Bin entry: a thin process shell (shebang, SIGINT/SIGTERM handlers,
         // process.exit, the infinite fs.watch loop) — importing it in-process
         // would run main() and kill the test runner. ALL its logic lives in

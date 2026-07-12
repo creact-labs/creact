@@ -4,6 +4,10 @@ import {
   type Accessor,
 } from "@creact-labs/creact";
 
+/** Await a real timer — for handlers that simulate async work */
+export const delay = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 export function waitFor<T>(
   accessor: Accessor<T>,
   predicate?: (value: T) => boolean,

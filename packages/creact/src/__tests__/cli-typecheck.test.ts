@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile} from "node:fs/promises";
 import { tmpdir} from "node:os";
 import { join} from "node:path";
 import { afterAll, beforeAll, describe, expect, it} from "vitest";
-import { loadTypeScript, typeCheck} from "../cli-typecheck";
+import { loadTypeScript, typeCheck} from "../cli-typecheck.js";
 
 // Real TypeScript compiler runs against tiny fixture projects in tmp dirs
 // (tmp so findConfigFile can't accidentally pick up this repo's tsconfig).

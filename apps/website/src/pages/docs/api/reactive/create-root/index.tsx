@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
@@ -13,60 +14,21 @@ const CreateRoot: Component = () => {
         dispose function for teardown.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createRoot"
         signature="createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>(dispose: () =&gt; void) =&gt; T</code>
-            </td>
-            <td>
-              Function that runs within the root. Receives a dispose function to
-              tear down all owned computations.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>detachedOwner</code>
-            </td>
-            <td>
-              <code>Owner</code>
-            </td>
-            <td>
-              Optional. Parent owner for the root. When provided, the root is
-              attached to this owner's context chain (for lookupContext) but
-              still independently disposable.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>fn</code></>, <><code>(dispose: () =&gt; void) =&gt; T</code></>, "Function that runs within the root. Receives a dispose function to tear down all owned computations."],
+          [<><code>detachedOwner</code></>, <><code>Owner</code></>, "Optional. Parent owner for the root. When provided, the root is attached to this owner's context chain (for lookupContext) but still independently disposable."],
+        ]}
+        returns={
+          <>
       <p>
         The return value of <code>fn</code>.
       </p>
+          </>
+        }
+      />
 
       <DocHeading level={2} id="usage">
         Usage

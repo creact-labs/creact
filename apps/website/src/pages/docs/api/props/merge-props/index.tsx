@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -16,18 +18,12 @@ const MergeProps: Component = () => {
         code={`const merged = mergeProps({ color: 'blue', size: 'md' }, props);`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="mergeProps"
         signature="mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
       />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function Button(props: { color?: string; size?: string; label: string }) {
   const merged = mergeProps({ color: 'blue', size: 'md' }, props);
 

@@ -1132,6 +1132,10 @@ describe("createMemo", () => {
     it("ensures that new dependencies are updated before dependee", () => {
       createRoot(() => {
         let order = "";
+        // e is initialized AFTER c on purpose: c only reaches e() when b()
+        // goes falsy, discovering e as a brand-new dependency — that late
+        // discovery is exactly what this test verifies.
+        let e!: () => number;
         const [a, setA] = createSignal(0);
         const b = createMemo(() => {
           order += "b";
@@ -1148,8 +1152,7 @@ describe("createMemo", () => {
         const d = createMemo(() => {
           return a();
         });
-        // biome-ignore lint/correctness/noUnusedVariables: e is captured by c's closure above
-        const e = createMemo(() => {
+        e = createMemo(() => {
           order += "d";
           return d() + 10;
         });
@@ -1517,7 +1520,7 @@ describe("catchError", () => {
         () => {
           createEffect(() => {
             if (trigger()) {
-              // eslint-disable-next-line no-throw-literal
+              // intentionally a non-Error value — that's what this test verifies
               throw "not-an-error";
             }
           });

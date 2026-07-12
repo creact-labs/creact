@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -14,51 +16,24 @@ const Children: Component = () => {
 
       <DocCodeBlock code={`const resolved = children(() => props.children);`} />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="children"
         signature="children(fn: Accessor<JSXElement>): ChildrenReturn"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>Accessor&lt;JSXElement&gt;</code>
-            </td>
-            <td>Accessor that returns the children prop.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>fn</code></>, <><code>Accessor&lt;JSXElement&gt;</code></>, "Accessor that returns the children prop."],
+        ]}
+        returns={
+          <>
       <p>
         A <code>ChildrenReturn</code>, a callable accessor that returns the
         resolved children. Also has a <code>toArray()</code> method that returns
         the resolved children as a flat array.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function Wrapper(props: { children: any }) {
   const c = children(() => props.children);
 

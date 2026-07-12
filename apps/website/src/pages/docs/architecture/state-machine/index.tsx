@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocTable from "@/shared/components/doc-table";
 
 const StateMachine: Component = () => {
   return (
@@ -17,40 +18,15 @@ const StateMachine: Component = () => {
       <p>
         Each resource (instance node) has a <code>ResourceState</code>:
       </p>
-      <table>
-        <thead>
-          <tr>
-            <th>State</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>pending</code>
-            </td>
-            <td>Resource has been declared but handler hasn't run yet.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>applying</code>
-            </td>
-            <td>Handler is currently executing.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>deployed</code>
-            </td>
-            <td>Handler finished successfully. Outputs are available.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>failed</code>
-            </td>
-            <td>Handler threw an error. Deployment failed.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["State", "Description"]}
+        rows={[
+          [<><code>pending</code></>, "Resource has been declared but handler hasn't run yet."],
+          [<><code>applying</code></>, "Handler is currently executing."],
+          [<><code>deployed</code></>, "Handler finished successfully. Outputs are available."],
+          [<><code>failed</code></>, "Handler threw an error. Deployment failed."],
+        ]}
+      />
 
       <DocHeading level={2} id="deployment-status">
         Deployment Status

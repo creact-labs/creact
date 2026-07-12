@@ -1,9 +1,8 @@
 import { afterEach, describe, expect, it, vi} from "vitest";
+import { InMemoryMemory, h } from "@creact-labs/testing";
 import { type Accessor, For, Fragment, Show, createRoot, createSignal} from "../../index";
 import { createContext, useContext} from "../../primitives/context";
 import { onCleanup} from "../../reactive/owner";
-import { InMemoryMemory} from "../../testing/mock-memory";
-import { h} from "../../testing/testing";
 import type { Fiber} from "../fiber";
 import { useAsyncOutput} from "../instance";
 import { cleanupFiber, collectInstanceNodes, getCurrentFiber, getCurrentPath, renderFiber} from "../render";

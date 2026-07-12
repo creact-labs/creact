@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -15,10 +17,7 @@ const SplitProps: Component = () => {
         code={`const [local, others] = splitProps(props, ['class', 'style']);`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="splitProps"
         signature="splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]"
       />
@@ -28,10 +27,7 @@ const SplitProps: Component = () => {
         all unmatched keys.
       </p>
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function Server(props: { port: number; host?: string; handler: () => void }) {
   const [local, rest] = splitProps(props, ['handler']);
 

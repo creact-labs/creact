@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import DocSteps from "@/shared/components/doc-steps";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 
 const FiberModel: Component = () => {
@@ -24,9 +25,16 @@ const FiberModel: Component = () => {
         Fiber Structure
       </DocHeading>
       <DocCodeBlock
-        code={`interface Fiber {
-  type: any;                    // Component function or intrinsic element
-  props: Record<string, any>;
+        code={`// Component function, intrinsic tag, Fragment symbol, or nothing
+type FiberType =
+  | ((props: Record<string, unknown>) => unknown)
+  | string
+  | symbol
+  | null;
+
+interface Fiber {
+  type: FiberType;
+  props: Record<string, unknown>;
   children: Fiber[];
   path: string[];               // Path segments from root to this fiber
   key?: string | number;        // User-provided key for stable identity
@@ -34,8 +42,8 @@ const FiberModel: Component = () => {
   // Instance bindings (from useAsyncOutput)
   instanceNodes: InstanceNode[];
 
-  // Store (from createStore)
-  store?: any;
+  // Store (from createStore, JSON-serializable)
+  store?: object;
 
   // Owner for reactive scope (effects, cleanups)
   owner?: Owner | null;
@@ -46,26 +54,15 @@ const FiberModel: Component = () => {
       <DocHeading level={2} id="lifecycle">
         Fiber Lifecycle
       </DocHeading>
-      <ol>
-        <li>
-          <strong>Creation:</strong> when JSX is evaluated, fibers are created
-          for each component
-        </li>
-        <li>
-          <strong>Reconciliation:</strong> fibers are compared against the
-          previous state
-        </li>
-        <li>
-          <strong>Execution:</strong> handlers run for new or changed fibers
-        </li>
-        <li>
-          <strong>Serialization:</strong> fiber outputs are saved to Memory
-        </li>
-        <li>
-          <strong>Cleanup:</strong> removed fibers have their cleanup handlers
-          called
-        </li>
-      </ol>
+      <DocSteps
+        steps={[
+          { label: "Creation", body: "when JSX is evaluated, fibers are created for each component" },
+          { label: "Reconciliation", body: "fibers are compared against the previous state" },
+          { label: "Execution", body: "handlers run for new or changed fibers" },
+          { label: "Serialization", body: "fiber outputs are saved to Memory" },
+          { label: "Cleanup", body: "removed fibers have their cleanup handlers called" },
+        ]}
+      />
 
       <DocHeading level={2} id="paths">
         Fiber Paths

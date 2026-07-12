@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -19,49 +21,22 @@ const Batch: Component = () => {
 }); // Effects run once, not three times`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature name="batch" signature="batch<T>(fn: () => T): T" />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; T</code>
-            </td>
-            <td>
-              Function containing signal updates. All updates are deferred until
-              the function completes.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+      <ApiReference
+        name="batch"
+        signature="batch<T>(fn: () => T): T"
+        parameters={[
+          [<><code>fn</code></>, <><code>() =&gt; T</code></>, "Function containing signal updates. All updates are deferred until the function completes."],
+        ]}
+        returns={
+          <>
       <p>
         The return value of <code>fn</code>.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [firstName, setFirstName] = createSignal('');
 const [lastName, setLastName] = createSignal('');
 

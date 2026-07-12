@@ -1,9 +1,8 @@
 import { afterEach, describe, expect, it} from "vitest";
+import { InMemoryMemory, h } from "@creact-labs/testing";
 import { type Accessor, For, Fragment, type JSXElement, Show, createEffect, createMemo, createRoot, createSignal, indexArray, mapArray, onCleanup} from "../../index";
 import { useAsyncOutput} from "../../runtime/instance";
 import { render, resetRuntime} from "../../runtime/run";
-import { InMemoryMemory} from "../../testing/mock-memory";
-import { h} from "../../testing/testing";
 
 /**
  * For control flow + mapArray/indexArray tests

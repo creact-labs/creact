@@ -1,9 +1,10 @@
 {
-  // CReact monorepo fallow configuration
-  // Run `fallow dead-code`, `fallow dupes`, `fallow health --coverage packages/creact/coverage`, `fallow audit`
+  // CReact monorepo fallow configuration.
+  // No ignore lists: findings are fixed at the source, never masked.
+  // Run from the repo root: dead-code · dupes · health --coverage · audit
 
-  // The creact CLI bin entry: package.json bin points at the dist build, so the
-  // source file needs to be declared as an entry explicitly.
+  // The creact CLI bin entry: package.json bin points at the dist build, so
+  // the source file needs to be declared as an entry explicitly.
   "entry": ["packages/creact/src/cli.ts"],
 
   // These are published libraries — their entry-point exports ARE the product
@@ -30,46 +31,17 @@
     "clear"
   ],
 
-  "health": {
-    // Goal: every production function's CRAP score stays below 35
-    "maxCrap": 35,
-    "ignore": [
-      // Complexity gates apply to production code; specs are structured as
-      // long describe/it blocks by design, and mocks/test utilities are
-      // test-support code.
-      "**/__tests__/**",
-      "**/__mocks__/**",
-      "**/src/testing/**",
-      "**/*.test.ts",
-      "**/*.test.tsx",
-      // Process entry: runs main() at import, spawns watchers, exits the
-      // process — excluded from vitest coverage for the same reason, and
-      // CRAP cannot be scored without coverage.
-      "packages/creact/src/cli.ts",
-      // Docs pages are page-sized JSX content (prose + code samples), not
-      // logic — unit-size limits don't apply to content.
-      "apps/website/src/pages/docs/getting-started/**",
-      "apps/website/src/pages/docs/guides/**",
-      "apps/website/src/pages/docs/api/**",
-      "apps/website/src/pages/docs/architecture/**"
-    ]
+  // Complexity and duplication gates measure production code; fallow's
+  // built-in production mode excludes test files natively. Dead-code keeps
+  // analyzing everything (tests included) — it passes with zero exclusions.
+  "production": {
+    "deadCode": false,
+    "health": true,
+    "dupes": true
   },
 
-  "duplicates": {
-    "ignore": [
-      // Test suites and their mocks repeat setup scaffolding by design
-      "**/__tests__/**",
-      "**/__mocks__/**",
-      "**/src/testing/**",
-      "**/*.test.ts",
-      "**/*.test.tsx",
-      // Hand-written docs pages share an intentional page skeleton
-      // (hero → signature → example → notes) — repetition here is the
-      // documentation format, not extractable logic.
-      "apps/website/src/pages/docs/getting-started/**",
-      "apps/website/src/pages/docs/guides/**",
-      "apps/website/src/pages/docs/api/**",
-      "apps/website/src/pages/docs/architecture/**"
-    ]
+  "health": {
+    // Goal: every production function's CRAP score stays below 35
+    "maxCrap": 35
   }
 }

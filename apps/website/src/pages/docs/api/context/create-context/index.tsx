@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -16,53 +18,24 @@ const CreateContext: Component = () => {
         code={`const ThemeContext = createContext<'light' | 'dark'>('dark');`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createContext"
         signature="createContext<T>(defaultValue?: T): Context<T>"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>defaultValue</code>
-            </td>
-            <td>
-              <code>T</code>
-            </td>
-            <td>
-              Optional. Value returned by <code>useContext</code> when no
-              Provider exists above.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>defaultValue</code></>, <><code>T</code></>, <>Optional. Value returned by <code>useContext</code> when no
+              Provider exists above.</>],
+        ]}
+        returns={
+          <>
       <p>
         A <code>Context&lt;T&gt;</code> object with a <code>Provider</code>{" "}
         component.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const ConfigContext = createContext<{ region: string }>();
 
 function App() {

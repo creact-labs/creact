@@ -16,13 +16,25 @@ function dispose(disposers: (() => void)[]): void {
 }
 
 interface MapArrayOptions<T> {
-  fallback?: Accessor<any>;
-  keyFn?: (item: T) => any;
+  fallback?: Accessor<unknown>;
+  keyFn?: (item: T) => unknown;
+}
+
+/** Render the fallback into slot 0 — it deliberately stands in for a mapped item */
+function renderFallbackRow<U>(
+  mapped: U[],
+  disposers: (() => void)[],
+  fallback: Accessor<unknown>,
+): void {
+  mapped[0] = createRoot((disposer) => {
+    disposers[0] = disposer;
+    return fallback();
+  }) as U;
 }
 
 /** Mutable bookkeeping for one mapArray instance */
 interface MapState<T, U> {
-  keys: (any | typeof FALLBACK)[];
+  keys: unknown[];
   mapped: U[];
   disposers: (() => void)[];
   len: number;
@@ -104,12 +116,12 @@ export function mapArray<T, U>(
 
 /** Inject key from keyFn onto the returned JSX element */
 function injectKey<T, U>(
-  keyFn: ((item: T) => any) | undefined,
+  keyFn: ((item: T) => unknown) | undefined,
   item: T,
   element: U,
 ): void {
   if (keyFn && element && typeof element === "object" && "type" in element) {
-    (element as any).key = keyFn(item);
+    (element as { key?: unknown }).key = keyFn(item);
   }
 }
 
@@ -157,10 +169,7 @@ function emptyKeyedFastPath<T, U>(
   }
   if (options.fallback) {
     state.keys = [FALLBACK];
-    state.mapped[0] = createRoot((disposer) => {
-      state.disposers[0] = disposer;
-      return options.fallback!();
-    });
+    renderFallbackRow(state.mapped, state.disposers, options.fallback);
     state.len = 1;
   }
   return state.mapped;
@@ -190,7 +199,7 @@ function updateKeyed<T, U>(
   };
 
   const keyToIndex = buildKeyIndex(state);
-  const newKeys: (any | typeof FALLBACK)[] = new Array(newLen);
+  const newKeys: unknown[] = new Array(newLen);
 
   // Map new items, reusing old ones where possible
   for (let j = 0; j < newLen; j++) {
@@ -225,8 +234,8 @@ function updateKeyed<T, U>(
 }
 
 /** Index map over the old keys (skipping empty slots) */
-function buildKeyIndex<T, U>(state: MapState<T, U>): Map<any, number> {
-  const keyToIndex = new Map<any, number>();
+function buildKeyIndex<T, U>(state: MapState<T, U>): Map<unknown, number> {
+  const keyToIndex = new Map<unknown, number>();
   for (let i = 0; i < state.len; i++) {
     const oldKey = state.keys[i];
     if (oldKey !== undefined) keyToIndex.set(oldKey, i);
@@ -296,7 +305,7 @@ interface IndexState<T, U> {
 export function indexArray<T, U>(
   list: Accessor<readonly T[] | undefined | null | false>,
   mapFn: (v: Accessor<T>, i: number) => U,
-  options: { fallback?: Accessor<any> } = {},
+  options: { fallback?: Accessor<unknown> } = {},
 ): () => U[] {
   const state: IndexState<T, U> = {
     items: [],
@@ -324,7 +333,7 @@ export function indexArray<T, U>(
 function reconcileIndexed<T, U>(
   state: IndexState<T, U>,
   newItems: readonly T[],
-  options: { fallback?: Accessor<any> },
+  options: { fallback?: Accessor<unknown> },
   mapper: (i: number, arr: readonly T[]) => (disposer: () => void) => U,
 ): U[] {
   const newLen = newItems.length;
@@ -362,7 +371,7 @@ function reconcileIndexed<T, U>(
 /** Empty list: dispose all rows, then render the fallback if provided */
 function emptyIndexedFastPath<T, U>(
   state: IndexState<T, U>,
-  options: { fallback?: Accessor<any> },
+  options: { fallback?: Accessor<unknown> },
 ): U[] {
   if (state.len !== 0) {
     dispose(state.disposers);
@@ -374,10 +383,7 @@ function emptyIndexedFastPath<T, U>(
   }
   if (options.fallback) {
     state.items = [FALLBACK];
-    state.mapped[0] = createRoot((disposer) => {
-      state.disposers[0] = disposer;
-      return options.fallback!();
-    });
+    renderFallbackRow(state.mapped, state.disposers, options.fallback);
     state.len = 1;
   }
   return state.mapped;

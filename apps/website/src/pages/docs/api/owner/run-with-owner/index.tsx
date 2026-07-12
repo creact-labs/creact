@@ -1,8 +1,11 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocTable from "@/shared/components/doc-table";
 
 const RunWithOwner: Component = () => {
   return (
@@ -13,57 +16,18 @@ const RunWithOwner: Component = () => {
         effects in async callbacks.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="runWithOwner"
         signature="runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined"
+        parameters={[
+          [<><code>owner</code></>, <><code>Owner | null</code></>, <>The owner scope to run under. Get this from{" "}
+              <code>getOwner()</code>. Accepts <code>null</code>.</>],
+          [<><code>fn</code></>, <><code>() =&gt; T</code></>, <>Function to run. Any effects/cleanups created inside are owned by{" "}
+              <code>owner</code>.</>],
+        ]}
       />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>owner</code>
-            </td>
-            <td>
-              <code>Owner | null</code>
-            </td>
-            <td>
-              The owner scope to run under. Get this from{" "}
-              <code>getOwner()</code>. Accepts <code>null</code>.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; T</code>
-            </td>
-            <td>
-              Function to run. Any effects/cleanups created inside are owned by{" "}
-              <code>owner</code>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`import { getOwner, runWithOwner, createEffect } from '@creact-labs/creact';
 
 function setup() {

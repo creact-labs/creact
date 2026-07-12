@@ -1,6 +1,7 @@
 import type { Component, ParentComponent } from "solid-js";
 import { Suspense, createEffect } from "solid-js";
 import { useLocation } from "@solidjs/router";
+import { t } from "@/i18n";
 import { SidebarProvider } from "@/pages/docs/layout/context/sidebar";
 import { TocProvider, useToc } from "@/shared/context/toc";
 import DocNav from "@/pages/docs/layout/components/doc-nav";
@@ -21,7 +22,7 @@ const DocsContent: ParentComponent = (props) => {
     <div class="docs-body">
       <Sidebar />
       <main class="docs-content">
-        <Suspense fallback={<div class="docs-loading">Loading...</div>}>
+        <Suspense fallback={<div class="docs-loading">{t("common.loading")}</div>}>
           <article class="docs-article">{props.children}</article>
         </Suspense>
         <PrevNext />

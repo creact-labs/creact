@@ -40,6 +40,8 @@ export interface SwitchProps {
    */
   fallback?: MaybeAccessor<CReactNode>;
   /** Match components as children */
+  // MatchResult<any>: each Match narrows a different T, and MatchResult is
+  // invariant in T (children callback), so no common non-any type exists
   children: MatchResult<any>[] | MatchResult<any>;
 }
 
@@ -93,37 +95,35 @@ export function Switch(props: SwitchProps): JSXElement {
 
   return createMemo(() => {
     for (const match of matches) {
-      // Check if this is a Match component result
-      if (
-        match &&
-        typeof match === "object" &&
-        "__match" in match &&
-        match.__match === MATCH_SYMBOL
-      ) {
-        const matchResult = match as unknown as MatchResult<unknown>;
-        // Unwrap the when value (supports accessor functions)
-        const value = access(matchResult.when);
-
-        if (value) {
-          // This match is truthy - render its children
-          const { children } = matchResult;
-
-          if (
-            typeof children === "function" &&
-            (children as Function).length > 0
-          ) {
-            // Children is a render function - pass accessor that accesss
-            const accessor = () =>
-              access(matchResult.when) as NonNullable<unknown>;
-            return untrack(() => (children as Function)(accessor));
-          }
-
-          return children;
-        }
+      if (isMatchResult(match) && access(match.when)) {
+        return renderMatch(match);
       }
     }
 
     // No match found - render fallback (access in case it's an accessor)
     return access(props.fallback);
   }) as unknown as JSXElement;
+}
+
+/** Is this child the result of a <Match> component? */
+function isMatchResult(match: unknown): match is MatchResult<unknown> {
+  return (
+    match !== null &&
+    typeof match === "object" &&
+    "__match" in match &&
+    (match as MatchResult<unknown>).__match === MATCH_SYMBOL
+  );
+}
+
+/** Render a truthy match's children, supporting render-function children */
+function renderMatch(match: MatchResult<unknown>) {
+  const { children } = match;
+
+  if (typeof children === "function" && children.length > 0) {
+    // Children is a render function — pass an accessor over the when value
+    const accessor = () => access(match.when) as NonNullable<unknown>;
+    return untrack(() => children(accessor));
+  }
+
+  return children;
 }

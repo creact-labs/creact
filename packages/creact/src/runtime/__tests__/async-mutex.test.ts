@@ -1,5 +1,5 @@
 import { describe, expect, it} from "vitest";
-import { delay} from "../../testing/testing";
+import { delay } from "@creact-labs/testing";
 import { AsyncMutex} from "../async-mutex";
 
 describe("AsyncMutex", () => {

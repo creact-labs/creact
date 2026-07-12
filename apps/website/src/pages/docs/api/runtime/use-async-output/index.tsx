@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
@@ -19,59 +21,18 @@ const UseAsyncOutput: Component = () => {
 });`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="useAsyncOutput"
         signature="useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>propsOrGetter</code>
-            </td>
-            <td>
-              <code>P | (() =&gt; P)</code>
-            </td>
-            <td>
-              Static props or a getter function for reactive tracking. When a
-              getter is used, the handler re-runs when dependencies change.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>handler</code>
-            </td>
-            <td>
-              <code>
+        parameters={[
+          [<><code>propsOrGetter</code></>, <><code>P | (() =&gt; P)</code></>, "Static props or a getter function for reactive tracking. When a getter is used, the handler re-runs when dependencies change."],
+          [<><code>handler</code></>, <><code>
                 (props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(()
                 =&gt; void) | void&gt; | void
-              </code>
-            </td>
-            <td>
-              Setup function that performs work and sets outputs. May return a
-              cleanup function (sync or async).
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+              </code></>, "Setup function that performs work and sets outputs. May return a cleanup function (sync or async)."],
+        ]}
+        returns={
+          <>
       <p>
         An object with accessor functions for each output key. For example, if
         you call
@@ -80,11 +41,11 @@ const UseAsyncOutput: Component = () => {
         </code>
         , the return has <code>result.url()</code>.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function WebSite(props: { name: () => string; content: () => string }) {
   const site = useAsyncOutput(props, async (p, setOutputs) => {
     // p.name() and p.content() are the resolved prop values

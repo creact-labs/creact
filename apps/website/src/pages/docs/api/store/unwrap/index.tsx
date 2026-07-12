@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const Unwrap: Component = () => {
   return (
@@ -12,41 +15,15 @@ const Unwrap: Component = () => {
         stripping all reactivity.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature name="unwrap" signature="unwrap<T>(store: T): T" />
+      <ApiReference
+        name="unwrap"
+        signature="unwrap<T>(store: T): T"
+        parameters={[
+          [<><code>store</code></>, <><code>T</code></>, <>A store proxy created by <code>createStore</code>.</>],
+        ]}
+      />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>store</code>
-            </td>
-            <td>
-              <code>T</code>
-            </td>
-            <td>
-              A store proxy created by <code>createStore</code>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [store, setStore] = createStore({ count: 0 });
 const plain = unwrap(store);
 

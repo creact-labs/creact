@@ -1,6 +1,6 @@
 import { faker} from "@faker-js/faker";
 import { describe, expect, it} from "vitest";
-import { InMemoryMemory} from "../../testing/mock-memory";
+import { InMemoryMemory } from "@creact-labs/testing";
 import { generateDeploymentState, generateSerializedNode} from "../__mocks__/generate-nodes";
 import type { Memory} from "../memory";
 import { StateMachine} from "../state-machine";

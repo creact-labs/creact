@@ -6,14 +6,22 @@
 
 import { lookupContext, setContext } from "../reactive/owner";
 
+/** Element shape produced by a context Provider (consumed by the renderer) */
+export interface ProviderElement<T> {
+  type: (props: { value: T; children: unknown }) => ProviderElement<T>;
+  props: { value: T; children: unknown };
+  __context: symbol;
+  __isProvider: true;
+}
+
 export interface Context<T> {
   id: symbol;
   defaultValue: T | undefined;
-  Provider: (props: { value: T; children: any }) => any;
+  Provider: (props: { value: T; children: unknown }) => ProviderElement<T>;
 }
 
 // Stack of values per context ID (used during render traversal)
-const contextStacks = new Map<symbol, any[]>();
+const contextStacks = new Map<symbol, unknown[]>();
 
 /**
  * Create a context for passing values down the tree
@@ -21,7 +29,10 @@ const contextStacks = new Map<symbol, any[]>();
 export function createContext<T>(defaultValue?: T): Context<T> {
   const id = Symbol("context");
 
-  const Provider = (props: { value: T; children: any }) => {
+  const Provider = (props: {
+    value: T;
+    children: unknown;
+  }): ProviderElement<T> => {
     return {
       type: Provider,
       props,
@@ -50,10 +61,12 @@ export function useContext<T>(context: Context<T>): T {
     return ownerValue;
   }
 
-  // Fall back to render-time stack
+  // Fall back to render-time stack. Values are stored untyped because one
+  // map holds every context's stack; each context id only ever receives
+  // values pushed through its own typed Provider.
   const stack = contextStacks.get(context.id);
   if (stack?.length) {
-    return stack[stack.length - 1];
+    return stack[stack.length - 1] as T;
   }
 
   return context.defaultValue as T;
@@ -95,7 +108,7 @@ export function clearContextStacks(): void {
 /**
  * Snapshot of context state at a point in time
  */
-export type ContextSnapshot = Map<symbol, any[]>;
+export type ContextSnapshot = Map<symbol, unknown[]>;
 
 /**
  * Capture current context state

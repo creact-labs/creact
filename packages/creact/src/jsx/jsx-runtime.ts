@@ -3,7 +3,12 @@
  */
 
 export interface JSXElement {
-  type: any;
+  type: unknown;
+  // Values stay `any` deliberately: props carry arbitrary user data, and
+  // interface-typed props objects (spread via <Comp {...props} />) are only
+  // assignable to an any-valued record — Record<string, unknown> rejects
+  // interfaces without index signatures. Same reason React types element
+  // props as any.
   props: Record<string, any>;
   key?: string | number;
 }
@@ -28,9 +33,9 @@ export type CReactNode =
 export namespace JSX {
   export type Element = JSXElement;
 
-  export interface IntrinsicElements {
-    [elemName: string]: any;
-  }
+  // CReact has no host elements (no DOM), so this stays empty and any
+  // lowercase JSX tag is a compile-time error by design.
+  export interface IntrinsicElements {}
 
   // key is handled automatically by JSX, not passed to component
   export interface IntrinsicAttributes {
@@ -47,9 +52,9 @@ export namespace JSX {
  * Create a JSX element
  */
 export function createElement(
-  type: any,
+  type: unknown,
   props: Record<string, any> | null,
-  ...children: any[]
+  ...children: unknown[]
 ): JSXElement {
   const normalizedProps: Record<string, any> = { ...props };
 
@@ -75,7 +80,7 @@ export const Fragment = Symbol.for("creact.fragment");
  * JSX runtime functions (for automatic JSX transform)
  */
 export function jsx(
-  type: any,
+  type: unknown,
   props: Record<string, any>,
   key?: string | number,
 ): JSXElement {
@@ -83,7 +88,7 @@ export function jsx(
 }
 
 export function jsxs(
-  type: any,
+  type: unknown,
   props: Record<string, any>,
   key?: string | number,
 ): JSXElement {

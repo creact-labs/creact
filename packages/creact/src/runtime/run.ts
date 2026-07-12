@@ -38,6 +38,7 @@ import {
   buildDependencyGraph,
   type ChangeSet,
   type DependencyGraph,
+  type ReconcilableNode,
   getReadyNodes,
   hasChanges,
   reconcile,
@@ -96,7 +97,7 @@ interface ExecutorState {
   /** Nodes whose props changed while their handler was in flight */
   dirtyWhileRunning: Set<string>;
   /** Nodes removed mid-cascade, torn down after the executor drains */
-  deferredDeletes: InstanceNode[];
+  deferredDeletes: ReconcilableNode[];
   /** Dependency graph over the current node set */
   graph: DependencyGraph;
   /** Lifetime handler-execution counter (infinite-cascade backstop) */
@@ -138,7 +139,7 @@ class CReactRuntime {
 
   // Called exactly once, synchronously inside render()'s createRoot —
   // dispose() cannot have run yet at that point
-  async run(element: any): Promise<void> {
+  async run(element: unknown): Promise<void> {
     try {
       await this.runInternal(element);
     } finally {
@@ -146,7 +147,7 @@ class CReactRuntime {
     }
   }
 
-  protected async runInternal(element: any): Promise<void> {
+  protected async runInternal(element: unknown): Promise<void> {
     // Capture the owner from render()'s createRoot NOW — after the first
     // await the synchronous owner context is gone and getOwner() is null
     const currentOwner = getOwner();
@@ -182,15 +183,15 @@ class CReactRuntime {
     }
 
     // Load previous state from memory
-    let previousNodes: InstanceNode[] = [];
+    let previousNodes: ReconcilableNode[] = [];
     const prevState = await this.stateMachine.getPreviousState(this.stackName);
     if (prevState) {
       this.stateMachine.restoreResourceStates(prevState.nodes);
-      prepareHydration(prevState.nodes as any);
+      prepareHydration(prevState.nodes);
       prepareOutputHydration(prevState.nodes);
       previousNodes = prevState.nodes.filter(
         (n) => n.outputs && Object.keys(n.outputs).length > 0,
-      ) as any;
+      );
     }
 
     clearNodeOwnership();
@@ -204,7 +205,7 @@ class CReactRuntime {
   }
 
   protected async applyChanges(
-    previousNodes: InstanceNode[],
+    previousNodes: ReconcilableNode[],
     isInitialRun = false,
   ): Promise<void> {
     if (this.disposed) return;
@@ -225,7 +226,7 @@ class CReactRuntime {
   }
 
   protected async applyChangesInternal(
-    previousNodes: InstanceNode[],
+    previousNodes: ReconcilableNode[],
     isInitialRun = false,
   ): Promise<void> {
     const changes = reconcile(previousNodes, this.currentNodes);
@@ -287,7 +288,7 @@ class CReactRuntime {
    * Tear down deleted resources in reverse topological order
    * (children before parents).
    */
-  protected async destroyNodes(deletes: InstanceNode[]): Promise<void> {
+  protected async destroyNodes(deletes: ReconcilableNode[]): Promise<void> {
     if (deletes.length === 0) return;
 
     const deleteGraph = buildDependencyGraph(deletes);
@@ -324,7 +325,7 @@ class CReactRuntime {
   protected async runExecutor(
     changes: ChangeSet,
     unchangedNodes: InstanceNode[],
-  ): Promise<InstanceNode[]> {
+  ): Promise<ReconcilableNode[]> {
     const state: ExecutorState = {
       pending: new Set([
         ...changes.deploymentOrder,
@@ -666,7 +667,7 @@ class CReactRuntime {
  * ```
  */
 export function render(
-  fn: () => any,
+  fn: () => unknown,
   memory: Memory,
   stackName: string,
   options?: RenderOptions,
@@ -688,7 +689,7 @@ export function render(
 
     // Inject stackName as key on root element
     if (element && typeof element === "object" && "type" in element) {
-      element.key = stackName;
+      (element as { key?: string }).key = stackName;
     }
 
     runtime

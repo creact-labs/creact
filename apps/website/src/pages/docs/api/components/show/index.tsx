@@ -1,7 +1,9 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const ShowApi: Component = () => {
   return (
@@ -17,10 +19,7 @@ const ShowApi: Component = () => {
 </Show>`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="Show"
         signature="Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement"
       />
@@ -28,55 +27,17 @@ const ShowApi: Component = () => {
       <DocHeading level={3} id="props">
         Props
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Prop</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>when</code>
-            </td>
-            <td>
-              <code>MaybeAccessor&lt;T | undefined | null | false&gt;</code>
-            </td>
-            <td>
-              Reactive condition. Children render when truthy. Accepts a value
-              or an accessor.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>fallback</code>
-            </td>
-            <td>
-              <code>MaybeAccessor&lt;CReactNode&gt;</code>
-            </td>
-            <td>
-              Optional content to render when <code>when</code> is falsy.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>children</code>
-            </td>
-            <td>
-              <code>
+      <DocTable
+        headers={["Prop", "Type", "Description"]}
+        rows={[
+          [<><code>when</code></>, <><code>MaybeAccessor&lt;T | undefined | null | false&gt;</code></>, "Reactive condition. Children render when truthy. Accepts a value or an accessor."],
+          [<><code>fallback</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, <>Optional content to render when <code>when</code> is falsy.</>],
+          [<><code>children</code></>, <><code>
                 CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt;
                 CReactNode)
-              </code>
-            </td>
-            <td>
-              Content to render, or a callback receiving the truthy value as an
-              accessor.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </code></>, "Content to render, or a callback receiving the truthy value as an accessor."],
+        ]}
+      />
 
       <DocHeading level={2} id="usage">
         Usage

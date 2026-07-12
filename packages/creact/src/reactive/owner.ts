@@ -94,7 +94,7 @@ export function createRoot<T>(
  * (Computation extends Owner, so this also works inside effects).
  * Returns the function for chaining.
  */
-export function onCleanup<T extends () => any>(fn: T): T {
+export function onCleanup<T extends () => unknown>(fn: T): T {
   const owner = getOwner();
   if (owner === null) {
     console.warn(

@@ -1,8 +1,11 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocTable from "@/shared/components/doc-table";
 
 const OnCleanup: Component = () => {
   return (
@@ -19,47 +22,20 @@ const OnCleanup: Component = () => {
 });`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="onCleanup"
         signature="onCleanup<T extends () => any>(fn: T): T"
+        parameters={[
+          [<><code>fn</code></>, <><code>() =&gt; any</code></>, "Cleanup function. Called when the owner disposes."],
+        ]}
+        returns={
+          <>
+      <p>The same function passed in, for convenience.</p>
+          </>
+        }
       />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; any</code>
-            </td>
-            <td>Cleanup function. Called when the owner disposes.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
-      <p>The same function passed in, for convenience.</p>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`createEffect(() => {
   const interval = setInterval(() => tick(), 1000);
   onCleanup(() => clearInterval(interval));

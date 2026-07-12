@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const MapArray: Component = () => {
   return (
@@ -12,71 +15,24 @@ const MapArray: Component = () => {
         or removed items cause re-computation.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="mapArray"
         signature="mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]"
+        parameters={[
+          [<><code>list</code></>, <><code>
+                Accessor&lt;readonly T[] | undefined | null | false&gt;
+              </code></>, "Reactive array source."],
+          [<><code>mapFn</code></>, <><code>
+                (v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U
+              </code></>, <>Map function. <code>v</code> is an accessor to the item.{" "}
+              <code>i</code> is a reactive index.</>],
+          [<><code>options</code></>, <><code>
+                {"{"} fallback?: Accessor; keyFn?: (item: T) =&gt; any {"}"}
+              </code></>, <>Optional. <code>keyFn</code> provides stable identity for items.</>],
+        ]}
       />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>list</code>
-            </td>
-            <td>
-              <code>
-                Accessor&lt;readonly T[] | undefined | null | false&gt;
-              </code>
-            </td>
-            <td>Reactive array source.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>mapFn</code>
-            </td>
-            <td>
-              <code>
-                (v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U
-              </code>
-            </td>
-            <td>
-              Map function. <code>v</code> is an accessor to the item.{" "}
-              <code>i</code> is a reactive index.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>options</code>
-            </td>
-            <td>
-              <code>
-                {"{"} fallback?: Accessor; keyFn?: (item: T) =&gt; any {"}"}
-              </code>
-            </td>
-            <td>
-              Optional. <code>keyFn</code> provides stable identity for items.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [items, setItems] = createSignal([
   { id: 1, name: 'Alpha' },
   { id: 2, name: 'Beta' },

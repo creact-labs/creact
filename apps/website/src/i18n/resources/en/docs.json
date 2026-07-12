@@ -1,0 +1,22 @@
+{
+  "toc_title": "On this page",
+  "prev": "Previous",
+  "next": "Next",
+  "toggle_sidebar": "Toggle sidebar",
+  "reference": "Reference",
+  "usage": "Usage",
+  "parameters": "Parameters",
+  "returns": "Returns",
+  "param_table": {
+    "parameter": "Parameter",
+    "type": "Type",
+    "description": "Description"
+  },
+  "copy": "Copy",
+  "copied": "Copied",
+  "callout": {
+    "info": "Note",
+    "warning": "Warning",
+    "tip": "Good to know"
+  }
+}

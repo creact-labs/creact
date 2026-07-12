@@ -16,7 +16,7 @@ export function queryNodes(
   return nodes.filter(predicate);
 }
 
-export function readOutput(node: InstanceNode, key: string): any {
+export function readOutput(node: InstanceNode, key: string): unknown {
   const signal = node.outputSignals.get(key);
   if (!signal) return undefined;
   return signal[0]();

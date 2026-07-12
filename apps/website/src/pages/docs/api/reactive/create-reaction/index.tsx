@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -13,63 +15,26 @@ const CreateReaction: Component = () => {
         re-armed.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createReaction"
         signature="createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>onInvalidate</code>
-            </td>
-            <td>
-              <code>() =&gt; void</code>
-            </td>
-            <td>Callback that fires once when tracked signals change.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>options</code>
-            </td>
-            <td>
-              <code>EffectOptions</code>
-            </td>
-            <td>
-              Optional. <code>name</code> for debugging.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>onInvalidate</code></>, <><code>() =&gt; void</code></>, "Callback that fires once when tracked signals change."],
+          [<><code>options</code></>, <><code>EffectOptions</code></>, <>Optional. <code>name</code> for debugging.</>],
+        ]}
+        returns={
+          <>
       <p>
         A function <code>(tracking: () =&gt; void) =&gt; void</code> that arms
         the reaction. Call it with a tracking expression. Signals read inside
         are tracked. When any of them change, <code>onInvalidate</code> fires
         once and tracking stops until you call the function again.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [count, setCount] = createSignal(0);
 
 const track = createReaction(() => {

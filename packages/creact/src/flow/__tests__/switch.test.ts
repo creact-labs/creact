@@ -1,6 +1,6 @@
 import { describe, expect, it} from "vitest";
+import { h } from "@creact-labs/testing";
 import { Match, Switch, createMemo, createRoot, createSignal} from "../../index";
-import { h} from "../../testing/testing";
 
 /**
  * Switch/Match control flow tests

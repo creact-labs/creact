@@ -1,4 +1,5 @@
 import type { Component } from "solid-js";
+import { t } from "@/i18n";
 import { useSidebar } from "@/pages/docs/layout/context/sidebar";
 
 const MobileSidebarToggle: Component = () => {
@@ -8,7 +9,7 @@ const MobileSidebarToggle: Component = () => {
     <button
       class="mobile-sidebar-toggle"
       onClick={toggle}
-      aria-label="Toggle sidebar"
+      aria-label={t("docs.toggle_sidebar")}
     >
       <svg
         viewBox="0 0 24 24"

@@ -42,8 +42,8 @@ export interface Computation<T> {
   user?: boolean;
   name?: string;
   // Owner fields
-  owned: any[] | null;
-  owner: any | null;
+  owned: Owner[] | null;
+  owner: Owner | null;
   context: Record<symbol, unknown> | null;
 }
 
@@ -136,7 +136,7 @@ export function createSignal<T>(
           const o = signal.observers![i]!;
           if (!o.state) {
             scheduleComputation(o);
-            if ((o as any).observers) markDownstream(o);
+            if ((o as { observers?: unknown }).observers) markDownstream(o);
           }
           o.state = STALE;
         }
@@ -222,7 +222,7 @@ export function on<S extends readonly unknown[], T>(
   options?: { defer?: boolean },
 ): (prevValue: T | undefined) => T;
 export function on<S, T>(
-  deps: Accessor<S> | Accessor<any>[],
+  deps: Accessor<S> | readonly Accessor<unknown>[],
   fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T,
   options?: { defer?: boolean },
 ): (prevValue: T | undefined) => T {
@@ -235,7 +235,7 @@ export function on<S, T>(
     if (isArray) {
       input = Array((deps as Accessor<S>[]).length) as unknown as S;
       for (let i = 0; i < (deps as Accessor<S>[]).length; i++) {
-        (input as unknown as any[])[i] = (deps as Accessor<S>[])[i]!();
+        (input as unknown[])[i] = (deps as Accessor<S>[])[i]!();
       }
     } else {
       input = (deps as Accessor<S>)() as S;
@@ -264,13 +264,13 @@ function getErrorSymbol(): symbol {
  * Walk the owner chain looking for error handlers (catchError boundaries).
  * If found, calls the handler. If not found, re-throws.
  */
-function handleError(err: unknown, owner: any): void {
+function handleError(err: unknown, owner: Owner | null): void {
   const sym = getErrorSymbol();
   const error = err instanceof Error ? err : new Error(String(err));
   const fns = sym && owner && owner.context && owner.context[sym];
   if (!fns) throw error;
   try {
-    for (const f of fns as ((err: any) => void)[]) f(error);
+    for (const f of fns as ((err: Error) => void)[]) f(error);
   } catch (e) {
     // owner is non-null here (fns came from owner.context)
     handleError(e, owner.owner);

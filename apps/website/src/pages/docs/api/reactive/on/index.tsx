@@ -1,7 +1,9 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const On: Component = () => {
   return (
@@ -18,59 +20,15 @@ const On: Component = () => {
 }));`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="on"
         signature="on<S, T>(deps: Accessor<S> | Accessor<any>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T"
+        parameters={[
+          [<><code>deps</code></>, <><code>Accessor&lt;S&gt; | Accessor[]</code></>, "Signal(s) to track explicitly."],
+          [<><code>fn</code></>, <><code>(input, prevInput, prevValue) =&gt; T</code></>, <>Callback. Runs untracked; only <code>deps</code> are tracked.</>],
+          [<><code>options.defer</code></>, <><code>boolean</code></>, <>If <code>true</code>, skips the first run.</>],
+        ]}
       />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>deps</code>
-            </td>
-            <td>
-              <code>Accessor&lt;S&gt; | Accessor[]</code>
-            </td>
-            <td>Signal(s) to track explicitly.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>(input, prevInput, prevValue) =&gt; T</code>
-            </td>
-            <td>
-              Callback. Runs untracked; only <code>deps</code> are tracked.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>options.defer</code>
-            </td>
-            <td>
-              <code>boolean</code>
-            </td>
-            <td>
-              If <code>true</code>, skips the first run.
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
       <DocHeading level={2} id="usage">
         Usage

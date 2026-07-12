@@ -1,9 +1,26 @@
-import { mkdtemp, rm, writeFile} from "node:fs/promises";
-import { tmpdir} from "node:os";
-import { join} from "node:path";
-import { afterAll, beforeAll, describe, expect, it, vi} from "vitest";
-import { AppRunner, loadVersion, parseCliArgs, runTypeCheck, startApp} from "../cli-main";
-import { loadTypeScript} from "../cli-typecheck";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { spinnerMock } from "../__mocks__/mock-ora";
+import * as logger from "../cli-logger.js";
+import {
+  AppRunner,
+  isSourceFile,
+  loadVersion,
+  parseCliArgs,
+  runCli,
+  runTypeCheck,
+  shutdown,
+  startApp,
+  watchLoop,
+} from "../cli-main.js";
+import { loadTypeScript } from "../cli-typecheck.js";
+
+// ora renders to a TTY — CLI output goes through the shared inspectable fake
+vi.mock("ora", async () =>
+  (await import("../__mocks__/mock-ora")).mockOraModule(),
+);
 
 // Fixture app in a tmp dir so tsImport resolves a real module
 let appDir: string;
@@ -198,5 +215,200 @@ describe("runTypeCheck", () => {
     const result = runTypeCheck(join(appDir, "app.ts"), appDir, () => explodingTs);
 
     expect(result).toBe(true);
+  });
+});
+
+describe("isSourceFile", () => {
+  it.each([
+    { label: "ts files restart", filename: "app.ts", expected: true },
+    { label: "tsx files restart", filename: "app.tsx", expected: true },
+    { label: "js files restart", filename: "app.js", expected: true },
+    { label: "jsx files restart", filename: "app.jsx", expected: true },
+    { label: "other files are ignored", filename: "notes.txt", expected: false },
+    { label: "null events (platform quirk) are ignored", filename: null, expected: false },
+    { label: "missing filenames are ignored", filename: undefined, expected: false },
+  ])("$label", ({ filename, expected }) => {
+    expect(isSourceFile(filename)).toBe(expected);
+  });
+});
+
+describe("shutdown", () => {
+  it("stops the spinner before disposing the app (spinner swallows SIGINT)", async () => {
+    const runner = new AppRunner();
+    await runner.runEntrypoint(join(appDir, "app.ts"));
+    (globalThis as any).__cliDisposeCount = 0;
+    // simulate Ctrl+C arriving while a spinner is active
+    logger.appStarting();
+
+    shutdown(runner);
+
+    expect(spinnerMock.stop).toHaveBeenCalled();
+    expect((globalThis as any).__cliDisposeCount).toBe(1);
+  }, 30000);
+});
+
+describe("runCli", () => {
+  it("prints help and exits 0 with no arguments", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const code = await runCli([], appDir, new AppRunner());
+
+      expect(code).toBe(0);
+      expect(logSpy.mock.calls.flat().join("\n")).toContain("creact <entrypoint>");
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it("reports usage errors and exits 1", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const code = await runCli(["--watch"], appDir, new AppRunner());
+
+      expect(code).toBe(1);
+      expect(logSpy.mock.calls.flat().join("\n")).toContain(
+        "--watch requires an entrypoint",
+      );
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it("runs the app once and exits 0", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const runner = new AppRunner();
+      (globalThis as any).__cliAppReady = false;
+
+      const code = await runCli(["app.ts"], appDir, runner);
+
+      expect(code).toBe(0);
+      expect((globalThis as any).__cliAppReady).toBe(true);
+      runner.dispose();
+    } finally {
+      logSpy.mockRestore();
+    }
+  }, 30000);
+
+  it("watch mode restarts on source changes and stops on abort", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const clearSpy = vi.spyOn(console, "clear").mockImplementation(() => {});
+    try {
+      const runner = new AppRunner();
+      const abort = new AbortController();
+      (globalThis as any).__cliDisposeCount = 0;
+
+      const running = runCli(
+        ["--watch", "app.ts"],
+        appDir,
+        runner,
+        abort.signal,
+      );
+      // let the first run finish and the watcher attach
+      await vi.waitFor(() => {
+        expect((globalThis as any).__cliAppReady).toBe(true);
+      });
+      await new Promise((r) => setTimeout(r, 200));
+
+      // a non-source file must NOT trigger a restart
+      await writeFile(join(appDir, "notes.txt"), "irrelevant");
+      await new Promise((r) => setTimeout(r, 300));
+      expect((globalThis as any).__cliDisposeCount).toBe(0);
+
+      // a source change restarts the app (disposing the previous run) —
+      // rewriting identical content still fires a change event
+      const appSource = await readFile(join(appDir, "app.ts"), "utf8");
+      await writeFile(join(appDir, "app.ts"), appSource);
+      await vi.waitFor(
+        () => {
+          expect(
+            (globalThis as any).__cliDisposeCount,
+          ).toBeGreaterThanOrEqual(1);
+        },
+        { timeout: 5000 },
+      );
+
+      abort.abort();
+      await expect(running).resolves.toBe(0);
+      runner.dispose();
+    } finally {
+      logSpy.mockRestore();
+      clearSpy.mockRestore();
+    }
+  }, 30000);
+});
+
+describe("watchLoop", () => {
+  it("resolves immediately when the signal is already aborted", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const abort = new AbortController();
+      abort.abort();
+
+      await expect(
+        watchLoop(new AppRunner(), join(appDir, "app.ts"), appDir, abort.signal),
+      ).resolves.toBeUndefined();
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it("does not restart when the changed code fails the type check", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const clearSpy = vi.spyOn(console, "clear").mockImplementation(() => {});
+    try {
+      const dir = await mkdtemp(join(tmpdir(), "creact-cli-watchbroken-"));
+      await writeFile(join(dir, "package.json"), '{ "type": "module" }');
+      await writeFile(join(dir, "tsconfig.json"), TSCONFIG);
+      await writeFile(
+        join(dir, "app.ts"),
+        `const n: number = "broken";\nexport default n;\n`,
+      );
+      const runner = new AppRunner();
+      const abort = new AbortController();
+      (globalThis as any).__cliDisposeCount = 0;
+
+      const running = watchLoop(runner, join(dir, "app.ts"), dir, abort.signal, () =>
+        loadTypeScript(process.cwd()),
+      );
+      await new Promise((r) => setTimeout(r, 300));
+
+      // touching the (type-broken) app triggers the check, which fails →
+      // the app must NOT be restarted
+      const source = await readFile(join(dir, "app.ts"), "utf8");
+      await writeFile(join(dir, "app.ts"), source);
+      await vi.waitFor(
+        () => {
+          const output = logSpy.mock.calls.flat().join("\n");
+          expect(output).toContain("app.ts");
+        },
+        { timeout: 5000 },
+      );
+      // give a would-be restart time to happen, then assert it didn't
+      await new Promise((r) => setTimeout(r, 500));
+      expect((globalThis as any).__cliDisposeCount).toBe(0);
+
+      abort.abort();
+      await expect(running).resolves.toBeUndefined();
+      await rm(dir, { recursive: true, force: true });
+    } finally {
+      logSpy.mockRestore();
+      clearSpy.mockRestore();
+    }
+  }, 30000);
+
+  it("rethrows real watcher failures (only aborts end the loop quietly)", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      await expect(
+        watchLoop(
+          new AppRunner(),
+          "/nonexistent-dir-for-watch/app.ts",
+          tmpdir(),
+        ),
+      ).rejects.toThrow();
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 });

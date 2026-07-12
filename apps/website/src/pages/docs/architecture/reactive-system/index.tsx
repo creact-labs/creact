@@ -1,7 +1,9 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import DocSteps from "@/shared/components/doc-steps";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import Callout from "@/shared/components/callout";
+import DocTable from "@/shared/components/doc-table";
 
 const ReactiveSystem: Component = () => {
   return (
@@ -46,81 +48,30 @@ const ReactiveSystem: Component = () => {
       <DocHeading level={2} id="execution-model">
         Execution Model
       </DocHeading>
-      <ol>
-        <li>
-          <strong>Signal write:</strong> marks all observers as STALE
-        </li>
-        <li>
-          <strong>Schedule:</strong> stale computations are added to the update
-          queue
-        </li>
-        <li>
-          <strong>Batch:</strong> multiple writes in a synchronous block are
-          batched
-        </li>
-        <li>
-          <strong>Run queue:</strong> pure computations (memos) run first, then
-          effects
-        </li>
-        <li>
-          <strong>Clean:</strong> before a computation re-runs, its old
-          dependencies are cleaned
-        </li>
-        <li>
-          <strong>Re-track:</strong> the computation re-runs, re-registering
-          dependencies
-        </li>
-      </ol>
+      <DocSteps
+        steps={[
+          { label: "Signal write", body: "marks all observers as STALE" },
+          { label: "Schedule", body: "stale computations are added to the update queue" },
+          { label: "Batch", body: "multiple writes in a synchronous block are batched" },
+          { label: "Run queue", body: "pure computations (memos) run first, then effects" },
+          { label: "Clean", body: "before a computation re-runs, its old dependencies are cleaned" },
+          { label: "Re-track", body: "the computation re-runs, re-registering dependencies" },
+        ]}
+      />
 
       <DocHeading level={2} id="source-modules">
         Source Modules
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Module</th>
-            <th>Responsibility</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>tracking.ts</code>
-            </td>
-            <td>
-              Core scheduler: runUpdates, runQueue, runComputation,
-              cleanComputation
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>signal.ts</code>
-            </td>
-            <td>createSignal, createMemo, on, catchError</td>
-          </tr>
-          <tr>
-            <td>
-              <code>effect.ts</code>
-            </td>
-            <td>
-              createEffect, createComputed, createRenderEffect, createReaction,
-              onCleanup, onMount
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>owner.ts</code>
-            </td>
-            <td>createRoot, getOwner, runWithOwner, ownership chain</td>
-          </tr>
-          <tr>
-            <td>
-              <code>selector.ts</code>
-            </td>
-            <td>createSelector, O(2) selection tracking</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Module", "Responsibility"]}
+        rows={[
+          [<><code>tracking.ts</code></>, "Core scheduler: runUpdates, runQueue, runComputation, cleanComputation"],
+          [<><code>signal.ts</code></>, "createSignal, createMemo, on, catchError"],
+          [<><code>effect.ts</code></>, "createEffect, createComputed, createRenderEffect, createReaction, onCleanup, onMount"],
+          [<><code>owner.ts</code></>, "createRoot, getOwner, runWithOwner, ownership chain"],
+          [<><code>selector.ts</code></>, "createSelector, O(2) selection tracking"],
+        ]}
+      />
 
       <DocHeading level={2} id="glitch-free">
         Glitch-Free Propagation

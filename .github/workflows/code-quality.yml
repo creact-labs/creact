@@ -52,6 +52,8 @@ jobs:
         run: npm run test:coverage -w packages/creact
       - name: testing package
         run: npm test -w packages/testing
+      - name: Website
+        run: npm test -w apps/website
       - name: Upload coverage (consumed by the fallow job)
         uses: actions/upload-artifact@v4
         with:
@@ -103,7 +105,10 @@ jobs:
         run: npx --yes fallow@3.3.0 health --coverage packages/creact/coverage/coverage-final.json
       - name: Audit changed files (PRs)
         if: github.event_name == 'pull_request'
-        run: npx --yes fallow@3.3.0 audit --base origin/${{ github.base_ref }}
+        run: >
+          npx --yes fallow@3.3.0 audit
+          --base origin/${{ github.base_ref }}
+          --coverage packages/creact/coverage/coverage-final.json
 
   # Single stable aggregate — THE required status check for branch
   # protection. Required checks are selected per job and job matrices/names

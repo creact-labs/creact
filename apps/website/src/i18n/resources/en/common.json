@@ -1,0 +1,9 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "loading": "Loading...",
+  "nav": {
+    "docs": "Docs",
+    "github": "GitHub"
+  }
+}

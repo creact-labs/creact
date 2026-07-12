@@ -1,6 +1,6 @@
 import { describe, expect, it} from "vitest";
+import { h } from "@creact-labs/testing";
 import { ErrorBoundary, createRoot, createSignal} from "../../index";
-import { h} from "../../testing/testing";
 
 /**
  * ErrorBoundary control flow tests

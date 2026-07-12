@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const IndexArray: Component = () => {
   return (
@@ -12,56 +15,19 @@ const IndexArray: Component = () => {
         primitive arrays.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="indexArray"
         signature="indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]"
+        parameters={[
+          [<><code>list</code></>, <><code>
+                Accessor&lt;readonly T[] | undefined | null | false&gt;
+              </code></>, "Reactive array source."],
+          [<><code>mapFn</code></>, <><code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code></>, <>Map function. <code>v</code> is an accessor (reactive).{" "}
+              <code>i</code> is a static index.</>],
+        ]}
       />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>list</code>
-            </td>
-            <td>
-              <code>
-                Accessor&lt;readonly T[] | undefined | null | false&gt;
-              </code>
-            </td>
-            <td>Reactive array source.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>mapFn</code>
-            </td>
-            <td>
-              <code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code>
-            </td>
-            <td>
-              Map function. <code>v</code> is an accessor (reactive).{" "}
-              <code>i</code> is a static index.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [names, setNames] = createSignal(['Alice', 'Bob', 'Charlie']);
 
 const upper = indexArray(names, (name, i) => {

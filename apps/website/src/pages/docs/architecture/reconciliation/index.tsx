@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import DocSteps from "@/shared/components/doc-steps";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 
 const Reconciliation: Component = () => {
@@ -14,37 +15,18 @@ const Reconciliation: Component = () => {
       <DocHeading level={2} id="how-it-works">
         How It Works
       </DocHeading>
-      <ol>
-        <li>
-          <strong>Render:</strong> the component tree is evaluated, producing a
-          fiber tree with instance nodes
-        </li>
-        <li>
-          <strong>Load state:</strong> the previous state is loaded from Memory
-        </li>
-        <li>
-          <strong>Diff:</strong> the reconciler compares previous and current
-          instance nodes by ID (path-based)
-        </li>
-        <li>
-          <strong>Change set:</strong> produces creates, updates, and deletes
-        </li>
-        <li>
-          <strong>Dependency graph:</strong> builds a parent-child dependency
-          graph from node paths
-        </li>
-        <li>
-          <strong>Topological sort:</strong> orders nodes so parents deploy
-          before children
-        </li>
-        <li>
-          <strong>Apply:</strong> handlers run for created and updated nodes,
-          cleanup runs for deleted nodes
-        </li>
-        <li>
-          <strong>Save state:</strong> the new state is persisted to Memory
-        </li>
-      </ol>
+      <DocSteps
+        steps={[
+          { label: "Render", body: "the component tree is evaluated, producing a fiber tree with instance nodes" },
+          { label: "Load state", body: "the previous state is loaded from Memory" },
+          { label: "Diff", body: "the reconciler compares previous and current instance nodes by ID (path-based)" },
+          { label: "Change set", body: "produces creates, updates, and deletes" },
+          { label: "Dependency graph", body: "builds a parent-child dependency graph from node paths" },
+          { label: "Topological sort", body: "orders nodes so parents deploy before children" },
+          { label: "Apply", body: "handlers run for created and updated nodes, cleanup runs for deleted nodes" },
+          { label: "Save state", body: "the new state is persisted to Memory" },
+        ]}
+      />
 
       <DocHeading level={2} id="change-detection">
         Change Detection

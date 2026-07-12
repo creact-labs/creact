@@ -30,7 +30,7 @@ export interface ErrorBoundaryProps {
    */
   fallback:
     | MaybeAccessor<CReactNode>
-    | ((err: any, reset: () => void) => CReactNode);
+    | ((err: Error, reset: () => void) => CReactNode);
   /**
    * Children to render (and catch errors from).
    * For reactive children, pass an accessor: `children={() => <Child />}`
@@ -67,7 +67,7 @@ export interface ErrorBoundaryProps {
  * ```
  */
 export function ErrorBoundary(props: ErrorBoundaryProps): JSXElement {
-  const [errored, setErrored] = createSignal<any>(undefined);
+  const [errored, setErrored] = createSignal<Error | undefined>(undefined);
 
   return createMemo(() => {
     const e = errored();
@@ -76,7 +76,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps): JSXElement {
       // Check if it's an error handler function (has parameters)
       if (typeof f === "function" && (f as Function).length > 0) {
         return untrack(() =>
-          (f as (err: any, reset: () => void) => CReactNode)(e, () =>
+          (f as (err: Error, reset: () => void) => CReactNode)(e, () =>
             setErrored(undefined),
           ),
         );

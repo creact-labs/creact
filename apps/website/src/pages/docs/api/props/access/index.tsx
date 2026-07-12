@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -16,49 +18,22 @@ const Access: Component = () => {
         code={`const value = access(props.count); // works for both 5 and () => 5`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="access"
         signature="access<T>(value: MaybeAccessor<T>): T"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>value</code>
-            </td>
-            <td>
-              <code>T | () =&gt; T</code>
-            </td>
-            <td>A value or an accessor function.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>value</code></>, <><code>T | () =&gt; T</code></>, "A value or an accessor function."],
+        ]}
+        returns={
+          <>
       <p>
         The unwrapped value of type <code>T</code>.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`import { access, type MaybeAccessor } from '@creact-labs/creact';
 
 function useConfig(region: MaybeAccessor<string>) {

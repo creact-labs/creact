@@ -4,12 +4,25 @@
  * Components run once; reactivity is handled via signals and effects.
  */
 
+import type { ContextSnapshot } from "../primitives/context";
 import type { Owner } from "../reactive/owner";
 import type { InstanceNode } from "./instance";
 
+/**
+ * What a fiber can represent: a function component, an intrinsic tag or
+ * internal marker ("text", "fragment", "reactive-boundary"), the Fragment
+ * symbol, or nothing (null/boolean children).
+ */
+export type FiberType =
+  | ((props: Record<string, unknown>) => unknown)
+  | string
+  | symbol
+  | null;
+
 export interface Fiber {
-  type: any;
-  props: Record<string, any>;
+  type: FiberType;
+  /** User-authored props — arbitrary shapes by design */
+  props: Record<string, unknown>;
   children: Fiber[];
   path: string[];
   key?: string | number;
@@ -17,8 +30,8 @@ export interface Fiber {
   // Instance bindings (from useAsyncOutput) - supports multiple instances per component
   instanceNodes: InstanceNode[];
 
-  // Store (from createStore)
-  store?: any;
+  /** Live createStore state attached by the renderer (JSON-serializable) */
+  store?: object;
 
   // Owner for reactive scope (effects, cleanups)
   owner?: Owner | null;
@@ -33,21 +46,24 @@ export interface Fiber {
 
   // Context snapshot captured when fiber is created (inside Provider tree)
   // Used to restore context when computation re-runs from reactive system
-  contextSnapshot?: Map<symbol, any[]>;
+  contextSnapshot?: ContextSnapshot;
 
   // Accessor function for reactive-boundary fibers (used for identity matching during reconciliation)
-  _accessor?: Function;
+  _accessor?: () => unknown;
 
-  // Original JSX element reference (used for identity matching of function component fibers)
-  _element?: any;
+  /**
+   * Original JSX element reference — used purely as an identity token when
+   * matching function-component fibers during reconciliation
+   */
+  _element?: unknown;
 }
 
 /**
  * Create a new fiber
  */
 export function createFiber(
-  type: any,
-  props: Record<string, any>,
+  type: FiberType,
+  props: Record<string, unknown>,
   path: string[],
   key?: string | number,
 ): Fiber {

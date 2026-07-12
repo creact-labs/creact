@@ -2,8 +2,26 @@
  * Global tracking context for reactive system
  */
 
+import type { Owner } from "./current-owner";
 import { setOwner } from "./current-owner";
 import type { Computation, Signal } from "./signal";
+
+// Computation<any> throughout this module is deliberate: the scheduler
+// manages heterogeneous computations whose value types are unrelated, and
+// Computation<T> is invariant in T (fn takes and returns T), so neither
+// unknown nor a union can hold the graph. Solid's scheduler types these
+// collections the same way.
+
+/**
+ * A computation that is also a signal (memo): carries downstream observers
+ * and a comparator on top of the Computation fields. Optional so plain
+ * Computation values flow in unchanged — callers gate on `observers`.
+ */
+type MemoLike = Computation<any> & {
+  observers?: Computation<any>[] | null;
+  observerSlots?: number[] | null;
+  comparator?: (prev: any, next: any) => boolean;
+};
 
 // Computation states
 export const STALE = 1;
@@ -24,14 +42,14 @@ let ExecCount = 0;
 const onFlushCallbacks = new Set<() => void>();
 
 // Late-bound error handler (set by signal.ts to avoid circular imports)
-let handleErrorFn: ((err: unknown, owner: any) => void) | null = null;
+let handleErrorFn: ((err: unknown, owner: Owner | null) => void) | null = null;
 
 /**
  * Register the error handler (called from signal.ts at module init)
  * @internal
  */
 export function registerHandleError(
-  fn: (err: unknown, owner: any) => void,
+  fn: (err: unknown, owner: Owner | null) => void,
 ): void {
   handleErrorFn = fn;
 }
@@ -254,13 +272,13 @@ function lookUpstream(node: Computation<any>): void {
   // PENDING is only ever set on observers (markDownstream), and observing
   // anything guarantees a sources array exists
   for (let i = 0; i < node.sources!.length; i++) {
-    const source = node.sources![i] as any;
+    const source = node.sources![i] as MemoLike;
     if (source.sources) {
       const state = source.state;
       if (state === STALE) {
         // Memos run at creation, so updatedAt is always set; skip sources
         // already brought up to date in this cycle
-        if (source.updatedAt < ExecCount) {
+        if (source.updatedAt! < ExecCount) {
           runTop(source);
         }
       } else if (state === PENDING) {
@@ -274,9 +292,9 @@ function lookUpstream(node: Computation<any>): void {
  * Mark downstream observers as pending.
  * Callers check `node.observers` before calling, so it is always non-null.
  */
-export function markDownstream(node: any): void {
-  for (let i = 0; i < node.observers.length; i++) {
-    const o = node.observers[i]!;
+export function markDownstream(node: MemoLike): void {
+  for (let i = 0; i < node.observers!.length; i++) {
+    const o = node.observers![i]! as MemoLike;
     if (!o.state) {
       o.state = PENDING;
       if (o.pure) Updates?.push(o);
@@ -303,12 +321,12 @@ export function updateComputation(node: Computation<any>): void {
  */
 function runComputation(
   node: Computation<any>,
-  value: any,
+  value: unknown,
   time: number,
 ): void {
-  let nextValue: any;
+  let nextValue: unknown;
   const prevListener = Listener;
-  const prevOwner = setOwner(node as any);
+  const prevOwner = setOwner(node);
   Listener = node;
 
   try {
@@ -353,14 +371,14 @@ function resetPureOnError(node: Computation<any>): void {
  */
 function commitComputationValue(
   node: Computation<any>,
-  nextValue: any,
+  nextValue: unknown,
   time: number,
 ): void {
   if (node.updatedAt && node.updatedAt > time) return;
 
   // If this is a memo (has observers), check if value changed and propagate
   if (node.updatedAt != null && "observers" in node) {
-    propagateMemoValue(node as any, nextValue);
+    propagateMemoValue(node as MemoLike, nextValue);
   } else {
     node.value = nextValue;
   }
@@ -371,14 +389,14 @@ function commitComputationValue(
  * Update a memo's value and mark its observers stale (skips when the
  * comparator reports no change)
  */
-function propagateMemoValue(memo: any, nextValue: any): void {
+function propagateMemoValue(memo: MemoLike, nextValue: unknown): void {
   if (memo.comparator?.(memo.value, nextValue)) return;
 
   memo.value = nextValue;
   if (!memo.observers?.length) return;
 
   for (let i = 0; i < memo.observers.length; i++) {
-    const o = memo.observers[i]!;
+    const o = memo.observers[i]! as MemoLike;
     if (!o.state) {
       // Only pure observers can be found clean mid-propagation: memos are
       // re-resolved on demand (resolvePending) while non-pure observers

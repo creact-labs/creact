@@ -26,6 +26,7 @@ export function createSelector<T, U = T>(
   source: Accessor<T>,
   fn: EqualityCheckerFunction<T, U> = equalFn as EqualityCheckerFunction<T, U>,
 ): (key: U) => boolean {
+  // Computation<any>: heterogeneous subscribers, invariant in T (see tracking.ts)
   const subs = new Map<U, Set<Computation<any>>>();
   const node = createComputation(
     (p: T | undefined) => {

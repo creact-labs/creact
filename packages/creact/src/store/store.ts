@@ -21,7 +21,8 @@ export type SetStoreFunction<T> = {
     k2: K2,
     value: T[K1][K2] | ((prev: T[K1][K2]) => T[K1][K2]),
   ): void;
-  (...args: any[]): void;
+  // Catch-all for paths deeper than two levels
+  (...args: unknown[]): void;
 };
 
 // Symbol to access the internal node
@@ -76,9 +77,9 @@ export function createStore<T extends object>(
   const node = createStoreNode(state);
   const proxy = node.proxy as T;
 
-  function setStore(...args: any[]): void {
+  function setStore(...args: unknown[]): void {
     if (args.length < 2) return;
-    updateStorePath(proxy, args);
+    updateStorePath(proxy as Record<PropertyKey, unknown>, args);
   }
 
   return [proxy, setStore as SetStoreFunction<T>];
@@ -208,7 +209,9 @@ function notifyProperty(node: StoreNode, prop: string | symbol): void {
       const observer = signal.observers![i]!;
       if (!observer.state) {
         scheduleComputation(observer);
-        if ((observer as any).observers) markDownstream(observer);
+        // memo-like observers fan out to their own observers
+        if ((observer as { observers?: unknown }).observers)
+          markDownstream(observer);
       }
       observer.state = 1; // STALE
     }
@@ -236,18 +239,21 @@ function setPropertyAtPath(
   notifyProperty(node, prop);
 }
 
-function updateStorePath(proxy: any, args: any[]): void {
+function updateStorePath(
+  proxy: Record<PropertyKey, unknown>,
+  args: readonly unknown[],
+): void {
   if (args.length === 2) {
     const [key, value] = args;
     const node = proxy[$NODE] as StoreNode | undefined;
     if (node) {
-      setPropertyAtPath(node, key, value);
+      setPropertyAtPath(node, key as string | symbol, value);
     }
   } else if (args.length > 2) {
-    const key = args[0];
+    const key = args[0] as PropertyKey;
     const nested = proxy[key];
     if (nested && typeof nested === "object") {
-      updateStorePath(nested, args.slice(1));
+      updateStorePath(nested as Record<PropertyKey, unknown>, args.slice(1));
     }
   }
 }
@@ -266,13 +272,23 @@ export function unwrap<T>(item: T): T {
 }
 
 // Hydration map for restoring state from Memory
-const hydrationMap: Map<string, any> = new Map();
+const hydrationMap = new Map<string, object>();
+
+/**
+ * The structural surface hydration needs from persisted nodes
+ * @internal
+ */
+export interface HydratableNode {
+  path: string[];
+  store?: object;
+  children?: HydratableNode[];
+}
 
 /**
  * Prepare hydration from previous nodes
  * @internal
  */
-export function prepareHydration(previousNodes: any[]): void {
+export function prepareHydration(previousNodes: HydratableNode[]): void {
   hydrationMap.clear();
 
   for (const node of flattenNodes(previousNodes)) {
@@ -291,13 +307,15 @@ export function hydrateStore<T>(fiberPath?: string[]): T | undefined {
   if (!fiberPath) return undefined;
   const key = fiberPath.join(".");
   const stored = hydrationMap.get(key);
-  return stored ? structuredClone(stored) : undefined;
+  // Persisted store state carries no type information — the caller declares
+  // the shape it originally stored.
+  return stored ? (structuredClone(stored) as T) : undefined;
 }
 
-function flattenNodes(nodes: any[]): any[] {
-  const result: any[] = [];
+function flattenNodes(nodes: HydratableNode[]): HydratableNode[] {
+  const result: HydratableNode[] = [];
 
-  function walk(node: any): void {
+  function walk(node: HydratableNode): void {
     result.push(node);
     if (node.children) {
       for (const child of node.children) {

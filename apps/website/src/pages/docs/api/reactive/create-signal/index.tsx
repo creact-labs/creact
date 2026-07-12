@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
@@ -14,56 +15,17 @@ const CreateSignal: Component = () => {
 
       <DocCodeBlock code={`const [count, setCount] = createSignal(0);`} />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createSignal"
         signature="createSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>value</code>
-            </td>
-            <td>
-              <code>T</code>
-            </td>
-            <td>
-              Initial value of the signal. Optional; omit for{" "}
-              <code>T | undefined</code>.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>options</code>
-            </td>
-            <td>
-              <code>SignalOptions&lt;T&gt;</code>
-            </td>
-            <td>
-              Optional. Set <code>equals</code> to <code>false</code> to disable
-              equality checks, or provide a custom comparator.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>value</code></>, <><code>T</code></>, <>Initial value of the signal. Optional; omit for{" "}
+              <code>T | undefined</code>.</>],
+          [<><code>options</code></>, <><code>SignalOptions&lt;T&gt;</code></>, <>Optional. Set <code>equals</code> to <code>false</code> to disable
+              equality checks, or provide a custom comparator.</>],
+        ]}
+        returns={
+          <>
       <p>
         A tuple of <code>[getter, setter]</code>:
       </p>
@@ -77,6 +39,9 @@ const CreateSignal: Component = () => {
           or a function <code>(prev) =&gt; next</code>.
         </li>
       </ul>
+          </>
+        }
+      />
 
       <DocHeading level={2} id="usage">
         Usage

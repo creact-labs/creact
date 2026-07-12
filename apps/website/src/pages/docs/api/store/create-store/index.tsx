@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -15,41 +17,14 @@ const CreateStore: Component = () => {
         code={`const [store, setStore] = createStore({ count: 0, user: { name: 'Alice' } });`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createStore"
         signature="createStore<T extends object>(value: T): [T, SetStoreFunction<T>]"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>value</code>
-            </td>
-            <td>
-              <code>T</code>
-            </td>
-            <td>Initial store value. Must be an object.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>value</code></>, <><code>T</code></>, "Initial store value. Must be an object."],
+        ]}
+        returns={
+          <>
       <p>
         A tuple of <code>[store, setStore]</code>:
       </p>
@@ -61,11 +36,11 @@ const CreateStore: Component = () => {
           <code>setStore</code>: setter that accepts path-based updates.
         </li>
       </ul>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [state, setState] = createStore({
   todos: [{ text: 'Learn CReact', done: false }],
 });

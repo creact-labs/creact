@@ -4,11 +4,8 @@
     "noEmit": true,
     "declaration": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "./src/jsx",
-    "paths": {
-      "@creact-labs/creact": ["./src"],
-      "@creact-labs/creact/jsx-runtime": ["./src/jsx/jsx-runtime"]
-    }
+    "jsxImportSource": "./src/jsx"
+    // workspace path mappings are inherited from the root tsconfig
   },
   "include": ["src/**/*"]
 }

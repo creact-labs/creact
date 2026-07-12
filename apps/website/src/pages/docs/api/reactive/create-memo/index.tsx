@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -14,65 +15,23 @@ const CreateMemo: Component = () => {
 
       <DocCodeBlock code={`const doubled = createMemo(() => count() * 2);`} />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createMemo"
         signature="createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>(prev: T | undefined) =&gt; T</code>
-            </td>
-            <td>Computation function. Receives previous value.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>value</code>
-            </td>
-            <td>
-              <code>T</code>
-            </td>
-            <td>Optional initial seed value.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>options</code>
-            </td>
-            <td>
-              <code>MemoOptions&lt;T&gt;</code>
-            </td>
-            <td>
-              Optional. <code>equals</code> for custom comparison.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>fn</code></>, <><code>(prev: T | undefined) =&gt; T</code></>, "Computation function. Receives previous value."],
+          [<><code>value</code></>, <><code>T</code></>, "Optional initial seed value."],
+          [<><code>options</code></>, <><code>MemoOptions&lt;T&gt;</code></>, <>Optional. <code>equals</code> for custom comparison.</>],
+        ]}
+        returns={
+          <>
       <p>
         An <code>Accessor&lt;T&gt;</code> that returns the memoized value. Acts
         as both a signal reader (trackable) and a computation (auto-updates).
       </p>
+          </>
+        }
+      />
 
       <DocHeading level={2} id="usage">
         Usage

@@ -1,8 +1,7 @@
 import { faker} from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi} from "vitest";
+import { InMemoryMemory, delay, h } from "@creact-labs/testing";
 import { For, Fragment, Show, createEffect, createSignal} from "../../index";
-import { InMemoryMemory} from "../../testing/mock-memory";
-import { delay, h} from "../../testing/testing";
 import { removeNodeFromRegistry, useAsyncOutput} from "../instance";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
@@ -751,7 +750,7 @@ describe("handlers throwing non-Error values", () => {
 
     function Rude() {
       useAsyncOutput({}, async () => {
-        // eslint-disable-next-line no-throw-literal
+        // intentionally a non-Error value — that's what this test verifies
         throw "string-failure";
       });
       return h(Fragment, {});

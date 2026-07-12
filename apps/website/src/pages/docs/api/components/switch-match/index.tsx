@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const SwitchMatch: Component = () => {
   return (
@@ -18,10 +21,7 @@ const SwitchMatch: Component = () => {
 </Switch>`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="Switch"
         signature="Switch(props: { fallback?: MaybeAccessor<CReactNode>; children: MatchResult<any>[] | MatchResult<any> }): JSXElement"
       />
@@ -36,75 +36,28 @@ const SwitchMatch: Component = () => {
       <p>
         <strong>Switch</strong>
       </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Prop</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fallback</code>
-            </td>
-            <td>
-              <code>MaybeAccessor&lt;CReactNode&gt;</code>
-            </td>
-            <td>Rendered when no Match is truthy.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>children</code>
-            </td>
-            <td>
-              <code>MatchResult[]</code>
-            </td>
-            <td>Match components.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Prop", "Type", "Description"]}
+        rows={[
+          [<><code>fallback</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, "Rendered when no Match is truthy."],
+          [<><code>children</code></>, <><code>MatchResult[]</code></>, "Match components."],
+        ]}
+      />
       <p>
         <strong>Match</strong>
       </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Prop</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>when</code>
-            </td>
-            <td>
-              <code>MaybeAccessor&lt;T | undefined | null | false&gt;</code>
-            </td>
-            <td>Condition for this branch. Accepts a value or an accessor.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>children</code>
-            </td>
-            <td>
-              <code>
+      <DocTable
+        headers={["Prop", "Type", "Description"]}
+        rows={[
+          [<><code>when</code></>, <><code>MaybeAccessor&lt;T | undefined | null | false&gt;</code></>, "Condition for this branch. Accepts a value or an accessor."],
+          [<><code>children</code></>, <><code>
                 CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt;
                 CReactNode)
-              </code>
-            </td>
-            <td>Content or callback receiving the truthy value.</td>
-          </tr>
-        </tbody>
-      </table>
+              </code></>, "Content or callback receiving the truthy value."],
+        ]}
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`<Switch>
   <Match when={() => env() === 'production'}>
     <ProductionStack replicas={3} />

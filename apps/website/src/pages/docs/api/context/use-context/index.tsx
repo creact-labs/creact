@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -13,52 +15,23 @@ const UseContext: Component = () => {
 
       <DocCodeBlock code={`const config = useContext(ConfigContext);`} />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="useContext"
         signature="useContext<T>(context: Context<T>): T"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>context</code>
-            </td>
-            <td>
-              <code>Context&lt;T&gt;</code>
-            </td>
-            <td>
-              The context object created by <code>createContext</code>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>context</code></>, <><code>Context&lt;T&gt;</code></>, <>The context object created by <code>createContext</code>.</>],
+        ]}
+        returns={
+          <>
       <p>
         The value from the nearest <code>Provider</code> above. If no Provider
         exists, returns the default value passed to <code>createContext</code>.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function Infrastructure() {
   const config = useContext(ConfigContext);
   console.log(config.region); // 'us-east-1'

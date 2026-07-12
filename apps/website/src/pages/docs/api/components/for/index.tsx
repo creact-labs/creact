@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const ForApi: Component = () => {
   return (
@@ -18,10 +21,7 @@ const ForApi: Component = () => {
 </For>`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="For"
         signature="For<T, U>(props: { each: MaybeAccessor<readonly T[] | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; keyFn?: (item: T) => any; children: (item: Accessor<T>, index: Accessor<number>) => U }): JSXElement"
       />
@@ -29,67 +29,22 @@ const ForApi: Component = () => {
       <DocHeading level={3} id="props">
         Props
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Prop</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>each</code>
-            </td>
-            <td>
-              <code>
+      <DocTable
+        headers={["Prop", "Type", "Description"]}
+        rows={[
+          [<><code>each</code></>, <><code>
                 MaybeAccessor&lt;readonly T[] | undefined | null | false&gt;
-              </code>
-            </td>
-            <td>
-              Reactive array to iterate over. Accepts a value or an accessor.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>fallback</code>
-            </td>
-            <td>
-              <code>MaybeAccessor&lt;CReactNode&gt;</code>
-            </td>
-            <td>Optional content when the list is empty.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>keyFn</code>
-            </td>
-            <td>
-              <code>(item: T) =&gt; any</code>
-            </td>
-            <td>Optional key function for stable item identity.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>children</code>
-            </td>
-            <td>
-              <code>
+              </code></>, "Reactive array to iterate over. Accepts a value or an accessor."],
+          [<><code>fallback</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, "Optional content when the list is empty."],
+          [<><code>keyFn</code></>, <><code>(item: T) =&gt; any</code></>, "Optional key function for stable item identity."],
+          [<><code>children</code></>, <><code>
                 (item: Accessor&lt;T&gt;, index: Accessor&lt;number&gt;) =&gt; U
-              </code>
-            </td>
-            <td>
-              Render function. <code>item</code> and <code>index</code> are
-              accessors.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </code></>, <>Render function. <code>item</code> and <code>index</code> are
+              accessors.</>],
+        ]}
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [sites, setSites] = createSignal([
   { name: 'blog', html: '<h1>Blog</h1>' },
   { name: 'docs', html: '<h1>Docs</h1>' },

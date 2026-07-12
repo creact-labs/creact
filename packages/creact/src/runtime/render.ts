@@ -18,8 +18,9 @@ import {
   type Owner,
   setOwner,
 } from "../reactive/owner";
-import type { Fiber } from "./fiber";
+import type { Fiber, FiberType } from "./fiber";
 import { createFiber } from "./fiber";
+import type { InstanceNode } from "./instance";
 
 // Dev mode flag
 const IS_DEV = process.env.NODE_ENV !== "production";
@@ -102,7 +103,10 @@ export function resetResourcePath(): void {
  * being deferred to the Effects queue — fiber tree mutations must be
  * visible immediately after signal writes within the same runUpdates batch.
  */
-function createReactiveBoundaryFiber(element: () => any, path: string[]): Fiber {
+function createReactiveBoundaryFiber(
+  element: () => unknown,
+  path: string[],
+): Fiber {
   const fiber = createFiber("reactive-boundary", {}, path);
   fiber._accessor = element;
 
@@ -158,10 +162,23 @@ function createReactiveBoundaryFiber(element: () => any, path: string[]): Fiber 
 }
 
 /**
+ * The dynamic shape of a JSX element object arriving from the jsx runtime,
+ * createElement, or a Provider factory. Elements are user-constructed data,
+ * so fields are validated structurally at each branch.
+ */
+interface RawElement {
+  type: FiberType;
+  props?: Record<string, unknown> & { value?: unknown; children?: unknown };
+  key?: string | number;
+  __isProvider?: boolean;
+  __context?: symbol;
+}
+
+/**
  * Handle empty children (null/undefined/boolean) and primitive text —
  * shared prologue of both render paths. Returns null for anything else.
  */
-function renderLeafFiber(element: any, path: string[]): Fiber | null {
+function renderLeafFiber(element: unknown, path: string[]): Fiber | null {
   if (element == null || typeof element === "boolean") {
     return createFiber(null, {}, path);
   }
@@ -176,13 +193,13 @@ function renderLeafFiber(element: any, path: string[]): Fiber | null {
 /**
  * Render a JSX element to a Fiber
  */
-export function renderFiber(element: any, path: string[]): Fiber {
+export function renderFiber(element: unknown, path: string[]): Fiber {
   const leaf = renderLeafFiber(element, path);
   if (leaf) return leaf;
 
   // Handle accessor functions (from Show, Switch, etc.) - create reactive boundary
   if (typeof element === "function" && element.length === 0) {
-    return createReactiveBoundaryFiber(element, path);
+    return createReactiveBoundaryFiber(element as () => unknown, path);
   }
 
   // Handle arrays
@@ -195,7 +212,8 @@ export function renderFiber(element: any, path: string[]): Fiber {
   }
 
   // Handle JSX element
-  const { type, props = {}, key } = element;
+  const el = element as RawElement;
+  const { type, props = {}, key } = el;
   const { children, ...restProps } = props;
 
   // Generate path segment
@@ -205,13 +223,13 @@ export function renderFiber(element: any, path: string[]): Fiber {
   const fiber = createFiber(type, restProps, fiberPath, key);
 
   // Check if this is a context provider
-  if (element.__isProvider && element.__context) {
-    pushContext(element.__context, props.value);
+  if (el.__isProvider && el.__context) {
+    pushContext(el.__context, props.value);
 
     try {
       fiber.children = renderChildren(children, fiberPath);
     } finally {
-      popContext(element.__context);
+      popContext(el.__context);
     }
 
     return fiber;
@@ -234,8 +252,8 @@ export function renderFiber(element: any, path: string[]): Fiber {
  */
 function executeComponent(
   fiber: Fiber,
-  type: Function,
-  props: Record<string, any>,
+  type: (props: Record<string, unknown>) => unknown,
+  props: Record<string, unknown>,
 ): void {
   fiber.props = props;
   fiber.contextSnapshot = getContextSnapshot();
@@ -316,7 +334,7 @@ function executeComponent(
  * After building the new children list, orphaned old fibers are cleaned up.
  */
 function renderChildren(
-  children: any,
+  children: unknown,
   parentPath: string[],
   oldChildren: Fiber[] = [],
 ): Fiber[] {
@@ -374,10 +392,10 @@ function renderChildren(
  */
 function buildIdentityMaps(oldChildren: Fiber[]): {
   oldAccessorMap: Map<Function, Fiber>;
-  oldElementMap: Map<any, Fiber>;
+  oldElementMap: Map<unknown, Fiber>;
 } {
   const oldAccessorMap = new Map<Function, Fiber>();
-  const oldElementMap = new Map<any, Fiber>();
+  const oldElementMap = new Map<unknown, Fiber>();
   for (const old of oldChildren) {
     if (old.type === "reactive-boundary" && old._accessor) {
       oldAccessorMap.set(old._accessor, old);
@@ -397,18 +415,18 @@ function buildIdentityMaps(oldChildren: Fiber[]): {
  * - Positional matching for plain JSX elements and providers
  */
 function renderFiberWithReconciliation(
-  element: any,
+  element: unknown,
   path: string[],
   oldAtPosition: Fiber | undefined,
   oldAccessorMap: Map<Function, Fiber>,
-  oldElementMap: Map<any, Fiber>,
+  oldElementMap: Map<unknown, Fiber>,
 ): Fiber {
   const leaf = renderLeafFiber(element, path);
   if (leaf) return leaf;
 
   // Handle accessor functions (from Show, Switch, etc.) - create reactive boundary
   if (typeof element === "function" && element.length === 0) {
-    return reconcileAccessorFiber(element, path, oldAccessorMap);
+    return reconcileAccessorFiber(element as () => unknown, path, oldAccessorMap);
   }
 
   if (Array.isArray(element)) {
@@ -416,13 +434,14 @@ function renderFiberWithReconciliation(
     return renderFiber(element, path);
   }
 
-  const { type, key } = element;
+  const el = element as RawElement;
+  const { type, key } = el;
   const name = key !== undefined ? String(key) : getNodeName(type);
   const fiberPath = [...path, name];
 
   // Provider reconciliation — positional matching
-  if (element.__isProvider && element.__context) {
-    return reconcileProviderFiber(element, fiberPath, oldAtPosition);
+  if (el.__isProvider && el.__context) {
+    return reconcileProviderFiber(el, fiberPath, oldAtPosition);
   }
 
   // Function component reconciliation — match by element object identity
@@ -430,12 +449,12 @@ function renderFiberWithReconciliation(
     return reconcileComponentFiber(element, path, oldElementMap);
   }
 
-  return reconcilePlainFiber(element, fiberPath, path, oldAtPosition);
+  return reconcilePlainFiber(el, fiberPath, path, oldAtPosition);
 }
 
 /** Match accessors by identity (handles For reorder correctly) */
 function reconcileAccessorFiber(
-  element: () => any,
+  element: () => unknown,
   path: string[],
   oldAccessorMap: Map<Function, Fiber>,
 ): Fiber {
@@ -453,9 +472,9 @@ function reconcileAccessorFiber(
  * object for reused items, so same reference = same component execution
  */
 function reconcileComponentFiber(
-  element: any,
+  element: unknown,
   path: string[],
-  oldElementMap: Map<any, Fiber>,
+  oldElementMap: Map<unknown, Fiber>,
 ): Fiber {
   const byElement = oldElementMap.get(element);
   if (byElement) {
@@ -468,7 +487,7 @@ function reconcileComponentFiber(
 
 /** Plain JSX element reconciliation — positional matching, update in place */
 function reconcilePlainFiber(
-  element: any,
+  element: RawElement,
   fiberPath: string[],
   path: string[],
   oldAtPosition: Fiber | undefined,
@@ -494,7 +513,7 @@ function reconcilePlainFiber(
  * the same provider, pushing the (possibly new) context value for children
  */
 function reconcileProviderFiber(
-  element: any,
+  element: RawElement,
   fiberPath: string[],
   oldAtPosition: Fiber | undefined,
 ): Fiber {
@@ -505,7 +524,8 @@ function reconcileProviderFiber(
     oldAtPosition && oldAtPosition.type === type ? oldAtPosition : undefined;
   const fiber = oldFiber ?? createFiber(type, restProps, fiberPath, key);
 
-  pushContext(element.__context, props.value);
+  // the caller's __isProvider branch guarantees __context is present
+  pushContext(element.__context as symbol, props.value);
 
   try {
     fiber.children = renderChildren(
@@ -514,7 +534,7 @@ function reconcileProviderFiber(
       oldFiber?.children ?? [],
     );
   } finally {
-    popContext(element.__context);
+    popContext(element.__context as symbol);
   }
 
   return fiber;
@@ -523,7 +543,7 @@ function reconcileProviderFiber(
 /**
  * Get node name from type
  */
-function getNodeName(type: any): string {
+function getNodeName(type: FiberType): string {
   if (typeof type === "string") {
     return type;
   }
@@ -538,8 +558,8 @@ function getNodeName(type: any): string {
 /**
  * Collect all instance nodes from fiber tree
  */
-export function collectInstanceNodes(fiber: Fiber): any[] {
-  const nodes: any[] = [];
+export function collectInstanceNodes(fiber: Fiber): InstanceNode[] {
+  const nodes: InstanceNode[] = [];
   // createFiber always initializes instanceNodes/children, so only the
   // root needs a null check
   function walk(f: Fiber): void {

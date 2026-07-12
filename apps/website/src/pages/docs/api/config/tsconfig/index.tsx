@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import Callout from "@/shared/components/callout";
+import DocTable from "@/shared/components/doc-table";
 
 const Tsconfig: Component = () => {
   return (
@@ -37,64 +38,16 @@ const Tsconfig: Component = () => {
       <DocHeading level={2} id="key-settings">
         Key Settings
       </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Setting</th>
-            <th>Value</th>
-            <th>Why</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>jsx</code>
-            </td>
-            <td>
-              <code>"react-jsx"</code>
-            </td>
-            <td>
-              Uses the automatic JSX transform (no manual imports needed).
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <code>jsxImportSource</code>
-            </td>
-            <td>
-              <code>"@creact-labs/creact"</code>
-            </td>
-            <td>Points JSX to CReact's runtime instead of React's.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>target</code>
-            </td>
-            <td>
-              <code>"ES2022"</code>
-            </td>
-            <td>CReact requires Node 18+ which supports ES2022.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>module</code>
-            </td>
-            <td>
-              <code>"ESNext"</code>
-            </td>
-            <td>CReact is ESM-only.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>moduleResolution</code>
-            </td>
-            <td>
-              <code>"bundler"</code>
-            </td>
-            <td>Best for modern ESM projects.</td>
-          </tr>
-        </tbody>
-      </table>
+      <DocTable
+        headers={["Setting", "Value", "Why"]}
+        rows={[
+          [<><code>jsx</code></>, <><code>"react-jsx"</code></>, "Uses the automatic JSX transform (no manual imports needed)."],
+          [<><code>jsxImportSource</code></>, <><code>"@creact-labs/creact"</code></>, "Points JSX to CReact's runtime instead of React's."],
+          [<><code>target</code></>, <><code>"ES2022"</code></>, "CReact requires Node 18+ which supports ES2022."],
+          [<><code>module</code></>, <><code>"ESNext"</code></>, "CReact is ESM-only."],
+          [<><code>moduleResolution</code></>, <><code>"bundler"</code></>, "Best for modern ESM projects."],
+        ]}
+      />
 
       <Callout type="info">
         <p>

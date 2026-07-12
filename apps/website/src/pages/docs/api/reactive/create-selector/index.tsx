@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -12,52 +14,15 @@ const CreateSelector: Component = () => {
         re-evaluate.
       </p>
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="createSelector"
         signature="createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>source</code>
-            </td>
-            <td>
-              <code>Accessor&lt;T&gt;</code>
-            </td>
-            <td>Signal that holds the currently selected value.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>(a: U, b: T) =&gt; boolean</code>
-            </td>
-            <td>
-              Optional comparator. Defaults to <code>===</code>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>source</code></>, <><code>Accessor&lt;T&gt;</code></>, "Signal that holds the currently selected value."],
+          [<><code>fn</code></>, <><code>(a: U, b: T) =&gt; boolean</code></>, <>Optional comparator. Defaults to <code>===</code>.</>],
+        ]}
+        returns={
+          <>
       <p>
         A function <code>(key: U) =&gt; boolean</code> that returns{" "}
         <code>true</code> if
@@ -65,11 +30,11 @@ const CreateSelector: Component = () => {
         selected and newly selected items re-evaluate. O(2) regardless of list
         size.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const [selected, setSelected] = createSignal('a');
 const isSelected = createSelector(selected);
 

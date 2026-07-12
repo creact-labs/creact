@@ -1,13 +1,12 @@
 import { faker} from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi} from "vitest";
+import { InMemoryMemory, h } from "@creact-labs/testing";
 import { Fragment, createStore} from "../../index";
 import { createEffect} from "../../reactive/effect";
 import { createRoot} from "../../reactive/owner";
 import { createMemo} from "../../reactive/signal";
 import { useAsyncOutput} from "../../runtime/instance";
 import { render, resetRuntime} from "../../runtime/run";
-import { InMemoryMemory} from "../../testing/mock-memory";
-import { h} from "../../testing/testing";
 import { clearHydration, hydrateStore, prepareHydration, unwrap} from "../store";
 
 function generateUser() {

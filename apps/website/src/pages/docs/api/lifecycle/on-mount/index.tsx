@@ -1,7 +1,10 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocTable from "@/shared/components/doc-table";
 
 const OnMount: Component = () => {
   return (
@@ -18,42 +21,15 @@ const OnMount: Component = () => {
 });`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature name="onMount" signature="onMount(fn: () => void): void" />
+      <ApiReference
+        name="onMount"
+        signature="onMount(fn: () => void): void"
+        parameters={[
+          [<><code>fn</code></>, <><code>() =&gt; void</code></>, "Function to run once on mount. Runs untracked; signal reads don't create dependencies."],
+        ]}
+      />
 
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; void</code>
-            </td>
-            <td>
-              Function to run once on mount. Runs untracked; signal reads don't
-              create dependencies.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`function App() {
   onMount(() => {
     console.log('App started');

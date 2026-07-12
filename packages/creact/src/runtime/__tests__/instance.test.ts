@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi} from "vitest";
+import { InMemoryMemory, h } from "@creact-labs/testing";
 import { Fragment, Show, createSignal} from "../../index";
-import { InMemoryMemory} from "../../testing/mock-memory";
-import { h} from "../../testing/testing";
 import { callAllCleanupFunctions, getAllNodes, getNodeById, removeNodeFromRegistry, shallowEqual, useAsyncOutput} from "../instance";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
@@ -497,6 +496,10 @@ describe("shallowEqual", () => {
 
   it("returns false for objects with different keys", () => {
     expect(shallowEqual({ a: 1 }, { b: 1 })).toBe(false);
+  });
+
+  it("returns false for different keys even when both values are undefined", () => {
+    expect(shallowEqual({ a: undefined }, { b: undefined })).toBe(false);
   });
 
   it("returns false for objects with different key count", () => {

@@ -163,7 +163,7 @@ export class StateMachine {
   async updateNodeOutputs(
     stackName: string,
     nodeId: string,
-    outputs: Record<string, any>,
+    outputs: Record<string, unknown>,
   ): Promise<void> {
     await this.mutateState(stackName, (state) => {
       const node = state.nodes.find((n) => n.id === nodeId);
@@ -224,7 +224,7 @@ export class StateMachine {
   async recordResourceApplied(
     stackName: string,
     nodeId: string,
-    outputs: Record<string, any>,
+    outputs: Record<string, unknown>,
   ): Promise<void> {
     this.setResourceState(nodeId, "deployed");
     await this.audit(stackName, "resource_applied", {

@@ -26,10 +26,10 @@ export type DeploymentStatus = "pending" | "applying" | "deployed" | "failed";
 export interface SerializedNode {
   id: string;
   path: string[];
-  props: Record<string, any>;
-  outputs?: Record<string, any>;
+  props: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
   state?: ResourceState;
-  store?: any;
+  store?: object;
 }
 
 /**
@@ -61,7 +61,7 @@ export interface AuditLogEntry {
     | "resource_applied"
     | "resource_destroyed";
   nodeId?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   user?: string;
 }
 
@@ -119,7 +119,7 @@ export interface Memory {
  * Guard: detect corrupted outputs (e.g. `id` should be string, not array) —
  * indicates a signal/proxy bug where outputs are read from the wrong node
  */
-function assertOutputIntegrity(node: InstanceNode, key: string, value: any) {
+function assertOutputIntegrity(node: InstanceNode, key: string, value: unknown) {
   if (key !== "id" || typeof value === "string") return;
 
   const valueType = Array.isArray(value) ? "array" : typeof value;
@@ -144,7 +144,7 @@ function assertOutputIntegrity(node: InstanceNode, key: string, value: any) {
  */
 export function serializeNode(node: InstanceNode): SerializedNode {
   // Extract current output values from signals
-  const outputs: Record<string, any> = {};
+  const outputs: Record<string, unknown> = {};
   for (const [key, [read]] of node.outputSignals) {
     const value = read();
     if (value !== undefined) {

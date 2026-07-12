@@ -1,5 +1,7 @@
 import type { Component } from "solid-js";
 import DocHeading from "@/shared/components/doc-heading";
+import UsageSection from "@/shared/components/usage-section";
+import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
 
@@ -20,78 +22,27 @@ export default async function() {
 }`}
       />
 
-      <DocHeading level={2} id="reference">
-        Reference
-      </DocHeading>
-      <ApiSignature
+      <ApiReference
         name="render"
         signature="render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult"
-      />
-
-      <DocHeading level={3} id="parameters">
-        Parameters
-      </DocHeading>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <code>fn</code>
-            </td>
-            <td>
-              <code>() =&gt; any</code>
-            </td>
-            <td>Function that returns the root component tree.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>memory</code>
-            </td>
-            <td>
-              <code>Memory</code>
-            </td>
-            <td>Required. State persistence backend.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>stackName</code>
-            </td>
-            <td>
-              <code>string</code>
-            </td>
-            <td>Required. Identifier for the state store.</td>
-          </tr>
-          <tr>
-            <td>
-              <code>options</code>
-            </td>
-            <td>
-              <code>RenderOptions</code>
-            </td>
-            <td>Optional. Additional render configuration.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <DocHeading level={3} id="returns">
-        Returns
-      </DocHeading>
+        parameters={[
+          [<><code>fn</code></>, <><code>() =&gt; any</code></>, "Function that returns the root component tree."],
+          [<><code>memory</code></>, <><code>Memory</code></>, "Required. State persistence backend."],
+          [<><code>stackName</code></>, <><code>string</code></>, "Required. Identifier for the state store."],
+          [<><code>options</code></>, <><code>RenderOptions</code></>, "Optional. Additional render configuration."],
+        ]}
+        returns={
+          <>
       <p>
         A <code>RenderResult</code> object (synchronous). The <code>ready</code>{" "}
         property is a <code>Promise&lt;void&gt;</code> that resolves when the
         initial deployment completes.
       </p>
+          </>
+        }
+      />
 
-      <DocHeading level={2} id="usage">
-        Usage
-      </DocHeading>
-      <DocCodeBlock
+      <UsageSection
         code={`const memory = new FileMemory('./.state');
 const result = render(() => <App />, memory, 'my-stack');
 await result.ready;`}

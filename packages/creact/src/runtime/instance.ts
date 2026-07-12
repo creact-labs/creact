@@ -11,6 +11,7 @@ import {
   type Setter,
 } from "../reactive/signal";
 import { batch, untrack } from "../reactive/tracking";
+import { plainObjectsEqualWith } from "./plain-objects-equal";
 import {
   getCurrentFiber,
   getCurrentResourcePath,
@@ -21,7 +22,7 @@ import {
  * Shallow equality check for output deduplication
  * @internal exported for tests
  */
-export function shallowEqual(a: any, b: any): boolean {
+export function shallowEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (typeof a !== "object" || typeof b !== "object") return false;
@@ -29,11 +30,14 @@ export function shallowEqual(a: any, b: any): boolean {
   if (Array.isArray(a)) return arraysShallowEqual(a, b);
   if (a instanceof Map) return mapsShallowEqual(a, b);
   if (a instanceof Set) return setsShallowEqual(a, b);
-  return plainObjectsShallowEqual(a, b);
+  return plainObjectsShallowEqual(
+    a as Record<string, unknown>,
+    b as Record<string, unknown>,
+  );
 }
 
 /** Array: compare length + elements by identity */
-function arraysShallowEqual(a: any[], b: any): boolean {
+function arraysShallowEqual(a: unknown[], b: unknown): boolean {
   if (!Array.isArray(b) || a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) return false;
@@ -42,7 +46,7 @@ function arraysShallowEqual(a: any[], b: any): boolean {
 }
 
 /** Map: compare size + entries by identity */
-function mapsShallowEqual(a: Map<any, any>, b: any): boolean {
+function mapsShallowEqual(a: Map<unknown, unknown>, b: unknown): boolean {
   if (!(b instanceof Map) || a.size !== b.size) return false;
   for (const [key, val] of a) {
     if (!b.has(key) || b.get(key) !== val) return false;
@@ -51,7 +55,7 @@ function mapsShallowEqual(a: Map<any, any>, b: any): boolean {
 }
 
 /** Set: compare size + membership */
-function setsShallowEqual(a: Set<any>, b: any): boolean {
+function setsShallowEqual(a: Set<unknown>, b: unknown): boolean {
   if (!(b instanceof Set) || a.size !== b.size) return false;
   for (const val of a) {
     if (!b.has(val)) return false;
@@ -61,16 +65,10 @@ function setsShallowEqual(a: Set<any>, b: any): boolean {
 
 /** Plain object: compare key sets + values by identity */
 function plainObjectsShallowEqual(
-  a: Record<string, any>,
-  b: Record<string, any>,
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
 ): boolean {
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (const key of keysA) {
-    if (a[key] !== b[key]) return false;
-  }
-  return true;
+  return plainObjectsEqualWith(a, b, (aValue, bValue) => aValue === bValue);
 }
 
 /**
@@ -97,12 +95,17 @@ export type Handler<P, O> = (
 export interface InstanceNode {
   id: string;
   path: string[];
+  // Props/outputs carry arbitrary user data. Values stay `any` so callers
+  // can read fields without casting, and so interface-typed user objects
+  // remain assignable (Record<string, unknown> rejects interfaces without
+  // index signatures). Handler<any, any> is a variance escape: the registry
+  // holds handlers whose P/O types are unrelated, and Handler is invariant.
   props: Record<string, any>;
   handler: Handler<any, any>;
   cleanupFn?: () => void | Promise<void>;
-  outputSignals: Map<string, [Accessor<any>, Setter<any>]>;
+  outputSignals: Map<string, [Accessor<unknown>, Setter<unknown>]>;
   children: InstanceNode[];
-  store?: any;
+  store?: object;
   outputs?: Record<string, any>;
   setOutputs(
     outputs:
@@ -118,7 +121,7 @@ const nodeRegistry = new Map<string, InstanceNode>();
 const nodeOwnership = new Map<string, string>();
 
 // Output hydration map
-const outputHydrationMap = new Map<string, Record<string, any>>();
+const outputHydrationMap = new Map<string, Record<string, unknown>>();
 
 interface SerializedNodeForHydration {
   id: string;
@@ -210,7 +213,8 @@ export function useAsyncOutput<
   assertSingleInstancePerComponent(fiber);
 
   // Only function components execute code, so fiber.type is always a function
-  const componentName = fiber.type.name || "Instance";
+  const componentType = fiber.type as (props: unknown) => unknown;
+  const componentName = componentType.name || "Instance";
   requireKey(fiber, componentName);
 
   // Generate deterministic ID using resource path + key
@@ -301,7 +305,7 @@ function requireKey(
  * Any prop other than 'children' undefined?
  * (JSX always passes 'children', even when undefined)
  */
-function hasUndefinedValues(props: Record<string, any>): boolean {
+function hasUndefinedValues(props: Record<string, unknown>): boolean {
   return Object.entries(props).some(
     ([key, value]) => key !== "children" && value === undefined,
   );
@@ -330,7 +334,7 @@ function claimOwnership(
 function upsertOutputSignal(
   node: InstanceNode,
   key: string,
-  value: any,
+  value: unknown,
 ): void {
   if (!node.outputSignals.has(key)) {
     node.outputSignals.set(key, createSignal(value));
@@ -381,7 +385,7 @@ function createInstanceNode(
 /** Does any output differ from what its signal currently holds? */
 function outputsDiffer(
   node: InstanceNode,
-  outputs: Record<string, any>,
+  outputs: Record<string, unknown>,
 ): boolean {
   for (const [key, value] of Object.entries(outputs)) {
     if (!node.outputSignals.has(key)) return true;
@@ -411,10 +415,10 @@ function hydrateNodeOutputs(node: InstanceNode, nodeId: string): void {
 function trackReactiveProps(
   ownerFiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
   node: InstanceNode,
-  getProps: () => any,
+  getProps: () => unknown,
 ): void {
   createEffect(() => {
-    const newProps = getProps() as Record<string, any>;
+    const newProps = getProps() as Record<string, unknown>;
     node.props = newProps;
 
     // Upgrade deferred placeholder → real instance node when deps resolve
@@ -436,7 +440,7 @@ function createOutputProxy<O extends Record<string, any>>(
   return new Proxy({} as OutputAccessors<O>, {
     get(_, key: string) {
       if (!node.outputSignals.has(key)) {
-        node.outputSignals.set(key, createSignal<any>());
+        node.outputSignals.set(key, createSignal<unknown>());
       }
       const [read] = node.outputSignals.get(key)!;
 

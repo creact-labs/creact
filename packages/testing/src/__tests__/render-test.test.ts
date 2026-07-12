@@ -4,10 +4,10 @@ import {
   useAsyncOutput,
 } from "@creact-labs/creact";
 import {
+  h,
   renderTest,
   InMemoryMemory,
 } from "../index";
-import { h } from "../testing/testing";
 
 afterEach(() => {
   resetRuntime();
