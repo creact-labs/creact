@@ -16,7 +16,10 @@ import {
   getOwner,
   type Owner,
 } from "../../src/reactive/owner";
-import { setOnFlushCallback } from "../../src/reactive/tracking";
+import {
+  addFlushCallback,
+  removeFlushCallback,
+} from "../../src/reactive/tracking";
 import { clearHydration, prepareHydration } from "../../store/src/store";
 import type { Fiber } from "./fiber";
 import type { InstanceNode } from "./instance";
@@ -27,6 +30,7 @@ import {
   clearOutputHydration,
   getNodeById,
   prepareOutputHydration,
+  removeNodeFromRegistry,
 } from "./instance";
 import type { Memory } from "./memory";
 import { serializeNodes } from "./memory";
@@ -46,10 +50,12 @@ import {
 import { StateMachine } from "./state-machine";
 
 export interface RenderOptions {
-  /** User identifier for audit logs */
+  /** User identifier for audit logs and lock ownership */
   user?: string;
   /** Enable audit logging (requires Memory support) */
   enableAuditLog?: boolean;
+  /** Lock TTL in seconds when the Memory backend supports locking (default 300) */
+  lockTtlSeconds?: number;
 }
 
 /**
@@ -81,28 +87,71 @@ class CReactRuntime {
   protected stackName: string;
   protected disposed = false;
   protected activeFlush: Promise<void> | null = null;
+  protected options: RenderOptions;
+  protected lockHeld = false;
+  protected flushCallback: () => void;
 
   constructor(memory: Memory, stackName: string, options: RenderOptions = {}) {
     this.memory = memory;
     this.stackName = stackName;
+    this.options = options;
 
     this.stateMachine = new StateMachine(memory, {
       user: options.user,
       enableAuditLog: options.enableAuditLog,
     });
 
-    setOnFlushCallback(() => this.handleReactiveFlush());
+    this.flushCallback = () => this.handleReactiveFlush();
+    addFlushCallback(this.flushCallback);
     activeRuntimes.add(this);
   }
+
+  protected initialRunComplete = false;
 
   async run(element: any): Promise<void> {
     if (this.disposed) {
       throw new Error("Cannot run disposed runtime");
     }
+    try {
+      await this.runInternal(element);
+    } finally {
+      this.initialRunComplete = true;
+    }
+  }
+
+  protected async runInternal(element: any): Promise<void> {
+    // Capture the owner from render()'s createRoot NOW — after the first
+    // await the synchronous owner context is gone and getOwner() is null
+    const currentOwner = getOwner();
+    if (currentOwner) {
+      this.rootOwner = currentOwner;
+    }
+
+    // Concurrent-deploy protection (when the Memory backend supports locking)
+    const acquired = await this.stateMachine.acquireLock(
+      this.stackName,
+      this.options.user ?? "creact-runtime",
+      this.options.lockTtlSeconds ?? 300,
+    );
+    if (!acquired) {
+      throw new Error(
+        `[CReact] Stack "${this.stackName}" is locked by another deployment`,
+      );
+    }
+    this.lockHeld = true;
 
     // Check for interrupted deployment
     if (await this.stateMachine.canResume(this.stackName)) {
-      await this.stateMachine.getInterruptedNodeIds(this.stackName);
+      const interrupted = await this.stateMachine.getInterruptedNodeIds(
+        this.stackName,
+      );
+      if (interrupted.length > 0) {
+        console.warn(
+          `[CReact] Resuming interrupted deployment of "${this.stackName}":`,
+          `${interrupted.length} node(s) were in-flight and will re-run:`,
+          interrupted,
+        );
+      }
     }
 
     // Load previous state from memory
@@ -118,12 +167,6 @@ class CReactRuntime {
     }
 
     clearNodeOwnership();
-
-    // Get the current owner from the createRoot in render()
-    const currentOwner = getOwner();
-    if (currentOwner) {
-      this.rootOwner = currentOwner;
-    }
 
     // Render (components run once) - runs inside the createRoot from render()
     this.rootFiber = renderFiber(element, []);
@@ -205,9 +248,13 @@ class CReactRuntime {
         if (node) {
           this.stateMachine.setResourceState(nodeId, "applying");
 
-          if (node.cleanupFn) {
-            await node.cleanupFn();
+          // Prefer the live registry node — snapshots may predate the
+          // handler run and therefore miss the cleanupFn it returned
+          const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
+          if (cleanup) {
+            await cleanup();
           }
+          removeNodeFromRegistry(nodeId);
 
           await this.stateMachine.recordResourceDestroyed(
             this.stackName,
@@ -219,6 +266,9 @@ class CReactRuntime {
       // Concurrent executor with eager cascading
       const deployed = new Set<string>();
       const running = new Map<string, Promise<string>>();
+      // Nodes whose props changed while their handler was in flight —
+      // they must re-run after completion so the handler sees fresh props
+      const dirtyWhileRunning = new Set<string>();
       const pending = new Set<string>([
         ...changes.deploymentOrder,
         ...unchangedNodes.map((n) => n.id),
@@ -305,9 +355,13 @@ class CReactRuntime {
           throw error;
         }
 
-        // 5. Move running → deployed
+        // 5. Move running → deployed (or re-queue if props changed mid-run)
         running.delete(completedId);
-        deployed.add(completedId);
+        if (dirtyWhileRunning.delete(completedId)) {
+          pending.add(completedId);
+        } else {
+          deployed.add(completedId);
+        }
 
         // 6. Eager cascade: re-collect nodes from fiber tree
         const newNodes = collectInstanceNodes(this.rootFiber!);
@@ -315,14 +369,19 @@ class CReactRuntime {
           const cascadeChanges = reconcile(this.currentNodes, newNodes);
           this.currentNodes = newNodes;
 
-          // Add new creates/updates to pending
+          // Add new creates to pending
           for (const node of cascadeChanges.creates) {
             if (!deployed.has(node.id) && !running.has(node.id)) {
               pending.add(node.id);
             }
           }
+          // Prop updates must re-run their handler — even for nodes that
+          // already deployed this pass (re-queue) or are running (mark dirty)
           for (const node of cascadeChanges.updates) {
-            if (!deployed.has(node.id) && !running.has(node.id)) {
+            if (running.has(node.id)) {
+              dirtyWhileRunning.add(node.id);
+            } else {
+              deployed.delete(node.id);
               pending.add(node.id);
             }
           }
@@ -332,6 +391,13 @@ class CReactRuntime {
 
           // Rebuild graph with all current nodes
           graph = buildDependencyGraph(this.currentNodes);
+
+          // Keep persisted node list in sync so cascade-born nodes are
+          // checkpointable (crash recovery) before completeDeployment
+          await this.stateMachine.syncNodes(
+            this.stackName,
+            serializeNodes(this.currentNodes),
+          );
         }
       }
 
@@ -348,9 +414,11 @@ class CReactRuntime {
           const node = deferredDeletes.find((n) => n.id === nodeId);
           if (node) {
             this.stateMachine.setResourceState(nodeId, "applying");
-            if (node.cleanupFn) {
-              await node.cleanupFn();
+            const cleanup = getNodeById(nodeId)?.cleanupFn ?? node.cleanupFn;
+            if (cleanup) {
+              await cleanup();
             }
+            removeNodeFromRegistry(nodeId);
             await this.stateMachine.recordResourceDestroyed(
               this.stackName,
               nodeId,
@@ -452,12 +520,19 @@ class CReactRuntime {
     if (this.disposed)
       throw new Error("Cannot call settled() on disposed runtime");
     while (true) {
+      if (!this.initialRunComplete) {
+        // Initial deployment still in flight (possibly before isApplying is set)
+        await new Promise<void>((r) => setTimeout(r, 0));
+        continue;
+      }
       if (this.activeFlush) {
         await this.activeFlush;
         continue;
       }
       if (this.isApplying || this.pendingFlush) {
-        await new Promise<void>((r) => queueMicrotask(r));
+        // Yield through the macrotask queue — a microtask spin here would
+        // starve timers and hang if an in-flight handler awaits a setTimeout
+        await new Promise<void>((r) => setTimeout(r, 0));
         continue;
       }
       if (this.saveStateTimeout) {
@@ -486,7 +561,14 @@ class CReactRuntime {
     this.disposed = true;
     activeRuntimes.delete(this);
 
-    setOnFlushCallback(null);
+    removeFlushCallback(this.flushCallback);
+
+    if (this.lockHeld) {
+      this.lockHeld = false;
+      void this.stateMachine.releaseLock(this.stackName).catch(() => {
+        // best-effort — lock TTL expires it anyway
+      });
+    }
 
     if (this.saveStateTimeout) {
       clearTimeout(this.saveStateTimeout);
@@ -562,8 +644,10 @@ export function render(
     rejectReady = reject;
   });
 
-  // Everything runs inside createRoot - this is the reactive boundary
-  createRoot(() => {
+  // Everything runs inside createRoot - this is the reactive boundary.
+  // The callback takes the dispose arg so createRoot allocates a real owner
+  // (a zero-arg callback would reuse the shared UNOWNED sentinel).
+  createRoot((_dispose) => {
     const element = fn();
 
     // Inject stackName as key on root element

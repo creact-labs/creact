@@ -6,7 +6,12 @@
  */
 
 import type { Signal } from "../../src/reactive/signal";
-import { getListener, scheduleComputation } from "../../src/reactive/tracking";
+import {
+  getListener,
+  markDownstream,
+  runUpdates,
+  scheduleComputation,
+} from "../../src/reactive/tracking";
 
 export type SetStoreFunction<T> = {
   <K extends keyof T>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void;
@@ -187,10 +192,19 @@ function notifyProperty(node: StoreNode, prop: string | symbol): void {
   const signal = node.signals.get(prop);
   if (!signal?.observers?.length) return;
 
-  for (const observer of signal.observers) {
-    observer.state = 1; // STALE
-    scheduleComputation(observer);
-  }
+  // Wrap in runUpdates so observers actually execute even when no batch is
+  // active (mirrors signal write semantics) — otherwise a setStore call from
+  // a plain async callback marks observers stale but never runs them
+  runUpdates(() => {
+    for (let i = 0; i < signal.observers!.length; i++) {
+      const observer = signal.observers![i]!;
+      if (!observer.state) {
+        scheduleComputation(observer);
+        if ((observer as any).observers) markDownstream(observer);
+      }
+      observer.state = 1; // STALE
+    }
+  }, false);
 }
 
 function setPropertyAtPath(

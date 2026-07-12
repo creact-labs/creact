@@ -19,8 +19,9 @@ let Effects: Computation<any>[] | null = null;
 // Execution counter for update cycle tracking
 let ExecCount = 0;
 
-// Callback for when computations are flushed (for runtime integration)
-let onFlushCallback: (() => void) | null = null;
+// Callbacks for when computations are flushed (for runtime integration)
+// A Set so multiple concurrent runtimes each receive flushes independently.
+const onFlushCallbacks = new Set<() => void>();
 
 // Late-bound error handler (set by signal.ts to avoid circular imports)
 let handleErrorFn: ((err: unknown, owner: any) => void) | null = null;
@@ -36,11 +37,18 @@ export function registerHandleError(
 }
 
 /**
- * Set callback to be called after computations are flushed
+ * Register a callback to be called after computations are flushed
  * Used by runtime to re-collect nodes after reactive updates
  */
-export function setOnFlushCallback(callback: (() => void) | null): void {
-  onFlushCallback = callback;
+export function addFlushCallback(callback: () => void): void {
+  onFlushCallbacks.add(callback);
+}
+
+/**
+ * Remove a previously registered flush callback
+ */
+export function removeFlushCallback(callback: () => void): void {
+  onFlushCallbacks.delete(callback);
 }
 
 /**
@@ -144,9 +152,9 @@ function completeUpdates(wait: boolean): void {
   Effects = null;
   if (e.length) runUpdates(() => runEffects(e), false);
 
-  // Notify runtime that computations were flushed
-  if (onFlushCallback) {
-    onFlushCallback();
+  // Notify runtimes that computations were flushed
+  for (const callback of onFlushCallbacks) {
+    callback();
   }
 }
 

@@ -67,8 +67,10 @@ export class StateMachine {
   restoreResourceStates(nodes: SerializedNode[]): void {
     this.resourceStates.clear();
     for (const node of nodes) {
-      // If node has outputs, it was previously deployed
-      const state = node.state ?? (node.outputs ? "deployed" : "pending");
+      // If node has non-empty outputs, it was previously deployed
+      const wasDeployed =
+        node.outputs && Object.keys(node.outputs).length > 0;
+      const state = node.state ?? (wasDeployed ? "deployed" : "pending");
       this.resourceStates.set(node.id, state);
     }
   }
@@ -134,6 +136,28 @@ export class StateMachine {
           node.outputs = outputs;
           await this.memory.saveState(stackName, state);
         }
+      }
+    });
+  }
+
+  /**
+   * Replace the persisted node list mid-deployment (eager cascade),
+   * preserving deployment status and the in-flight applying set.
+   * Ensures nodes born mid-cascade are checkpointable by updateNodeOutputs.
+   */
+  async syncNodes(stackName: string, nodes: SerializedNode[]): Promise<void> {
+    const mutex = this.getMutex(stackName);
+    await mutex.runExclusive(async () => {
+      const state = await this.memory.getState(stackName);
+      if (state) {
+        // Keep outputs already checkpointed for nodes the new snapshot lacks
+        const persisted = new Map(state.nodes.map((n) => [n.id, n]));
+        state.nodes = nodes.map((n) => {
+          if (n.outputs) return n;
+          const prev = persisted.get(n.id);
+          return prev?.outputs ? { ...n, outputs: prev.outputs } : n;
+        });
+        await this.memory.saveState(stackName, state);
       }
     });
   }

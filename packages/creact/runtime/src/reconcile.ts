@@ -230,10 +230,48 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   if (a == null || b == null) return false;
   if (typeof a !== typeof b) return false;
 
+  // NaN is the only value not equal to itself
+  if (typeof a === "number") {
+    return Number.isNaN(a) && Number.isNaN(b as number);
+  }
+
   if (typeof a === "object") {
     // Type guard: both are objects at this point
     const objA = a as Record<string, unknown>;
     const objB = b as Record<string, unknown>;
+
+    // Built-ins with no enumerable keys — compare by value, not by key walk
+    if (a instanceof Date || b instanceof Date) {
+      return (
+        a instanceof Date &&
+        b instanceof Date &&
+        a.getTime() === (b as Date).getTime()
+      );
+    }
+    if (a instanceof RegExp || b instanceof RegExp) {
+      return (
+        a instanceof RegExp &&
+        b instanceof RegExp &&
+        a.source === (b as RegExp).source &&
+        a.flags === (b as RegExp).flags
+      );
+    }
+    if (a instanceof Map || b instanceof Map) {
+      if (!(a instanceof Map) || !(b instanceof Map)) return false;
+      if (a.size !== b.size) return false;
+      for (const [key, value] of a) {
+        if (!b.has(key) || !deepEqual(value, b.get(key))) return false;
+      }
+      return true;
+    }
+    if (a instanceof Set || b instanceof Set) {
+      if (!(a instanceof Set) || !(b instanceof Set)) return false;
+      if (a.size !== b.size) return false;
+      for (const value of a) {
+        if (!b.has(value)) return false;
+      }
+      return true;
+    }
 
     if (Array.isArray(objA) !== Array.isArray(objB)) return false;
 

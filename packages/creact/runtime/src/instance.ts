@@ -436,6 +436,20 @@ export function callAllCleanupFunctions(): void {
 }
 
 /**
+ * Remove a deleted node from the registry and ownership maps.
+ * Clears cleanupFn so later sweeps (dispose/resetRuntime) can't double-call it.
+ * @internal
+ */
+export function removeNodeFromRegistry(nodeId: string): void {
+  const node = nodeRegistry.get(nodeId);
+  if (node) {
+    node.cleanupFn = undefined;
+    nodeRegistry.delete(nodeId);
+  }
+  nodeOwnership.delete(nodeId);
+}
+
+/**
  * Clear node registry (for testing)
  * @internal
  */
