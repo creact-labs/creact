@@ -7,7 +7,10 @@ on:
   pull_request:
     branches: [develop, release]
   push:
-    branches: [develop, release]
+    # develop only: pushes to release are merges of already-gated PRs, and
+    # release.yml re-runs this whole workflow there via workflow_call —
+    # a push trigger would run it a third time
+    branches: [develop]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
