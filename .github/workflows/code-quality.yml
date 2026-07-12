@@ -102,6 +102,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      # fallow resolves imports and dependency usage through node_modules —
+      # without an install it warns and degrades to less accurate results
+      - run: npm ci
       - name: Download merged coverage for exact CRAP scores
         uses: actions/download-artifact@v4
         with:
@@ -115,10 +119,122 @@ jobs:
         run: npx --yes fallow@3.3.0 health --coverage coverage/coverage-final.json
       - name: Audit changed files (PRs)
         if: github.event_name == 'pull_request'
-        run: >
-          npx --yes fallow@3.3.0 audit
-          --base origin/${{ github.base_ref }}
-          --coverage coverage/coverage-final.json
+        run: |
+          set -o pipefail
+          npx --yes fallow@3.3.0 audit \
+            --base "origin/${GITHUB_BASE_REF}" \
+            --coverage coverage/coverage-final.json | tee fallow-audit.txt
+      - name: Upload audit report (consumed by the Grok review)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fallow-audit
+          path: fallow-audit.txt
+          retention-days: 14
+
+  # AI review of the fallow audit — and ONLY the audit report, never the
+  # PR diff: Grok reads fallow's semantic-change findings (dead code,
+  # complexity, duplication, styling drift vs the base branch) as a
+  # seasoned release gatekeeper and stamps a proceed/block verdict, posted
+  # to the PR for the human approver to read before signing off. The
+  # rubric lives (versioned) in .github/prompts/fallow-review.md.
+  grok-review:
+    name: Grok Review
+    needs: [fallow]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write # verdict comment
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          # Only the versioned review prompt is needed from the repo
+          sparse-checkout: .github/prompts
+      - name: Download fallow audit report
+        uses: actions/download-artifact@v4
+        with:
+          name: fallow-audit
+      - name: Ask Grok for a verdict
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          # Strict schema: the model must reason through `analysis` before
+          # committing to `verdict` (field order is part of the contract)
+          jq -n --rawfile system .github/prompts/fallow-review.md \
+                --rawfile audit fallow-audit.txt '{
+            model: "grok-4.5",
+            temperature: 0,
+            max_tokens: 1500,
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "fallow_review_verdict",
+                strict: true,
+                schema: {
+                  type: "object",
+                  properties: {
+                    analysis: {type: "string"},
+                    concerns: {type: "array", items: {type: "string"}},
+                    verdict: {type: "string", enum: ["proceed", "block"]},
+                    summary: {type: "string"}
+                  },
+                  required: ["analysis", "concerns", "verdict", "summary"],
+                  additionalProperties: false
+                }
+              }
+            },
+            messages: [
+              {role: "system", content: $system},
+              {role: "user", content: $audit}
+            ]
+          }' > request.json
+          curl -sS --fail-with-body https://api.x.ai/v1/chat/completions \
+            -H "Authorization: Bearer ${XAI_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d @request.json > response.json
+          jq -e -r '.choices[0].message.content' response.json > verdict.json
+          # A malformed verdict fails loudly rather than silently passing
+          jq -e '.verdict and .summary' verdict.json > /dev/null
+      - name: Publish the verdict (summary + PR comment)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "### 🤖 Grok fallow review — **$(jq -r .verdict verdict.json)**"
+            echo
+            jq -r .summary verdict.json
+            echo
+            jq -r '(.concerns // [])[] | "- " + .' verdict.json
+          } > comment.md
+          cat comment.md >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+      - name: Gate on the verdict
+        run: |
+          VERDICT=$(jq -r .verdict verdict.json)
+          if [ "$VERDICT" != "proceed" ]; then
+            echo "::error::Grok blocked this change: $(jq -r .summary verdict.json)"
+            exit 1
+          fi
+          echo "Grok verdict: proceed"
+
+  # Human sign-off on the fallow audit + Grok verdict. The fallow-approval
+  # environment requires a reviewer, so this job waits in the Actions UI
+  # until someone approves the deployment — read the Grok comment on the
+  # PR first, then approve.
+  fallow-approval:
+    name: Fallow Approval
+    needs: [grok-review]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    environment: fallow-approval
+    steps:
+      - name: Record approval
+        run: echo "Fallow audit and Grok verdict approved by the reviewer."
 
   # Single stable aggregate — THE required status check for branch
   # protection. Required checks are selected per job and job matrices/names
@@ -127,18 +243,34 @@ jobs:
   # SKIP, and GitHub treats a skipped required check as a PASS.
   quality-gate:
     name: Quality Gate
-    needs: [typecheck, test, build, fallow]
+    needs: [typecheck, test, build, fallow, grok-review, fallow-approval]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
       - name: Verify all checks passed
+        env:
+          TYPECHECK: ${{ needs.typecheck.result }}
+          TEST: ${{ needs.test.result }}
+          BUILD: ${{ needs.build.result }}
+          FALLOW: ${{ needs.fallow.result }}
+          GROK: ${{ needs['grok-review'].result }}
+          APPROVAL: ${{ needs['fallow-approval'].result }}
         run: |
-          if [ "${{ needs.typecheck.result }}" != "success" ] || \
-             [ "${{ needs.test.result }}" != "success" ] || \
-             [ "${{ needs.build.result }}" != "success" ] || \
-             [ "${{ needs.fallow.result }}" != "success" ]; then
-            echo "::error::Quality gate failed (typecheck=${{ needs.typecheck.result }}, test=${{ needs.test.result }}, build=${{ needs.build.result }}, fallow=${{ needs.fallow.result }})"
+          FAILED=""
+          check() { # name result pr_only — pr_only jobs may be skipped on push
+            if [ "$2" = "success" ]; then return; fi
+            if [ "$3" = "pr-only" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ] && [ "$2" = "skipped" ]; then return; fi
+            FAILED="$FAILED $1=$2"
+          }
+          check typecheck "$TYPECHECK" always
+          check test "$TEST" always
+          check build "$BUILD" always
+          check fallow "$FALLOW" always
+          check grok-review "$GROK" pr-only
+          check fallow-approval "$APPROVAL" pr-only
+          if [ -n "$FAILED" ]; then
+            echo "::error::Quality gate failed:$FAILED"
             exit 1
           fi
           echo "All quality checks passed."

@@ -28,6 +28,11 @@ jobs:
     name: Quality
     permissions:
       contents: read
+      # Superset required by the called workflow's PR-only Grok job (it
+      # skips on push-triggered release runs, but the caller's grant must
+      # still cover every permission the called workflow declares)
+      pull-requests: write
+    secrets: inherit
     uses: ./.github/workflows/code-quality.yml
 
   publish:
