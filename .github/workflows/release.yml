@@ -1,9 +1,9 @@
 name: Release
 
 # Standardized release flow:
-#   1. Land work on main through PRs (Quality Gate required).
-#   2. Bump the version in packages/creact/package.json on main.
-#   3. Open a PR main → release; merging it is the release action.
+#   1. Land work on develop (the trunk; Quality Gate runs on every push/PR).
+#   2. Bump the version in packages/creact/package.json on develop.
+#   3. Open a PR develop → release; merging it is the release action.
 #   4. This workflow re-runs the full quality gate on release, then publishes
 #      to npm, tags vX.Y.Z, and creates a GitHub Release with generated notes.
 #      Every step is independently idempotent: a retry after a partial

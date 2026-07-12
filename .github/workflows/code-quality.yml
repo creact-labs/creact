@@ -5,9 +5,9 @@ on:
   # Reusable trigger so release.yml can gate publishing on this workflow.
   workflow_call:
   pull_request:
-    branches: [main, release]
+    branches: [develop, release]
   push:
-    branches: [main, release]
+    branches: [develop, release]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
