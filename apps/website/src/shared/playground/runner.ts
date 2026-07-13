@@ -2,7 +2,7 @@ import type { WebContainer, WebContainerProcess } from "@webcontainer/api";
 import { bootWebContainer, pipeOutput } from "./webcontainer";
 import { compileTsx } from "./compile";
 import { baseFiles, RUNNER } from "./project";
-import inspectorSource from "./container/inspector.mjs?raw";
+import inspectorSource from "./demos/inspector.mjs?raw";
 
 let basePromise: Promise<WebContainer> | undefined;
 const processes = new Map<string, WebContainerProcess>();

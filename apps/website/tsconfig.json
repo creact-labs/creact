@@ -22,5 +22,5 @@
   // Demo sources run inside the browser Node runtime against CReact's JSX, not
   // Solid's — they are loaded as ?raw strings and compiled in-browser, so they
   // are excluded from the site's type-check.
-  "exclude": ["src/shared/playground/demos", "src/shared/playground/container"]
+  "exclude": ["src/shared/playground/demos"]
 }

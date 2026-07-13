@@ -55,6 +55,11 @@ const LiveExample: Component<{ app: string; height?: string }> = (props) => {
     }
   }
 
+  // Hoisted out of the JSX so the component body stays branch-free.
+  const runLabel = () => (running() ? "Running…" : "▶ Run");
+  const codeLabel = () => (showCode() ? "Hide code" : "Edit code");
+  const bodyHeight = () => props.height ?? "380px";
+
   onMount(() => {
     // Warm the runtime in the background when the example nears the viewport.
     const observer = new IntersectionObserver(
@@ -87,17 +92,17 @@ const LiveExample: Component<{ app: string; height?: string }> = (props) => {
           <span class="cx-live-title">{demo().title}</span>
           <div class="cx-live-actions">
             <button class="cx-toggle" onClick={toggleCode}>
-              {showCode() ? "Hide code" : "Edit code"}
+              {codeLabel()}
             </button>
             <button class="cx-run" onClick={run} disabled={running()}>
-              {running() ? "Running…" : "▶ Run"}
+              {runLabel()}
             </button>
           </div>
         </div>
         <div
           class="cx-live-body"
           classList={{ "cx-code-hidden": !showCode() }}
-          style={{ height: props.height ?? "380px" }}
+          style={{ height: bodyHeight() }}
         >
           <div
             class="cx-live-editor"

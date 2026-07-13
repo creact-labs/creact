@@ -11,13 +11,9 @@ const distDir = join(creactDir, "dist");
 const outFile = join(here, "../public/creact-runtime.json");
 
 function walk(dir) {
-  const out = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...walk(full));
-    else if (entry.name.endsWith(".js")) out.push(full);
-  }
-  return out;
+  return readdirSync(dir, { withFileTypes: true, recursive: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".js"))
+    .map((entry) => join(entry.parentPath, entry.name));
 }
 
 // CReact's dist uses extensionless relative imports (fine under tsx, rejected
