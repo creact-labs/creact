@@ -25,6 +25,8 @@
   "heading_tallies": "Durable tallies",
   "tally_intro": "Uptime percentages need history that outlives the process, so each check owns a durable resource whose outputs are cumulative counters:",
   "tally_note": "The props getter is reactive, so the handler re-runs for every new sample and <0>setOutputs(prev => ...)</0> increments the persisted counters. The effect below it forwards the reactive accessors up as plain numbers.",
+  "tally_helper_intro": "The accumulation itself is a plain function, kept out of the handler so it stays easy to read and to test:",
+  "tally_helper_note": "<0>accumulateTally</0> takes the previously persisted counters and the newest sample and returns the next counters. It has no reactivity of its own, which is exactly why a unit test can pin its arithmetic down sample by sample.",
   "transitions_intro": "The check also announces status flips, using explicit dependency tracking:",
   "transitions_note": "<0>on</0> with <1>defer: true</1> skips the first run and hands the callback both the next and previous status. <2>untrack</2> reads the latency without subscribing to it.",
   "checkpoint": "Checkpoint: stop the process, keep <0>./.state</0>, and run <1>npm start</1> again. The handlers re-run, <2>prev</2> arrives with the persisted counters, and the uptime percentages continue from where they left off instead of resetting to 100. Delete <3>./.state</3> to start the history from scratch.",

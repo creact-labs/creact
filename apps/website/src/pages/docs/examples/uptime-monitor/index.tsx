@@ -145,12 +145,23 @@ const UptimeMonitor: Component = () => {
       </DocHeading>
       <p>{t("docs.examples.uptime_monitor.tally_intro")}</p>
       <DocCodeBlock
-        code={codeSample(httpCheckFile, "durable-tally")}
+        code={codeSample(httpCheckFile, "durable-tally-wiring")}
         filename={t("docs.examples.uptime_monitor.filename_http_check")}
       />
       <p>
         <Trans
           k="docs.examples.uptime_monitor.tally_note"
+          components={[Code]}
+        />
+      </p>
+      <p>{t("docs.examples.uptime_monitor.tally_helper_intro")}</p>
+      <DocCodeBlock
+        code={codeSample(httpCheckFile, "durable-tally")}
+        filename={t("docs.examples.uptime_monitor.filename_http_check")}
+      />
+      <p>
+        <Trans
+          k="docs.examples.uptime_monitor.tally_helper_note"
           components={[Code]}
         />
       </p>

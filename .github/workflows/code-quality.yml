@@ -62,6 +62,8 @@ jobs:
         run: npx vitest --run --coverage --root packages/testing
       - name: Website (with coverage)
         run: npx vitest --run --coverage --root apps/website
+      - name: Example apps (coverage feeds fallow CRAP for libs/examples)
+        run: npx vitest --run --coverage --root libs/examples
       - name: Merge coverage across workspaces
         run: npm run coverage:merge
       - name: Upload merged coverage (consumed by the fallow job)
