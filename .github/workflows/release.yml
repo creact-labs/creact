@@ -59,28 +59,32 @@ jobs:
 
       - run: npm ci
 
+      # The repo tag/release track the creact version; every package ships at
+      # the same version, so this is the release's version too.
       - name: Resolve version
         id: version
         run: |
           VERSION=$(node -p "require('./packages/creact/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          if npm view "@creact-labs/creact@$VERSION" version > /dev/null 2>&1; then
-            echo "published=true" >> "$GITHUB_OUTPUT"
-            echo "@creact-labs/creact@$VERSION already on npm — skipping publish."
-          else
-            echo "published=false" >> "$GITHUB_OUTPUT"
-          fi
 
-      - name: Build
-        if: steps.version.outputs.published == 'false'
-        # typecheck/tests already passed in the quality job
-        run: npm run build -w packages/creact --ignore-scripts
-
-      - name: Publish to npm (with provenance)
-        if: steps.version.outputs.published == 'false'
-        run: npm publish -w packages/creact --provenance --access public
+      # Publish creact, the vite plugin, and the scaffolder together. Each is
+      # independently idempotent: a package already on npm at its version is
+      # skipped, so a retry after a partial publish heals only what is missing.
+      - name: Publish packages to npm (with provenance)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for pkg in packages/creact packages/vite-plugin packages/create-creact; do
+            NAME=$(node -p "require('./$pkg/package.json').name")
+            PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
+            if npm view "$NAME@$PKG_VERSION" version > /dev/null 2>&1; then
+              echo "$NAME@$PKG_VERSION already on npm — skipping."
+              continue
+            fi
+            # typecheck/tests already passed in the quality job
+            npm run build -w "$NAME" --ignore-scripts
+            npm publish -w "$NAME" --provenance --access public
+          done
 
       # Not gated on the publish outputs: a retry after "published but not
       # tagged" (or "tagged but not released") must still heal the rest.

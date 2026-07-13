@@ -5,8 +5,10 @@
   "nav_github": "GitHub",
   "nav_aria": "Основная навигация",
   "hero_subtitle": "Используйте JSX для автоматизации durable-воркфлоу",
-  "get_started": "Начать",
-  "view_demo": "Смотреть демо",
-  "footer_license": "Apache 2.0",
-  "code_filename": "app.tsx"
+  "quickstart_label": "Создать новый проект",
+  "quickstart_command": "npm create creact@latest my-app",
+  "quickstart_copy": "Копировать",
+  "quickstart_copied": "Скопировано",
+  "get_started": "Читать документацию",
+  "footer_license": "Apache 2.0"
 }

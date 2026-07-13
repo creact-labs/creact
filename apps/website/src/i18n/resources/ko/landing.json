@@ -5,8 +5,10 @@
   "nav_github": "GitHub",
   "nav_aria": "메인 내비게이션",
   "hero_subtitle": "JSX로 내구성 있는 워크플로를 자동화하세요",
-  "get_started": "시작하기",
-  "view_demo": "데모 보기",
-  "footer_license": "Apache 2.0",
-  "code_filename": "app.tsx"
+  "quickstart_label": "새 프로젝트 시작",
+  "quickstart_command": "npm create creact@latest my-app",
+  "quickstart_copy": "복사",
+  "quickstart_copied": "복사됨",
+  "get_started": "문서 읽기",
+  "footer_license": "Apache 2.0"
 }

@@ -7,8 +7,8 @@
   --border: rgba(255, 255, 255, 0.15);
   --code-bg: #0a0a0a;
 
-  --font-sans: "Sora", -apple-system, blinkmacsystemfont, sans-serif;
-  --font-mono: "Fantasque Sans Mono", monospace;
+  --font-sans: "JetBrains Mono", ui-monospace, "SF Mono", menlo, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", menlo, monospace;
 
   --syn-keyword: #c792ea;
   --syn-function: #82aaff;
@@ -240,6 +240,62 @@ body {
   line-height: 1.5;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.hero-quickstart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.hero-quickstart-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.command-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 14px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
+.command-prompt {
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.command-text {
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.command-copy {
+  margin-left: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--code-inline-bg);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.command-copy:hover {
+  background: var(--docs-active);
+  color: var(--text);
 }
 
 .hero-cta {

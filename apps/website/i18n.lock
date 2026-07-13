@@ -5,8 +5,11 @@ checksums:
     nav_github: 6e1cf3c00fa6fbe24afcc78ea3b5f3e4
     nav_aria: 1eae14dc9836e545e2d7960f98c93481
     hero_subtitle: 0f916cce8a5147b505e0d7bbb2b610bd
-    get_started: 1d5f030c4ec9c869e647ae060518b948
-    view_demo: 163798ad323bb50d194d4a455c654964
+    quickstart_label: 33e38b212050fa5e0d91d350a4323e2e
+    quickstart_command: 7bd2c1e5915e0d2291b50509b2ab37c9
+    quickstart_copy: 627c00d2c850b9b45f7341a6ac01b6bb
+    quickstart_copied: 29208e06d704c4fc4b8b534dc7acc4ef
+    get_started: 011767197f68ee24db4d2ee5c1f80498
     footer_license: 89f970b6994546fefe5cc5bae73dea5b
   16be13461bb860d4c91cefcb7117700b:
     reference: fbba6b416a620e774c0fa80e167e5d46

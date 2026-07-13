@@ -5,8 +5,10 @@
   "nav_github": "GitHub",
   "nav_aria": "メインナビゲーション",
   "hero_subtitle": "JSX を使って耐久性のあるワークフローを自動化",
-  "get_started": "はじめる",
-  "view_demo": "デモを見る",
-  "footer_license": "Apache 2.0",
-  "code_filename": "app.tsx"
+  "quickstart_label": "新しいプロジェクトを開始",
+  "quickstart_command": "npm create creact@latest my-app",
+  "quickstart_copy": "コピー",
+  "quickstart_copied": "コピーしました",
+  "get_started": "ドキュメントを読む",
+  "footer_license": "Apache 2.0"
 }

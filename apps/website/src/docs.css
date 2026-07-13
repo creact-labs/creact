@@ -270,16 +270,31 @@
   color: var(--code-inline-text);
 }
 
+/* When Shiki highlights the inline chip, its token spans carry the color, so
+   the chip drops its fallback text tint and keeps only the subtle pill. */
+.docs-article code.inline-code:has(span) {
+  color: inherit;
+}
+
+/* =============================================
+   PARAMETER / DATA TABLES
+   ============================================= */
+
 .docs-article table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin-bottom: 24px;
   font-size: 14px;
+  border: 1px solid var(--docs-border);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .docs-article th {
   text-align: left;
-  padding: 10px 16px;
+  padding: 12px 16px;
+  background: var(--code-header-bg);
   border-bottom: 1px solid var(--docs-border);
   color: var(--text);
   font-weight: 600;
@@ -287,10 +302,31 @@
 }
 
 .docs-article td {
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--td-border);
   color: var(--text-muted);
   line-height: 1.5;
+  vertical-align: top;
+}
+
+/* Last row has the container border below it, so drop its own separator. */
+.docs-article tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* First column reads as the label for the row. */
+.docs-article tbody td:first-child {
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.docs-article tbody tr {
+  transition: background 0.12s;
+}
+
+.docs-article tbody tr:hover {
+  background: var(--docs-active);
 }
 
 td code {
@@ -384,11 +420,17 @@ td code {
   background: var(--code-bg);
 }
 
-/* Code inside a pre is the block itself — undo inline-code styling */
-pre code {
+/* Code inside a pre is the block itself, not an inline chip — the reset
+   must out-specify `.docs-article code`, so scope it to the block. Without
+   this the <code> keeps the inline pill's translucent background and padding,
+   which reads as a lighter box floating inside the darker <pre>. */
+.docs-article .doc-code-block pre code,
+.doc-code-block pre code {
   background: none;
   padding: 0;
   border-radius: 0;
+  border: none;
+  color: inherit;
   font-size: inherit;
 }
 
@@ -399,7 +441,8 @@ pre code {
   .doc-code-block pre {
     color: var(--shiki-dark);
   }
-  pre span {
+  pre span,
+  .inline-code span {
     color: var(--shiki-dark);
     font-style: var(--shiki-dark-font-style);
     font-weight: var(--shiki-dark-font-weight);
@@ -411,7 +454,8 @@ pre code {
   .doc-code-block pre {
     color: var(--shiki-light);
   }
-  pre span {
+  pre span,
+  .inline-code span {
     color: var(--shiki-light);
     font-style: var(--shiki-light-font-style);
     font-weight: var(--shiki-light-font-weight);

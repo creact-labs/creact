@@ -5,8 +5,10 @@
   "nav_github": "GitHub",
   "nav_aria": "主导航",
   "hero_subtitle": "使用 JSX 自动化持久工作流",
-  "get_started": "开始使用",
-  "view_demo": "查看演示",
-  "footer_license": "Apache 2.0",
-  "code_filename": "app.tsx"
+  "quickstart_label": "开始新项目",
+  "quickstart_command": "npm create creact@latest my-app",
+  "quickstart_copy": "复制",
+  "quickstart_copied": "已复制",
+  "get_started": "阅读文档",
+  "footer_license": "Apache 2.0"
 }

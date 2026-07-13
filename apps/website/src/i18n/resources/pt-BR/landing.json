@@ -5,8 +5,10 @@
   "nav_github": "GitHub",
   "nav_aria": "Navegação principal",
   "hero_subtitle": "Use JSX para automatizar workflows duráveis",
-  "get_started": "Começar",
-  "view_demo": "Ver demo",
-  "footer_license": "Apache 2.0",
-  "code_filename": "app.tsx"
+  "quickstart_label": "Iniciar um novo projeto",
+  "quickstart_command": "npm create creact@latest my-app",
+  "quickstart_copy": "Copiar",
+  "quickstart_copied": "Copiado",
+  "get_started": "Ler a documentação",
+  "footer_license": "Apache 2.0"
 }
