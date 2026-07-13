@@ -118,37 +118,42 @@ jobs:
         with:
           name: coverage-merged
           path: coverage
+      # Each aspect both hard-gates the build (non-zero exit fails the job)
+      # AND appends its full report to fallow-report.txt, so the Grok review
+      # sees all four — dead code, duplication, health (score, large
+      # functions, hotspots, coupling), and the changed-files audit — not
+      # just the audit. pipefail keeps the gate: a failing aspect fails here.
       - name: Dead code
-        run: npx --yes fallow@3.3.0 dead-code
+        run: |
+          set -o pipefail
+          { echo "=== DEAD CODE ==="; npx --yes fallow@3.3.0 dead-code; echo; } 2>&1 | tee -a fallow-report.txt
       - name: Duplication
-        run: npx --yes fallow@3.3.0 dupes
+        run: |
+          set -o pipefail
+          { echo "=== DUPLICATION ==="; npx --yes fallow@3.3.0 dupes; echo; } 2>&1 | tee -a fallow-report.txt
       - name: Health (CRAP < 15, zero findings)
-        run: npx --yes fallow@3.3.0 health --coverage coverage/coverage-final.json
+        run: |
+          set -o pipefail
+          { echo "=== HEALTH ==="; npx --yes fallow@3.3.0 health --coverage coverage/coverage-final.json; echo; } 2>&1 | tee -a fallow-report.txt
       - name: Audit changed files (PRs)
         if: github.event_name == 'pull_request'
         run: |
           set -o pipefail
-          # fallow prints the scope/summary lines on stderr and only the
-          # findings on stdout — merge both so a clean audit still hands
-          # the Grok review a real report instead of an empty file
-          npx --yes fallow@3.3.0 audit \
-            --base "origin/${GITHUB_BASE_REF}" \
-            --coverage coverage/coverage-final.json 2>&1 | tee fallow-audit.txt
-      - name: Upload audit report (consumed by the Grok review)
+          { echo "=== AUDIT (changed files vs ${GITHUB_BASE_REF}) ==="; npx --yes fallow@3.3.0 audit --base "origin/${GITHUB_BASE_REF}" --coverage coverage/coverage-final.json; echo; } 2>&1 | tee -a fallow-report.txt
+      - name: Upload fallow report (consumed by the Grok review)
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: fallow-audit
-          path: fallow-audit.txt
+          name: fallow-report
+          path: fallow-report.txt
           retention-days: 14
 
-  # AI review of the fallow audit — and ONLY the audit report, never the
-  # PR diff: Grok reads fallow's semantic-change findings (dead code,
-  # complexity, duplication, styling drift vs the base branch) as a
-  # seasoned release gatekeeper with full autonomy: its proceed/block
-  # verdict IS the gate, and the analysis is published to the PR either
-  # way (one comment, edited in place on re-runs). The rubric lives
-  # (versioned) in .github/prompts/fallow-review.md.
+  # AI review of the full fallow report — all four aspects (dead code,
+  # duplication, health, changed-files audit), never the PR diff: Grok reads
+  # fallow's semantic findings as a seasoned release gatekeeper with full
+  # autonomy: its proceed/block verdict IS the gate, and the analysis is
+  # published to the PR either way (one comment, edited in place on re-runs).
+  # The rubric lives (versioned) in .github/prompts/fallow-review.md.
   grok-review:
     name: Grok Review
     needs: [fallow]
@@ -164,10 +169,10 @@ jobs:
           persist-credentials: false
           # Only the versioned review prompt is needed from the repo
           sparse-checkout: .github/prompts
-      - name: Download fallow audit report
+      - name: Download fallow report
         uses: actions/download-artifact@v4
         with:
-          name: fallow-audit
+          name: fallow-report
       - name: Ask Grok for a verdict
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
@@ -175,7 +180,7 @@ jobs:
           # Strict schema: the model must reason through `analysis` before
           # committing to `verdict` (field order is part of the contract)
           jq -n --rawfile system .github/prompts/fallow-review.md \
-                --rawfile audit fallow-audit.txt '{
+                --rawfile report fallow-report.txt '{
             model: "grok-4.5",
             temperature: 0,
             max_tokens: 1500,
@@ -199,7 +204,7 @@ jobs:
             },
             messages: [
               {role: "system", content: $system},
-              {role: "user", content: $audit}
+              {role: "user", content: $report}
             ]
           }' > request.json
           curl -sS --fail-with-body https://api.x.ai/v1/chat/completions \
@@ -223,7 +228,7 @@ jobs:
             echo
             jq -r '(.concerns // [])[] | "- " + .' verdict.json
             echo
-            echo "<sub>Reviews the fallow audit report only. Re-runs edit this comment.</sub>"
+            echo "<sub>Reviews the full fallow report — dead code, duplication, health, and audit. Re-runs edit this comment.</sub>"
           } > comment.md
           cat comment.md >> "$GITHUB_STEP_SUMMARY"
 
