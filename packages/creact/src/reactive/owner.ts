@@ -7,7 +7,13 @@
  */
 
 import { getOwner, type Owner, setOwner } from "./current-owner";
-import { runUpdates, setListener, untrack } from "./tracking";
+import type { Computation } from "./signal";
+import {
+  disposeComputation,
+  runUpdates,
+  setListener,
+  untrack,
+} from "./tracking";
 
 export { getOwner, type Owner, setOwner };
 
@@ -120,6 +126,13 @@ export function cleanupOwner(owner: Owner): void {
       if (child) cleanupOwner(child);
     }
     owner.owned = null;
+  }
+
+  // Owned entries can be computations (effects, memos): detach them from
+  // their sources, otherwise signal writes keep scheduling them after
+  // their owner is disposed
+  if ("fn" in owner) {
+    disposeComputation(owner as Computation<any>);
   }
 
   runOwnerCleanups(owner);

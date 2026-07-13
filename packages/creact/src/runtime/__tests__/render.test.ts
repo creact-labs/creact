@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi} from "vitest";
 import { InMemoryMemory, h } from "@creact-labs/testing";
-import { type Accessor, For, Fragment, Show, createRoot, createSignal} from "../../index";
+import { type Accessor, For, Fragment, Match, Show, Switch, createEffect, createRoot, createSignal} from "../../index";
 import { createContext, useContext} from "../../primitives/context";
 import { onCleanup} from "../../reactive/owner";
 import type { Fiber} from "../fiber";
@@ -1033,5 +1033,51 @@ describe("renderFiber — For inside Show", () => {
       items = findFibers(fiber, (f) => f.type === "for-item");
       expect(items.length).toBe(2);
     });
+  });
+});
+
+describe("reactive boundary branch disposal", () => {
+  it("stops the previous Switch branch's effects when the selection changes", async () => {
+    const log: string[] = [];
+    const [mode, setMode] = createSignal<"a" | "b">("a");
+    const [pulse, setPulse] = createSignal(0);
+
+    function Banner(props: { label: string }) {
+      createEffect(() => {
+        pulse();
+        log.push(props.label);
+      });
+      return h(Fragment, {});
+    }
+
+    const result = render(
+      () =>
+        h(Switch, {
+          children: [
+            h(Match, {
+              when: () => mode() === "a",
+              children: h(Banner, { label: "a" }),
+            }),
+            h(Match, {
+              when: () => mode() === "b",
+              children: h(Banner, { label: "b" }),
+            }),
+          ],
+        }),
+      new InMemoryMemory(),
+      "switch-branch-disposal",
+    );
+    await result.settled();
+    expect(log).toEqual(["a"]);
+
+    setMode("b");
+    await result.settled();
+    log.length = 0;
+
+    setPulse(1);
+    await result.settled();
+    result.dispose();
+
+    expect(log).toEqual(["b"]);
   });
 });

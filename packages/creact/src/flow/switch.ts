@@ -39,10 +39,11 @@ export interface SwitchProps {
    * For reactive fallbacks, pass an accessor: `fallback={() => <Default />}`
    */
   fallback?: MaybeAccessor<CReactNode>;
-  /** Match components as children */
-  // MatchResult<any>: each Match narrows a different T, and MatchResult is
-  // invariant in T (children callback), so no common non-any type exists
-  children: MatchResult<any>[] | MatchResult<any>;
+  /**
+   * Match components as children — raw `<Match>` JSX elements or the
+   * results of calling `Match(props)` directly
+   */
+  children: CReactNode;
 }
 
 interface MatchResult<T> {
@@ -69,12 +70,15 @@ interface MatchResult<T> {
  * </Switch>
  * ```
  */
-export function Match<T>(props: MatchProps<T>): MatchResult<T> {
-  return {
+export function Match<T>(props: MatchProps<T>): JSXElement {
+  const result: MatchResult<T> = {
     __match: MATCH_SYMBOL,
     when: props.when,
     children: props.children,
   };
+  // MatchResult is Switch's internal protocol, not a renderable element;
+  // the JSXElement type lets <Match> appear in JSX, where Switch resolves it
+  return result as unknown as JSXElement;
 }
 
 /**
@@ -87,15 +91,32 @@ export function Match<T>(props: MatchProps<T>): MatchResult<T> {
  */
 export function Switch(props: SwitchProps): JSXElement {
   // Flatten children to array
-  const matches = Array.isArray(props.children)
+  const children = Array.isArray(props.children)
     ? props.children
     : props.children
       ? [props.children]
       : [];
+  const matches = children.map(resolveMatch);
 
   return createMemo(() =>
     selectMatch(matches, props.fallback),
   ) as unknown as JSXElement;
+}
+
+/**
+ * Normalize a Switch child to a MatchResult where possible.
+ *
+ * JSX never calls Match — `<Match>` arrives as a raw element whose type is
+ * the Match function — so Switch resolves those here. Direct Match(props)
+ * calls already produce MatchResults and pass through untouched.
+ */
+function resolveMatch(child: unknown): unknown {
+  const isElement =
+    typeof child === "object" && child !== null && "type" in child;
+  if (isElement && (child as JSXElement).type === Match) {
+    return Match((child as JSXElement).props as MatchProps<unknown>);
+  }
+  return child;
 }
 
 /** Render the first truthy match, or the fallback when none matches */

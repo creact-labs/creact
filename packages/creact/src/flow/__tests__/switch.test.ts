@@ -315,6 +315,61 @@ describe("Switch", () => {
   });
 });
 
+describe("JSX Match elements", () => {
+  it("resolves raw <Match> elements created by the JSX runtime", () => {
+    createRoot(() => {
+      const [mode, setMode] = createSignal("a");
+      const fallback = h("fb", { v: "fallback" });
+      const aEl = h("t", { v: "a" });
+      const bEl = h("t", { v: "b" });
+
+      const result = Switch({
+        fallback,
+        children: [
+          h(Match, { when: () => mode() === "a", children: aEl }),
+          h(Match, { when: () => mode() === "b", children: bEl }),
+        ] as any,
+      }) as unknown as () => any;
+
+      expect(result()).toBe(aEl);
+      setMode("b");
+      expect(result()).toBe(bEl);
+      setMode("c");
+      expect(result()).toBe(fallback);
+    });
+  });
+
+  it("resolves a single raw <Match> element child", () => {
+    createRoot(() => {
+      const matched = h("t", { v: "matched" });
+      const result = Switch({
+        children: h(Match, { when: true, children: matched }) as any,
+      }) as unknown as () => any;
+
+      expect(result()).toBe(matched);
+    });
+  });
+
+  it("ignores null and non-match children mixed into the array", () => {
+    createRoot(() => {
+      const fallback = h("fb", { v: "fallback" });
+      const stray = h("div", { v: "stray" });
+      const matched = h("t", { v: "matched" });
+
+      const result = Switch({
+        fallback,
+        children: [
+          null,
+          stray,
+          h(Match, { when: true, children: matched }),
+        ] as any,
+      }) as unknown as () => any;
+
+      expect(result()).toBe(matched);
+    });
+  });
+});
+
 describe("Switch children normalization", () => {
   it("accepts a single Match child (not wrapped in an array)", () => {
     const matched = { type: "matched", props: {} };

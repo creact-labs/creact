@@ -433,6 +433,18 @@ function cleanComputation(comp: Computation<any>): void {
 }
 
 /**
+ * Detach a disposed computation from the reactive graph: unsubscribe from
+ * every source and reset state so an already-queued run is skipped by
+ * runTop. Used by owner disposal (cleanupOwner), which walks owner trees
+ * whose owned entries can be computations.
+ * @internal
+ */
+export function disposeComputation(comp: Computation<any>): void {
+  unsubscribeSources(comp);
+  comp.state = 0;
+}
+
+/**
  * Remove a computation from all its sources' observer lists
  * (swap-and-pop keeps every removal O(1))
  */

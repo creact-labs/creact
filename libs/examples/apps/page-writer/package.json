@@ -1,0 +1,19 @@
+{
+  "name": "@creact-labs/example-page-writer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "An HTTP service where Claude writes HTML pages that deploy as durable resources",
+  "scripts": {
+    "start": "creact --watch index.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-file-memory": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

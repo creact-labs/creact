@@ -30,6 +30,40 @@ describe("errors with no boundary router registered", () => {
   });
 });
 
+describe("owned computation disposal", () => {
+  it("detaches owned effects from their sources on dispose", () => {
+    const runs: number[] = [];
+    const [state, setState] = createStore({ pulse: 0 });
+
+    createRoot((dispose) => {
+      createEffect(() => runs.push(state.pulse));
+      dispose();
+    });
+
+    expect(runs).toEqual([]);
+    setState("pulse", 1);
+    expect(runs).toEqual([]);
+  });
+
+  it("stops disposed effects without affecting surviving subscribers", () => {
+    const survivor: number[] = [];
+    const disposed: number[] = [];
+    const [state, setState] = createStore({ pulse: 0 });
+
+    createRoot(() => {
+      createEffect(() => survivor.push(state.pulse));
+    });
+    createRoot((dispose) => {
+      createEffect(() => disposed.push(state.pulse));
+      dispose();
+    });
+
+    setState("pulse", 1);
+    expect(survivor).toEqual([0, 1]);
+    expect(disposed).toEqual([]);
+  });
+});
+
 describe("owner-level cleanups", () => {
   it("warns when registered outside a reactive root", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
