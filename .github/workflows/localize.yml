@@ -13,6 +13,11 @@ name: Localize
 # lingo.dev's config-level baseUrl is dropped upstream (it passes
 # `baseUrl` where the AI SDK expects `baseURL`), so the redirect to
 # x.ai rides the SDK's OPENAI_BASE_URL env var instead.
+#
+# The `run` subcommand is deliberate: `ci` gates on a Lingo.dev platform
+# key before it ever looks at the BYO provider — and exits 0 without
+# translating when the key is absent — so the commit/push half of `ci`
+# is reimplemented as an explicit step below.
 on:
   workflow_dispatch:
   # Regenerates on the PR branch, so translations land in the same PR as
@@ -23,6 +28,7 @@ on:
     paths:
       - "apps/website/src/i18n/resources/en/**"
       - "apps/website/i18n.json"
+      - ".github/workflows/localize.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +40,9 @@ jobs:
   localize:
     name: Localize
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # generous: the first run translates every resource file into every
+    # target locale; incremental runs finish in a couple of minutes
+    timeout-minutes: 45
     env:
       OPENAI_API_KEY: ${{ secrets.XAI_API_KEY }}
       OPENAI_BASE_URL: https://api.x.ai/v1
@@ -43,18 +51,27 @@ jobs:
         if: env.OPENAI_API_KEY == ''
         run: echo "::notice::XAI_API_KEY secret not set — skipping localization."
       # persist-credentials stays on (unlike the read-only quality jobs):
-      # the CLI commits and pushes the regenerated locale files.
+      # this workflow pushes the regenerated locale files.
       - uses: actions/checkout@v4
         if: env.OPENAI_API_KEY != ''
       - uses: actions/setup-node@v4
         if: env.OPENAI_API_KEY != ''
         with:
           node-version-file: .nvmrc
-      - name: Translate changed keys and commit
+      - name: Translate new and changed keys
+        if: env.OPENAI_API_KEY != ''
+        working-directory: apps/website
+        run: npx --yes lingo.dev@0.138.0 run --concurrency 10
+      - name: Commit and push regenerated locales
         if: env.OPENAI_API_KEY != ''
         run: |
-          npx --yes lingo.dev@0.138.0 ci \
-            --working-directory apps/website \
-            --commit-message "i18n: regenerate translations from en source" \
-            --commit-author-name "github-actions[bot]" \
-            --commit-author-email "41898282+github-actions[bot]@users.noreply.github.com"
+          CHANGES=$(git status --porcelain -- apps/website/src/i18n/resources apps/website/i18n.lock)
+          if [ -z "$CHANGES" ]; then
+            echo "Translations already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/website/src/i18n/resources apps/website/i18n.lock
+          git commit -m "i18n: regenerate translations from en source"
+          git push
