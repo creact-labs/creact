@@ -15,7 +15,8 @@
         "../../packages/creact/src/jsx/jsx-runtime.ts"
       ],
       "@creact-labs/example-memory": ["packages/memory/src/index.ts"],
-      "@creact-labs/example-file-memory": ["packages/file-memory/src/index.ts"]
+      "@creact-labs/example-file-memory": ["packages/file-memory/src/index.ts"],
+      "@creact-labs/testing": ["../../packages/testing/src/index.ts"]
     }
   },
   "include": ["apps/**/*", "packages/**/*"]
