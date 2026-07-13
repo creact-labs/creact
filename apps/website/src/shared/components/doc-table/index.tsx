@@ -14,7 +14,7 @@ interface DocTableProps {
  */
 const DocTable: Component<DocTableProps> = (props) => {
   return (
-    <table>
+    <table class="doc-table">
       <thead>
         <tr>
           <For each={props.headers}>{(header) => <th>{header}</th>}</For>
@@ -22,8 +22,8 @@ const DocTable: Component<DocTableProps> = (props) => {
       </thead>
       <tbody>
         <For each={props.rows}>
-          {(row) => (
-            <tr>
+          {(row, index) => (
+            <tr classList={{ "doc-row-last": index() === props.rows.length - 1 }}>
               <For each={row}>{(cell) => <td>{cell}</td>}</For>
             </tr>
           )}

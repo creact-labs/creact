@@ -270,11 +270,10 @@
   color: var(--code-inline-text);
 }
 
-/* When Shiki highlights the inline chip, its token spans carry the color, so
-   the chip drops its fallback text tint and keeps only the subtle pill. */
-.docs-article code.inline-code:has(span) {
-  color: inherit;
-}
+/* When Shiki highlights the inline chip, its token spans carry their own
+   color, so the chip's fallback tint never shows through the highlighted
+   text — only the subtle pill remains. Plain (unhighlighted) inline code
+   keeps the tint from the rule above. */
 
 /* =============================================
    PARAMETER / DATA TABLES
@@ -310,22 +309,22 @@
 }
 
 /* Last row has the container border below it, so drop its own separator. */
-.docs-article tbody tr:last-child td {
+.doc-row-last td {
   border-bottom: none;
 }
 
 /* First column reads as the label for the row. */
-.docs-article tbody td:first-child {
+.doc-table td:first-child {
   color: var(--text);
   font-weight: 500;
   white-space: nowrap;
 }
 
-.docs-article tbody tr {
+.doc-table tr {
   transition: background 0.12s;
 }
 
-.docs-article tbody tr:hover {
+.doc-table tr:hover {
   background: var(--docs-active);
 }
 
@@ -420,11 +419,11 @@ td code {
   background: var(--code-bg);
 }
 
-/* Code inside a pre is the block itself, not an inline chip. This selector's
-   specificity (0,1,2) out-ranks `.docs-article code` (0,1,1), so the <code>
-   drops the inline pill's translucent background and padding — otherwise it
-   reads as a lighter box floating inside the darker <pre>. */
-.doc-code-block pre code {
+/* Code inside a block is the block itself, not an inline chip. This rule
+   matches `.docs-article code`'s specificity (0,1,1) but comes later, so it
+   wins and the <code> drops the inline pill's background and padding —
+   otherwise it reads as a lighter box floating inside the darker <pre>. */
+.doc-code-block code {
   background: none;
   padding: 0;
   border-radius: 0;
