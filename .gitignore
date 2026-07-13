@@ -6,3 +6,4 @@ coverage
 
 # Local scratch (design docs, notes) — not committed
 .claude-scratch/
+i18n.cache

@@ -6,6 +6,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
+import LiveExample from "@/shared/playground/live-example";
 
 const appFile = "site-publisher/src/app.tsx";
 const manifestFile = "site-publisher/src/shared/manifest/index.ts";
@@ -89,11 +90,7 @@ function RunIt() {
         filename={t("docs.examples.site_publisher.filename_terminal")}
       />
       <p>{t("docs.examples.site_publisher.run_expected")}</p>
-      <DocCodeBlock
-        lang="bash"
-        code={t("docs.examples.site_publisher.code_expected_output")}
-        filename={t("docs.examples.site_publisher.filename_terminal")}
-      />
+      <LiveExample app="site-publisher" />
       <p>{t("docs.examples.site_publisher.run_outro")}</p>
     </>
   );

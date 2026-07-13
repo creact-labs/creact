@@ -6,6 +6,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
+import LiveExample from "@/shared/playground/live-example";
 
 const appFile = "uptime-monitor/src/app.tsx";
 const httpCheckFile = "uptime-monitor/src/components/http-check/index.tsx";
@@ -45,11 +46,7 @@ function RunItRun() {
         />
       </p>
       <p>{t("docs.examples.uptime_monitor.run_output_intro")}</p>
-      <DocCodeBlock
-        lang="bash"
-        code={t("docs.examples.uptime_monitor.code_run_output")}
-        filename={t("docs.examples.uptime_monitor.filename_terminal")}
-      />
+      <LiveExample app="uptime-monitor" />
       <p>
         <Trans
           k="docs.examples.uptime_monitor.run_output_note"

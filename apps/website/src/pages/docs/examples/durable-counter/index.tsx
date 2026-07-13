@@ -5,6 +5,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
+import LiveExample from "@/shared/playground/live-example";
 
 const app = "durable-counter/src/app.tsx";
 
@@ -37,11 +38,7 @@ function RunIt() {
         filename={t("docs.examples.durable_counter.filename_terminal")}
       />
       <p>{t("docs.examples.durable_counter.run_output_intro")}</p>
-      <DocCodeBlock
-        lang="bash"
-        code={t("docs.examples.durable_counter.code_run_output")}
-        filename={t("docs.examples.durable_counter.filename_terminal")}
-      />
+      <LiveExample app="durable-counter" />
       <p>
         <Trans
           k="docs.examples.durable_counter.run_loop"

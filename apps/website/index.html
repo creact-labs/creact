@@ -12,6 +12,10 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Cross-origin isolation for the WebContainer-based playground. GitHub
+         Pages can't set COOP/COEP headers, so this service worker injects them
+         client-side (no-op locally, where Vite already sends the headers). -->
+    <script src="/creact/coi-serviceworker.min.js"></script>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="canonical" href="https://creact-labs.github.io/creact/" />
 
