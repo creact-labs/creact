@@ -7,8 +7,8 @@
   },
   "buckets": {
     "json": {
-      "include": ["src/i18n/resources/[locale]/*.json"],
-      "lockedKeys": ["brand", "logo_alt"]
+      "include": ["src/i18n/resources/[locale]/**/*.json"],
+      "lockedKeys": ["brand", "logo_alt", "code_filename"]
     }
   },
   "provider": {
