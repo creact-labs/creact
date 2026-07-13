@@ -3,6 +3,7 @@ import { Show, createResource } from "solid-js";
 import { t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import GithubIcon from "@/shared/components/github-icon";
+import VersionBadge from "@/shared/components/version-badge";
 import { getHighlighter } from "@/shared/shiki";
 import logoUrl from "../../../assets/logo.jpeg";
 
@@ -95,12 +96,13 @@ const LandingPage: Component = () => {
 
       <footer class="footer">
         <div class="footer-content">
-          <span class="footer-sep">&middot;</span>
           <a href="https://github.com/drn1996" target="_blank" rel="noopener">
             {t("landing.nav_github")}
           </a>
           <span class="footer-sep">&middot;</span>
           <span>{t("landing.footer_license")}</span>
+          <span class="footer-sep">&middot;</span>
+          <VersionBadge />
         </div>
       </footer>
     </div>

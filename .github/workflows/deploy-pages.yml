@@ -1,11 +1,13 @@
 name: Deploy to GitHub Pages
 
+# The published site tracks releases, not the trunk: it deploys only when
+# work lands on `release` (the same trigger that publishes the npm package),
+# so the live site and the released package always move together and a
+# rollback is a re-run of an earlier release. Manual dispatch stays for
+# out-of-band redeploys.
 on:
   push:
-    branches: [develop]
-    paths:
-      - 'apps/website/**'
-      - '.github/workflows/deploy-pages.yml'
+    branches: [release]
   workflow_dispatch:
 
 permissions:
