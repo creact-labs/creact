@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "创建一个用于管理嵌套状态的响应式 store 代理。",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "store 的初始值。必须是一个对象。",
   "returns_intro": "一个 <0>[store, setStore]</0> 元组：",

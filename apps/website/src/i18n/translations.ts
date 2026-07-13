@@ -69,10 +69,8 @@ import guides_watch_mode from "./resources/en/docs/guides/watch_mode.json";
 import docs_layout from "./resources/en/docs/layout.json";
 import docs_nav from "./resources/en/docs/nav.json";
 import docs_ui from "./resources/en/docs/ui.json";
-import landing from "./resources/en/landing.json";
 
 const en = {
-  landing,
   docs: {
     layout: docs_layout,
     nav: docs_nav,

@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "Создаёт реактивный прокси store для управления вложенным состоянием.",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "Начальное значение store. Должно быть объектом.",
   "returns_intro": "Кортеж <0>[store, setStore]</0>:",

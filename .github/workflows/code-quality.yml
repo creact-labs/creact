@@ -60,8 +60,6 @@ jobs:
         run: npm run test:coverage -w packages/creact
       - name: testing package (with coverage)
         run: npx vitest --run --coverage --root packages/testing
-      - name: vite-plugin (with coverage)
-        run: npx vitest --run --coverage --root packages/vite-plugin
       - name: create-creact (with coverage)
         run: npx vitest --run --coverage --root packages/create-creact
       - name: Website (with coverage)

@@ -15,6 +15,23 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.description")}
       </p>
 
+      <DocHeading level={2} id="quick-start">
+        {t("docs.getting_started.installation.heading_quickstart")}
+      </DocHeading>
+      <p>{t("docs.getting_started.installation.quickstart_intro")}</p>
+      <DocCodeBlock
+        lang="bash"
+        code={t("docs.getting_started.installation.code_quickstart")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
+      />
+      <p>{t("docs.getting_started.installation.quickstart_next_intro")}</p>
+      <DocCodeBlock
+        lang="bash"
+        code={t("docs.getting_started.installation.code_quickstart_next")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
+      />
+      <p>{t("docs.getting_started.installation.quickstart_outro")}</p>
+
       <DocHeading level={2} id="requirements">
         {t("docs.getting_started.installation.heading_requirements")}
       </DocHeading>

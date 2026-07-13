@@ -279,7 +279,13 @@ checksums:
     filename_http_check: 76d74908c6e99f0ea4531c99200239fa
   b08e43da5da02876869e558c1e87ef67:
     title: 70aaaea59e0186b1d4e2b175b26e4489
-    description: 4a938226a67553bc724b6e510c7e4e6b
+    description: b5b1178d13e76bd96c70eb0783b4059d
+    heading_quickstart: f1a56a4704da6c08c8694604c51026d1
+    quickstart_intro: c97f8b7093f0b1dba224c10e002f3784
+    code_quickstart: 7bd2c1e5915e0d2291b50509b2ab37c9
+    quickstart_next_intro: b495c848a11addce71093cf260ce1a89
+    code_quickstart_next: 468c52be728773b31c6aae2dfb4ed77b
+    quickstart_outro: b216ebd84eb6080b7c0f6fcd5087bd77
     heading_requirements: e108e149e0fd5b65f5850b6f032ccabe
     requirement_node: 6f47c97d3252859b95d15ecf31b9d8d2
     requirement_package_manager: 38fbfb4279e98db6dbc791b97bdf6400
@@ -627,8 +633,8 @@ checksums:
   4470f89192eab4bb538fdcdba8d27a7c:
     title: d33ae980588af1743346a72f57dee226
     description: 46d6de20c28921c76736dd979c55c661
-    signature: 651e2ccf31d61b543cad58b0d04152fc
-    param_value_name: 2270f2444ccc475fd0e86114c0a4e44b
+    signature: 2bc8b2310421b3b942410a6459d38382
+    param_value_name: 7e63141bf2fdc44ffce246cdbda5a89c
     param_value_type: 4f77660e54bda8802ee70f7c70ca9f96
     param_value_desc: 1fafa41b2c592e120a8565a747fa97fc
     returns_intro: 9d16d63af14a6043fa6b56af8ee5dcaa

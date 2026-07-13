@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "Creates a reactive store proxy for managing nested state.",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "Initial store value. Must be an object.",
   "returns_intro": "A tuple of <0>[store, setStore]</0>:",

@@ -1,6 +1,12 @@
 {
   "title": "インストール",
-  "description": "新しい CReact プロジェクトをゼロからセットアップします。CReact は Node.js 上で動作し、TypeScript で JSX を使用します。",
+  "description": "CReact は Node.js 上で動作し、TypeScript とともに JSX を使用します。最も早く始める方法は create コマンドです。このページの以降では、プロジェクトを手動でセットアップします。",
+  "heading_quickstart": "クイックスタート",
+  "quickstart_intro": "CReact 向けに構成済みの新しいプロジェクトをスキャフォールドします。メモリバックエンド（ファイルレジャー、SQLite、またはインメモリ）の選択を求められ、TypeScript JSX、dev スクリプト、スターターアプリをセットアップします：",
+  "code_quickstart": "npm create creact@latest my-app",
+  "quickstart_next_intro": "次に依存関係をインストールし、ウォッチモードでアプリを起動します：",
+  "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",
+  "quickstart_outro": "スターターは、ファイル変更時に再起動する耐久性のあるカウンターです。代わりにプロジェクトを手動で構成する場合は、このページの以降の手順に従ってください。",
   "heading_requirements": "要件",
   "requirement_node": "Node.js 18.0.0 以降",
   "requirement_package_manager": "npm、yarn、または pnpm",

@@ -1,6 +1,12 @@
 {
   "title": "安装",
-  "description": "从零开始搭建一个新的 CReact 项目。CReact 运行在 Node.js 上，并使用 JSX 与 TypeScript。",
+  "description": "CReact 运行于 Node.js，并使用 JSX 与 TypeScript。最快的入门方式是 create 命令；本页其余部分将引导你手动搭建项目。",
+  "heading_quickstart": "快速开始",
+  "quickstart_intro": "搭建一个已为 CReact 配置就绪的新项目。它会提示你选择内存后端——文件账本、SQLite 或内存——并设置 TypeScript JSX、开发脚本和入门应用：",
+  "code_quickstart": "npm create creact@latest my-app",
+  "quickstart_next_intro": "然后安装依赖并以 watch 模式启动应用：",
+  "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",
+  "quickstart_outro": "入门应用是一个持久化计数器，会在文件变更时重启。若要改为手动搭建项目，请按照本页其余内容操作。",
   "heading_requirements": "要求",
   "requirement_node": "Node.js 18.0.0 或更高版本",
   "requirement_package_manager": "npm、yarn 或 pnpm",

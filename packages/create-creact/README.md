@@ -12,6 +12,14 @@ This generates a ready-to-run CReact project in `my-app/`. If you omit the direc
 name, it defaults to `creact-app`. The scaffolder refuses to overwrite a directory that
 already exists and is not empty.
 
+You are prompted for a memory backend, or pass `--memory=<file|sqlite|memory>`:
+
+| Backend  | Persistence                          |
+| -------- | ------------------------------------ |
+| `file`   | JSON files under `./.state` (default) |
+| `sqlite` | a single `creact.db` (better-sqlite3) |
+| `memory` | in-process only, nothing survives     |
+
 Then:
 
 ```bash
@@ -21,13 +29,14 @@ npm run dev
 ```
 
 `npm run dev` runs the app in watch mode via `creact --watch index.tsx`. The starter is a
-durable counter that increments once a second and survives restarts.
+durable counter that increments once a second and, with a persistent backend, survives
+restarts.
 
 ## What you get
 
 - `index.tsx` — a real CReact entry point: a durable counter using `useAsyncOutput`
-- `package.json` — dev/start/build/typecheck scripts, CReact + Vite plugin wired up
-- `vite.config.ts` — the `@creact-labs/vite-plugin` for zero-config JSX
+- `memory.ts` — the memory backend you chose
+- `package.json` — dev/start/typecheck scripts, CReact wired up
 - `tsconfig.json` — JSX configured for CReact
 - `README.md`, `.gitignore`
 

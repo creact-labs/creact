@@ -1,6 +1,12 @@
 {
   "title": "Installation",
-  "description": "Set up a new CReact project from scratch. CReact runs on Node.js and uses JSX with TypeScript.",
+  "description": "CReact runs on Node.js and uses JSX with TypeScript. The fastest way to begin is the create command; the rest of this page sets a project up by hand.",
+  "heading_quickstart": "Quick start",
+  "quickstart_intro": "Scaffold a new project already wired for CReact. It prompts for a memory backend — a file ledger, SQLite, or in-memory — and sets up TypeScript JSX, a dev script, and a starter app:",
+  "code_quickstart": "npm create creact@latest my-app",
+  "quickstart_next_intro": "Then install dependencies and start the app in watch mode:",
+  "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",
+  "quickstart_outro": "The starter is a durable counter that restarts on file changes. To wire a project up by hand instead, follow the rest of this page.",
   "heading_requirements": "Requirements",
   "requirement_node": "Node.js 18.0.0 or later",
   "requirement_package_manager": "npm, yarn, or pnpm",

@@ -22,8 +22,7 @@ describe("translation completeness", () => {
   // tree, so newly added domain files are covered automatically.
   const allKeys = leafKeys(i18n.resources.en, "");
 
-  it("has at least the landing and docs domains", () => {
-    expect(allKeys.some((key) => key.startsWith("landing."))).toBe(true);
+  it("has the docs domain", () => {
     expect(allKeys.some((key) => key.startsWith("docs."))).toBe(true);
   });
 

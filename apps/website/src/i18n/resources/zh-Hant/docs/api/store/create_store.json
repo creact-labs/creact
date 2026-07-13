@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "建立用於管理巢狀狀態的響應式 store proxy。",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "初始 store 值。必須為物件。",
   "returns_intro": "一個 <0>[store, setStore]</0> 元組：",

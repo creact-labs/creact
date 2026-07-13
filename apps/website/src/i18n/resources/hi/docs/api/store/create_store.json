@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "Nested state प्रबंधित करने के लिए एक reactive store proxy बनाता है।",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "प्रारंभिक store value। एक object होना चाहिए।",
   "returns_intro": "<0>[store, setStore]</0> का एक tuple:",

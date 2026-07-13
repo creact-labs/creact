@@ -1,15 +1,32 @@
-const indexTsx = `// CReact starter — a durable counter that survives restarts.
-// Run it with \`npm run dev\` (creact --watch index.tsx).
-import {
-  render,
-  useAsyncOutput,
-  createEffect,
-  type DeploymentState,
-  type Memory,
-} from "@creact-labs/creact";
+export type MemoryKind = "file" | "sqlite" | "memory";
+
+export const MEMORY_KINDS: MemoryKind[] = ["file", "sqlite", "memory"];
+
+const indexTsx = `import { createEffect, render, useAsyncOutput } from "@creact-labs/creact";
+import { memory } from "./memory.js";
+
+// A durable counter: it increments once a second and, with a persistent
+// memory backend, picks up where it left off after a restart.
+function Counter() {
+  const counter = useAsyncOutput<{ count: number }>({}, async (_props, setOutputs) => {
+    setOutputs((prev) => ({ count: prev?.count ?? 0 }));
+    const interval = setInterval(() => setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 })), 1000);
+    return () => clearInterval(interval);
+  });
+  createEffect(() => console.log("Count:", counter.count()));
+  return <></>;
+}
+
+export default async function () {
+  return render(() => <Counter key="counter" />, memory, "my-app");
+}
+`;
+
+const fileMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
+// Persists each stack's state as a JSON file under ./.state.
 class FileMemory implements Memory {
   constructor(private dir: string) {}
   async getState(stack: string): Promise<DeploymentState | null> {
@@ -25,22 +42,72 @@ class FileMemory implements Memory {
   }
 }
 
-function Counter() {
-  const counter = useAsyncOutput<{ count: number }>({}, async (_props, setOutputs) => {
-    setOutputs((prev) => ({ count: prev?.count ?? 0 }));
-    const interval = setInterval(() => setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 })), 1000);
-    return () => clearInterval(interval);
-  });
-  createEffect(() => console.log("Count:", counter.count()));
-  return <></>;
-}
-
-export default async function () {
-  return render(() => <Counter key="counter" />, new FileMemory("./.state"), "my-app");
-}
+export const memory: Memory = new FileMemory("./.state");
 `;
 
-function packageJson(name: string): string {
+const sqliteMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
+import Database from "better-sqlite3";
+
+// Persists each stack's state as a row in a single SQLite database file.
+class SqliteMemory implements Memory {
+  private db: Database.Database;
+  constructor(path: string) {
+    this.db = new Database(path);
+    this.db.exec("CREATE TABLE IF NOT EXISTS state (stack TEXT PRIMARY KEY, json TEXT NOT NULL)");
+  }
+  async getState(stack: string): Promise<DeploymentState | null> {
+    const row = this.db
+      .prepare("SELECT json FROM state WHERE stack = ?")
+      .get(stack) as { json: string } | undefined;
+    return row ? JSON.parse(row.json) : null;
+  }
+  async saveState(stack: string, state: DeploymentState): Promise<void> {
+    this.db
+      .prepare(
+        "INSERT INTO state (stack, json) VALUES (?, ?) ON CONFLICT(stack) DO UPDATE SET json = excluded.json",
+      )
+      .run(stack, JSON.stringify(state));
+  }
+}
+
+export const memory: Memory = new SqliteMemory("./creact.db");
+`;
+
+const inMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
+
+// Keeps state in a Map for the lifetime of the process. Nothing survives a
+// restart — swap for the file or sqlite backend once you need persistence.
+class InMemoryMemory implements Memory {
+  private store = new Map<string, DeploymentState>();
+  async getState(stack: string): Promise<DeploymentState | null> {
+    return this.store.get(stack) ?? null;
+  }
+  async saveState(stack: string, state: DeploymentState): Promise<void> {
+    this.store.set(stack, state);
+  }
+}
+
+export const memory: Memory = new InMemoryMemory();
+`;
+
+const memoryModules: Record<MemoryKind, string> = {
+  file: fileMemory,
+  sqlite: sqliteMemory,
+  memory: inMemory,
+};
+
+function packageJson(name: string, kind: MemoryKind): string {
+  const dependencies: Record<string, string> = {
+    "@creact-labs/creact": "^0.4.0",
+  };
+  const devDependencies: Record<string, string> = {
+    "@types/node": "^20.0.0",
+    typescript: "^5.0.0",
+  };
+  if (kind === "sqlite") {
+    dependencies["better-sqlite3"] = "^11.0.0";
+    devDependencies["@types/better-sqlite3"] = "^7.6.0";
+  }
   return (
     JSON.stringify(
       {
@@ -51,31 +118,16 @@ function packageJson(name: string): string {
         scripts: {
           dev: "creact --watch index.tsx",
           start: "creact index.tsx",
-          build: "vite build",
           typecheck: "tsc --noEmit",
         },
-        dependencies: {
-          "@creact-labs/creact": "^0.4.0",
-        },
-        devDependencies: {
-          "@creact-labs/vite-plugin": "^0.4.0",
-          typescript: "^5.0.0",
-          vite: "^6.0.0",
-        },
+        dependencies,
+        devDependencies,
       },
       null,
       2,
     ) + "\n"
   );
 }
-
-const viteConfig = `import { defineConfig } from "vite";
-import { creact } from "@creact-labs/vite-plugin";
-
-export default defineConfig({
-  plugins: [creact()],
-});
-`;
 
 const tsconfig =
   JSON.stringify(
@@ -113,25 +165,28 @@ npm run dev
 \`\`\`
 
 \`npm run dev\` runs \`index.tsx\` in watch mode. The starter is a durable counter that
-increments once a second and survives restarts — stop it and start it again, and the
-count picks up where it left off.
+increments once a second. State is persisted by the memory backend in \`memory.ts\`.
 
 Learn more at https://github.com/creact-labs/creact.
 `;
 }
 
-const gitignore = `node_modules
-dist
-.state
-`;
+function gitignore(kind: MemoryKind): string {
+  const lines = ["node_modules", "dist", ".state"];
+  if (kind === "sqlite") lines.push("creact.db");
+  return lines.join("\n") + "\n";
+}
 
-export function projectFiles(name: string): Record<string, string> {
+export function projectFiles(
+  name: string,
+  kind: MemoryKind = "file",
+): Record<string, string> {
   return {
     "index.tsx": indexTsx,
-    "package.json": packageJson(name),
-    "vite.config.ts": viteConfig,
+    "memory.ts": memoryModules[kind],
+    "package.json": packageJson(name, kind),
     "tsconfig.json": tsconfig,
     "README.md": readme(name),
-    ".gitignore": gitignore,
+    ".gitignore": gitignore(kind),
   };
 }

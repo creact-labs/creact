@@ -1,11 +1,10 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import { HashRouter, Route } from "@solidjs/router";
+import { HashRouter, Navigate, Route } from "@solidjs/router";
 import { lazy } from "solid-js";
 import "./styles.css";
 import "./docs.css";
 
-import LandingPage from "@/pages/landing";
 import DocsLayout from "@/pages/docs/layout";
 
 // Getting Started
@@ -153,7 +152,7 @@ root.innerHTML = "";
 render(
   () => (
     <HashRouter>
-      <Route path="/" component={LandingPage} />
+      <Route path="/" component={() => <Navigate href="/docs" />} />
       <Route path="/docs" component={DocsLayout}>
         <Route path="/" component={Installation} />
         {/* Getting Started */}

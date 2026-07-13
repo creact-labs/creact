@@ -1,8 +1,8 @@
 {
   "title": "createStore",
   "description": "중첩 상태를 관리하기 위한 반응형 스토어 프록시를 생성합니다.",
-  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<0>value</0>",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
   "param_value_type": "<0>T</0>",
   "param_value_desc": "초기 스토어 값입니다. 객체여야 합니다.",
   "returns_intro": "<0>[store, setStore]</0> 튜플:",

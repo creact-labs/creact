@@ -1,6 +1,12 @@
 {
   "title": "Cài đặt",
-  "description": "Thiết lập một dự án CReact mới từ đầu. CReact chạy trên Node.js và sử dụng JSX với TypeScript.",
+  "description": "CReact chạy trên Node.js và sử dụng JSX với TypeScript. Cách nhanh nhất để bắt đầu là lệnh create; phần còn lại của trang này hướng dẫn thiết lập dự án thủ công.",
+  "heading_quickstart": "Bắt đầu nhanh",
+  "quickstart_intro": "Scaffold một dự án mới đã được cấu hình sẵn cho CReact. Nó sẽ hỏi bạn chọn memory backend — file ledger, SQLite, hoặc in-memory — và thiết lập TypeScript JSX, script dev, cùng một starter app:",
+  "code_quickstart": "npm create creact@latest my-app",
+  "quickstart_next_intro": "Sau đó cài đặt dependencies và khởi chạy ứng dụng ở chế độ watch:",
+  "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",
+  "quickstart_outro": "Starter là một durable counter sẽ restart khi file thay đổi. Để thiết lập dự án thủ công, hãy làm theo phần còn lại của trang này.",
   "heading_requirements": "Yêu cầu",
   "requirement_node": "Node.js 18.0.0 trở lên",
   "requirement_package_manager": "npm, yarn hoặc pnpm",
