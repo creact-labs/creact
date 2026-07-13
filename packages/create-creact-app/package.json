@@ -1,11 +1,11 @@
 {
-  "name": "create-creact",
+  "name": "create-creact-app",
   "version": "0.4.0",
   "type": "module",
-  "description": "Scaffold a new CReact project — npm create creact@latest my-app",
+  "description": "Scaffold a new CReact project — npm create creact-app@latest my-app",
   "main": "dist/src/index.js",
   "bin": {
-    "create-creact": "dist/src/index.js"
+    "create-creact-app": "dist/src/index.js"
   },
   "files": ["dist"],
   "keywords": ["creact", "create", "scaffold", "starter", "template"],
@@ -19,7 +19,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/creact-labs/creact.git",
-    "directory": "packages/create-creact"
+    "directory": "packages/create-creact-app"
   },
   "devDependencies": {
     "vitest": "^3.2.7"

@@ -3,7 +3,7 @@
   "description": "CReact работает на Node.js и использует JSX с TypeScript. Самый быстрый способ начать — команда create; в остальной части этой страницы проект настраивается вручную.",
   "heading_quickstart": "Быстрый старт",
   "quickstart_intro": "Сгенерируйте новый проект, уже настроенный для CReact. Он запросит memory backend — file ledger, SQLite или in-memory — и настроит TypeScript JSX, dev-скрипт и стартовое приложение:",
-  "code_quickstart": "npm create creact@latest my-app",
+  "code_quickstart": "npm create creact-app@latest my-app",
   "quickstart_next_intro": "Затем установите зависимости и запустите приложение в режиме watch:",
   "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",
   "quickstart_outro": "Стартовое приложение — durable-счётчик, который перезапускается при изменении файлов. Чтобы настроить проект вручную, следуйте остальной части этой страницы.",

@@ -74,7 +74,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          for pkg in packages/creact packages/create-creact; do
+          for pkg in packages/creact packages/create-creact-app; do
             NAME=$(node -p "require('./$pkg/package.json').name")
             PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
             if npm view "$NAME@$PKG_VERSION" version > /dev/null 2>&1; then

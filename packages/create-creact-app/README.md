@@ -1,11 +1,11 @@
-# create-creact
+# create-creact-app
 
 Scaffold a new [CReact](https://github.com/creact-labs/creact) project in one command.
 
 ## Usage
 
 ```bash
-npm create creact@latest my-app
+npm create creact-app@latest my-app
 ```
 
 This generates a ready-to-run CReact project in `my-app/`. If you omit the directory

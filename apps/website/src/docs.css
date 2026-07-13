@@ -420,11 +420,10 @@ td code {
   background: var(--code-bg);
 }
 
-/* Code inside a pre is the block itself, not an inline chip — the reset
-   must out-specify `.docs-article code`, so scope it to the block. Without
-   this the <code> keeps the inline pill's translucent background and padding,
-   which reads as a lighter box floating inside the darker <pre>. */
-.docs-article .doc-code-block pre code,
+/* Code inside a pre is the block itself, not an inline chip. This selector's
+   specificity (0,1,2) out-ranks `.docs-article code` (0,1,1), so the <code>
+   drops the inline pill's translucent background and padding — otherwise it
+   reads as a lighter box floating inside the darker <pre>. */
 .doc-code-block pre code {
   background: none;
   padding: 0;

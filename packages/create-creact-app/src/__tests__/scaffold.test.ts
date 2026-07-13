@@ -31,7 +31,7 @@ describe("scaffold", () => {
   let base: string;
 
   beforeEach(() => {
-    base = join(tmpdir(), `create-creact-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    base = join(tmpdir(), `create-creact-app-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(base, { recursive: true });
   });
 
