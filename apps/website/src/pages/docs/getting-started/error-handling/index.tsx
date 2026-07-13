@@ -7,7 +7,9 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import Strong from "@/shared/components/strong";
 
-const samples = "durable-counter/src/error-handling.tsx";
+const monitorApp = "uptime-monitor/src/app.tsx";
+const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
+const page = "page-writer/src/components/page/index.tsx";
 
 const ErrorHandling: Component = () => {
   return (
@@ -23,10 +25,13 @@ const ErrorHandling: Component = () => {
       <p>
         <Trans
           k="docs.getting_started.error_handling.error_boundary_intro"
-          components={[Code]}
+          components={[Code, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "error-boundary")} />
+      <DocCodeBlock
+        code={codeSample(monitorApp, "monitor-fault")}
+        filename={t("docs.getting_started.error_handling.filename_monitor")}
+      />
 
       <DocHeading level={2} id="catch-error">
         {t("docs.getting_started.error_handling.heading_catch_error")}
@@ -34,15 +39,13 @@ const ErrorHandling: Component = () => {
       <p>
         <Trans
           k="docs.getting_started.error_handling.catch_error_intro"
-          components={[Code]}
+          components={[Code, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "catch-error")} />
-
-      <DocHeading level={2} id="error-propagation">
-        {t("docs.getting_started.error_handling.heading_error_propagation")}
-      </DocHeading>
-      <p>{t("docs.getting_started.error_handling.error_propagation_body")}</p>
+      <DocCodeBlock
+        code={codeSample(statusPage, "write-effect")}
+        filename={t("docs.getting_started.error_handling.filename_status_page")}
+      />
 
       <DocHeading level={2} id="handler-errors">
         {t("docs.getting_started.error_handling.heading_handler_errors")}
@@ -53,7 +56,10 @@ const ErrorHandling: Component = () => {
           components={[Code, Strong, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "handler-errors")} />
+      <DocCodeBlock
+        code={codeSample(page, "generate-handler")}
+        filename={t("docs.getting_started.error_handling.filename_page")}
+      />
 
       <Callout type="warning">
         <p>

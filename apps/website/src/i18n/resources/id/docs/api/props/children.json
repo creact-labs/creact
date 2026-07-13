@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "Menyelesaikan children yang diteruskan ke komponen menjadi reactive accessor. Menangani lazy children dan array.",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "Accessor yang mengembalikan prop children.",
-  "returns_desc": "Sebuah <0>ChildrenReturn</0>, callable accessor yang mengembalikan children yang telah diselesaikan. Juga memiliki method <1>toArray()</1> yang mengembalikan children yang telah diselesaikan sebagai array datar."
-}

@@ -1,9 +1,0 @@
-{
-  "title": "access",
-  "description": "Membuka MaybeAccessor. Memanggilnya jika berupa fungsi, mengembalikannya secara langsung jika tidak.",
-  "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<0>value</0>",
-  "param_value_type": "<0>T | () => T</0>",
-  "param_value_desc": "Sebuah nilai atau fungsi accessor.",
-  "returns_desc": "Nilai yang telah dibuka dengan tipe <0>T</0>."
-}

@@ -1,8 +1,0 @@
-{
-  "title": "onMount",
-  "description": "Chạy một hàm một lần khi component khởi tạo, không theo dõi dependencies.",
-  "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => void</0>",
-  "param_fn_desc": "Hàm chạy một lần khi mount. Chạy untracked; việc đọc signal không tạo dependencies."
-}

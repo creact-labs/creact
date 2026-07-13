@@ -4,5 +4,9 @@
   "signature": "untrack<T>(fn: () => T): T",
   "param_fn_name": "<0>fn</0>",
   "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "Function to run without tracking. Signal reads inside won't register dependencies."
+  "param_fn_desc": "Function to run without tracking. Signal reads inside won't register dependencies.",
+  "heading_reading_aside": "Reading a value on the side",
+  "usage_reading_aside": "The uptime monitor logs a transition only when a check's <0>status</0> changes. It still needs the latest latency for the message, so it reads <1>latest()</1> through <2>untrack</2>, keeping latency out of the effect's dependencies while status alone drives the re-run.",
+  "in_the_wild": "See this transition log in the <0>uptime-monitor walkthrough</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
 }

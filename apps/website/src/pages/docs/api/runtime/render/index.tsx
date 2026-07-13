@@ -4,9 +4,11 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/runtime/render.tsx";
+const counterEntry = "durable-counter/index.tsx";
+const fleetEntry = "tenant-fleet/index.tsx";
 
 const Render: Component = () => {
   return (
@@ -16,7 +18,10 @@ const Render: Component = () => {
         {t("docs.api.runtime.render.description")}
       </p>
 
-      <DocCodeBlock code={codeSample(samples, "hero")} />
+      <DocCodeBlock
+        code={codeSample(counterEntry, "entry-point")}
+        filename={t("docs.api.runtime.render.filename_counter")}
+      />
 
       <ApiReference
         name={t("docs.api.runtime.render.title")}
@@ -77,7 +82,32 @@ const Render: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="awaiting-deployment">
+        {t("docs.api.runtime.render.heading_awaiting")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.runtime.render.usage_awaiting"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(fleetEntry, "entry-point")}
+        filename={t("docs.api.runtime.render.filename_fleet")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.runtime.render.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/durable-counter">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

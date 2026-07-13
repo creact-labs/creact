@@ -1,5 +1,0 @@
-{
-  "title": "mergeProps",
-  "description": "複数のpropsオブジェクトをリアクティブにマージし、後のソースが前のソースを上書きします。デフォルトpropsに使用します。",
-  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
-}

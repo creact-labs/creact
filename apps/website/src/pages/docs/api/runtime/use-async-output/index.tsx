@@ -5,9 +5,12 @@ import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/runtime/use-async-output.tsx";
+const counterApp = "durable-counter/src/app.tsx";
+const page = "page-writer/src/components/page/index.tsx";
+const siteObject = "site-publisher/src/aws/site-object/index.tsx";
 
 const UseAsyncOutput: Component = () => {
   return (
@@ -17,7 +20,10 @@ const UseAsyncOutput: Component = () => {
         {t("docs.api.runtime.use_async_output.description")}
       </p>
 
-      <DocCodeBlock code={codeSample(samples, "hero")} />
+      <DocCodeBlock
+        code={codeSample(counterApp, "counter")}
+        filename={t("docs.api.runtime.use_async_output.filename_counter")}
+      />
 
       <ApiReference
         name={t("docs.api.runtime.use_async_output.title")}
@@ -56,13 +62,70 @@ const UseAsyncOutput: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="counter">
+        {t("docs.api.runtime.use_async_output.heading_counter")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.runtime.use_async_output.usage_counter"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(counterApp, "counter-handler")}
+        filename={t("docs.api.runtime.use_async_output.filename_counter")}
+      />
+
+      <DocHeading level={3} id="restore">
+        {t("docs.api.runtime.use_async_output.heading_restore")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.runtime.use_async_output.usage_restore"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(page, "generate-handler")}
+        filename={t("docs.api.runtime.use_async_output.filename_page")}
+      />
+
+      <DocHeading level={3} id="prev-aware">
+        {t("docs.api.runtime.use_async_output.heading_prev_aware")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.runtime.use_async_output.usage_prev_aware"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(siteObject, "changed-check")}
+        filename={t("docs.api.runtime.use_async_output.filename_site_object")}
+      />
 
       <Callout type="info">
         <p>
           <Trans k="docs.api.runtime.use_async_output.callout_idempotent" />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.runtime.use_async_output.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/durable-counter">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

@@ -22,23 +22,33 @@ export function Page(props: PageRequest & { onState: (slug: string, outputs: Pag
 // #endregion states
 
 // #region generate-handler
+export function restoreOrWrite(prev: Partial<PageOutputs> | undefined): { restored: boolean; next: PageOutputs } {
+  const restored = prev?.state === "ready" && Boolean(prev.file);
+  return { restored, next: restored ? (prev as PageOutputs) : { state: "writing", file: undefined, error: undefined } };
+}
+
+type WriteSetOutputs = Parameters<Handler<PageRequest, PageOutputs>>[1];
+
+export async function generatePage(owner: Owner | null, request: PageRequest, setOutputs: WriteSetOutputs): Promise<void> {
+  let restored = false;
+  setOutputs((prev) => {
+    const decision = restoreOrWrite(prev);
+    restored = decision.restored;
+    return decision.next;
+  });
+  if (restored) return retainOnDetach(owner, request.slug);
+  try {
+    const html = await writeHtml(request.prompt);
+    const file = await deployPage(request.slug, html);
+    retainOnDetach(owner, request.slug);
+    setOutputs({ state: "ready", file, error: undefined });
+  } catch (error) {
+    setOutputs({ state: "failed", file: undefined, error: error instanceof Error ? error.message : String(error) });
+  }
+}
+
 function writePage(owner: Owner | null): Handler<PageRequest, PageOutputs> {
-  return async (request, setOutputs) => {
-    let restored = false;
-    setOutputs((prev) => {
-      restored = prev?.state === "ready" && Boolean(prev.file);
-      return restored ? (prev as PageOutputs) : { state: "writing" };
-    });
-    if (restored) return retainOnDetach(owner, request.slug);
-    try {
-      const html = await writeHtml(request.prompt);
-      const file = await deployPage(request.slug, html);
-      retainOnDetach(owner, request.slug);
-      setOutputs({ state: "ready", file });
-    } catch (error) {
-      setOutputs({ state: "failed", error: error instanceof Error ? error.message : String(error) });
-    }
-  };
+  return (request, setOutputs) => generatePage(owner, request, setOutputs);
 }
 // #endregion generate-handler
 

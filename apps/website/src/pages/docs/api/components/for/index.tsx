@@ -6,9 +6,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import UsageSection from "@/shared/components/usage-section";
-
-const samples = "api-cookbook/src/components/for.tsx";
+import TextLink from "@/shared/components/text-link";
 
 const ForApi: Component = () => {
   return (
@@ -17,8 +15,6 @@ const ForApi: Component = () => {
       <p class="docs-description">
         {t("docs.api.components.for.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.components.for.title")}
@@ -85,7 +81,55 @@ const ForApi: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.api.components.for.heading_usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="static-list">
+        {t("docs.api.components.for.heading_static_list")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.for.static_list_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample("uptime-monitor/src/app.tsx", "layout")}
+        filename={t("docs.api.components.for.filename_uptime_app")}
+      />
+
+      <DocHeading level={3} id="reactive-list">
+        {t("docs.api.components.for.heading_reactive_list")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.for.reactive_list_intro"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample("page-writer/src/app.tsx", "hero")}
+        filename={t("docs.api.components.for.filename_page_writer_app")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.components.for.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

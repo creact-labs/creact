@@ -124,22 +124,21 @@ const PackageJson = lazy(() => import("@/pages/docs/api/config/package-json"));
 const CreactCli = lazy(() => import("@/pages/docs/api/cli/creact"));
 const CreactWatch = lazy(() => import("@/pages/docs/api/cli/creact-watch"));
 
-// Architecture
-const ReactiveSystem = lazy(
-  () => import("@/pages/docs/architecture/reactive-system"),
+// Example Apps
+const DurableCounterExample = lazy(
+  () => import("@/pages/docs/examples/durable-counter"),
 );
-const Reconciliation = lazy(
-  () => import("@/pages/docs/architecture/reconciliation"),
+const UptimeMonitorExample = lazy(
+  () => import("@/pages/docs/examples/uptime-monitor"),
 );
-const FiberModel = lazy(() => import("@/pages/docs/architecture/fiber-model"));
-const StateMachine = lazy(
-  () => import("@/pages/docs/architecture/state-machine"),
+const SitePublisherExample = lazy(
+  () => import("@/pages/docs/examples/site-publisher"),
 );
-const MemorySystem = lazy(
-  () => import("@/pages/docs/architecture/memory-system"),
+const PageWriterExample = lazy(
+  () => import("@/pages/docs/examples/page-writer"),
 );
-const RuntimeBoundaries = lazy(
-  () => import("@/pages/docs/architecture/runtime-boundaries"),
+const TenantFleetExample = lazy(
+  () => import("@/pages/docs/examples/tenant-fleet"),
 );
 
 const root = document.getElementById("root");
@@ -261,19 +260,21 @@ render(
         {/* API - CLI */}
         <Route path="/api/cli/creact" component={CreactCli} />
         <Route path="/api/cli/creact-watch" component={CreactWatch} />
-        {/* Architecture */}
+        {/* Example Apps */}
         <Route
-          path="/architecture/reactive-system"
-          component={ReactiveSystem}
+          path="/examples/durable-counter"
+          component={DurableCounterExample}
         />
-        <Route path="/architecture/reconciliation" component={Reconciliation} />
-        <Route path="/architecture/fiber-model" component={FiberModel} />
-        <Route path="/architecture/state-machine" component={StateMachine} />
-        <Route path="/architecture/memory-system" component={MemorySystem} />
         <Route
-          path="/architecture/runtime-boundaries"
-          component={RuntimeBoundaries}
+          path="/examples/uptime-monitor"
+          component={UptimeMonitorExample}
         />
+        <Route
+          path="/examples/site-publisher"
+          component={SitePublisherExample}
+        />
+        <Route path="/examples/page-writer" component={PageWriterExample} />
+        <Route path="/examples/tenant-fleet" component={TenantFleetExample} />
       </Route>
     </HashRouter>
   ),

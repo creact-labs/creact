@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "将传入组件的 children 解析为响应式 accessor。可处理惰性 children 和数组。",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "返回 children prop 的 Accessor。",
-  "returns_desc": "一个 <0>ChildrenReturn</0>，即可调用的 accessor，返回已解析的 children。还具有 <1>toArray()</1> 方法，可将已解析的 children 以扁平数组形式返回。"
-}

@@ -1,9 +1,0 @@
-{
-  "title": "batch",
-  "description": "여러 시그널 업데이트를 단일 연산 패스로 그룹화합니다.",
-  "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "시그널 업데이트가 포함된 함수입니다. 모든 업데이트는 함수가 완료될 때까지 지연됩니다.",
-  "returns_body": "<0>fn</0>의 반환 값입니다."
-}

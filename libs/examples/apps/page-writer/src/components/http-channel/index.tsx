@@ -24,13 +24,13 @@ export function HttpChannel(props: HttpChannelProps) {
 // #endregion server
 
 // #region routes
-async function handleRequest(request: IncomingMessage, response: ServerResponse, props: HttpChannelProps): Promise<void> {
+export async function handleRequest(request: IncomingMessage, response: ServerResponse, props: HttpChannelProps): Promise<void> {
   if (request.method === "POST" && request.url === "/pages") return createPage(request, response, props);
   if (request.method === "GET" && request.url === "/pages") return respond(response, 200, props.onListPages());
   respond(response, 404, { error: `no route for ${request.method} ${request.url}` });
 }
 
-async function createPage(request: IncomingMessage, response: ServerResponse, props: HttpChannelProps): Promise<void> {
+export async function createPage(request: IncomingMessage, response: ServerResponse, props: HttpChannelProps): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
   let prompt: unknown;

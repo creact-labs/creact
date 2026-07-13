@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "コンポーネントに渡された children をリアクティブなアクセサに解決します。遅延 children と配列を処理します。",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "children prop を返す Accessor。",
-  "returns_desc": "解決済みの children を返す呼び出し可能なアクセサである <0>ChildrenReturn</0>。また、解決済みの children をフラットな配列として返す <1>toArray()</1> メソッドも持ちます。"
-}

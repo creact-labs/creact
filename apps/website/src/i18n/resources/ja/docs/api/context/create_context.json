@@ -1,9 +1,0 @@
-{
-  "title": "createContext",
-  "description": "propsを使わずにコンポーネントツリーを通じてデータを渡すためのコンテキストを作成します。",
-  "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<0>defaultValue</0>",
-  "param_default_value_type": "<0>T</0>",
-  "param_default_value_desc": "省略可能。上位にProviderが存在しない場合に<0>useContext</0>が返す値。",
-  "returns_desc": "<1>Provider</1>コンポーネントを持つ<0>Context<T></0>オブジェクト。"
-}

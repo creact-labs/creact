@@ -1,6 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Trả về reactive owner hiện tại (computation hoặc root sở hữu scope hiện tại).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "<0>Owner</0> hiện tại, hoặc <1>null</1> nếu được gọi bên ngoài một reactive scope."
-}

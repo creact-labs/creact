@@ -1,9 +1,0 @@
-{
-  "title": "access",
-  "description": "Entpackt einen MaybeAccessor. Ruft ihn auf, wenn es eine Funktion ist, gibt ihn andernfalls direkt zurück.",
-  "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<0>value</0>",
-  "param_value_type": "<0>T | () => T</0>",
-  "param_value_desc": "Ein Wert oder eine Accessor-Funktion.",
-  "returns_desc": "Der entpackte Wert vom Typ <0>T</0>."
-}

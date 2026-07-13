@@ -6,7 +6,8 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
-const samples = "durable-counter/src/reactive-primitives.ts";
+const app = "uptime-monitor/src/app.tsx";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
 const ReactivePrimitives: Component = () => {
   return (
@@ -19,48 +20,69 @@ const ReactivePrimitives: Component = () => {
       <DocHeading level={2} id="signals">
         {t("docs.getting_started.reactive_primitives.heading_signals")}
       </DocHeading>
-      <p>{t("docs.getting_started.reactive_primitives.signals_intro")}</p>
-      <DocCodeBlock code={codeSample(samples, "signals")} />
-
-      <DocHeading level={2} id="effects">
-        {t("docs.getting_started.reactive_primitives.heading_effects")}
-      </DocHeading>
-      <p>{t("docs.getting_started.reactive_primitives.effects_intro")}</p>
-      <DocCodeBlock code={codeSample(samples, "effects")} />
+      <p>
+        <Trans
+          k="docs.getting_started.reactive_primitives.signals_intro"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "sweep-state")}
+        filename={t("docs.getting_started.reactive_primitives.filename_app")}
+      />
 
       <Callout type="info">
         <p>
-          {t("docs.getting_started.reactive_primitives.info_batched_effects")}
+          <Trans
+            k="docs.getting_started.reactive_primitives.info_batch"
+            components={[Code]}
+          />
         </p>
       </Callout>
 
       <DocHeading level={2} id="memos">
         {t("docs.getting_started.reactive_primitives.heading_memos")}
       </DocHeading>
-      <p>{t("docs.getting_started.reactive_primitives.memos_intro")}</p>
-      <DocCodeBlock code={codeSample(samples, "memos")} />
+      <p>
+        <Trans
+          k="docs.getting_started.reactive_primitives.memos_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "derived-status")}
+        filename={t("docs.getting_started.reactive_primitives.filename_app")}
+      />
 
-      <DocHeading level={2} id="batching">
-        {t("docs.getting_started.reactive_primitives.heading_batching")}
+      <DocHeading level={2} id="computed">
+        {t("docs.getting_started.reactive_primitives.heading_computed")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.getting_started.reactive_primitives.batching_intro"
-          components={[Code]}
+          k="docs.getting_started.reactive_primitives.computed_intro"
+          components={[Code, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "batching")} />
+      <DocCodeBlock
+        code={codeSample(app, "incidents")}
+        filename={t("docs.getting_started.reactive_primitives.filename_app")}
+      />
 
-      <DocHeading level={2} id="untrack">
-        {t("docs.getting_started.reactive_primitives.heading_untrack")}
+      <DocHeading level={2} id="on-untrack">
+        {t("docs.getting_started.reactive_primitives.heading_on_untrack")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.getting_started.reactive_primitives.untrack_intro"
-          components={[Code]}
+          k="docs.getting_started.reactive_primitives.on_untrack_intro"
+          components={[Code, Code, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "untrack")} />
+      <DocCodeBlock
+        code={codeSample(httpCheck, "transitions")}
+        filename={t(
+          "docs.getting_started.reactive_primitives.filename_http_check",
+        )}
+      />
     </>
   );
 };

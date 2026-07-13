@@ -3,9 +3,11 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
-import UsageSection from "@/shared/components/usage-section";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-selector.ts";
+const app = "page-writer/src/app.tsx";
 
 const CreateSelector: Component = () => {
   return (
@@ -55,7 +57,36 @@ const CreateSelector: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="latest-request">
+        {t("docs.api.reactive.create_selector.heading_latest_request")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.reactive.create_selector.usage_latest_request"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "wiring")}
+        filename={t("docs.api.reactive.create_selector.filename_app")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_selector.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

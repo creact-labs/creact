@@ -5,8 +5,10 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/environment-variables.tsx";
+const app = "site-publisher/src/app.tsx";
+const pageWriter = "page-writer/index.tsx";
 
 const EnvironmentVariables: Component = () => {
   return (
@@ -22,20 +24,26 @@ const EnvironmentVariables: Component = () => {
       <p>
         <Trans
           k="docs.guides.environment_variables.reading_intro"
-          components={[Code]}
+          components={[Code, Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "reading")}
+        code={codeSample(app, "require-env")}
         filename={t("docs.guides.environment_variables.filename_app")}
       />
 
-      <DocHeading level={2} id="per-environment">
-        {t("docs.guides.environment_variables.heading_per_environment")}
+      <DocHeading level={2} id="fail-fast">
+        {t("docs.guides.environment_variables.heading_fail_fast")}
       </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.environment_variables.fail_fast_intro"
+          components={[Code, Code]}
+        />
+      </p>
       <DocCodeBlock
-        code={codeSample(samples, "per-environment")}
-        filename={t("docs.guides.environment_variables.filename_config")}
+        code={codeSample(pageWriter, "entry-point")}
+        filename={t("docs.guides.environment_variables.filename_entry")}
       />
 
       <DocHeading level={2} id="secrets">
@@ -56,6 +64,19 @@ const EnvironmentVariables: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.guides.environment_variables.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/site-publisher">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

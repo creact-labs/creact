@@ -11,8 +11,8 @@
   "param_defer_name": "<0>options.defer</0>",
   "param_defer_type": "<0>boolean</0>",
   "param_defer_desc": "If <0>true</0>, skips the first run.",
-  "heading_usage": "Usage",
-  "heading_single_dep": "Single Dependency",
-  "heading_multiple_deps": "Multiple Dependencies",
-  "heading_deferred": "Deferred Execution"
+  "heading_status_transitions": "Reacting to status changes",
+  "usage_status_transitions": "The uptime monitor wraps its transition effect in <0>on(status, ...)</0>, so it re-runs only when a check's <1>status</1> signal changes. The callback receives <2>next</2> and <3>prev</3>, and passing <4>defer: true</4> skips the very first run so no transition is logged on mount.",
+  "in_the_wild": "See these transitions logged in the <0>uptime-monitor walkthrough</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
 }

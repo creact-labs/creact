@@ -1,13 +1,17 @@
 {
   "title": "HTTP APIs and Channels",
-  "description": "Build a channel component that exposes HTTP endpoints and feeds input into the reactive system.",
+  "description": "Run a real node:http server as a managed resource, sliced from the page-writer example.",
   "heading_channels": "What Are Channels?",
-  "channels_desc": "A channel is a component that starts an HTTP server on mount and stops it on cleanup. Incoming requests call callback props, which update signals and trigger downstream components.",
-  "heading_http_server": "Channel Component",
-  "http_server_intro": "The <0>Channel</0> component starts a Hono server inside <1>onMount</1>. Route handlers are passed in as props. <2>onCleanup</2> shuts down the server when the component is removed.",
-  "filename_channel": "components/channel.tsx",
-  "heading_reactive_flow": "Connecting to the Reactive System",
-  "reactive_flow_intro": "The channel's callback props call <0>setSites</0>, <1>setPendingGeneration</1>, and other setters. Those signal updates trigger effects and <2>Show</2>/<3>For</3> components downstream.",
-  "filename_app": "app.tsx",
-  "info_cleanup": "The <0>onCleanup</0> callback releases the port when the component is removed or the app stops."
+  "channels_desc": "A channel is a component that owns a network endpoint. It starts a server when its handler runs, feeds incoming requests into the reactive system through callback props, and closes the socket on cleanup.",
+  "heading_server_resource": "The Server Resource",
+  "server_intro": "The page-writer's <0>HttpChannel</0> wraps a <1>node:http</1> server in useAsyncOutput, so the listening socket has the same lifecycle as any other managed resource:",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "The handler resolves only after <0>listen</0> succeeds, publishes the URL with <1>setOutputs</1>, and returns a cleanup function. Requests never touch the runtime directly — they call the callback props the parent passed in.",
+  "heading_routes": "Routing Requests",
+  "routes_intro": "Routing is plain Node.js code. Each route validates its input and delegates to a prop like <0>onCreatePage</0> or <1>onListPages</1>:",
+  "routes_notice": "The channel stays generic — it knows HTTP, not pages. <0>onCreatePage</0> updates a store in the parent, new Page resources mount, and the response returns immediately with the accepted slug.",
+  "heading_teardown": "Responses and Teardown",
+  "teardown_intro": "Two small helpers finish the component: a JSON responder and a promise-wrapped <0>server.close</0> used by the cleanup function:",
+  "info_cleanup": "The cleanup returned from the handler releases the port when the component unmounts or before the handler re-runs, so <0>--watch</0> restarts never hit an address-in-use error.",
+  "see_walkthrough": "See the whole request-to-page pipeline in the <0>page-writer walkthrough</0>."
 }

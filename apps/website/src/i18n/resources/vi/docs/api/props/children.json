@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "Phân giải children được truyền vào một component thành một reactive accessor. Xử lý lazy children và mảng.",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "Accessor trả về prop children.",
-  "returns_desc": "Một <0>ChildrenReturn</0>, một callable accessor trả về các children đã được phân giải. Cũng có phương thức <1>toArray()</1> trả về các children đã phân giải dưới dạng mảng phẳng."
-}

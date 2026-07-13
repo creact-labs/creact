@@ -8,6 +8,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// #region render-test
 it("deploys the counter and increments the count", async () => {
   vi.spyOn(console, "log").mockImplementation(() => {});
   const memory = createMemory();
@@ -29,3 +30,4 @@ it("deploys the counter and increments the count", async () => {
 
   result.dispose();
 });
+// #endregion render-test

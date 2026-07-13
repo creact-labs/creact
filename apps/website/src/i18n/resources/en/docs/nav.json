@@ -1,7 +1,7 @@
 {
   "sections": {
     "getting_started": "Getting Started",
-    "architecture": "Architecture",
+    "examples": "Example Apps",
     "build_your_own": "Build Your Own",
     "api_reference": "API Reference"
   },
@@ -20,6 +20,11 @@
   },
   "pages": {
     "installation": "Installation",
+    "durable_counter": "Durable Counter",
+    "uptime_monitor": "Uptime Monitor",
+    "site_publisher": "Site Publisher",
+    "page_writer": "Page Writer",
+    "tenant_fleet": "Tenant Fleet",
     "components_jsx": "Components and JSX",
     "reactive_primitives": "Reactive Primitives",
     "flow_control": "Flow Control",
@@ -30,12 +35,6 @@
     "typescript": "TypeScript",
     "environment_variables": "Environment Variables",
     "testing": "Testing",
-    "reactive_system": "Reactive System",
-    "reconciliation": "Reconciliation",
-    "fiber_model": "Fiber Model",
-    "state_machine": "State Machine",
-    "memory_system": "Memory System",
-    "runtime_boundaries": "Runtime Boundaries",
     "file_system": "File System",
     "http_apis": "HTTP APIs and Channels",
     "ai_integration": "AI Integration",

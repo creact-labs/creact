@@ -4,8 +4,9 @@ import { codeSample } from "@/shared/code-sample";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/file-system.tsx";
+const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
 
 const FileSystem: Component = () => {
   return (
@@ -13,47 +14,40 @@ const FileSystem: Component = () => {
       <h1>{t("docs.guides.file_system.title")}</h1>
       <p class="docs-description">{t("docs.guides.file_system.description")}</p>
 
-      <DocHeading level={2} id="read-component">
-        {t("docs.guides.file_system.heading_read_component")}
+      <DocHeading level={2} id="write-effect">
+        {t("docs.guides.file_system.heading_write_effect")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.guides.file_system.read_intro"
-          components={[Code]}
-        />
-      </p>
-      <DocCodeBlock
-        code={codeSample(samples, "read-component")}
-        filename={t("docs.guides.file_system.filename_read")}
-      />
-
-      <DocHeading level={2} id="write-component">
-        {t("docs.guides.file_system.heading_write_component")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.guides.file_system.write_intro"
-          components={[Code, Code, Code]}
-        />
-      </p>
-      <DocCodeBlock
-        code={codeSample(samples, "write-component")}
-        filename={t("docs.guides.file_system.filename_write")}
-      />
-
-      <DocHeading level={2} id="usage">
-        {t("docs.guides.file_system.heading_usage")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.guides.file_system.usage_intro"
+          k="docs.guides.file_system.write_effect_intro"
           components={[Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "usage")}
-        filename={t("docs.guides.file_system.filename_app")}
+        code={codeSample(statusPage, "write-effect")}
+        filename={t("docs.guides.file_system.filename_status_page")}
       />
+      <p>
+        <Trans
+          k="docs.guides.file_system.write_effect_notice"
+          components={[Code, Code]}
+        />
+      </p>
+
+      <DocHeading level={2} id="publish">
+        {t("docs.guides.file_system.heading_publish")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.file_system.publish_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(statusPage, "publish")}
+        filename={t("docs.guides.file_system.filename_status_page")}
+      />
+      <p>{t("docs.guides.file_system.publish_notice")}</p>
 
       <DocHeading level={2} id="file-memory">
         {t("docs.guides.file_system.heading_file_memory")}
@@ -61,13 +55,31 @@ const FileSystem: Component = () => {
       <p>
         <Trans
           k="docs.guides.file_system.file_memory_intro"
-          components={[Code]}
+          components={[Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "file-memory")}
+        code={codeSample("packages/file-memory/src/index.ts", "file-memory")}
         filename={t("docs.guides.file_system.filename_memory")}
       />
+      <p>
+        <Trans
+          k="docs.guides.file_system.file_memory_notice"
+          components={[Code, Code]}
+        />
+      </p>
+      <p>
+        <Trans
+          k="docs.guides.file_system.see_walkthrough"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

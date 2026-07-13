@@ -1,8 +1,0 @@
-{
-  "title": "untrack",
-  "description": "반응형 종속성을 생성하지 않고 시그널을 읽습니다.",
-  "signature": "untrack<T>(fn: () => T): T",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "추적 없이 실행할 함수입니다. 내부의 시그널 읽기는 종속성을 등록하지 않습니다."
-}

@@ -6,8 +6,10 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-effect.ts";
+const counterApp = "durable-counter/src/app.tsx";
+const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
 
 const CreateEffect: Component = () => {
   return (
@@ -16,8 +18,6 @@ const CreateEffect: Component = () => {
       <p class="docs-description">
         {t("docs.api.reactive.create_effect.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.create_effect.title")}
@@ -63,23 +63,36 @@ const CreateEffect: Component = () => {
       />
 
       <DocHeading level={2} id="usage">
-        {t("docs.api.reactive.create_effect.heading_usage")}
+        {t("docs.ui.usage")}
       </DocHeading>
 
-      <DocHeading level={3} id="basic">
-        {t("docs.api.reactive.create_effect.heading_tracking")}
+      <DocHeading level={3} id="durable-outputs">
+        {t("docs.api.reactive.create_effect.heading_durable_outputs")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "tracking")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_effect.usage_durable_outputs"
+          components={[Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(counterApp, "counter")}
+        filename={t("docs.api.reactive.create_effect.filename_counter")}
+      />
 
-      <DocHeading level={3} id="with-previous">
-        {t("docs.api.reactive.create_effect.heading_previous")}
+      <DocHeading level={3} id="publish-status-page">
+        {t("docs.api.reactive.create_effect.heading_publish")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "with-previous")} />
-
-      <DocHeading level={3} id="cleanup">
-        {t("docs.api.reactive.create_effect.heading_cleanup")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "cleanup")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_effect.usage_publish"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(statusPage, "write-effect")}
+        filename={t("docs.api.reactive.create_effect.filename_status_page")}
+      />
 
       <Callout type="info">
         <p>
@@ -89,6 +102,24 @@ const CreateEffect: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_effect.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/durable-counter">
+                {props.children}
+              </TextLink>
+            ),
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

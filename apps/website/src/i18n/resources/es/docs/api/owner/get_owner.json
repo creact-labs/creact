@@ -1,6 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Devuelve el propietario reactivo actual (la computación o la raíz que posee el ámbito actual).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "El <0>Owner</0> actual, o <1>null</1> si se llama fuera de un ámbito reactivo."
-}

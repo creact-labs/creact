@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "Разрешает children, переданные в компонент, в реактивный accessor. Обрабатывает lazy children и массивы.",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "Accessor, возвращающий prop children.",
-  "returns_desc": "<0>ChildrenReturn</0> — вызываемый accessor, который возвращает разрешённые children. Также имеет метод <1>toArray()</1>, возвращающий разрешённые children в виде плоского массива."
-}

@@ -1,6 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Mengembalikan reactive owner saat ini (computation atau root yang memiliki scope saat ini).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "<0>Owner</0> saat ini, atau <1>null</1> jika dipanggil di luar reactive scope."
-}

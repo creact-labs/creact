@@ -28,19 +28,27 @@ type StatusRow = {
 // #endregion page-model
 
 // #region uptime-rows
+function toStatusRow(
+  target: Target,
+  samples: Record<string, ProbeSample[]>,
+  tallies: Record<string, CheckTally>,
+): StatusRow {
+  const latest = samples[target.url]?.at(-1);
+  const tally = tallies[target.url];
+  return {
+    name: target.name,
+    url: target.url,
+    status: latest?.status ?? "pending",
+    latencyMs: latest?.latencyMs ?? 0,
+    uptime: uptimePercent(tally?.checksRun ?? 0, tally?.checksFailed ?? 0),
+  };
+}
+
 export function StatusPage(props: StatusPageProps) {
   const rows = createMemo<StatusRow[]>(() =>
-    props.targets.map((target) => {
-      const latest = props.samples()[target.url]?.at(-1);
-      const tally = props.tallies()[target.url];
-      return {
-        name: target.name,
-        url: target.url,
-        status: latest?.status ?? "pending",
-        latencyMs: latest?.latencyMs ?? 0,
-        uptime: uptimePercent(tally?.checksRun ?? 0, tally?.checksFailed ?? 0),
-      };
-    }),
+    props.targets.map((target) =>
+      toStatusRow(target, props.samples(), props.tallies()),
+    ),
   );
   // #endregion uptime-rows
 

@@ -11,9 +11,12 @@
   "param_options_name": "<0>options</0>",
   "param_options_type": "<0>EffectOptions</0>",
   "param_options_desc": "Optional. <0>name</0> for debugging.",
-  "heading_usage": "Usage",
-  "heading_tracking": "Tracking Dependencies",
-  "heading_previous": "Using Previous Value",
-  "heading_cleanup": "Cleanup with onCleanup",
-  "info_batching": "Effects are batched. Multiple synchronous signal updates only trigger one re-run. Use <0>batch()</0> explicitly for complex update sequences."
+  "heading_durable_outputs": "Reacting to durable outputs",
+  "usage_durable_outputs": "The durable counter logs every tick. The effect reads <0>counter.count()</0>, so it re-runs each time the handler persists a new value, including the restored count after a restart.",
+  "heading_publish": "Publishing a status page",
+  "usage_publish": "The uptime monitor rewrites <0>./out/status.html</0> whenever the overall status or any table row changes. <1>createEffect</1> tracks both reads and re-runs the publish after each sweep.",
+  "info_batching": "Effects are batched. Multiple synchronous signal updates only trigger one re-run. Use <0>batch()</0> explicitly for complex update sequences.",
+  "in_the_wild": "See these effects in the <0>durable-counter</0> and <1>uptime-monitor</1> walkthroughs.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
 }

@@ -1,9 +1,0 @@
-{
-  "title": "batch",
-  "description": "Nhóm nhiều cập nhật signal thành một lượt tính toán duy nhất.",
-  "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "Hàm chứa các cập nhật signal. Tất cả cập nhật được trì hoãn cho đến khi hàm hoàn thành.",
-  "returns_body": "Giá trị trả về của <0>fn</0>."
-}

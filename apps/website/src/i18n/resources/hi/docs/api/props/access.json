@@ -1,9 +1,0 @@
-{
-  "title": "access",
-  "description": "एक MaybeAccessor को unwrap करता है। यदि यह एक function है तो उसे call करता है, अन्यथा इसे सीधे return करता है।",
-  "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<0>value</0>",
-  "param_value_type": "<0>T | () => T</0>",
-  "param_value_desc": "एक value या एक accessor function।",
-  "returns_desc": "Type <0>T</0> का unwrapped value।"
-}

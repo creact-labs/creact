@@ -7,7 +7,7 @@ import { getHighlighter } from "@/shared/shiki";
 import logoUrl from "../../../assets/logo.jpeg";
 
 // The hero sample is sliced from a real, type-checked example app
-const heroCode = codeSample("hero-fleet/src/app/index.tsx", "hero");
+const heroCode = codeSample("page-writer/src/app.tsx", "hero");
 
 const LandingPage: Component = () => {
   const [highlighted] = createResource(async () => {

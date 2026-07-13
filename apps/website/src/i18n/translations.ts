@@ -45,12 +45,11 @@ import api_reactive_create_selector from "./resources/en/docs/api/reactive/creat
 import api_reactive_create_signal from "./resources/en/docs/api/reactive/create_signal.json";
 import api_reactive_on from "./resources/en/docs/api/reactive/on.json";
 import api_reactive_untrack from "./resources/en/docs/api/reactive/untrack.json";
-import architecture_fiber_model from "./resources/en/docs/architecture/fiber_model.json";
-import architecture_memory_system from "./resources/en/docs/architecture/memory_system.json";
-import architecture_reactive_system from "./resources/en/docs/architecture/reactive_system.json";
-import architecture_reconciliation from "./resources/en/docs/architecture/reconciliation.json";
-import architecture_runtime_boundaries from "./resources/en/docs/architecture/runtime_boundaries.json";
-import architecture_state_machine from "./resources/en/docs/architecture/state_machine.json";
+import examples_durable_counter from "./resources/en/docs/examples/durable_counter.json";
+import examples_page_writer from "./resources/en/docs/examples/page_writer.json";
+import examples_site_publisher from "./resources/en/docs/examples/site_publisher.json";
+import examples_tenant_fleet from "./resources/en/docs/examples/tenant_fleet.json";
+import examples_uptime_monitor from "./resources/en/docs/examples/uptime_monitor.json";
 import getting_started_components_jsx from "./resources/en/docs/getting_started/components_jsx.json";
 import getting_started_context_providers from "./resources/en/docs/getting_started/context_providers.json";
 import getting_started_deploying from "./resources/en/docs/getting_started/deploying.json";
@@ -158,13 +157,12 @@ const en = {
       typescript: guides_typescript,
       watch_mode: guides_watch_mode,
     },
-    architecture: {
-      fiber_model: architecture_fiber_model,
-      memory_system: architecture_memory_system,
-      reactive_system: architecture_reactive_system,
-      reconciliation: architecture_reconciliation,
-      runtime_boundaries: architecture_runtime_boundaries,
-      state_machine: architecture_state_machine,
+    examples: {
+      durable_counter: examples_durable_counter,
+      uptime_monitor: examples_uptime_monitor,
+      site_publisher: examples_site_publisher,
+      page_writer: examples_page_writer,
+      tenant_fleet: examples_tenant_fleet,
     },
   },
 };

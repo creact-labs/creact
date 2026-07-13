@@ -1,6 +1,0 @@
-{
-  "title": "splitProps",
-  "description": "Tách một đối tượng props thành nhiều nhóm theo key. Bảo toàn reactivity.",
-  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "Nhận đối tượng props theo sau bởi một hoặc nhiều mảng các key. Trả về một tuple với một đối tượng cho mỗi nhóm key cùng với một đối tượng phần còn lại chứa tất cả các key không khớp."
-}

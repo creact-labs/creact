@@ -5,8 +5,11 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/testing.tsx";
+const counterTest = "durable-counter/src/__tests__/app.test.tsx";
+const httpCheckTest =
+  "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx";
 
 const Testing: Component = () => {
   return (
@@ -24,45 +27,67 @@ const Testing: Component = () => {
         filename={t("docs.guides.testing.filename_terminal")}
       />
 
-      <DocHeading level={2} id="testing-signals">
-        {t("docs.guides.testing.heading_testing_signals")}
+      <DocHeading level={2} id="rendering">
+        {t("docs.guides.testing.heading_rendering")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.guides.testing.testing_signals_intro"
-          components={[Code]}
+          k="docs.guides.testing.rendering_intro"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <p>
+        <Trans
+          k="docs.guides.testing.rendering_outputs"
+          components={[Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "testing-signals")}
-        filename={t("docs.guides.testing.filename_signals_spec")}
-      />
-
-      <DocHeading level={2} id="testing-components">
-        {t("docs.guides.testing.heading_testing_components")}
-      </DocHeading>
-      <p>{t("docs.guides.testing.testing_components_intro")}</p>
-      <DocCodeBlock
-        code={codeSample(samples, "testing-components")}
-        filename={t("docs.guides.testing.filename_counter_spec")}
-      />
-
-      <DocHeading level={2} id="testing-flow">
-        {t("docs.guides.testing.heading_testing_flow")}
-      </DocHeading>
-      <DocCodeBlock
-        code={codeSample(samples, "testing-flow")}
-        filename={t("docs.guides.testing.filename_flow_spec")}
+        code={codeSample(counterTest, "render-test")}
+        filename={t("docs.guides.testing.filename_counter_test")}
       />
 
       <Callout type="tip">
         <p>
           <Trans
-            k="docs.guides.testing.tip_create_root"
-            components={[Code]}
+            k="docs.guides.testing.tip_reset_runtime"
+            components={[Code, Code]}
           />
         </p>
       </Callout>
+
+      <DocHeading level={2} id="mocking">
+        {t("docs.guides.testing.heading_mocking")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.testing.mocking_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <p>
+        <Trans
+          k="docs.guides.testing.mocking_transitions"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpCheckTest, "mock-fetch-test")}
+        filename={t("docs.guides.testing.filename_http_check_test")}
+      />
+
+      <p>
+        <Trans
+          k="docs.guides.testing.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

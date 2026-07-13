@@ -5,8 +5,10 @@ import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-memo.ts";
+const app = "uptime-monitor/src/app.tsx";
+const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
 
 const CreateMemo: Component = () => {
   return (
@@ -15,8 +17,6 @@ const CreateMemo: Component = () => {
       <p class="docs-description">
         {t("docs.api.reactive.create_memo.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.create_memo.title")}
@@ -70,23 +70,49 @@ const CreateMemo: Component = () => {
       />
 
       <DocHeading level={2} id="usage">
-        {t("docs.api.reactive.create_memo.heading_usage")}
+        {t("docs.ui.usage")}
       </DocHeading>
 
-      <DocHeading level={3} id="derived-values">
-        {t("docs.api.reactive.create_memo.heading_derived_values")}
+      <DocHeading level={3} id="chained-status">
+        {t("docs.api.reactive.create_memo.heading_chained_status")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "derived-values")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_memo.usage_chained_status"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "derived-status")}
+        filename={t("docs.api.reactive.create_memo.filename_app")}
+      />
 
-      <DocHeading level={3} id="chaining">
-        {t("docs.api.reactive.create_memo.heading_chaining")}
+      <DocHeading level={3} id="table-rows">
+        {t("docs.api.reactive.create_memo.heading_table_rows")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "chaining")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_memo.usage_table_rows"
+          components={[Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(statusPage, "uptime-rows")}
+        filename={t("docs.api.reactive.create_memo.filename_status_page")}
+      />
 
-      <DocHeading level={3} id="equality">
-        {t("docs.api.reactive.create_memo.heading_equality")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "equality")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_memo.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

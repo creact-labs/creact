@@ -24,9 +24,23 @@ export default defineConfig({
         __dirname,
         "packages/file-memory/src/index.ts",
       ),
+      "@creact-labs/testing": resolve(
+        __dirname,
+        "../../packages/testing/src/index.ts",
+      ),
     },
   },
   test: {
     include: ["apps/**/__tests__/**/*.test.{ts,tsx}", "packages/**/__tests__/**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      // json (Istanbul coverage-final.json) feeds fallow's CRAP scoring
+      reporter: ["text", "json"],
+      include: ["apps/**/src/**/*.{ts,tsx}", "apps/**/index.tsx", "packages/**/src/**/*.ts"],
+      exclude: [
+        "**/__tests__/**",
+        "**/__mocks__/**",
+      ],
+    },
   },
 });

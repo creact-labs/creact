@@ -1,8 +1,0 @@
-{
-  "title": "onMount",
-  "description": "Executa uma função uma vez quando o componente é inicializado, sem rastrear dependências.",
-  "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => void</0>",
-  "param_fn_desc": "Função a executar uma vez no mount. Executa sem rastreamento; leituras de signals não criam dependências."
-}

@@ -5,20 +5,27 @@
  * request a slice by app path + region (VitePress-style snippet imports).
  */
 
-// Raw source of every example app file, keyed by path relative to apps/
-const sources = import.meta.glob("../../../../../libs/examples/apps/**/*.{ts,tsx}", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-}) as Record<string, string>;
+// Raw source of every example file, keyed by path relative to libs/examples/.
+// Apps are addressed as "<app>/<path>", example packages as "packages/<path>".
+const sources = import.meta.glob(
+  "../../../../../libs/examples/{apps,packages}/**/*.{ts,tsx}",
+  {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  },
+) as Record<string, string>;
 
 function sourceOf(appPath: string): string {
+  const suffix = appPath.startsWith("packages/")
+    ? `/libs/examples/${appPath}`
+    : `/apps/${appPath}`;
   const entry = Object.entries(sources).find(([path]) =>
-    path.endsWith(`/apps/${appPath}`),
+    path.endsWith(suffix),
   );
   if (!entry) {
     throw new Error(
-      `Unknown example source "${appPath}" — expected a file under libs/examples/apps/`,
+      `Unknown example source "${appPath}" — expected a file under libs/examples/`,
     );
   }
   return entry[1];
@@ -36,7 +43,8 @@ function dedent(lines: string[]): string {
 /**
  * The source of one region of an example app.
  *
- * @param appPath - Path relative to libs/examples/apps, e.g. "hero-fleet/index.tsx"
+ * @param appPath - Path relative to libs/examples/apps, e.g.
+ *   "page-writer/src/app.tsx", or "packages/…" for example packages
  * @param region - Region name between `// #region <name>` and `// #endregion`
  */
 export function codeSample(appPath: string, region: string): string {

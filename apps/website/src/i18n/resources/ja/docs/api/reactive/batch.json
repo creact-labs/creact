@@ -1,9 +1,0 @@
-{
-  "title": "batch",
-  "description": "複数のシグナル更新を単一の計算パスにまとめます。",
-  "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "シグナル更新を含む関数。すべての更新は関数が完了するまで遅延されます。",
-  "returns_body": "<0>fn</0> の戻り値。"
-}

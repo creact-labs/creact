@@ -10,7 +10,9 @@
   "param_detached_owner_desc": "Optional. Parent owner for the root. When provided, the root is attached to this owner's context chain (for lookupContext) but still independently disposable.",
   "returns_body": "The return value of <0>fn</0>.",
   "heading_usage": "Usage",
-  "heading_basic": "Basic Root",
-  "heading_testing": "In Tests",
-  "info_render_root": "<0>render()</0> creates a root automatically. You only need <1>createRoot</1> for standalone reactive scopes outside of <2>render()</2>, such as tests."
+  "heading_self_disposing_scope": "A self-disposing scope",
+  "usage_self_disposing_scope": "The page writer watches each request until it settles. It opens a <0>createRoot</0> and runs an effect that reads the request's state. Once the page reaches <1>ready</1> or <2>failed</2>, the effect calls <0>dispose</0> to tear down the root and stop tracking.",
+  "info_render_root": "<0>render()</0> creates a root automatically. You only need <1>createRoot</1> for standalone reactive scopes outside of <2>render()</2>, such as this watcher or a test.",
+  "in_the_wild": "See this watcher settle live pages in the <0>page-writer walkthrough</0>.",
+  "filename_app": "page-writer/src/app.tsx"
 }

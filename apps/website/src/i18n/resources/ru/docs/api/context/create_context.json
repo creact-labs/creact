@@ -1,9 +1,0 @@
-{
-  "title": "createContext",
-  "description": "Создаёт контекст для передачи данных через дерево компонентов без props.",
-  "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<0>defaultValue</0>",
-  "param_default_value_type": "<0>T</0>",
-  "param_default_value_desc": "Необязательный. Значение, возвращаемое <0>useContext</0>, когда выше нет Provider.",
-  "returns_desc": "Объект <0>Context<T></0> с компонентом <1>Provider</1>."
-}

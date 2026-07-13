@@ -6,7 +6,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
-const samples = "durable-counter/src/context-providers.tsx";
+const provider = "site-publisher/src/aws/provider/index.tsx";
 
 const ContextProviders: Component = () => {
   return (
@@ -26,10 +26,8 @@ const ContextProviders: Component = () => {
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "create-context")}
-        filename={t(
-          "docs.getting_started.context_providers.filename_config_context",
-        )}
+        code={codeSample(provider, "context")}
+        filename={t("docs.getting_started.context_providers.filename_provider")}
       />
 
       <DocHeading level={2} id="providing-values">
@@ -38,21 +36,27 @@ const ContextProviders: Component = () => {
       <p>
         <Trans
           k="docs.getting_started.context_providers.providing_values_intro"
-          components={[Code]}
+          components={[Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "provide")}
-        filename={t("docs.getting_started.context_providers.filename_app")}
+        code={codeSample(provider, "provider")}
+        filename={t("docs.getting_started.context_providers.filename_provider")}
       />
 
-      <DocHeading level={2} id="nested-providers">
-        {t("docs.getting_started.context_providers.heading_nested_providers")}
+      <DocHeading level={2} id="consuming-context">
+        {t("docs.getting_started.context_providers.heading_consuming")}
       </DocHeading>
       <p>
-        {t("docs.getting_started.context_providers.nested_providers_intro")}
+        <Trans
+          k="docs.getting_started.context_providers.consuming_intro"
+          components={[Code, Code]}
+        />
       </p>
-      <DocCodeBlock code={codeSample(samples, "nested")} />
+      <DocCodeBlock
+        code={codeSample(provider, "use-aws")}
+        filename={t("docs.getting_started.context_providers.filename_provider")}
+      />
 
       <Callout type="tip">
         <p>{t("docs.getting_started.context_providers.tip_cross_cutting")}</p>

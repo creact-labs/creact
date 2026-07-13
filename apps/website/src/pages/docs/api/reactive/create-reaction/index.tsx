@@ -3,9 +3,11 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
-import UsageSection from "@/shared/components/usage-section";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-reaction.ts";
+const alert = "uptime-monitor/src/components/alert/index.tsx";
 
 const CreateReaction: Component = () => {
   return (
@@ -55,7 +57,36 @@ const CreateReaction: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="alert-on-first-failure">
+        {t("docs.api.reactive.create_reaction.heading_alert_on_first_failure")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.reactive.create_reaction.usage_alert_on_first_failure"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(alert, "first-failure")}
+        filename={t("docs.api.reactive.create_reaction.filename_alert")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_reaction.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

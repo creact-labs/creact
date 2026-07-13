@@ -4,17 +4,16 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/props/children.tsx";
+const provider = "site-publisher/src/aws/provider/index.tsx";
 
 const Children: Component = () => {
   return (
     <>
       <h1>{t("docs.api.props.children.title")}</h1>
       <p class="docs-description">{t("docs.api.props.children.description")}</p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.props.children.title")}
@@ -42,7 +41,36 @@ const Children: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="resolving-provider-children">
+        {t("docs.api.props.children.heading_provider")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.props.children.usage_provider"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(provider, "provider")}
+        filename={t("docs.api.props.children.filename_provider")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.props.children.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/site-publisher">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

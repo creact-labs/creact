@@ -13,8 +13,8 @@
     "build": "npm run build -w packages/creact",
     "test": "npm test -w packages/creact",
     "typecheck": "npm run typecheck -w packages/creact",
-    "coverage:all": "npm run test:coverage -w packages/creact && vitest --run --coverage --root packages/testing && vitest --run --coverage --root apps/website && npm run coverage:merge",
-    "coverage:merge": "node scripts/merge-coverage.mjs coverage/coverage-final.json packages/creact/coverage/coverage-final.json packages/testing/coverage/coverage-final.json apps/website/coverage/coverage-final.json",
+    "coverage:all": "npm run test:coverage -w packages/creact && vitest --run --coverage --root packages/testing && vitest --run --coverage --root apps/website && vitest --run --coverage --root libs/examples && npm run coverage:merge",
+    "coverage:merge": "node scripts/merge-coverage.mjs coverage/coverage-final.json packages/creact/coverage/coverage-final.json packages/testing/coverage/coverage-final.json apps/website/coverage/coverage-final.json libs/examples/coverage/coverage-final.json",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },

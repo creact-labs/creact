@@ -1,6 +1,0 @@
-{
-  "title": "splitProps",
-  "description": "props オブジェクトをキーごとに複数のグループへ分割します。リアクティビティを保持します。",
-  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "props オブジェクトの後に、1 つ以上のキー配列を受け取ります。キーグループごとのオブジェクトと、一致しなかったすべてのキーを含む残余オブジェクトからなるタプルを返します。"
-}

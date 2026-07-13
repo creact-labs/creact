@@ -1,9 +1,0 @@
-{
-  "title": "useContext",
-  "description": "Liest den Wert des nächstgelegenen Context-Providers oberhalb im Baum.",
-  "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<0>context</0>",
-  "param_context_type": "<0>Context<T></0>",
-  "param_context_desc": "Das von <0>createContext</0> erstellte Context-Objekt.",
-  "returns_desc": "Der Wert des nächstgelegenen <0>Provider</0>s oberhalb. Wenn kein Provider vorhanden ist, wird der an <1>createContext</1> übergebene Standardwert zurückgegeben."
-}

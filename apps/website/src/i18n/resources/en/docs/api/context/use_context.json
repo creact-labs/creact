@@ -5,5 +5,11 @@
   "param_context_name": "<0>context</0>",
   "param_context_type": "<0>Context<T></0>",
   "param_context_desc": "The context object created by <0>createContext</0>.",
-  "returns_desc": "The value from the nearest <0>Provider</0> above. If no Provider exists, returns the default value passed to <1>createContext</1>."
+  "returns_desc": "The value from the nearest <0>Provider</0> above. If no Provider exists, returns the default value passed to <1>createContext</1>.",
+  "heading_the_context_shape": "The context being read",
+  "usage_the_context_shape": "The site publisher's <0>AwsContext</0> carries a region and an S3 client, defaulting to <1>null</1> when nothing provides it.",
+  "heading_reading_the_connection": "Reading the connection",
+  "usage_reading_the_connection": "The <0>useAws</0> helper calls <1>useContext</1> and throws a clear error when the value is <2>null</2>. Every publisher component reads the shared connection through this one accessor instead of touching the context directly.",
+  "in_the_wild": "See this accessor share one S3 client in the <0>site-publisher walkthrough</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
 }

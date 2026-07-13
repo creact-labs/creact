@@ -5,7 +5,7 @@ import type { TenantSpec } from "../../app";
 
 const tenantRuntimePrefix = "tenant-tree-runtime-";
 
-function projectFleet(state: DeploymentState): Record<string, RuntimeOutputs> {
+export function projectFleet(state: DeploymentState): Record<string, RuntimeOutputs> {
   const fleet: Record<string, RuntimeOutputs> = {};
   for (const node of state.nodes) {
     if (node.id.startsWith(tenantRuntimePrefix) && node.outputs) {
@@ -15,7 +15,7 @@ function projectFleet(state: DeploymentState): Record<string, RuntimeOutputs> {
   return fleet;
 }
 
-function describeTenant(tenant: TenantSpec, runtime?: RuntimeOutputs): string {
+export function describeTenant(tenant: TenantSpec, runtime?: RuntimeOutputs): string {
   if (!runtime) return `${tenant.name}: attaching`;
   return `${tenant.name}: ${runtime.status}${runtime.error ? `, ${runtime.error}` : ""}`;
 }

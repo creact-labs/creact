@@ -6,8 +6,7 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-
-const samples = "api-cookbook/src/components/show.tsx";
+import TextLink from "@/shared/components/text-link";
 
 const ShowApi: Component = () => {
   return (
@@ -16,8 +15,6 @@ const ShowApi: Component = () => {
       <p class="docs-description">
         {t("docs.api.components.show.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.components.show.title")}
@@ -76,21 +73,29 @@ const ShowApi: Component = () => {
       <DocHeading level={2} id="usage">
         {t("docs.api.components.show.heading_usage")}
       </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.show.usage_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample("uptime-monitor/src/app.tsx", "layout")}
+        filename={t("docs.api.components.show.filename_app")}
+      />
 
-      <DocHeading level={3} id="basic">
-        {t("docs.api.components.show.heading_basic")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "basic")} />
-
-      <DocHeading level={3} id="callback">
-        {t("docs.api.components.show.heading_callback")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "callback")} />
-
-      <DocHeading level={3} id="fallback">
-        {t("docs.api.components.show.heading_fallback")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "fallback")} />
+      <p>
+        <Trans
+          k="docs.api.components.show.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

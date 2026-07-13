@@ -6,7 +6,8 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
-const samples = "durable-counter/src/flow-control.tsx";
+const monitorApp = "uptime-monitor/src/app.tsx";
+const page = "page-writer/src/components/page/index.tsx";
 
 const FlowControl: Component = () => {
   return (
@@ -16,52 +17,19 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.description")}
       </p>
 
-      <DocHeading level={2} id="show">
-        {t("docs.getting_started.flow_control.heading_show")}
+      <DocHeading level={2} id="one-tree">
+        {t("docs.getting_started.flow_control.heading_one_tree")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.getting_started.flow_control.show_intro"
-          components={[Code, Code]}
+          k="docs.getting_started.flow_control.one_tree_intro"
+          components={[Code, Code, Code, Code, Code]}
         />
       </p>
-      <DocCodeBlock code={codeSample(samples, "show")} />
-
-      <p>{t("docs.getting_started.flow_control.show_callback_intro")}</p>
-      <DocCodeBlock code={codeSample(samples, "show-value")} />
-
-      <DocHeading level={2} id="for">
-        {t("docs.getting_started.flow_control.heading_for")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.getting_started.flow_control.for_intro"
-          components={[Code]}
-        />
-      </p>
-      <DocCodeBlock code={codeSample(samples, "for")} />
-
-      <DocHeading level={2} id="switch">
-        {t("docs.getting_started.flow_control.heading_switch")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.getting_started.flow_control.switch_intro"
-          components={[Code, Code]}
-        />
-      </p>
-      <DocCodeBlock code={codeSample(samples, "switch")} />
-
-      <DocHeading level={2} id="error-boundary">
-        {t("docs.getting_started.flow_control.heading_error_boundary")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.getting_started.flow_control.error_boundary_intro"
-          components={[Code]}
-        />
-      </p>
-      <DocCodeBlock code={codeSample(samples, "error-boundary")} />
+      <DocCodeBlock
+        code={codeSample(monitorApp, "layout")}
+        filename={t("docs.getting_started.flow_control.filename_monitor")}
+      />
 
       <Callout type="info">
         <p>
@@ -71,6 +39,20 @@ const FlowControl: Component = () => {
           />
         </p>
       </Callout>
+
+      <DocHeading level={2} id="switch-states">
+        {t("docs.getting_started.flow_control.heading_switch_states")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.getting_started.flow_control.switch_states_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(page, "states")}
+        filename={t("docs.getting_started.flow_control.filename_page")}
+      />
     </>
   );
 };

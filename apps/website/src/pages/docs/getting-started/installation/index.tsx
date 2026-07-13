@@ -106,7 +106,7 @@ const Installation: Component = () => {
         />
       </p>
       <DocCodeBlock
-        code={codeSample("durable-counter/first-entry.tsx", "entry-point")}
+        code={codeSample("durable-counter/index.tsx", "entry-point")}
         filename={t("docs.getting_started.installation.filename_index_tsx")}
       />
 

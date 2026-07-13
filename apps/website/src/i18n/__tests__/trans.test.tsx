@@ -44,18 +44,16 @@ describe("parseTransValue", () => {
   });
 
   it("composed components receive the chunk as children", () => {
-    const container = renderParts("See <0>Runtime Boundaries</0> for more.", [
+    const container = renderParts("See <0>Tenant Fleet</0> for more.", [
       (props) => (
-        <TextLink href="#/docs/architecture/runtime-boundaries">
+        <TextLink href="#/docs/examples/tenant-fleet">
           {props.children}
         </TextLink>
       ),
     ]);
     const anchor = container.querySelector("a");
-    expect(anchor?.getAttribute("href")).toBe(
-      "#/docs/architecture/runtime-boundaries",
-    );
-    expect(anchor?.textContent).toBe("Runtime Boundaries");
+    expect(anchor?.getAttribute("href")).toBe("#/docs/examples/tenant-fleet");
+    expect(anchor?.textContent).toBe("Tenant Fleet");
   });
 
   it("a placeholder without a component degrades to its own text", () => {

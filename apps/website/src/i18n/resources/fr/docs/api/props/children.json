@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "Résout les children passés à un composant en un accesseur réactif. Gère les children lazy et les tableaux.",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "Accesseur qui retourne la prop children.",
-  "returns_desc": "Un <0>ChildrenReturn</0>, un accesseur appelable qui retourne les children résolus. Dispose également d'une méthode <1>toArray()</1> qui retourne les children résolus sous forme de tableau plat."
-}

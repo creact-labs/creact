@@ -47,12 +47,22 @@ export function App() {
 // #region wiring
 type StatesBySlug = Record<string, PageOutputs>;
 
+export function latestReadySlug(requests: PageRequest[], states: StatesBySlug): string | undefined {
+  return [...requests].reverse().find((request) => states[request.slug]?.state === "ready")?.slug;
+}
+
+export function listPages(requests: PageRequest[], states: StatesBySlug, isLatest: (slug: string) => boolean) {
+  return requests.map((request) => ({
+    ...request,
+    ...(states[request.slug] ?? { state: "writing" }),
+    latest: isLatest(request.slug),
+  }));
+}
+
 function usePageRequests() {
   const ledger = useRequestLedger();
   const [states, setStates] = createSignal<StatesBySlug>({});
-  const isLatest = createSelector(createMemo(
-    () => [...ledger.requests()].reverse().find((request) => states()[request.slug]?.state === "ready")?.slug,
-  ));
+  const isLatest = createSelector(createMemo(() => latestReadySlug(ledger.requests(), states())));
   const add = (prompt: string) => {
     const slug = slugify(prompt);
     if (!ledger.requests().some((request) => request.slug === slug)) {
@@ -62,23 +72,24 @@ function usePageRequests() {
     return { slug, state: states()[slug]?.state ?? "writing" };
   };
   const recordState = (slug: string, next: PageOutputs) => setStates((prev) => ({ ...prev, [slug]: next }));
-  const list = () =>
-    ledger.requests().map((request) => ({ ...request, ...(states()[request.slug] ?? { state: "writing" }), latest: isLatest(request.slug) }));
+  const list = () => listPages(ledger.requests(), states(), isLatest);
   return { requests: ledger.requests, add, recordState, list };
 }
 // #endregion wiring
 
 // #region settled-watch
+export function reportSettled(slug: string, states: StatesBySlug, settled: boolean | undefined, dispose: () => void): boolean {
+  if (settled) return true;
+  const state = states[slug]?.state;
+  if (state !== "ready" && state !== "failed") return false;
+  console.log(`[page-writer] request ${slug} settled: ${state}`);
+  dispose();
+  return true;
+}
+
 function watchUntilSettled(slug: string, states: Accessor<StatesBySlug>): void {
   createRoot((dispose) => {
-    createEffect((settled: boolean | undefined) => {
-      if (settled) return true;
-      const state = states()[slug]?.state;
-      if (state !== "ready" && state !== "failed") return false;
-      console.log(`[page-writer] request ${slug} settled: ${state}`);
-      dispose();
-      return true;
-    });
+    createEffect((settled: boolean | undefined) => reportSettled(slug, states(), settled, dispose));
   });
 }
 // #endregion settled-watch

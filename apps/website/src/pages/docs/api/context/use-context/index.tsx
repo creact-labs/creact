@@ -4,9 +4,10 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/context/use-context.tsx";
+const provider = "site-publisher/src/aws/provider/index.tsx";
 
 const UseContext: Component = () => {
   return (
@@ -15,8 +16,6 @@ const UseContext: Component = () => {
       <p class="docs-description">
         {t("docs.api.context.use_context.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.context.use_context.title")}
@@ -47,7 +46,50 @@ const UseContext: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="the-context-shape">
+        {t("docs.api.context.use_context.heading_the_context_shape")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.context.use_context.usage_the_context_shape"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(provider, "context")}
+        filename={t("docs.api.context.use_context.filename_provider")}
+      />
+
+      <DocHeading level={3} id="reading-the-connection">
+        {t("docs.api.context.use_context.heading_reading_the_connection")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.context.use_context.usage_reading_the_connection"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(provider, "use-aws")}
+        filename={t("docs.api.context.use_context.filename_provider")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.context.use_context.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/site-publisher">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

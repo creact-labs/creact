@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "將傳入元件的 children 解析為響應式 accessor。可處理 lazy children 與陣列。",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "回傳 children prop 的 Accessor。",
-  "returns_desc": "一個 <0>ChildrenReturn</0>，即可呼叫的 accessor，會回傳已解析的 children。另有 <1>toArray()</1> 方法，會以扁平陣列形式回傳已解析的 children。"
-}

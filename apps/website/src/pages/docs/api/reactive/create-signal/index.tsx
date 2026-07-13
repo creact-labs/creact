@@ -6,8 +6,10 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-signal.ts";
+const app = "uptime-monitor/src/app.tsx";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
 const CreateSignal: Component = () => {
   return (
@@ -16,8 +18,6 @@ const CreateSignal: Component = () => {
       <p class="docs-description">
         {t("docs.api.reactive.create_signal.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.create_signal.title")}
@@ -79,23 +79,36 @@ const CreateSignal: Component = () => {
       />
 
       <DocHeading level={2} id="usage">
-        {t("docs.api.reactive.create_signal.heading_usage")}
+        {t("docs.ui.usage")}
       </DocHeading>
 
-      <DocHeading level={3} id="basic">
-        {t("docs.api.reactive.create_signal.heading_basic")}
+      <DocHeading level={3} id="sweep-state">
+        {t("docs.api.reactive.create_signal.heading_sweep_state")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "basic")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_signal.usage_sweep_state"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "sweep-state")}
+        filename={t("docs.api.reactive.create_signal.filename_app")}
+      />
 
-      <DocHeading level={3} id="functional-updates">
-        {t("docs.api.reactive.create_signal.heading_functional_updates")}
+      <DocHeading level={3} id="latest-probe">
+        {t("docs.api.reactive.create_signal.heading_latest_probe")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "functional-updates")} />
-
-      <DocHeading level={3} id="custom-equality">
-        {t("docs.api.reactive.create_signal.heading_custom_equality")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "custom-equality")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_signal.usage_latest_probe"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpCheck, "sweep")}
+        filename={t("docs.api.reactive.create_signal.filename_http_check")}
+      />
 
       <Callout type="tip">
         <p>
@@ -105,6 +118,19 @@ const CreateSignal: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_signal.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

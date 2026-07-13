@@ -1,9 +1,0 @@
-{
-  "title": "useContext",
-  "description": "读取树中上层最近的 context Provider 的值。",
-  "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<0>context</0>",
-  "param_context_type": "<0>Context<T></0>",
-  "param_context_desc": "由 <0>createContext</0> 创建的 context 对象。",
-  "returns_desc": "来自上层最近的 <0>Provider</0> 的值。如果不存在 Provider，则返回传递给 <1>createContext</1> 的默认值。"
-}

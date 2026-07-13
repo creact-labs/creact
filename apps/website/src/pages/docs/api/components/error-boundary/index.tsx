@@ -6,9 +6,9 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import UsageSection from "@/shared/components/usage-section";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/components/error-boundary.tsx";
+const app = "uptime-monitor/src/app.tsx";
 
 const ErrorBoundaryApi: Component = () => {
   return (
@@ -17,8 +17,6 @@ const ErrorBoundaryApi: Component = () => {
       <p class="docs-description">
         {t("docs.api.components.error_boundary.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.components.error_boundary.title")}
@@ -60,7 +58,50 @@ const ErrorBoundaryApi: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="guarding-the-sweep">
+        {t("docs.api.components.error_boundary.heading_guarding_the_sweep")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.error_boundary.usage_guarding_the_sweep"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "layout")}
+        filename={t("docs.api.components.error_boundary.filename_app")}
+      />
+
+      <DocHeading level={3} id="rendering-the-fault">
+        {t("docs.api.components.error_boundary.heading_rendering_the_fault")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.error_boundary.usage_rendering_the_fault"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "monitor-fault")}
+        filename={t("docs.api.components.error_boundary.filename_app")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.components.error_boundary.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

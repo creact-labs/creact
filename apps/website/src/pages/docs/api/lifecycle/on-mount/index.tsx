@@ -4,9 +4,10 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import TextLink from "@/shared/components/text-link";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-cookbook/src/lifecycle/on-mount.tsx";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
 const OnMount: Component = () => {
   return (
@@ -16,7 +17,10 @@ const OnMount: Component = () => {
         {t("docs.api.lifecycle.on_mount.description")}
       </p>
 
-      <DocCodeBlock code={codeSample(samples, "hero")} />
+      <DocCodeBlock
+        code={codeSample(httpCheck, "sweep-lifecycle")}
+        filename={t("docs.api.lifecycle.on_mount.filename_http_check")}
+      />
 
       <ApiReference
         name={t("docs.api.lifecycle.on_mount.title")}
@@ -36,7 +40,30 @@ const OnMount: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <UsageSection
+        code={codeSample(httpCheck, "sweep-lifecycle")}
+        filename={t("docs.api.lifecycle.on_mount.filename_http_check")}
+      >
+        <p>
+          <Trans
+            k="docs.api.lifecycle.on_mount.usage_sweep"
+            components={[Code, Code, Code]}
+          />
+        </p>
+      </UsageSection>
+
+      <p>
+        <Trans
+          k="docs.api.lifecycle.on_mount.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

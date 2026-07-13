@@ -1,8 +1,0 @@
-{
-  "title": "onMount",
-  "description": "在组件初始化时运行一次函数，不跟踪依赖。",
-  "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => void</0>",
-  "param_fn_desc": "在挂载时运行一次的函数。以不跟踪方式运行；读取 signal 不会创建依赖。"
-}

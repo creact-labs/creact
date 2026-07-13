@@ -5,9 +5,11 @@ import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/lifecycle/on-cleanup.ts";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
+const httpChannel = "page-writer/src/components/http-channel/index.tsx";
 
 const OnCleanup: Component = () => {
   return (
@@ -17,7 +19,10 @@ const OnCleanup: Component = () => {
         {t("docs.api.lifecycle.on_cleanup.description")}
       </p>
 
-      <DocCodeBlock code={codeSample(samples, "hero")} />
+      <DocCodeBlock
+        code={codeSample(httpCheck, "sweep-lifecycle")}
+        filename={t("docs.api.lifecycle.on_cleanup.filename_http_check")}
+      />
 
       <ApiReference
         name={t("docs.api.lifecycle.on_cleanup.title")}
@@ -42,7 +47,37 @@ const OnCleanup: Component = () => {
         }
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="clearing-a-timer">
+        {t("docs.api.lifecycle.on_cleanup.heading_timer")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.lifecycle.on_cleanup.usage_timer"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpCheck, "sweep-lifecycle")}
+        filename={t("docs.api.lifecycle.on_cleanup.filename_http_check")}
+      />
+
+      <DocHeading level={3} id="closing-a-server">
+        {t("docs.api.lifecycle.on_cleanup.heading_server")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.lifecycle.on_cleanup.usage_server"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpChannel, "server")}
+        filename={t("docs.api.lifecycle.on_cleanup.filename_http_channel")}
+      />
 
       <Callout type="warning">
         <p>
@@ -52,6 +87,19 @@ const OnCleanup: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.lifecycle.on_cleanup.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

@@ -6,8 +6,9 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-root.ts";
+const app = "page-writer/src/app.tsx";
 
 const CreateRoot: Component = () => {
   return (
@@ -58,15 +59,19 @@ const CreateRoot: Component = () => {
         {t("docs.api.reactive.create_root.heading_usage")}
       </DocHeading>
 
-      <DocHeading level={3} id="basic">
-        {t("docs.api.reactive.create_root.heading_basic")}
+      <DocHeading level={3} id="self-disposing-scope">
+        {t("docs.api.reactive.create_root.heading_self_disposing_scope")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "basic")} />
-
-      <DocHeading level={3} id="testing">
-        {t("docs.api.reactive.create_root.heading_testing")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "testing")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.create_root.usage_self_disposing_scope"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "settled-watch")}
+        filename={t("docs.api.reactive.create_root.filename_app")}
+      />
 
       <Callout type="info">
         <p>
@@ -76,6 +81,19 @@ const CreateRoot: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_root.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

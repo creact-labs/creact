@@ -5,8 +5,11 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/aws-integration.tsx";
+const provider = "site-publisher/src/aws/provider/index.tsx";
+const bucket = "site-publisher/src/aws/site-bucket/index.tsx";
+const object = "site-publisher/src/aws/site-object/index.tsx";
 
 const AwsIntegration: Component = () => {
   return (
@@ -26,65 +29,107 @@ const AwsIntegration: Component = () => {
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "provider")}
+        code={codeSample(provider, "provider")}
         filename={t("docs.guides.aws_integration.filename_provider")}
       />
-
-      <DocHeading level={2} id="bucket-component">
-        {t("docs.guides.aws_integration.heading_bucket_component")}
-      </DocHeading>
       <p>
         <Trans
-          k="docs.guides.aws_integration.bucket_intro"
+          k="docs.guides.aws_integration.provider_notice"
           components={[Code, Code]}
         />
       </p>
-      <DocCodeBlock
-        code={codeSample(samples, "bucket")}
-        filename={t("docs.guides.aws_integration.filename_bucket")}
-      />
 
-      <DocHeading level={2} id="s3-file">
-        {t("docs.guides.aws_integration.heading_s3_file")}
+      <DocHeading level={2} id="ensure-bucket">
+        {t("docs.guides.aws_integration.heading_ensure_bucket")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.guides.aws_integration.s3_file_intro"
+          k="docs.guides.aws_integration.ensure_bucket_intro"
           components={[Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "s3-file")}
-        filename={t("docs.guides.aws_integration.filename_s3_file")}
+        code={codeSample(bucket, "ensure-bucket")}
+        filename={t("docs.guides.aws_integration.filename_bucket")}
       />
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.ensure_bucket_notice"
+          components={[Code]}
+        />
+      </p>
 
-      <DocHeading level={2} id="website-component">
-        {t("docs.guides.aws_integration.heading_website_component")}
+      <DocHeading level={2} id="website-config">
+        {t("docs.guides.aws_integration.heading_website_config")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.guides.aws_integration.website_intro"
-          components={[Code, Code, Code, Code]}
+          k="docs.guides.aws_integration.website_config_intro"
+          components={[Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "website")}
-        filename={t("docs.guides.aws_integration.filename_website")}
+        code={codeSample(bucket, "website-config")}
+        filename={t("docs.guides.aws_integration.filename_bucket")}
       />
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.website_config_notice"
+          components={[Code]}
+        />
+      </p>
 
-      <DocHeading level={2} id="multiple-resources">
-        {t("docs.guides.aws_integration.heading_multiple_resources")}
+      <DocHeading level={2} id="changed-check">
+        {t("docs.guides.aws_integration.heading_changed_check")}
       </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.changed_check_intro"
+          components={[Code]}
+        />
+      </p>
       <DocCodeBlock
-        code={codeSample(samples, "multiple-sites")}
-        filename={t("docs.guides.aws_integration.filename_app")}
+        code={codeSample(object, "changed-check")}
+        filename={t("docs.guides.aws_integration.filename_object")}
+      />
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.changed_check_notice"
+          components={[Code]}
+        />
+      </p>
+
+      <DocHeading level={2} id="upload">
+        {t("docs.guides.aws_integration.heading_upload")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.upload_intro"
+          components={[Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(object, "upload")}
+        filename={t("docs.guides.aws_integration.filename_object")}
       />
 
       <Callout type="warning">
         <p>
-          <Trans k="docs.guides.aws_integration.warning_cleanup" />
+          <Trans k="docs.guides.aws_integration.warning_idempotent" />
         </p>
       </Callout>
+      <p>
+        <Trans
+          k="docs.guides.aws_integration.see_walkthrough"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/site-publisher">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

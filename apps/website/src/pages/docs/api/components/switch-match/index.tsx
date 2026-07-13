@@ -1,12 +1,13 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import ApiSignature from "@/shared/components/api-signature";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import UsageSection from "@/shared/components/usage-section";
+import TextLink from "@/shared/components/text-link";
 
 const SwitchMatch: Component = () => {
   return (
@@ -15,8 +16,6 @@ const SwitchMatch: Component = () => {
       <p class="docs-description">
         {t("docs.api.components.switch_match.description")}
       </p>
-
-      <DocCodeBlock code={t("docs.api.components.switch_match.code_hero")} />
 
       <ApiReference
         name={t("docs.api.components.switch_match.name_switch")}
@@ -99,7 +98,55 @@ const SwitchMatch: Component = () => {
         ]}
       />
 
-      <UsageSection code={t("docs.api.components.switch_match.code_usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.api.components.switch_match.heading_usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="severity-branches">
+        {t("docs.api.components.switch_match.heading_severity")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.switch_match.severity_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample("uptime-monitor/src/app.tsx", "layout")}
+        filename={t("docs.api.components.switch_match.filename_uptime_app")}
+      />
+
+      <DocHeading level={3} id="lifecycle-states">
+        {t("docs.api.components.switch_match.heading_lifecycle")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.components.switch_match.lifecycle_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample("page-writer/src/components/page/index.tsx", "states")}
+        filename={t("docs.api.components.switch_match.filename_page")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.components.switch_match.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

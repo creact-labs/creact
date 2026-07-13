@@ -3,9 +3,11 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
-import UsageSection from "@/shared/components/usage-section";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/arrays/index-array.ts";
+const app = "tenant-fleet/src/app.tsx";
 
 const IndexArray: Component = () => {
   return (
@@ -47,7 +49,36 @@ const IndexArray: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="numbered-roster">
+        {t("docs.api.arrays.index_array.heading_numbered_roster")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.arrays.index_array.usage_numbered_roster"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "fleet")}
+        filename={t("docs.api.arrays.index_array.filename_app")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.arrays.index_array.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/tenant-fleet">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

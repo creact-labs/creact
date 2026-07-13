@@ -7,7 +7,8 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import Strong from "@/shared/components/strong";
 
-const samples = "durable-counter/src/components-jsx.tsx";
+const counterApp = "durable-counter/src/app.tsx";
+const monitorApp = "uptime-monitor/src/app.tsx";
 
 const ComponentsJsx: Component = () => {
   return (
@@ -23,11 +24,11 @@ const ComponentsJsx: Component = () => {
       <p>
         <Trans
           k="docs.getting_started.components_jsx.jsx_intro"
-          components={[Strong, Code]}
+          components={[Strong, Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "resources")}
+        code={codeSample(counterApp, "app")}
         filename={t("docs.getting_started.components_jsx.filename_app")}
       />
 
@@ -35,65 +36,38 @@ const ComponentsJsx: Component = () => {
         {t("docs.getting_started.components_jsx.heading_component_functions")}
       </DocHeading>
       <p>
-        {t("docs.getting_started.components_jsx.component_functions_intro")}
-      </p>
-      <DocCodeBlock
-        code={codeSample(samples, "component-functions")}
-        filename={t("docs.getting_started.components_jsx.filename_counter")}
-      />
-
-      <DocHeading level={2} id="fragments">
-        {t("docs.getting_started.components_jsx.heading_fragments")}
-      </DocHeading>
-      <p>
         <Trans
-          k="docs.getting_started.components_jsx.fragments_intro"
-          components={[Code]}
+          k="docs.getting_started.components_jsx.component_functions_intro"
+          components={[Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "fragments")}
-        filename={t("docs.getting_started.components_jsx.filename_infra")}
+        code={codeSample(counterApp, "counter")}
+        filename={t("docs.getting_started.components_jsx.filename_app")}
       />
 
-      <DocHeading level={2} id="reactive-props">
-        {t("docs.getting_started.components_jsx.heading_reactive_props")}
+      <DocHeading level={2} id="composing-resources">
+        {t("docs.getting_started.components_jsx.heading_composing")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.getting_started.components_jsx.reactive_props_intro"
-          components={[Strong]}
+          k="docs.getting_started.components_jsx.composing_intro"
+          components={[Code, Code, Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "reactive-props")}
-        filename={t(
-          "docs.getting_started.components_jsx.filename_reactive_props",
-        )}
+        code={codeSample(monitorApp, "layout")}
+        filename={t("docs.getting_started.components_jsx.filename_monitor")}
       />
 
       <Callout type="tip">
         <p>
           <Trans
-            k="docs.getting_started.components_jsx.tip_access"
-            components={[Code, Code, Code, Code, Code]}
+            k="docs.getting_started.components_jsx.tip_reactive_props"
+            components={[Code, Code]}
           />
         </p>
       </Callout>
-
-      <DocHeading level={2} id="children">
-        {t("docs.getting_started.components_jsx.heading_children")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.getting_started.components_jsx.children_intro"
-          components={[Code]}
-        />
-      </p>
-      <DocCodeBlock
-        code={codeSample(samples, "children")}
-        filename={t("docs.getting_started.components_jsx.filename_children")}
-      />
     </>
   );
 };

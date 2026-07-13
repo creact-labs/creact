@@ -5,9 +5,10 @@ import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-computed.ts";
+const app = "uptime-monitor/src/app.tsx";
 
 const CreateComputed: Component = () => {
   return (
@@ -16,8 +17,6 @@ const CreateComputed: Component = () => {
       <p class="docs-description">
         {t("docs.api.reactive.create_computed.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.create_computed.title")}
@@ -62,7 +61,23 @@ const CreateComputed: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="tracking-incidents">
+        {t("docs.api.reactive.create_computed.heading_tracking_incidents")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.reactive.create_computed.usage_tracking_incidents"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(app, "incidents")}
+        filename={t("docs.api.reactive.create_computed.filename_app")}
+      />
 
       <Callout type="warning">
         <p>
@@ -72,6 +87,19 @@ const CreateComputed: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_computed.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

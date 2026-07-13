@@ -3,3 +3,6 @@ node_modules
 
 .claude
 coverage
+
+# Local scratch (design docs, notes) — not committed
+.claude-scratch/

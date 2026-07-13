@@ -4,9 +4,10 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import UsageSection from "@/shared/components/usage-section";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/untrack.ts";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
 const Untrack: Component = () => {
   return (
@@ -15,8 +16,6 @@ const Untrack: Component = () => {
       <p class="docs-description">
         {t("docs.api.reactive.untrack.description")}
       </p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.untrack.title")}
@@ -36,7 +35,36 @@ const Untrack: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="reading-aside">
+        {t("docs.api.reactive.untrack.heading_reading_aside")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.reactive.untrack.usage_reading_aside"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpCheck, "transitions")}
+        filename={t("docs.api.reactive.untrack.filename_http_check")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.reactive.untrack.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

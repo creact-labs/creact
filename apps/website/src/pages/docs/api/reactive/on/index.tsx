@@ -5,16 +5,15 @@ import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/on.ts";
+const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
 const On: Component = () => {
   return (
     <>
       <h1>{t("docs.api.reactive.on.title")}</h1>
       <p class="docs-description">{t("docs.api.reactive.on.description")}</p>
-
-      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
         name={t("docs.api.reactive.on.title")}
@@ -63,23 +62,35 @@ const On: Component = () => {
       />
 
       <DocHeading level={2} id="usage">
-        {t("docs.api.reactive.on.heading_usage")}
+        {t("docs.ui.usage")}
       </DocHeading>
 
-      <DocHeading level={3} id="single-dep">
-        {t("docs.api.reactive.on.heading_single_dep")}
+      <DocHeading level={3} id="status-transitions">
+        {t("docs.api.reactive.on.heading_status_transitions")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "single-dep")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.on.usage_status_transitions"
+          components={[Code, Code, Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(httpCheck, "transitions")}
+        filename={t("docs.api.reactive.on.filename_http_check")}
+      />
 
-      <DocHeading level={3} id="multiple-deps">
-        {t("docs.api.reactive.on.heading_multiple_deps")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "multiple-deps")} />
-
-      <DocHeading level={3} id="deferred">
-        {t("docs.api.reactive.on.heading_deferred")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "deferred")} />
+      <p>
+        <Trans
+          k="docs.api.reactive.on.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/uptime-monitor">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

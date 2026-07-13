@@ -11,5 +11,9 @@
   "param_options_name": "<0>options</0>",
   "param_options_type": "<0>EffectOptions</0>",
   "param_options_desc": "Optional. <0>name</0> for debugging.",
-  "warning_prefer_memo": "Prefer <0>createMemo</0> for derived values. Use <1>createComputed</1> only when you need to write to other signals synchronously during the computation phase."
+  "heading_tracking_incidents": "Deriving open incidents",
+  "usage_tracking_incidents": "The uptime monitor keeps a list of open incidents in the <0>incidents</0> signal. A <1>createComputed</1> reads <2>latestSamples()</2>, then writes the reconciled incident list back so a signal write lands synchronously before any effect reads it.",
+  "warning_prefer_memo": "Prefer <0>createMemo</0> for derived values. Use <1>createComputed</1> only when you need to write to other signals synchronously during the computation phase.",
+  "in_the_wild": "See this computation open and close incidents in the <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
 }

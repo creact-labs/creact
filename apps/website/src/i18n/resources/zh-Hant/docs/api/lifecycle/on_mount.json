@@ -1,8 +1,0 @@
-{
-  "title": "onMount",
-  "description": "在元件初始化時執行一次函式，不追蹤依賴。",
-  "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => void</0>",
-  "param_fn_desc": "在掛載時執行一次的函式。以不追蹤方式執行；讀取 signal 不會建立依賴。"
-}

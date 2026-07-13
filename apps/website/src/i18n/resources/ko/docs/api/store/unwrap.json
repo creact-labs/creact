@@ -1,8 +1,0 @@
-{
-  "title": "unwrap",
-  "description": "store 프록시의 원본 데이터에 대한 딥 클론을 반환하며, 모든 반응성을 제거합니다.",
-  "signature": "unwrap<T>(store: T): T",
-  "param_store_name": "<0>store</0>",
-  "param_store_type": "<0>T</0>",
-  "param_store_desc": "<0>createStore</0>로 생성된 store 프록시입니다."
-}

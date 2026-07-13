@@ -4,9 +4,11 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
-import UsageSection from "@/shared/components/usage-section";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/reactive/create-render-effect.ts";
+const page = "page-writer/src/components/page/index.tsx";
 
 const CreateRenderEffect: Component = () => {
   return (
@@ -59,7 +61,23 @@ const CreateRenderEffect: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="reporting-state">
+        {t("docs.api.reactive.create_render_effect.heading_reporting_state")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.reactive.create_render_effect.usage_reporting_state"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(page, "states")}
+        filename={t("docs.api.reactive.create_render_effect.filename_page")}
+      />
 
       <Callout type="info">
         <p>
@@ -69,6 +87,19 @@ const CreateRenderEffect: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.reactive.create_render_effect.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

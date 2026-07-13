@@ -13,7 +13,7 @@
   "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
   "prop_children_desc": "Content to render, or a callback receiving the truthy value as an accessor.",
   "heading_usage": "Usage",
-  "heading_basic": "Basic Condition",
-  "heading_callback": "Callback Children",
-  "heading_fallback": "With Fallback"
+  "usage_intro": "The uptime monitor keeps its whole reporting layer behind one <0>Show</0> gate: the status page and banner stay unmounted until the first sweep records a timestamp, then <1>lastSweepAt()</1> turns truthy and the subtree mounts.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "This slice is the layout of the uptime monitor. See how the gate fits the full tree in the <0>uptime-monitor walkthrough</0>."
 }

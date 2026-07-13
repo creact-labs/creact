@@ -3,9 +3,11 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Code from "@/shared/components/code";
-import UsageSection from "@/shared/components/usage-section";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "api-cookbook/src/arrays/map-array.ts";
+const fleetStatus = "tenant-fleet/src/components/fleet-status/index.tsx";
 
 const MapArray: Component = () => {
   return (
@@ -59,7 +61,36 @@ const MapArray: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <DocHeading level={2} id="usage">
+        {t("docs.ui.usage")}
+      </DocHeading>
+
+      <DocHeading level={3} id="one-line-per-tenant">
+        {t("docs.api.arrays.map_array.heading_one_line_per_tenant")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.api.arrays.map_array.usage_one_line_per_tenant"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(fleetStatus, "summary")}
+        filename={t("docs.api.arrays.map_array.filename_fleet_status")}
+      />
+
+      <p>
+        <Trans
+          k="docs.api.arrays.map_array.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/tenant-fleet">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

@@ -1,9 +1,0 @@
-{
-  "title": "createContext",
-  "description": "Component tree में props के बिना data पास करने के लिए context बनाता है।",
-  "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<0>defaultValue</0>",
-  "param_default_value_type": "<0>T</0>",
-  "param_default_value_desc": "वैकल्पिक। जब ऊपर कोई Provider मौजूद न हो तो <0>useContext</0> द्वारा लौटाया गया value।",
-  "returns_desc": "एक <0>Context<T></0> object जिसमें एक <1>Provider</1> component होता है।"
-}

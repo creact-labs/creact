@@ -1,9 +1,0 @@
-{
-  "title": "children",
-  "description": "컴포넌트에 전달된 children을 반응형 액세서로 해석합니다. lazy children과 배열을 처리합니다.",
-  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>Accessor<JSXElement></0>",
-  "param_fn_desc": "children prop을 반환하는 Accessor입니다.",
-  "returns_desc": "해석된 children을 반환하는 호출 가능한 액세서인 <0>ChildrenReturn</0>입니다. 해석된 children을 평면 배열로 반환하는 <1>toArray()</1> 메서드도 있습니다."
-}

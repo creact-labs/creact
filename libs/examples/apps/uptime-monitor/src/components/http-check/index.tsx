@@ -34,6 +34,20 @@ async function probeTarget(url: string, timeoutMs: number): Promise<ProbeSample>
 }
 // #endregion probe
 
+// #region durable-tally
+export function accumulateTally(
+  prev: Partial<CheckTally> | undefined,
+  url: string,
+  sample: ProbeSample | undefined,
+): CheckTally {
+  return {
+    url,
+    checksRun: (prev?.checksRun ?? 0) + (sample ? 1 : 0),
+    checksFailed: (prev?.checksFailed ?? 0) + (sample?.status === "down" ? 1 : 0),
+  };
+}
+// #endregion durable-tally
+
 // #region check-props
 type HttpCheckProps = {
   target: Target;
@@ -64,16 +78,11 @@ export function HttpCheck(props: HttpCheckProps) {
   });
   // #endregion sweep-lifecycle
 
-  // #region durable-tally
+  // #region durable-tally-wiring
   const tally = useAsyncOutput<CheckTally>(
     () => ({ url: props.target.url, sample: latest() }),
     async (probeProps, setOutputs) => {
-      setOutputs((prev) => ({
-        url: probeProps.url,
-        checksRun: (prev?.checksRun ?? 0) + (probeProps.sample ? 1 : 0),
-        checksFailed:
-          (prev?.checksFailed ?? 0) + (probeProps.sample?.status === "down" ? 1 : 0),
-      }));
+      setOutputs((prev) => accumulateTally(prev, probeProps.url, probeProps.sample));
     },
   );
 
@@ -83,7 +92,7 @@ export function HttpCheck(props: HttpCheckProps) {
     if (checksRun === undefined || checksFailed === undefined) return;
     props.onTally({ url: props.target.url, checksRun, checksFailed });
   });
-  // #endregion durable-tally
+  // #endregion durable-tally-wiring
 
   // #region transitions
   const status = createMemo<ProbeStatus | "pending">(() => latest()?.status ?? "pending");

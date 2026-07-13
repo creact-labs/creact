@@ -1,8 +1,0 @@
-{
-  "title": "untrack",
-  "description": "リアクティブな依存関係を作成せずにシグナルを読み取ります。",
-  "signature": "untrack<T>(fn: () => T): T",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => T</0>",
-  "param_fn_desc": "トラッキングなしで実行する関数。内部でのシグナルの読み取りは依存関係を登録しません。"
-}

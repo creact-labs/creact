@@ -37,14 +37,13 @@ export const sidebarNav: NavSection[] = [
     ],
   },
   {
-    title: "docs.nav.sections.architecture",
+    title: "docs.nav.sections.examples",
     links: [
-      { title: "docs.nav.pages.reactive_system", href: "/docs/architecture/reactive-system" },
-      { title: "docs.nav.pages.reconciliation", href: "/docs/architecture/reconciliation" },
-      { title: "docs.nav.pages.fiber_model", href: "/docs/architecture/fiber-model" },
-      { title: "docs.nav.pages.state_machine", href: "/docs/architecture/state-machine" },
-      { title: "docs.nav.pages.memory_system", href: "/docs/architecture/memory-system" },
-      { title: "docs.nav.pages.runtime_boundaries", href: "/docs/architecture/runtime-boundaries" },
+      { title: "docs.nav.pages.durable_counter", href: "/docs/examples/durable-counter" },
+      { title: "docs.nav.pages.uptime_monitor", href: "/docs/examples/uptime-monitor" },
+      { title: "docs.nav.pages.site_publisher", href: "/docs/examples/site-publisher" },
+      { title: "docs.nav.pages.page_writer", href: "/docs/examples/page-writer" },
+      { title: "docs.nav.pages.tenant_fleet", href: "/docs/examples/tenant-fleet" },
     ],
   },
   {

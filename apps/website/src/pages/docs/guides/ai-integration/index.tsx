@@ -5,8 +5,10 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/ai-integration.tsx";
+const writer = "page-writer/src/claude/html-writer/index.ts";
+const page = "page-writer/src/components/page/index.tsx";
 
 const AiIntegration: Component = () => {
   return (
@@ -16,47 +18,74 @@ const AiIntegration: Component = () => {
         {t("docs.guides.ai_integration.description")}
       </p>
 
-      <DocHeading level={2} id="provider">
-        {t("docs.guides.ai_integration.heading_provider")}
+      <DocHeading level={2} id="client">
+        {t("docs.guides.ai_integration.heading_client")}
       </DocHeading>
       <p>
         <Trans
-          k="docs.guides.ai_integration.provider_intro"
+          k="docs.guides.ai_integration.client_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(writer, "client")}
+        filename={t("docs.guides.ai_integration.filename_writer")}
+      />
+      <p>
+        <Trans
+          k="docs.guides.ai_integration.client_notice"
+          components={[Code]}
+        />
+      </p>
+
+      <DocHeading level={2} id="request">
+        {t("docs.guides.ai_integration.heading_request")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.ai_integration.request_intro"
+          components={[Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(writer, "request")}
+        filename={t("docs.guides.ai_integration.filename_writer")}
+      />
+      <p>{t("docs.guides.ai_integration.request_notice")}</p>
+
+      <DocHeading level={2} id="extract">
+        {t("docs.guides.ai_integration.heading_extract")}
+      </DocHeading>
+      <p>
+        <Trans
+          k="docs.guides.ai_integration.extract_intro"
           components={[Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "provider")}
-        filename={t("docs.guides.ai_integration.filename_provider")}
+        code={codeSample(writer, "extract")}
+        filename={t("docs.guides.ai_integration.filename_writer")}
       />
 
-      <DocHeading level={2} id="generate-component">
-        {t("docs.guides.ai_integration.heading_generate_component")}
+      <DocHeading level={2} id="generate-handler">
+        {t("docs.guides.ai_integration.heading_generate_handler")}
       </DocHeading>
       <p>
         <Trans
           k="docs.guides.ai_integration.generate_intro"
-          components={[Code, Code, Code, Code]}
+          components={[Code]}
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "generate-component")}
-        filename={t("docs.guides.ai_integration.filename_generate")}
+        code={codeSample(page, "generate-handler")}
+        filename={t("docs.guides.ai_integration.filename_page")}
       />
-
-      <DocHeading level={2} id="reactive-pipeline">
-        {t("docs.guides.ai_integration.heading_reactive_pipeline")}
-      </DocHeading>
       <p>
         <Trans
-          k="docs.guides.ai_integration.pipeline_intro"
-          components={[Code, Code, Code]}
+          k="docs.guides.ai_integration.generate_notice"
+          components={[Code, Code]}
         />
       </p>
-      <DocCodeBlock
-        code={codeSample(samples, "reactive-pipeline")}
-        filename={t("docs.guides.ai_integration.filename_app")}
-      />
 
       <Callout type="tip">
         <p>
@@ -66,6 +95,18 @@ const AiIntegration: Component = () => {
           />
         </p>
       </Callout>
+      <p>
+        <Trans
+          k="docs.guides.ai_integration.see_walkthrough"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

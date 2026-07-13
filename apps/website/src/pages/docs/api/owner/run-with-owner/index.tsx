@@ -4,9 +4,10 @@ import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
+import TextLink from "@/shared/components/text-link";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-cookbook/src/owner/run-with-owner.ts";
+const page = "page-writer/src/components/page/index.tsx";
 
 const RunWithOwner: Component = () => {
   return (
@@ -51,7 +52,17 @@ const RunWithOwner: Component = () => {
         ]}
       />
 
-      <UsageSection code={codeSample(samples, "usage")} />
+      <UsageSection
+        code={codeSample(page, "deploy-write")}
+        filename={t("docs.api.owner.run_with_owner.filename_page")}
+      >
+        <p>
+          <Trans
+            k="docs.api.owner.run_with_owner.usage_deploy_write"
+            components={[Code, Code, Code]}
+          />
+        </p>
+      </UsageSection>
 
       <Callout type="info">
         <p>
@@ -61,6 +72,19 @@ const RunWithOwner: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.api.owner.run_with_owner.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/page-writer">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

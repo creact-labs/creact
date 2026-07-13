@@ -5,9 +5,12 @@
   "tsconfig_intro": "The key setting is <0>jsxImportSource</0>. This tells TypeScript to use CReact's JSX types:",
   "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
   "filename_tsconfig": "tsconfig.json",
-  "heading_typed_signals": "Typed Signals",
-  "typed_signals_intro": "Signals infer their type from the initial value, or you can specify it explicitly:",
-  "heading_typed_props": "Typed Props",
-  "heading_accessor_types": "Accessor and MaybeAccessor",
-  "info_types": "CReact re-exports key types: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, and all runtime types."
+  "heading_value_or_accessor": "Typing value-or-accessor props",
+  "value_or_accessor_intro": "The site publisher's <0>SiteObjectProps</0> types <1>bucket</1> and <2>entry</2> as <0>MaybeAccessor</0>, so a single interface accepts both plain values and getters and the handler stays fully typed after access unwraps them.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "Typed props with defaults",
+  "typed_defaults_intro": "The tenant fleet's <0>TenantTreeProps</0> marks <1>plan</1> optional, then <2>mergeProps</2> supplies the default and narrows the result to a fully-required shape the rest of the tree can rely on.",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact re-exports key types: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, and all runtime types.",
+  "in_the_wild": "See these typed props provision real resources in the <0>site-publisher walkthrough</0>."
 }

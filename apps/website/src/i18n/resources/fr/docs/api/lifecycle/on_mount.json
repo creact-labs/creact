@@ -1,8 +1,0 @@
-{
-  "title": "onMount",
-  "description": "Exécute une fonction une fois à l’initialisation du composant, sans suivre les dépendances.",
-  "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<0>fn</0>",
-  "param_fn_type": "<0>() => void</0>",
-  "param_fn_desc": "Fonction à exécuter une fois au montage. S’exécute sans suivi ; les lectures de signaux ne créent pas de dépendances."
-}

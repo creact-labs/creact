@@ -1,9 +1,0 @@
-{
-  "title": "access",
-  "description": "Desembrulha um MaybeAccessor. Chama-o se for uma função; caso contrário, o retorna diretamente.",
-  "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<0>value</0>",
-  "param_value_type": "<0>T | () => T</0>",
-  "param_value_desc": "Um valor ou uma função accessor.",
-  "returns_desc": "O valor desembrulhado do tipo <0>T</0>."
-}

@@ -5,8 +5,10 @@ import Callout from "@/shared/components/callout";
 import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
-const samples = "integrations/src/typescript.tsx";
+const siteObject = "site-publisher/src/aws/site-object/index.tsx";
+const tenantApp = "tenant-fleet/src/components/tenant-app/index.tsx";
 
 const Typescript: Component = () => {
   return (
@@ -29,21 +31,33 @@ const Typescript: Component = () => {
         filename={t("docs.guides.typescript.filename_tsconfig")}
       />
 
-      <DocHeading level={2} id="typed-signals">
-        {t("docs.guides.typescript.heading_typed_signals")}
+      <DocHeading level={2} id="value-or-accessor-props">
+        {t("docs.guides.typescript.heading_value_or_accessor")}
       </DocHeading>
-      <p>{t("docs.guides.typescript.typed_signals_intro")}</p>
-      <DocCodeBlock code={codeSample(samples, "typed-signals")} />
+      <p>
+        <Trans
+          k="docs.guides.typescript.value_or_accessor_intro"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(siteObject, "object-props")}
+        filename={t("docs.guides.typescript.filename_site_object")}
+      />
 
-      <DocHeading level={2} id="typed-props">
-        {t("docs.guides.typescript.heading_typed_props")}
+      <DocHeading level={2} id="typed-defaults">
+        {t("docs.guides.typescript.heading_typed_defaults")}
       </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "typed-props")} />
-
-      <DocHeading level={2} id="accessor-types">
-        {t("docs.guides.typescript.heading_accessor_types")}
-      </DocHeading>
-      <DocCodeBlock code={codeSample(samples, "accessor-types")} />
+      <p>
+        <Trans
+          k="docs.guides.typescript.typed_defaults_intro"
+          components={[Code, Code, Code]}
+        />
+      </p>
+      <DocCodeBlock
+        code={codeSample(tenantApp, "tree")}
+        filename={t("docs.guides.typescript.filename_tenant_app")}
+      />
 
       <Callout type="info">
         <p>
@@ -53,6 +67,19 @@ const Typescript: Component = () => {
           />
         </p>
       </Callout>
+
+      <p>
+        <Trans
+          k="docs.guides.typescript.in_the_wild"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/examples/site-publisher">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
+      </p>
     </>
   );
 };

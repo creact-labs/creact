@@ -1,6 +1,0 @@
-{
-  "title": "splitProps",
-  "description": "将 props 对象按键拆分为多个组。保留响应性。",
-  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "接受 props 对象，后跟一个或多个键数组。返回一个元组，包含每个键组对应的一个对象，以及一个包含所有未匹配键的剩余对象。"
-}

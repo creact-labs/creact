@@ -1,5 +1,0 @@
-{
-  "title": "mergeProps",
-  "description": "Mescla múltiplos objetos de props de forma reativa, com fontes posteriores sobrescrevendo as anteriores. Use para props padrão.",
-  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
-}

@@ -1,9 +1,0 @@
-{
-  "title": "createContext",
-  "description": "Tạo một context để truyền dữ liệu xuyên suốt cây component mà không cần props.",
-  "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<0>defaultValue</0>",
-  "param_default_value_type": "<0>T</0>",
-  "param_default_value_desc": "Tùy chọn. Giá trị được trả về bởi <0>useContext</0> khi không có Provider nào phía trên.",
-  "returns_desc": "Một đối tượng <0>Context<T></0> kèm component <1>Provider</1>."
-}

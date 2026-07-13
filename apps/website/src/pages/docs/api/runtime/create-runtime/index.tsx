@@ -10,7 +10,8 @@ import Em from "@/shared/components/em";
 import TextLink from "@/shared/components/text-link";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-cookbook/src/runtime/create-runtime.tsx";
+const tenantApp = "tenant-fleet/src/components/tenant-app/index.tsx";
+const fleet = "tenant-fleet/src/app.tsx";
 
 const CreateRuntime: Component = () => {
   return (
@@ -20,7 +21,10 @@ const CreateRuntime: Component = () => {
         {t("docs.api.runtime.create_runtime.description")}
       </p>
 
-      <DocCodeBlock code={codeSample(samples, "hero")} />
+      <DocCodeBlock
+        code={codeSample(tenantApp, "runtime-wrap")}
+        filename={t("docs.api.runtime.create_runtime.hero_filename")}
+      />
 
       <ApiReference
         name={t("docs.api.runtime.create_runtime.title")}
@@ -49,9 +53,15 @@ const CreateRuntime: Component = () => {
       />
 
       <UsageSection
-        code={codeSample(samples, "usage")}
+        code={codeSample(fleet, "fleet")}
         filename={t("docs.api.runtime.create_runtime.usage_filename")}
       >
+        <p>
+          <Trans
+            k="docs.api.runtime.create_runtime.usage_fleet"
+            components={[Code, Code, Code]}
+          />
+        </p>
         <p>
           <Trans
             k="docs.api.runtime.create_runtime.outputs_intro"
@@ -107,7 +117,7 @@ const CreateRuntime: Component = () => {
               components={[
                 Em,
                 (props) => (
-                  <TextLink href="#/docs/architecture/runtime-boundaries">
+                  <TextLink href="#/docs/examples/tenant-fleet">
                     {props.children}
                   </TextLink>
                 ),

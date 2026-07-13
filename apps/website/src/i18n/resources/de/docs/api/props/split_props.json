@@ -1,6 +1,0 @@
-{
-  "title": "splitProps",
-  "description": "Teilt ein Props-Objekt anhand von Keys in mehrere Gruppen auf. Bewahrt die Reaktivität.",
-  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "Nimmt das Props-Objekt gefolgt von einem oder mehreren Arrays von Keys entgegen. Gibt ein Tupel mit einem Objekt pro Key-Gruppe sowie einem Restobjekt zurück, das alle nicht zugeordneten Keys enthält."
-}

@@ -8,7 +8,9 @@ import DocHeading from "@/shared/components/doc-heading";
 import Strong from "@/shared/components/strong";
 import TextLink from "@/shared/components/text-link";
 
-const samples = "durable-counter/src/state-and-memory.tsx";
+const fileMemory = "packages/file-memory/src/index.ts";
+const entry = "durable-counter/index.tsx";
+const app = "durable-counter/src/app.tsx";
 
 const StateAndMemory: Component = () => {
   return (
@@ -38,26 +40,21 @@ const StateAndMemory: Component = () => {
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "memory-interface")}
+        code={codeSample(fileMemory, "file-memory")}
         filename={t("docs.getting_started.state_and_memory.filename_memory")}
-      />
-
-      <DocHeading level={2} id="file-memory">
-        {t("docs.getting_started.state_and_memory.heading_file_memory")}
-      </DocHeading>
-      <p>{t("docs.getting_started.state_and_memory.file_memory_intro")}</p>
-      <DocCodeBlock
-        code={codeSample("durable-counter/src/memory.ts", "file-memory")}
-        filename={t(
-          "docs.getting_started.state_and_memory.filename_src_memory",
-        )}
       />
 
       <DocHeading level={2} id="using-memory">
         {t("docs.getting_started.state_and_memory.heading_using_memory")}
       </DocHeading>
+      <p>
+        <Trans
+          k="docs.getting_started.state_and_memory.using_memory_intro"
+          components={[Code, Code]}
+        />
+      </p>
       <DocCodeBlock
-        code={codeSample("durable-counter/index.tsx", "using-memory")}
+        code={codeSample(entry, "entry-point")}
         filename={t("docs.getting_started.state_and_memory.filename_index_tsx")}
       />
 
@@ -80,8 +77,8 @@ const StateAndMemory: Component = () => {
         />
       </p>
       <DocCodeBlock
-        code={codeSample(samples, "use-async-output")}
-        filename={t("docs.getting_started.state_and_memory.filename_counter")}
+        code={codeSample(app, "counter-handler")}
+        filename={t("docs.getting_started.state_and_memory.filename_app")}
       />
 
       <DocHeading level={2} id="what-gets-persisted">
@@ -96,11 +93,6 @@ const StateAndMemory: Component = () => {
         />
       </p>
 
-      <DocHeading level={2} id="reconciliation">
-        {t("docs.getting_started.state_and_memory.heading_reconciliation")}
-      </DocHeading>
-      <p>{t("docs.getting_started.state_and_memory.reconciliation_body")}</p>
-
       <Callout type="info">
         <p>
           <Trans
@@ -112,10 +104,10 @@ const StateAndMemory: Component = () => {
 
       <p>
         <Trans
-          k="docs.getting_started.state_and_memory.memory_system_link"
+          k="docs.getting_started.state_and_memory.durable_counter_link"
           components={[
             (props) => (
-              <TextLink href="#/docs/architecture/memory-system">
+              <TextLink href="#/docs/examples/durable-counter">
                 {props.children}
               </TextLink>
             ),

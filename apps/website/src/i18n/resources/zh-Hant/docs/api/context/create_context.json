@@ -1,9 +1,0 @@
-{
-  "title": "createContext",
-  "description": "建立一個 Context，用於在元件樹中傳遞資料，無需透過 props。",
-  "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<0>defaultValue</0>",
-  "param_default_value_type": "<0>T</0>",
-  "param_default_value_desc": "選用。當上方不存在 Provider 時，<0>useContext</0> 所回傳的值。",
-  "returns_desc": "一個含有 <1>Provider</1> 元件的 <0>Context<T></0> 物件。"
-}
