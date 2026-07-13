@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -29,8 +30,14 @@ const CreactCli: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.cli.creact_cli.row_entry_file_name" />,
-            <Trans k="docs.api.cli.creact_cli.row_entry_file_desc" />,
+            <Trans
+              k="docs.api.cli.creact_cli.row_entry_file_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.cli.creact_cli.row_entry_file_desc"
+              components={[Code]}
+            />,
           ],
         ]}
       />
@@ -45,11 +52,17 @@ const CreactCli: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.cli.creact_cli.row_watch_name" />,
+            <Trans
+              k="docs.api.cli.creact_cli.row_watch_name"
+              components={[Code]}
+            />,
             <Trans k="docs.api.cli.creact_cli.row_watch_desc" />,
           ],
           [
-            <Trans k="docs.api.cli.creact_cli.row_help_name" />,
+            <Trans
+              k="docs.api.cli.creact_cli.row_help_name"
+              components={[Code]}
+            />,
             <Trans k="docs.api.cli.creact_cli.row_help_desc" />,
           ],
         ]}
@@ -72,7 +85,10 @@ const CreactCli: Component = () => {
           <Trans k="docs.api.cli.creact_cli.behavior_typecheck" />
         </li>
         <li>
-          <Trans k="docs.api.cli.creact_cli.behavior_execute" />
+          <Trans
+            k="docs.api.cli.creact_cli.behavior_execute"
+            components={[Code]}
+          />
         </li>
         <li>
           <Trans k="docs.api.cli.creact_cli.behavior_default_export" />

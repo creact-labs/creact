@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
 import DocTable from "@/shared/components/doc-table";
@@ -74,23 +75,38 @@ const ReactiveSystem: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.architecture.reactive_system.module_tracking_name" />,
+            <Trans
+              k="docs.architecture.reactive_system.module_tracking_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.reactive_system.module_tracking_desc" />,
           ],
           [
-            <Trans k="docs.architecture.reactive_system.module_signal_name" />,
+            <Trans
+              k="docs.architecture.reactive_system.module_signal_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.reactive_system.module_signal_desc" />,
           ],
           [
-            <Trans k="docs.architecture.reactive_system.module_effect_name" />,
+            <Trans
+              k="docs.architecture.reactive_system.module_effect_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.reactive_system.module_effect_desc" />,
           ],
           [
-            <Trans k="docs.architecture.reactive_system.module_owner_name" />,
+            <Trans
+              k="docs.architecture.reactive_system.module_owner_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.reactive_system.module_owner_desc" />,
           ],
           [
-            <Trans k="docs.architecture.reactive_system.module_selector_name" />,
+            <Trans
+              k="docs.architecture.reactive_system.module_selector_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.reactive_system.module_selector_desc" />,
           ],
         ]}
@@ -103,7 +119,10 @@ const ReactiveSystem: Component = () => {
 
       <Callout type="info">
         <p>
-          <Trans k="docs.architecture.reactive_system.callout_synchronous" />
+          <Trans
+            k="docs.architecture.reactive_system.callout_synchronous"
+            components={[Code]}
+          />
         </p>
       </Callout>
     </>

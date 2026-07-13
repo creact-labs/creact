@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -19,7 +20,10 @@ const ContextProviders: Component = () => {
         {t("docs.getting_started.context_providers.heading_creating_context")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.context_providers.creating_context_intro" />
+        <Trans
+          k="docs.getting_started.context_providers.creating_context_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "create-context")}
@@ -32,7 +36,10 @@ const ContextProviders: Component = () => {
         {t("docs.getting_started.context_providers.heading_providing_values")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.context_providers.providing_values_intro" />
+        <Trans
+          k="docs.getting_started.context_providers.providing_values_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "provide")}

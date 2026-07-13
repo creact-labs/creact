@@ -2,8 +2,11 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import Strong from "@/shared/components/strong";
+import TextLink from "@/shared/components/text-link";
 
 const samples = "durable-counter/src/state-and-memory.tsx";
 
@@ -19,14 +22,20 @@ const StateAndMemory: Component = () => {
         {t("docs.getting_started.state_and_memory.heading_why_persistence")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.state_and_memory.why_persistence_body" />
+        <Trans
+          k="docs.getting_started.state_and_memory.why_persistence_body"
+          components={[Code]}
+        />
       </p>
 
       <DocHeading level={2} id="memory-interface">
         {t("docs.getting_started.state_and_memory.heading_memory_interface")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.state_and_memory.memory_interface_intro" />
+        <Trans
+          k="docs.getting_started.state_and_memory.memory_interface_intro"
+          components={[Code, Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "memory-interface")}
@@ -54,7 +63,10 @@ const StateAndMemory: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.getting_started.state_and_memory.tip_stack_name" />
+          <Trans
+            k="docs.getting_started.state_and_memory.tip_stack_name"
+            components={[Code]}
+          />
         </p>
       </Callout>
 
@@ -62,7 +74,10 @@ const StateAndMemory: Component = () => {
         {t("docs.getting_started.state_and_memory.heading_use_async_output")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.state_and_memory.use_async_output_intro" />
+        <Trans
+          k="docs.getting_started.state_and_memory.use_async_output_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "use-async-output")}
@@ -75,7 +90,10 @@ const StateAndMemory: Component = () => {
         )}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.state_and_memory.what_gets_persisted_body" />
+        <Trans
+          k="docs.getting_started.state_and_memory.what_gets_persisted_body"
+          components={[Code, Strong]}
+        />
       </p>
 
       <DocHeading level={2} id="reconciliation">
@@ -85,12 +103,24 @@ const StateAndMemory: Component = () => {
 
       <Callout type="info">
         <p>
-          <Trans k="docs.getting_started.state_and_memory.info_gitignore" />
+          <Trans
+            k="docs.getting_started.state_and_memory.info_gitignore"
+            components={[Code, Code]}
+          />
         </p>
       </Callout>
 
       <p>
-        <Trans k="docs.getting_started.state_and_memory.memory_system_link" />
+        <Trans
+          k="docs.getting_started.state_and_memory.memory_system_link"
+          components={[
+            (props) => (
+              <TextLink href="#/docs/architecture/memory-system">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
       </p>
     </>
   );

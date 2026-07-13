@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -32,18 +33,36 @@ const PackageJson: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.config.package_json.row_type_name" />,
-            <Trans k="docs.api.config.package_json.row_type_value" />,
+            <Trans
+              k="docs.api.config.package_json.row_type_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.package_json.row_type_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.package_json.row_type_why" />,
           ],
           [
-            <Trans k="docs.api.config.package_json.row_start_name" />,
-            <Trans k="docs.api.config.package_json.row_start_value" />,
+            <Trans
+              k="docs.api.config.package_json.row_start_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.package_json.row_start_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.package_json.row_start_why" />,
           ],
           [
-            <Trans k="docs.api.config.package_json.row_dev_name" />,
-            <Trans k="docs.api.config.package_json.row_dev_value" />,
+            <Trans
+              k="docs.api.config.package_json.row_dev_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.package_json.row_dev_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.package_json.row_dev_why" />,
           ],
         ]}

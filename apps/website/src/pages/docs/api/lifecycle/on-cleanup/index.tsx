@@ -3,6 +3,7 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
@@ -23,8 +24,14 @@ const OnCleanup: Component = () => {
         signature={t("docs.api.lifecycle.on_cleanup.signature")}
         parameters={[
           [
-            <Trans k="docs.api.lifecycle.on_cleanup.param_fn_name" />,
-            <Trans k="docs.api.lifecycle.on_cleanup.param_fn_type" />,
+            <Trans
+              k="docs.api.lifecycle.on_cleanup.param_fn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.lifecycle.on_cleanup.param_fn_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.lifecycle.on_cleanup.param_fn_desc" />,
           ],
         ]}
@@ -39,7 +46,10 @@ const OnCleanup: Component = () => {
 
       <Callout type="warning">
         <p>
-          <Trans k="docs.api.lifecycle.on_cleanup.warning_no_owner" />
+          <Trans
+            k="docs.api.lifecycle.on_cleanup.warning_no_owner"
+            components={[Code, Code, Code]}
+          />
         </p>
       </Callout>
     </>

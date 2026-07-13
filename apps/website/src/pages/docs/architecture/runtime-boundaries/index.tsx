@@ -2,9 +2,12 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import Em from "@/shared/components/em";
+import Strong from "@/shared/components/strong";
 
 const samples = "api-cookbook/src/architecture/runtime-boundaries.tsx";
 
@@ -13,7 +16,10 @@ const RuntimeBoundaries: Component = () => {
     <>
       <h1>{t("docs.architecture.runtime_boundaries.title")}</h1>
       <p class="docs-description">
-        <Trans k="docs.architecture.runtime_boundaries.description" />
+        <Trans
+          k="docs.architecture.runtime_boundaries.description"
+          components={[Code]}
+        />
       </p>
 
       <DocHeading level={2} id="the-sovereignty-model">
@@ -27,23 +33,44 @@ const RuntimeBoundaries: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.architecture.runtime_boundaries.aspect_ledger_name" />,
-            <Trans k="docs.architecture.runtime_boundaries.aspect_ledger_desc" />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_ledger_name"
+              components={[Strong]}
+            />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_ledger_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.architecture.runtime_boundaries.aspect_lock_name" />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_lock_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.runtime_boundaries.aspect_lock_desc" />,
           ],
           [
-            <Trans k="docs.architecture.runtime_boundaries.aspect_failure_name" />,
-            <Trans k="docs.architecture.runtime_boundaries.aspect_failure_desc" />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_failure_name"
+              components={[Strong]}
+            />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_failure_desc"
+              components={[Code, Code, Code]}
+            />,
           ],
           [
-            <Trans k="docs.architecture.runtime_boundaries.aspect_sealed_context_name" />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_sealed_context_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.runtime_boundaries.aspect_sealed_context_desc" />,
           ],
           [
-            <Trans k="docs.architecture.runtime_boundaries.aspect_crosses_props_name" />,
+            <Trans
+              k="docs.architecture.runtime_boundaries.aspect_crosses_props_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.runtime_boundaries.aspect_crosses_props_desc" />,
           ],
         ]}
@@ -58,7 +85,10 @@ const RuntimeBoundaries: Component = () => {
         {t("docs.architecture.runtime_boundaries.heading_recursion")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.runtime_boundaries.recursion_body" />
+        <Trans
+          k="docs.architecture.runtime_boundaries.recursion_body"
+          components={[Code, Code, Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "recursion")} />
 
@@ -66,7 +96,10 @@ const RuntimeBoundaries: Component = () => {
         {t("docs.architecture.runtime_boundaries.heading_detach_vs_destroy")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.runtime_boundaries.detach_vs_destroy_body" />
+        <Trans
+          k="docs.architecture.runtime_boundaries.detach_vs_destroy_body"
+          components={[Em]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "detach-vs-destroy")} />
       <Callout type="warning">

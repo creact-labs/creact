@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -43,7 +44,10 @@ const ReactivePrimitives: Component = () => {
         {t("docs.getting_started.reactive_primitives.heading_batching")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.reactive_primitives.batching_intro" />
+        <Trans
+          k="docs.getting_started.reactive_primitives.batching_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "batching")} />
 
@@ -51,7 +55,10 @@ const ReactivePrimitives: Component = () => {
         {t("docs.getting_started.reactive_primitives.heading_untrack")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.reactive_primitives.untrack_intro" />
+        <Trans
+          k="docs.getting_started.reactive_primitives.untrack_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "untrack")} />
     </>

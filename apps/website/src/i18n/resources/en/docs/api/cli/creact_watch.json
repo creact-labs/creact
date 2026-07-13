@@ -6,10 +6,10 @@
   "filename_terminal": "Terminal",
   "heading_behavior": "Behavior",
   "behavior_run": "Type checks and runs your entry file",
-  "behavior_watch": "Watches <code>.ts</code>, <code>.tsx</code>, <code>.js</code>, and <code>.jsx</code> files for changes",
+  "behavior_watch": "Watches <0>.ts</0>, <1>.tsx</1>, <2>.js</2>, and <3>.jsx</3> files for changes",
   "behavior_restart": "On file change: stops the current run (executes cleanups), re-type-checks, and restarts",
   "behavior_state": "State persists between restarts via the Memory interface",
-  "behavior_stop": "Press <code>Ctrl+C</code> to stop",
+  "behavior_stop": "Press <0>Ctrl+C</0> to stop",
   "heading_output": "Output",
   "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
   "tip_state_persists": "State persists across restarts. Edit your component tree without losing deployed state."

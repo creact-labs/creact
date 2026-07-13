@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
@@ -57,7 +58,10 @@ const FiberModel: Component = () => {
         {t("docs.architecture.fiber_model.heading_paths")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.fiber_model.paths_body" />
+        <Trans
+          k="docs.architecture.fiber_model.paths_body"
+          components={[Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock code={t("docs.architecture.fiber_model.code_paths")} />
 
@@ -65,14 +69,20 @@ const FiberModel: Component = () => {
         {t("docs.architecture.fiber_model.heading_instance_nodes")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.fiber_model.instance_nodes_body" />
+        <Trans
+          k="docs.architecture.fiber_model.instance_nodes_body"
+          components={[Code, Code, Code]}
+        />
       </p>
 
       <DocHeading level={2} id="source">
         {t("docs.architecture.fiber_model.heading_source")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.fiber_model.source_body" />
+        <Trans
+          k="docs.architecture.fiber_model.source_body"
+          components={[Code, Code, Code, Code]}
+        />
       </p>
     </>
   );

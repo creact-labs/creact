@@ -2,13 +2,13 @@
   "title": "AI Integration",
   "description": "Wrap the Anthropic SDK in a context provider and call Claude from reactive effects.",
   "heading_provider": "Claude Provider",
-  "provider_intro": "Wrap the Anthropic SDK in a context provider so any child component can call the API. The provider creates the client once. Child components access it via <code>useComplete()</code>.",
+  "provider_intro": "Wrap the Anthropic SDK in a context provider so any child component can call the API. The provider creates the client once. Child components access it via <0>useComplete()</0>.",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Generation Component",
-  "generate_intro": "The <code>GenerateHtml</code> component calls <code>useComplete()</code> inside a <code>createEffect</code>. When the prompt signal changes, the effect fires, calls the API, and passes the result to a callback. The <code>untrack</code> guard prevents duplicate generations.",
+  "generate_intro": "The <0>GenerateHtml</0> component calls <1>useComplete()</1> inside a <2>createEffect</2>. When the prompt signal changes, the effect fires, calls the API, and passes the result to a callback. The <3>untrack</3> guard prevents duplicate generations.",
   "filename_generate": "components/generate-html.tsx",
   "heading_reactive_pipeline": "Reactive Pipeline",
-  "pipeline_intro": "The app wires generation and deployment together with <code>Show</code>. When a pending generation exists, <code>GenerateHtml</code> runs. When it produces content, <code>Write</code> saves it to disk, and the site list updates, which triggers AWS deployment downstream.",
+  "pipeline_intro": "The app wires generation and deployment together with <0>Show</0>. When a pending generation exists, <1>GenerateHtml</1> runs. When it produces content, <2>Write</2> saves it to disk, and the site list updates, which triggers AWS deployment downstream.",
   "filename_app": "app.tsx",
-  "tip_persistence": "AI outputs are persisted like any other <code>useAsyncOutput</code> result. The generation only runs again if its input props change."
+  "tip_persistence": "AI outputs are persisted like any other <0>useAsyncOutput</0> result. The generation only runs again if its input props change."
 }

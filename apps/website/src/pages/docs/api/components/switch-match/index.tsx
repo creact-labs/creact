@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import ApiReference from "@/shared/components/api-reference";
 import ApiSignature from "@/shared/components/api-signature";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -40,13 +41,25 @@ const SwitchMatch: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.components.switch_match.switch_prop_fallback_name" />,
-            <Trans k="docs.api.components.switch_match.switch_prop_fallback_type" />,
+            <Trans
+              k="docs.api.components.switch_match.switch_prop_fallback_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.switch_match.switch_prop_fallback_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.switch_match.switch_prop_fallback_desc" />,
           ],
           [
-            <Trans k="docs.api.components.switch_match.switch_prop_children_name" />,
-            <Trans k="docs.api.components.switch_match.switch_prop_children_type" />,
+            <Trans
+              k="docs.api.components.switch_match.switch_prop_children_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.switch_match.switch_prop_children_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.switch_match.switch_prop_children_desc" />,
           ],
         ]}
@@ -62,13 +75,25 @@ const SwitchMatch: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.components.switch_match.match_prop_when_name" />,
-            <Trans k="docs.api.components.switch_match.match_prop_when_type" />,
+            <Trans
+              k="docs.api.components.switch_match.match_prop_when_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.switch_match.match_prop_when_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.switch_match.match_prop_when_desc" />,
           ],
           [
-            <Trans k="docs.api.components.switch_match.match_prop_children_name" />,
-            <Trans k="docs.api.components.switch_match.match_prop_children_type" />,
+            <Trans
+              k="docs.api.components.switch_match.match_prop_children_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.switch_match.match_prop_children_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.switch_match.match_prop_children_desc" />,
           ],
         ]}

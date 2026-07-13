@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -22,24 +23,48 @@ const CreateMemo: Component = () => {
         signature={t("docs.api.reactive.create_memo.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.create_memo.param_fn_name" />,
-            <Trans k="docs.api.reactive.create_memo.param_fn_type" />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_fn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_fn_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.create_memo.param_fn_desc" />,
           ],
           [
-            <Trans k="docs.api.reactive.create_memo.param_value_name" />,
-            <Trans k="docs.api.reactive.create_memo.param_value_type" />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_value_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_value_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.create_memo.param_value_desc" />,
           ],
           [
-            <Trans k="docs.api.reactive.create_memo.param_options_name" />,
-            <Trans k="docs.api.reactive.create_memo.param_options_type" />,
-            <Trans k="docs.api.reactive.create_memo.param_options_desc" />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_options_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_options_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_memo.param_options_desc"
+              components={[Code]}
+            />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.reactive.create_memo.returns_body" />
+            <Trans
+              k="docs.api.reactive.create_memo.returns_body"
+              components={[Code]}
+            />
           </p>
         }
       />

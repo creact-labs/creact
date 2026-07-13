@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -35,24 +36,51 @@ const ForApi: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.components.for.prop_each_name" />,
-            <Trans k="docs.api.components.for.prop_each_type" />,
+            <Trans
+              k="docs.api.components.for.prop_each_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.for.prop_each_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.for.prop_each_desc" />,
           ],
           [
-            <Trans k="docs.api.components.for.prop_fallback_name" />,
-            <Trans k="docs.api.components.for.prop_fallback_type" />,
+            <Trans
+              k="docs.api.components.for.prop_fallback_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.for.prop_fallback_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.for.prop_fallback_desc" />,
           ],
           [
-            <Trans k="docs.api.components.for.prop_keyfn_name" />,
-            <Trans k="docs.api.components.for.prop_keyfn_type" />,
+            <Trans
+              k="docs.api.components.for.prop_keyfn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.for.prop_keyfn_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.for.prop_keyfn_desc" />,
           ],
           [
-            <Trans k="docs.api.components.for.prop_children_name" />,
-            <Trans k="docs.api.components.for.prop_children_type" />,
-            <Trans k="docs.api.components.for.prop_children_desc" />,
+            <Trans
+              k="docs.api.components.for.prop_children_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.for.prop_children_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.for.prop_children_desc"
+              components={[Code, Code]}
+            />,
           ],
         ]}
       />

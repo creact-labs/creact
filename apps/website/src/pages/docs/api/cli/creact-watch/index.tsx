@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -29,7 +30,10 @@ const CreactWatch: Component = () => {
           <Trans k="docs.api.cli.creact_watch.behavior_run" />
         </li>
         <li>
-          <Trans k="docs.api.cli.creact_watch.behavior_watch" />
+          <Trans
+            k="docs.api.cli.creact_watch.behavior_watch"
+            components={[Code, Code, Code, Code]}
+          />
         </li>
         <li>
           <Trans k="docs.api.cli.creact_watch.behavior_restart" />
@@ -38,7 +42,10 @@ const CreactWatch: Component = () => {
           <Trans k="docs.api.cli.creact_watch.behavior_state" />
         </li>
         <li>
-          <Trans k="docs.api.cli.creact_watch.behavior_stop" />
+          <Trans
+            k="docs.api.cli.creact_watch.behavior_stop"
+            components={[Code]}
+          />
         </li>
       </ol>
 

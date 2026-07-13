@@ -2,7 +2,7 @@
   "title": "Environment Variables",
   "description": "Configure your app for different environments using process.env.",
   "heading_reading": "Reading Environment Variables",
-  "reading_intro": "Access environment variables through <code>process.env</code> as in any Node.js app:",
+  "reading_intro": "Access environment variables through <0>process.env</0> as in any Node.js app:",
   "filename_app": "app.tsx",
   "heading_per_environment": "Per-Environment Configuration",
   "filename_config": "config.ts",
@@ -10,5 +10,5 @@
   "secrets_intro": "Pass secrets via environment variables or a secret manager:",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact does not have built-in <code>.env</code> file loading. Use a package like <code>dotenv</code> or set variables in your shell / CI environment."
+  "warning_dotenv": "CReact does not have built-in <0>.env</0> file loading. Use a package like <1>dotenv</1> or set variables in your shell / CI environment."
 }

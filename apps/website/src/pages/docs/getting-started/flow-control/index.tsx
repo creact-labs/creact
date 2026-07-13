@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -19,7 +20,10 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_show")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.flow_control.show_intro" />
+        <Trans
+          k="docs.getting_started.flow_control.show_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "show")} />
 
@@ -30,7 +34,10 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_for")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.flow_control.for_intro" />
+        <Trans
+          k="docs.getting_started.flow_control.for_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "for")} />
 
@@ -38,7 +45,10 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_switch")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.flow_control.switch_intro" />
+        <Trans
+          k="docs.getting_started.flow_control.switch_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "switch")} />
 
@@ -46,13 +56,19 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_error_boundary")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.flow_control.error_boundary_intro" />
+        <Trans
+          k="docs.getting_started.flow_control.error_boundary_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock code={codeSample(samples, "error-boundary")} />
 
       <Callout type="info">
         <p>
-          <Trans k="docs.getting_started.flow_control.info_accessor_conditions" />
+          <Trans
+            k="docs.getting_started.flow_control.info_accessor_conditions"
+            components={[Code]}
+          />
         </p>
       </Callout>
     </>

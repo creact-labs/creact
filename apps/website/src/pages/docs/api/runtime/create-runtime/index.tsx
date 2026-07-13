@@ -3,8 +3,11 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocTable from "@/shared/components/doc-table";
+import Em from "@/shared/components/em";
+import TextLink from "@/shared/components/text-link";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/runtime/create-runtime.tsx";
@@ -24,14 +27,23 @@ const CreateRuntime: Component = () => {
         signature={t("docs.api.runtime.create_runtime.signature")}
         parameters={[
           [
-            <Trans k="docs.api.runtime.create_runtime.param_root_name" />,
-            <Trans k="docs.api.runtime.create_runtime.param_root_type" />,
+            <Trans
+              k="docs.api.runtime.create_runtime.param_root_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.runtime.create_runtime.param_root_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.runtime.create_runtime.param_root_desc" />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.runtime.create_runtime.returns_desc" />
+            <Trans
+              k="docs.api.runtime.create_runtime.returns_desc"
+              components={[Code, Code, Code]}
+            />
           </p>
         }
       />
@@ -41,7 +53,10 @@ const CreateRuntime: Component = () => {
         filename={t("docs.api.runtime.create_runtime.usage_filename")}
       >
         <p>
-          <Trans k="docs.api.runtime.create_runtime.outputs_intro" />
+          <Trans
+            k="docs.api.runtime.create_runtime.outputs_intro"
+            components={[Code, Code, Code, Code, Code]}
+          />
         </p>
         <DocTable
           headers={[
@@ -51,25 +66,53 @@ const CreateRuntime: Component = () => {
           ]}
           rows={[
             [
-              <Trans k="docs.api.runtime.create_runtime.output_status_name" />,
-              <Trans k="docs.api.runtime.create_runtime.output_status_type" />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_status_name"
+                components={[Code]}
+              />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_status_type"
+                components={[Code]}
+              />,
               <Trans k="docs.api.runtime.create_runtime.output_status_desc" />,
             ],
             [
-              <Trans k="docs.api.runtime.create_runtime.output_ready_name" />,
-              <Trans k="docs.api.runtime.create_runtime.output_ready_type" />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_ready_name"
+                components={[Code]}
+              />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_ready_type"
+                components={[Code]}
+              />,
               <Trans k="docs.api.runtime.create_runtime.output_ready_desc" />,
             ],
             [
-              <Trans k="docs.api.runtime.create_runtime.output_error_name" />,
-              <Trans k="docs.api.runtime.create_runtime.output_error_type" />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_error_name"
+                components={[Code]}
+              />,
+              <Trans
+                k="docs.api.runtime.create_runtime.output_error_type"
+                components={[Code]}
+              />,
               <Trans k="docs.api.runtime.create_runtime.output_error_desc" />,
             ],
           ]}
         />
         <Callout type="info">
           <p>
-            <Trans k="docs.api.runtime.create_runtime.callout_detach" />
+            <Trans
+              k="docs.api.runtime.create_runtime.callout_detach"
+              components={[
+                Em,
+                (props) => (
+                  <TextLink href="#/docs/architecture/runtime-boundaries">
+                    {props.children}
+                  </TextLink>
+                ),
+              ]}
+            />
           </p>
         </Callout>
       </UsageSection>

@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -34,18 +35,39 @@ const ShowApi: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.components.show.prop_when_name" />,
-            <Trans k="docs.api.components.show.prop_when_type" />,
+            <Trans
+              k="docs.api.components.show.prop_when_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.show.prop_when_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.show.prop_when_desc" />,
           ],
           [
-            <Trans k="docs.api.components.show.prop_fallback_name" />,
-            <Trans k="docs.api.components.show.prop_fallback_type" />,
-            <Trans k="docs.api.components.show.prop_fallback_desc" />,
+            <Trans
+              k="docs.api.components.show.prop_fallback_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.show.prop_fallback_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.show.prop_fallback_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.api.components.show.prop_children_name" />,
-            <Trans k="docs.api.components.show.prop_children_type" />,
+            <Trans
+              k="docs.api.components.show.prop_children_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.components.show.prop_children_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.components.show.prop_children_desc" />,
           ],
         ]}

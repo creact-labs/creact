@@ -1,8 +1,10 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import Strong from "@/shared/components/strong";
 
 const Deploying: Component = () => {
   return (
@@ -16,7 +18,10 @@ const Deploying: Component = () => {
         {t("docs.getting_started.deploying.heading_production_run")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.deploying.production_run_intro" />
+        <Trans
+          k="docs.getting_started.deploying.production_run_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock
         lang="bash"
@@ -39,17 +44,29 @@ const Deploying: Component = () => {
         {t("docs.getting_started.deploying.heading_state_storage")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.deploying.state_storage_intro" />
+        <Trans
+          k="docs.getting_started.deploying.state_storage_intro"
+          components={[Code]}
+        />
       </p>
       <ul>
         <li>
-          <Trans k="docs.getting_started.deploying.storage_s3" />
+          <Trans
+            k="docs.getting_started.deploying.storage_s3"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.getting_started.deploying.storage_dynamodb" />
+          <Trans
+            k="docs.getting_started.deploying.storage_dynamodb"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.getting_started.deploying.storage_database" />
+          <Trans
+            k="docs.getting_started.deploying.storage_database"
+            components={[Strong]}
+          />
         </li>
       </ul>
 

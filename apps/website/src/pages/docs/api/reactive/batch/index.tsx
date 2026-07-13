@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
@@ -20,14 +21,23 @@ const Batch: Component = () => {
         signature={t("docs.api.reactive.batch.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.batch.param_fn_name" />,
-            <Trans k="docs.api.reactive.batch.param_fn_type" />,
+            <Trans
+              k="docs.api.reactive.batch.param_fn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.batch.param_fn_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.batch.param_fn_desc" />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.reactive.batch.returns_body" />
+            <Trans
+              k="docs.api.reactive.batch.returns_body"
+              components={[Code]}
+            />
           </p>
         }
       />

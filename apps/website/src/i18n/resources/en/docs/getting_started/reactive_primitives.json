@@ -9,7 +9,7 @@
   "heading_memos": "Memos",
   "memos_intro": "A memo is a derived reactive value. It caches the result and only recomputes when its dependencies change.",
   "heading_batching": "Batching",
-  "batching_intro": "<code>batch()</code> groups multiple signal updates into a single re-evaluation pass:",
+  "batching_intro": "<0>batch()</0> groups multiple signal updates into a single re-evaluation pass:",
   "heading_untrack": "Untrack",
-  "untrack_intro": "<code>untrack()</code> reads a signal without creating a dependency:"
+  "untrack_intro": "<0>untrack()</0> reads a signal without creating a dependency:"
 }

@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -20,19 +21,43 @@ const On: Component = () => {
         signature={t("docs.api.reactive.on.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.on.param_deps_name" />,
-            <Trans k="docs.api.reactive.on.param_deps_type" />,
+            <Trans
+              k="docs.api.reactive.on.param_deps_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.on.param_deps_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.on.param_deps_desc" />,
           ],
           [
-            <Trans k="docs.api.reactive.on.param_fn_name" />,
-            <Trans k="docs.api.reactive.on.param_fn_type" />,
-            <Trans k="docs.api.reactive.on.param_fn_desc" />,
+            <Trans
+              k="docs.api.reactive.on.param_fn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.on.param_fn_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.on.param_fn_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.api.reactive.on.param_defer_name" />,
-            <Trans k="docs.api.reactive.on.param_defer_type" />,
-            <Trans k="docs.api.reactive.on.param_defer_desc" />,
+            <Trans
+              k="docs.api.reactive.on.param_defer_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.on.param_defer_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.on.param_defer_desc"
+              components={[Code]}
+            />,
           ],
         ]}
       />

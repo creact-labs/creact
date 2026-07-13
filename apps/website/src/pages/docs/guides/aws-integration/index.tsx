@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -19,7 +20,10 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_aws_provider")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.aws_integration.provider_intro" />
+        <Trans
+          k="docs.guides.aws_integration.provider_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "provider")}
@@ -30,7 +34,10 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_bucket_component")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.aws_integration.bucket_intro" />
+        <Trans
+          k="docs.guides.aws_integration.bucket_intro"
+          components={[Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "bucket")}
@@ -41,7 +48,10 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_s3_file")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.aws_integration.s3_file_intro" />
+        <Trans
+          k="docs.guides.aws_integration.s3_file_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "s3-file")}
@@ -52,7 +62,10 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_website_component")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.aws_integration.website_intro" />
+        <Trans
+          k="docs.guides.aws_integration.website_intro"
+          components={[Code, Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "website")}

@@ -2,9 +2,12 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import Strong from "@/shared/components/strong";
+import TextLink from "@/shared/components/text-link";
 
 const MemorySystem: Component = () => {
   return (
@@ -18,7 +21,10 @@ const MemorySystem: Component = () => {
         {t("docs.architecture.memory_system.heading_overview")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.memory_system.overview_body" />
+        <Trans
+          k="docs.architecture.memory_system.overview_body"
+          components={[Code, Code, Code, Code]}
+        />
       </p>
 
       <DocHeading level={2} id="interface">
@@ -39,11 +45,20 @@ const MemorySystem: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.architecture.memory_system.method_get_state_name" />,
-            <Trans k="docs.architecture.memory_system.method_get_state_desc" />,
+            <Trans
+              k="docs.architecture.memory_system.method_get_state_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.architecture.memory_system.method_get_state_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.method_save_state_name" />,
+            <Trans
+              k="docs.architecture.memory_system.method_save_state_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.memory_system.method_save_state_desc" />,
           ],
         ]}
@@ -59,19 +74,34 @@ const MemorySystem: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.architecture.memory_system.method_acquire_lock_name" />,
-            <Trans k="docs.architecture.memory_system.method_acquire_lock_desc" />,
+            <Trans
+              k="docs.architecture.memory_system.method_acquire_lock_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.architecture.memory_system.method_acquire_lock_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.method_release_lock_name" />,
+            <Trans
+              k="docs.architecture.memory_system.method_release_lock_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.memory_system.method_release_lock_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.method_append_audit_log_name" />,
+            <Trans
+              k="docs.architecture.memory_system.method_append_audit_log_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.memory_system.method_append_audit_log_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.method_get_audit_log_name" />,
+            <Trans
+              k="docs.architecture.memory_system.method_get_audit_log_name"
+              components={[Code]}
+            />,
             <Trans k="docs.architecture.memory_system.method_get_audit_log_desc" />,
           ],
         ]}
@@ -107,16 +137,25 @@ const MemorySystem: Component = () => {
       </DocHeading>
       <ol>
         <li>
-          <Trans k="docs.architecture.memory_system.lifecycle_step_render" />
+          <Trans
+            k="docs.architecture.memory_system.lifecycle_step_render"
+            components={[Code]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.lifecycle_step_get_state" />
+          <Trans
+            k="docs.architecture.memory_system.lifecycle_step_get_state"
+            components={[Code]}
+          />
         </li>
         <li>
           <Trans k="docs.architecture.memory_system.lifecycle_step_hydrate_outputs" />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.lifecycle_step_hydrate_stores" />
+          <Trans
+            k="docs.architecture.memory_system.lifecycle_step_hydrate_stores"
+            components={[Code, Code]}
+          />
         </li>
         <li>
           <Trans k="docs.architecture.memory_system.lifecycle_step_diff" />
@@ -125,7 +164,10 @@ const MemorySystem: Component = () => {
           <Trans k="docs.architecture.memory_system.lifecycle_step_rerun" />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.lifecycle_step_save_state" />
+          <Trans
+            k="docs.architecture.memory_system.lifecycle_step_save_state"
+            components={[Code]}
+          />
         </li>
       </ol>
 
@@ -133,7 +175,10 @@ const MemorySystem: Component = () => {
         {t("docs.architecture.memory_system.heading_crash_recovery")}
       </DocHeading>
       <p>
-        <Trans k="docs.architecture.memory_system.crash_recovery_body" />
+        <Trans
+          k="docs.architecture.memory_system.crash_recovery_body"
+          components={[Code]}
+        />
       </p>
 
       <DocHeading level={2} id="what-memory-enables">
@@ -141,22 +186,40 @@ const MemorySystem: Component = () => {
       </DocHeading>
       <ul>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_crash_recovery" />
+          <Trans
+            k="docs.architecture.memory_system.enables_crash_recovery"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_incremental_deploys" />
+          <Trans
+            k="docs.architecture.memory_system.enables_incremental_deploys"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_store_hydration" />
+          <Trans
+            k="docs.architecture.memory_system.enables_store_hydration"
+            components={[Strong, Code]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_drift_detection" />
+          <Trans
+            k="docs.architecture.memory_system.enables_drift_detection"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_concurrency_protection" />
+          <Trans
+            k="docs.architecture.memory_system.enables_concurrency_protection"
+            components={[Strong]}
+          />
         </li>
         <li>
-          <Trans k="docs.architecture.memory_system.enables_audit_trail" />
+          <Trans
+            k="docs.architecture.memory_system.enables_audit_trail"
+            components={[Strong]}
+          />
         </li>
       </ul>
 
@@ -171,23 +234,38 @@ const MemorySystem: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.architecture.memory_system.backend_files_name" />,
+            <Trans
+              k="docs.architecture.memory_system.backend_files_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.memory_system.backend_files_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.backend_dynamodb_name" />,
+            <Trans
+              k="docs.architecture.memory_system.backend_dynamodb_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.memory_system.backend_dynamodb_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.backend_s3_name" />,
+            <Trans
+              k="docs.architecture.memory_system.backend_s3_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.memory_system.backend_s3_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.backend_postgres_name" />,
+            <Trans
+              k="docs.architecture.memory_system.backend_postgres_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.memory_system.backend_postgres_desc" />,
           ],
           [
-            <Trans k="docs.architecture.memory_system.backend_redis_name" />,
+            <Trans
+              k="docs.architecture.memory_system.backend_redis_name"
+              components={[Strong]}
+            />,
             <Trans k="docs.architecture.memory_system.backend_redis_desc" />,
           ],
         ]}
@@ -195,7 +273,16 @@ const MemorySystem: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.architecture.memory_system.tip_minimal_example" />
+          <Trans
+            k="docs.architecture.memory_system.tip_minimal_example"
+            components={[
+              (props) => (
+                <TextLink href="#/docs/getting-started/state-and-memory">
+                  {props.children}
+                </TextLink>
+              ),
+            ]}
+          />
         </p>
       </Callout>
     </>

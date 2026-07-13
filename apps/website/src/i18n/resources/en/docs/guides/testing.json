@@ -6,12 +6,12 @@
   "code_install": "npm install -D vitest",
   "filename_terminal": "Terminal",
   "heading_testing_signals": "Testing Signals",
-  "testing_signals_intro": "Test reactive primitives by wrapping them in <code>createRoot</code>:",
+  "testing_signals_intro": "Test reactive primitives by wrapping them in <0>createRoot</0>:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "Testing Components",
   "testing_components_intro": "Test components by calling them directly and inspecting their handler outputs:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Testing Flow Components",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "Wrap tests in <code>createRoot</code> so effects, cleanups, and ownership tracking work."
+  "tip_create_root": "Wrap tests in <0>createRoot</0> so effects, cleanups, and ownership tracking work."
 }

@@ -3,6 +3,7 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
@@ -23,19 +24,34 @@ const UseAsyncOutput: Component = () => {
         signature={t("docs.api.runtime.use_async_output.signature")}
         parameters={[
           [
-            <Trans k="docs.api.runtime.use_async_output.param_props_or_getter_name" />,
-            <Trans k="docs.api.runtime.use_async_output.param_props_or_getter_type" />,
+            <Trans
+              k="docs.api.runtime.use_async_output.param_props_or_getter_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.runtime.use_async_output.param_props_or_getter_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.runtime.use_async_output.param_props_or_getter_desc" />,
           ],
           [
-            <Trans k="docs.api.runtime.use_async_output.param_handler_name" />,
-            <Trans k="docs.api.runtime.use_async_output.param_handler_type" />,
+            <Trans
+              k="docs.api.runtime.use_async_output.param_handler_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.runtime.use_async_output.param_handler_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.runtime.use_async_output.param_handler_desc" />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.runtime.use_async_output.returns_desc" />
+            <Trans
+              k="docs.api.runtime.use_async_output.returns_desc"
+              components={[Code, Code]}
+            />
           </p>
         }
       />

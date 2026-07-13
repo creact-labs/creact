@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
@@ -31,28 +32,58 @@ const Tsconfig: Component = () => {
         ]}
         rows={[
           [
-            <Trans k="docs.api.config.tsconfig.row_jsx_name" />,
-            <Trans k="docs.api.config.tsconfig.row_jsx_value" />,
+            <Trans
+              k="docs.api.config.tsconfig.row_jsx_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.tsconfig.row_jsx_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.tsconfig.row_jsx_why" />,
           ],
           [
-            <Trans k="docs.api.config.tsconfig.row_jsx_import_source_name" />,
-            <Trans k="docs.api.config.tsconfig.row_jsx_import_source_value" />,
+            <Trans
+              k="docs.api.config.tsconfig.row_jsx_import_source_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.tsconfig.row_jsx_import_source_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.tsconfig.row_jsx_import_source_why" />,
           ],
           [
-            <Trans k="docs.api.config.tsconfig.row_target_name" />,
-            <Trans k="docs.api.config.tsconfig.row_target_value" />,
+            <Trans
+              k="docs.api.config.tsconfig.row_target_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.tsconfig.row_target_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.tsconfig.row_target_why" />,
           ],
           [
-            <Trans k="docs.api.config.tsconfig.row_module_name" />,
-            <Trans k="docs.api.config.tsconfig.row_module_value" />,
+            <Trans
+              k="docs.api.config.tsconfig.row_module_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.tsconfig.row_module_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.tsconfig.row_module_why" />,
           ],
           [
-            <Trans k="docs.api.config.tsconfig.row_module_resolution_name" />,
-            <Trans k="docs.api.config.tsconfig.row_module_resolution_value" />,
+            <Trans
+              k="docs.api.config.tsconfig.row_module_resolution_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.config.tsconfig.row_module_resolution_value"
+              components={[Code]}
+            />,
             <Trans k="docs.api.config.tsconfig.row_module_resolution_why" />,
           ],
         ]}
@@ -60,7 +91,10 @@ const Tsconfig: Component = () => {
 
       <Callout type="info">
         <p>
-          <Trans k="docs.api.config.tsconfig.info_tsx" />
+          <Trans
+            k="docs.api.config.tsconfig.info_tsx"
+            components={[Code, Code]}
+          />
         </p>
       </Callout>
     </>

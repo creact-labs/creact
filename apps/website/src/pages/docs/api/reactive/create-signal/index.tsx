@@ -3,6 +3,7 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -23,27 +24,54 @@ const CreateSignal: Component = () => {
         signature={t("docs.api.reactive.create_signal.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.create_signal.param_value_name" />,
-            <Trans k="docs.api.reactive.create_signal.param_value_type" />,
-            <Trans k="docs.api.reactive.create_signal.param_value_desc" />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_value_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_value_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_value_desc"
+              components={[Code]}
+            />,
           ],
           [
-            <Trans k="docs.api.reactive.create_signal.param_options_name" />,
-            <Trans k="docs.api.reactive.create_signal.param_options_type" />,
-            <Trans k="docs.api.reactive.create_signal.param_options_desc" />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_options_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_options_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_signal.param_options_desc"
+              components={[Code, Code]}
+            />,
           ],
         ]}
         returns={
           <>
             <p>
-              <Trans k="docs.api.reactive.create_signal.returns_intro" />
+              <Trans
+                k="docs.api.reactive.create_signal.returns_intro"
+                components={[Code]}
+              />
             </p>
             <ul>
               <li>
-                <Trans k="docs.api.reactive.create_signal.returns_getter" />
+                <Trans
+                  k="docs.api.reactive.create_signal.returns_getter"
+                  components={[Code]}
+                />
               </li>
               <li>
-                <Trans k="docs.api.reactive.create_signal.returns_setter" />
+                <Trans
+                  k="docs.api.reactive.create_signal.returns_setter"
+                  components={[Code, Code]}
+                />
               </li>
             </ul>
           </>
@@ -71,7 +99,10 @@ const CreateSignal: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.api.reactive.create_signal.tip_equality" />
+          <Trans
+            k="docs.api.reactive.create_signal.tip_equality"
+            components={[Code]}
+          />
         </p>
       </Callout>
     </>

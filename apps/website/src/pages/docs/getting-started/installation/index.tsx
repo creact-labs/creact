@@ -2,8 +2,10 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
+import TextLink from "@/shared/components/text-link";
 
 const Installation: Component = () => {
   return (
@@ -51,7 +53,10 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_configure_typescript")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.installation.configure_typescript_intro" />
+        <Trans
+          k="docs.getting_started.installation.configure_typescript_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         lang="json"
@@ -61,7 +66,10 @@ const Installation: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.getting_started.installation.tip_jsx_import_source" />
+          <Trans
+            k="docs.getting_started.installation.tip_jsx_import_source"
+            components={[Code, Code]}
+          />
         </p>
       </Callout>
 
@@ -69,7 +77,10 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_add_scripts")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.installation.add_scripts_intro" />
+        <Trans
+          k="docs.getting_started.installation.add_scripts_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         lang="json"
@@ -81,7 +92,18 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_create_entry")}
       </DocHeading>
       <p>
-        <Trans k="docs.getting_started.installation.create_entry_intro" />
+        <Trans
+          k="docs.getting_started.installation.create_entry_intro"
+          components={[
+            Code,
+            Code,
+            (props) => (
+              <TextLink href="#/docs/getting-started/state-and-memory">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample("durable-counter/first-entry.tsx", "entry-point")}
@@ -98,7 +120,10 @@ const Installation: Component = () => {
       />
 
       <p>
-        <Trans k="docs.getting_started.installation.run_outro" />
+        <Trans
+          k="docs.getting_started.installation.run_outro"
+          components={[Code]}
+        />
       </p>
 
       <DocHeading level={2} id="project-files">
@@ -111,7 +136,19 @@ const Installation: Component = () => {
       />
 
       <p>
-        <Trans k="docs.getting_started.installation.project_files_outro" />
+        <Trans
+          k="docs.getting_started.installation.project_files_outro"
+          components={[
+            Code,
+            Code,
+            Code,
+            (props) => (
+              <TextLink href="#/docs/getting-started/state-and-memory">
+                {props.children}
+              </TextLink>
+            ),
+          ]}
+        />
       </p>
     </>
   );

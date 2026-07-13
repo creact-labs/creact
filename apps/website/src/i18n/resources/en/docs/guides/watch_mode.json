@@ -7,7 +7,7 @@
   "usage_desc": "Watch mode monitors your source files and restarts the app on changes. State is preserved between restarts through the Memory interface.",
   "heading_how_it_works": "How It Works",
   "step_start": "CReact starts your app normally",
-  "step_watchers": "File system watchers monitor <code>.ts</code>, <code>.tsx</code>, <code>.js</code>, and <code>.jsx</code> files",
+  "step_watchers": "File system watchers monitor <0>.ts</0>, <1>.tsx</1>, <2>.js</2>, and <3>.jsx</3> files",
   "step_stop": "When a file changes, the current run is stopped cleanly (cleanup functions execute)",
   "step_restart": "A new run starts, reading persisted state from memory",
   "step_reconcile": "Reconciliation ensures only changed components re-run their handlers",

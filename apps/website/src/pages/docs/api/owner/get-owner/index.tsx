@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/owner/get-owner.ts";
@@ -17,7 +18,10 @@ const GetOwner: Component = () => {
         signature={t("docs.api.owner.get_owner.signature")}
         returns={
           <p>
-            <Trans k="docs.api.owner.get_owner.returns_desc" />
+            <Trans
+              k="docs.api.owner.get_owner.returns_desc"
+              components={[Code, Code]}
+            />
           </p>
         }
       />

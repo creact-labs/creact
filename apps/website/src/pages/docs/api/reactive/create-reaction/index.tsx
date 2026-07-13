@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/reactive/create-reaction.ts";
@@ -19,19 +20,37 @@ const CreateReaction: Component = () => {
         signature={t("docs.api.reactive.create_reaction.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.create_reaction.param_on_invalidate_name" />,
-            <Trans k="docs.api.reactive.create_reaction.param_on_invalidate_type" />,
+            <Trans
+              k="docs.api.reactive.create_reaction.param_on_invalidate_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_reaction.param_on_invalidate_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.create_reaction.param_on_invalidate_desc" />,
           ],
           [
-            <Trans k="docs.api.reactive.create_reaction.param_options_name" />,
-            <Trans k="docs.api.reactive.create_reaction.param_options_type" />,
-            <Trans k="docs.api.reactive.create_reaction.param_options_desc" />,
+            <Trans
+              k="docs.api.reactive.create_reaction.param_options_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_reaction.param_options_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_reaction.param_options_desc"
+              components={[Code]}
+            />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.reactive.create_reaction.returns_body" />
+            <Trans
+              k="docs.api.reactive.create_reaction.returns_body"
+              components={[Code, Code]}
+            />
           </p>
         }
       />

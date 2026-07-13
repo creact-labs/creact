@@ -2,13 +2,13 @@
   "title": "Flow Control",
   "description": "Show, For, Switch, and ErrorBoundary control which components run based on reactive conditions.",
   "heading_show": "Conditional Rendering with Show",
-  "show_intro": "<code>Show</code> renders its children only when the <code>when</code> condition is truthy. It can also provide a fallback.",
+  "show_intro": "<0>Show</0> renders its children only when the <1>when</1> condition is truthy. It can also provide a fallback.",
   "show_callback_intro": "You can access the truthy value with a callback child:",
   "heading_for": "Iterating with For",
-  "for_intro": "<code>For</code> iterates over a reactive list. Each item is keyed by reference. When the list changes, only affected items update.",
+  "for_intro": "<0>For</0> iterates over a reactive list. Each item is keyed by reference. When the list changes, only affected items update.",
   "heading_switch": "Multi-way Branching with Switch",
-  "switch_intro": "<code>Switch</code> with <code>Match</code> provides multi-branch conditional logic:",
+  "switch_intro": "<0>Switch</0> with <1>Match</1> provides multi-branch conditional logic:",
   "heading_error_boundary": "Error Handling with ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> catches errors thrown in child components:",
-  "info_accessor_conditions": "Flow components take accessor functions (<code>() =&gt; value</code>) for conditions. The condition re-evaluates without re-running the parent component."
+  "error_boundary_intro": "<0>ErrorBoundary</0> catches errors thrown in child components:",
+  "info_accessor_conditions": "Flow components take accessor functions (<0>() => value</0>) for conditions. The condition re-evaluates without re-running the parent component."
 }

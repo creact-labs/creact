@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
@@ -22,14 +23,26 @@ const CreateContext: Component = () => {
         signature={t("docs.api.context.create_context.signature")}
         parameters={[
           [
-            <Trans k="docs.api.context.create_context.param_default_value_name" />,
-            <Trans k="docs.api.context.create_context.param_default_value_type" />,
-            <Trans k="docs.api.context.create_context.param_default_value_desc" />,
+            <Trans
+              k="docs.api.context.create_context.param_default_value_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.context.create_context.param_default_value_type"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.context.create_context.param_default_value_desc"
+              components={[Code]}
+            />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.context.create_context.returns_desc" />
+            <Trans
+              k="docs.api.context.create_context.returns_desc"
+              components={[Code, Code]}
+            />
           </p>
         }
       />

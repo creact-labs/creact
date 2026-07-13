@@ -3,6 +3,7 @@ import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -21,19 +22,34 @@ const CreateRoot: Component = () => {
         signature={t("docs.api.reactive.create_root.signature")}
         parameters={[
           [
-            <Trans k="docs.api.reactive.create_root.param_fn_name" />,
-            <Trans k="docs.api.reactive.create_root.param_fn_type" />,
+            <Trans
+              k="docs.api.reactive.create_root.param_fn_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_root.param_fn_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.create_root.param_fn_desc" />,
           ],
           [
-            <Trans k="docs.api.reactive.create_root.param_detached_owner_name" />,
-            <Trans k="docs.api.reactive.create_root.param_detached_owner_type" />,
+            <Trans
+              k="docs.api.reactive.create_root.param_detached_owner_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.reactive.create_root.param_detached_owner_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.reactive.create_root.param_detached_owner_desc" />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.reactive.create_root.returns_body" />
+            <Trans
+              k="docs.api.reactive.create_root.returns_body"
+              components={[Code]}
+            />
           </p>
         }
       />
@@ -54,7 +70,10 @@ const CreateRoot: Component = () => {
 
       <Callout type="info">
         <p>
-          <Trans k="docs.api.reactive.create_root.info_render_root" />
+          <Trans
+            k="docs.api.reactive.create_root.info_render_root"
+            components={[Code, Code, Code]}
+          />
         </p>
       </Callout>
     </>

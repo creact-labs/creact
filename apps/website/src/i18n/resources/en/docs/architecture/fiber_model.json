@@ -18,10 +18,10 @@
   "step_cleanup_label": "Cleanup",
   "step_cleanup_body": "removed fibers have their cleanup handlers called",
   "heading_paths": "Fiber Paths",
-  "paths_body": "Each fiber has a <code>path</code>, an array of string segments from the root to that fiber. Instance nodes derive their ID by joining the path with <code>\".\"</code> (e.g., <code>app.aws.web-site-blog</code>). Paths are used to match nodes across runs for reconciliation.",
+  "paths_body": "Each fiber has a <0>path</0>, an array of string segments from the root to that fiber. Instance nodes derive their ID by joining the path with <1>\".\"</1> (e.g., <2>app.aws.web-site-blog</2>). Paths are used to match nodes across runs for reconciliation.",
   "code_paths": "// <App>\n//   <AWS region=\"us-east-1\">\n//     <WebSite key=\"blog\" name=\"blog\" />\n//     <WebSite key=\"docs\" name=\"docs\" />\n//   </AWS>\n// </App>\n\n// Fiber paths (string[]):\n// [\"App\"]\n// [\"App\", \"AWS\"]\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"blog\")\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"docs\")\n\n// Instance node IDs (path.join(\".\")):\n// \"app.aws.web-site-blog\"\n// \"app.aws.web-site-docs\"",
   "heading_instance_nodes": "Fibers vs Instance Nodes",
-  "instance_nodes_body": "Fibers represent the component tree structure. When a component calls <code>useAsyncOutput</code>, it creates an <code>InstanceNode</code> that is attached to the fiber via <code>instanceNodes</code>. Instance nodes are what the reconciler diffs and the runtime deploys. They carry the handler, outputs, and cleanup function.",
+  "instance_nodes_body": "Fibers represent the component tree structure. When a component calls <0>useAsyncOutput</0>, it creates an <1>InstanceNode</1> that is attached to the fiber via <2>instanceNodes</2>. Instance nodes are what the reconciler diffs and the runtime deploys. They carry the handler, outputs, and cleanup function.",
   "heading_source": "Source",
-  "source_body": "The fiber interface and <code>createFiber</code> live in <code>runtime/src/fiber.ts</code>. Instance nodes are defined in <code>runtime/src/instance.ts</code>. Rendering logic is in <code>runtime/src/render.ts</code>."
+  "source_body": "The fiber interface and <0>createFiber</0> live in <1>runtime/src/fiber.ts</1>. Instance nodes are defined in <2>runtime/src/instance.ts</2>. Rendering logic is in <3>runtime/src/render.ts</3>."
 }

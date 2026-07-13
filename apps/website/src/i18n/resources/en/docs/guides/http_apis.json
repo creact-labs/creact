@@ -4,10 +4,10 @@
   "heading_channels": "What Are Channels?",
   "channels_desc": "A channel is a component that starts an HTTP server on mount and stops it on cleanup. Incoming requests call callback props, which update signals and trigger downstream components.",
   "heading_http_server": "Channel Component",
-  "http_server_intro": "The <code>Channel</code> component starts a Hono server inside <code>onMount</code>. Route handlers are passed in as props. <code>onCleanup</code> shuts down the server when the component is removed.",
+  "http_server_intro": "The <0>Channel</0> component starts a Hono server inside <1>onMount</1>. Route handlers are passed in as props. <2>onCleanup</2> shuts down the server when the component is removed.",
   "filename_channel": "components/channel.tsx",
   "heading_reactive_flow": "Connecting to the Reactive System",
-  "reactive_flow_intro": "The channel's callback props call <code>setSites</code>, <code>setPendingGeneration</code>, and other setters. Those signal updates trigger effects and <code>Show</code>/<code>For</code> components downstream.",
+  "reactive_flow_intro": "The channel's callback props call <0>setSites</0>, <1>setPendingGeneration</1>, and other setters. Those signal updates trigger effects and <2>Show</2>/<3>For</3> components downstream.",
   "filename_app": "app.tsx",
-  "info_cleanup": "The <code>onCleanup</code> callback releases the port when the component is removed or the app stops."
+  "info_cleanup": "The <0>onCleanup</0> callback releases the port when the component is removed or the app stops."
 }

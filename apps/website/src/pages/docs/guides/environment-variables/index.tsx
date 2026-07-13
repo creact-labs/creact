@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -19,7 +20,10 @@ const EnvironmentVariables: Component = () => {
         {t("docs.guides.environment_variables.heading_reading")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.environment_variables.reading_intro" />
+        <Trans
+          k="docs.guides.environment_variables.reading_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "reading")}
@@ -46,7 +50,10 @@ const EnvironmentVariables: Component = () => {
 
       <Callout type="warning">
         <p>
-          <Trans k="docs.guides.environment_variables.warning_dotenv" />
+          <Trans
+            k="docs.guides.environment_variables.warning_dotenv"
+            components={[Code, Code]}
+          />
         </p>
       </Callout>
     </>

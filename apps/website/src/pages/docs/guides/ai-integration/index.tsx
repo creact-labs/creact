@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -19,7 +20,10 @@ const AiIntegration: Component = () => {
         {t("docs.guides.ai_integration.heading_provider")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.ai_integration.provider_intro" />
+        <Trans
+          k="docs.guides.ai_integration.provider_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "provider")}
@@ -30,7 +34,10 @@ const AiIntegration: Component = () => {
         {t("docs.guides.ai_integration.heading_generate_component")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.ai_integration.generate_intro" />
+        <Trans
+          k="docs.guides.ai_integration.generate_intro"
+          components={[Code, Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "generate-component")}
@@ -41,7 +48,10 @@ const AiIntegration: Component = () => {
         {t("docs.guides.ai_integration.heading_reactive_pipeline")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.ai_integration.pipeline_intro" />
+        <Trans
+          k="docs.guides.ai_integration.pipeline_intro"
+          components={[Code, Code, Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "reactive-pipeline")}
@@ -50,7 +60,10 @@ const AiIntegration: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.guides.ai_integration.tip_persistence" />
+          <Trans
+            k="docs.guides.ai_integration.tip_persistence"
+            components={[Code]}
+          />
         </p>
       </Callout>
     </>

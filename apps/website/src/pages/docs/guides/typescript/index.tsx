@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -17,7 +18,10 @@ const Typescript: Component = () => {
         {t("docs.guides.typescript.heading_tsconfig")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.typescript.tsconfig_intro" />
+        <Trans
+          k="docs.guides.typescript.tsconfig_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         lang="json"
@@ -43,7 +47,10 @@ const Typescript: Component = () => {
 
       <Callout type="info">
         <p>
-          <Trans k="docs.guides.typescript.info_types" />
+          <Trans
+            k="docs.guides.typescript.info_types"
+            components={[Code, Code, Code, Code, Code, Code, Code]}
+          />
         </p>
       </Callout>
     </>

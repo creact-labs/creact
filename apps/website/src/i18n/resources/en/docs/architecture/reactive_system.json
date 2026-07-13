@@ -24,17 +24,17 @@
   "heading_source_modules": "Source Modules",
   "table_header_module": "Module",
   "table_header_responsibility": "Responsibility",
-  "module_tracking_name": "<code>tracking.ts</code>",
+  "module_tracking_name": "<0>tracking.ts</0>",
   "module_tracking_desc": "Core scheduler: runUpdates, runQueue, runComputation, cleanComputation",
-  "module_signal_name": "<code>signal.ts</code>",
+  "module_signal_name": "<0>signal.ts</0>",
   "module_signal_desc": "createSignal, createMemo, on, catchError",
-  "module_effect_name": "<code>effect.ts</code>",
+  "module_effect_name": "<0>effect.ts</0>",
   "module_effect_desc": "createEffect, createComputed, createRenderEffect, createReaction, onCleanup, onMount",
-  "module_owner_name": "<code>owner.ts</code>",
+  "module_owner_name": "<0>owner.ts</0>",
   "module_owner_desc": "createRoot, getOwner, runWithOwner, ownership chain",
-  "module_selector_name": "<code>selector.ts</code>",
+  "module_selector_name": "<0>selector.ts</0>",
   "module_selector_desc": "createSelector, O(2) selection tracking",
   "heading_glitch_free": "Glitch-Free Propagation",
   "glitch_free_body": "The system guarantees that no computation observes an inconsistent state. Memos (pure computations) run before effects, and dependencies are resolved upstream-first. This eliminates \"glitches\" where a computation sees partially-updated values.",
-  "callout_synchronous": "The reactive system is entirely synchronous within a batch. Async operations (like <code>useAsyncOutput</code> handlers) are managed by the runtime layer above."
+  "callout_synchronous": "The reactive system is entirely synchronous within a batch. Async operations (like <0>useAsyncOutput</0> handlers) are managed by the runtime layer above."
 }

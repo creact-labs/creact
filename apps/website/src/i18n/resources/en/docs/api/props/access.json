@@ -2,8 +2,8 @@
   "title": "access",
   "description": "Unwraps a MaybeAccessor. Calls it if it's a function, returns it directly otherwise.",
   "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
   "param_value_desc": "A value or an accessor function.",
-  "returns_desc": "The unwrapped value of type <code>T</code>."
+  "returns_desc": "The unwrapped value of type <0>T</0>."
 }

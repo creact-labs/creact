@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -27,7 +28,10 @@ const Testing: Component = () => {
         {t("docs.guides.testing.heading_testing_signals")}
       </DocHeading>
       <p>
-        <Trans k="docs.guides.testing.testing_signals_intro" />
+        <Trans
+          k="docs.guides.testing.testing_signals_intro"
+          components={[Code]}
+        />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "testing-signals")}
@@ -53,7 +57,10 @@ const Testing: Component = () => {
 
       <Callout type="tip">
         <p>
-          <Trans k="docs.guides.testing.tip_create_root" />
+          <Trans
+            k="docs.guides.testing.tip_create_root"
+            components={[Code]}
+          />
         </p>
       </Callout>
     </>

@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 
@@ -26,7 +27,10 @@ const WatchMode: Component = () => {
       <ol>
         <li>{t("docs.guides.watch_mode.step_start")}</li>
         <li>
-          <Trans k="docs.guides.watch_mode.step_watchers" />
+          <Trans
+            k="docs.guides.watch_mode.step_watchers"
+            components={[Code, Code, Code, Code]}
+          />
         </li>
         <li>{t("docs.guides.watch_mode.step_stop")}</li>
         <li>{t("docs.guides.watch_mode.step_restart")}</li>

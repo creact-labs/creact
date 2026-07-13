@@ -2,6 +2,7 @@ import type { Component } from "solid-js";
 import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
+import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
@@ -20,14 +21,23 @@ const Access: Component = () => {
         signature={t("docs.api.props.access.signature")}
         parameters={[
           [
-            <Trans k="docs.api.props.access.param_value_name" />,
-            <Trans k="docs.api.props.access.param_value_type" />,
+            <Trans
+              k="docs.api.props.access.param_value_name"
+              components={[Code]}
+            />,
+            <Trans
+              k="docs.api.props.access.param_value_type"
+              components={[Code]}
+            />,
             <Trans k="docs.api.props.access.param_value_desc" />,
           ],
         ]}
         returns={
           <p>
-            <Trans k="docs.api.props.access.returns_desc" />
+            <Trans
+              k="docs.api.props.access.returns_desc"
+              components={[Code]}
+            />
           </p>
         }
       />
