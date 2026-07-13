@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@creact-labs/creact",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@creact-labs/creact": ["../../packages/creact/src/index.ts"],
+      "@creact-labs/creact/jsx-runtime": [
+        "../../packages/creact/src/jsx/jsx-runtime.ts"
+      ]
+    }
+  },
+  "include": ["apps/**/*"]
+}

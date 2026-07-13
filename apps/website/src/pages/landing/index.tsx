@@ -1,9 +1,23 @@
 import type { Component } from "solid-js";
+import { Show, createResource } from "solid-js";
 import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import GithubIcon from "@/shared/components/github-icon";
+import { getHighlighter } from "@/shared/shiki";
 import logoUrl from "../../../assets/logo.jpeg";
 
+// The hero sample is sliced from a real, type-checked example app
+const heroCode = codeSample("hero-fleet/src/app/index.tsx", "hero");
+
 const LandingPage: Component = () => {
+  const [highlighted] = createResource(async () => {
+    const highlighter = await getHighlighter();
+    return highlighter.codeToHtml(heroCode, {
+      lang: "tsx",
+      themes: { dark: "github-dark", light: "github-light" },
+      defaultColor: false,
+    });
+  });
   return (
     <div class="container">
       <header class="nav">
@@ -18,12 +32,12 @@ const LandingPage: Component = () => {
               color: "inherit",
             }}
           >
-            <img src={logoUrl} alt={t("common.logo_alt")} />
-            <span>{t("common.brand")}</span>
+            <img src={logoUrl} alt={t("landing.logo_alt")} />
+            <span>{t("landing.brand")}</span>
           </a>
         </div>
-        <nav class="nav-links" aria-label="Main navigation">
-          <a href="#/docs">{t("common.nav.docs")}</a>
+        <nav class="nav-links" aria-label={t("landing.nav_aria")}>
+          <a href="#/docs">{t("landing.nav_docs")}</a>
           <a
             href="https://github.com/creact-labs/creact"
             target="_blank"
@@ -31,7 +45,7 @@ const LandingPage: Component = () => {
             class="nav-github"
           >
             <GithubIcon />
-            {t("common.nav.github")}
+            {t("landing.nav_github")}
           </a>
         </nav>
       </header>
@@ -39,9 +53,9 @@ const LandingPage: Component = () => {
       <main class="hero">
         <div class="hero-header">
           <div class="hero-logo">
-            <img src={logoUrl} alt={t("common.logo_alt")} />
+            <img src={logoUrl} alt={t("landing.logo_alt")} />
           </div>
-          <h1 class="hero-title">{t("common.brand")}</h1>
+          <h1 class="hero-title">{t("landing.brand")}</h1>
         </div>
         <p class="hero-subtitle">{t("landing.hero_subtitle")}</p>
         <div class="hero-code">
@@ -50,9 +64,18 @@ const LandingPage: Component = () => {
               <span class="code-dot"></span>
               <span class="code-dot"></span>
               <span class="code-dot"></span>
-              <span class="code-filename">app.tsx</span>
+              <span class="code-filename">{t("landing.code_filename")}</span>
             </div>
-            <pre class="code-content" innerHTML={codeExample} />
+            <Show
+              when={highlighted()}
+              fallback={
+                <pre class="code-content">
+                  <code>{heroCode}</code>
+                </pre>
+              }
+            >
+              <div class="code-content" innerHTML={highlighted()} />
+            </Show>
           </div>
         </div>
         <div class="hero-cta">
@@ -74,7 +97,7 @@ const LandingPage: Component = () => {
         <div class="footer-content">
           <span class="footer-sep">&middot;</span>
           <a href="https://github.com/drn1996" target="_blank" rel="noopener">
-            {t("common.nav.github")}
+            {t("landing.nav_github")}
           </a>
           <span class="footer-sep">&middot;</span>
           <span>{t("landing.footer_license")}</span>
@@ -83,29 +106,5 @@ const LandingPage: Component = () => {
     </div>
   );
 };
-
-const codeExample = `<span class="kw">export function</span> <span class="fn">App</span>() {
-  <span class="kw">const</span> [sites, setSites] = <span class="fn">createSignal</span>&lt;<span class="cmp">SiteConfig</span>[]&gt;([]);
-
-  <span class="kw">return</span> (
-    <span class="br">&lt;&gt;</span>
-      <span class="br">&lt;</span><span class="cmp">Channel</span> <span class="prop">port</span>={<span class="str">3000</span>} <span class="prop">onGenerate</span>={handleGenerate} <span class="prop">onList</span>={handleList} <span class="br">/&gt;</span>
-      <span class="br">&lt;</span><span class="cmp">Claude</span><span class="br">&gt;</span>
-        <span class="br">&lt;</span><span class="cmp">Show</span> <span class="prop">when</span>={() <span class="kw">=&gt;</span> pendingGeneration()}<span class="br">&gt;</span>
-          {(gen) <span class="kw">=&gt;</span> (
-            <span class="br">&lt;</span><span class="cmp">GenerateHtml</span> <span class="prop">prompt</span>={gen().prompt} <span class="br">/&gt;</span>
-          )}
-        <span class="br">&lt;/</span><span class="cmp">Show</span><span class="br">&gt;</span>
-      <span class="br">&lt;/</span><span class="cmp">Claude</span><span class="br">&gt;</span>
-      <span class="br">&lt;</span><span class="cmp">AWS</span> <span class="prop">region</span>=<span class="str">"us-east-1"</span><span class="br">&gt;</span>
-        <span class="br">&lt;</span><span class="cmp">For</span> <span class="prop">each</span>={() <span class="kw">=&gt;</span> sites()}<span class="br">&gt;</span>
-          {(site) <span class="kw">=&gt;</span> (
-            <span class="br">&lt;</span><span class="cmp">WebSite</span> <span class="prop">name</span>={() <span class="kw">=&gt;</span> site().path} <span class="prop">content</span>={() <span class="kw">=&gt;</span> site().content} <span class="br">/&gt;</span>
-          )}
-        <span class="br">&lt;/</span><span class="cmp">For</span><span class="br">&gt;</span>
-      <span class="br">&lt;/</span><span class="cmp">AWS</span><span class="br">&gt;</span>
-    <span class="br">&lt;/&gt;</span>
-  );
-}`;
 
 export default LandingPage;

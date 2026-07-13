@@ -29,6 +29,8 @@
     "**/dist",
     "**/coverage",
     // Solid JSX app with its own tsconfig (jsx: preserve, jsxImportSource solid-js)
-    "apps/website"
+    "apps/website",
+    // Example apps typecheck as their own project (libs/examples/tsconfig.json)
+    "libs"
   ]
 }

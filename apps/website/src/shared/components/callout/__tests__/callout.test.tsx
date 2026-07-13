@@ -5,9 +5,9 @@ import Callout from "@/shared/components/callout";
 
 describe("Callout", () => {
   it.each([
-    { type: "info", titleKey: "docs.callout.info" },
-    { type: "warning", titleKey: "docs.callout.warning" },
-    { type: "tip", titleKey: "docs.callout.tip" },
+    { type: "info", titleKey: "docs.ui.callout.info" },
+    { type: "warning", titleKey: "docs.ui.callout.warning" },
+    { type: "tip", titleKey: "docs.ui.callout.tip" },
   ] as const)(
     "$type callout shows its $titleKey title and the message",
     ({ type, titleKey }) => {

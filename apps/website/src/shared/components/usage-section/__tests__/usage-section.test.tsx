@@ -16,7 +16,7 @@ describe("UsageSection", () => {
     ));
 
     expect(container.querySelector("#usage")?.textContent).toContain(
-      "docs.usage",
+      "docs.ui.usage",
     );
     expect(
       container.querySelector(".doc-code-filename")?.textContent,

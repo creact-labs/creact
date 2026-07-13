@@ -36,7 +36,7 @@ describe("PrevNext", () => {
 
     if (expectPrev) {
       expect(prevLink?.textContent).toContain(expectPrev.title);
-      expect(prevLink?.textContent).toContain("docs.prev");
+      expect(prevLink?.textContent).toContain("docs.layout.prev");
       expect(prevLink?.getAttribute("href")).toBe(`#${expectPrev.href}`);
     } else {
       expect(prevLink).toBeNull();
@@ -44,7 +44,7 @@ describe("PrevNext", () => {
 
     if (expectNext) {
       expect(nextLink?.textContent).toContain(expectNext.title);
-      expect(nextLink?.textContent).toContain("docs.next");
+      expect(nextLink?.textContent).toContain("docs.layout.next");
       expect(nextLink?.getAttribute("href")).toBe(`#${expectNext.href}`);
     } else {
       expect(nextLink).toBeNull();

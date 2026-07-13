@@ -47,7 +47,7 @@ describe("DocHeading", () => {
       second.text,
     ]);
     expect(container.querySelector(".docs-toc-title")?.textContent).toBe(
-      "docs.toc_title",
+      "docs.layout.toc_title",
     );
   });
 

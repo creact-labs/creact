@@ -1,16 +1,25 @@
 /**
- * i18n setup: translation resources live in resources/<locale>/<domain>.json,
- * scoped by domain (common, landing, docs).
+ * i18n setup: translation resources live in resources/<locale>/, scoped by
+ * domain — one JSON per feature area and one per docs page, mirroring the
+ * app's structure. Keys may repeat across domains by design; there is no
+ * shared "common" bundle. Code samples are resources too: they live in the
+ * page JSONs (their inline comments are copy like any other).
  *
  * In tests this module is replaced by the mandatory key-passthrough mock in
  * src/testing/mocks.ts — tests assert on keys, never on copy.
  */
 import { createSignal } from "solid-js";
-import common from "./resources/en/common.json";
-import docs from "./resources/en/docs.json";
+import docs_layout from "./resources/en/docs/layout.json";
+import docs_ui from "./resources/en/docs/ui.json";
 import landing from "./resources/en/landing.json";
 
-const en = { common, docs, landing };
+const en = {
+  landing,
+  docs: {
+    layout: docs_layout,
+    ui: docs_ui,
+  },
+};
 
 export type Locale = "en";
 type Resources = typeof en;
@@ -22,7 +31,8 @@ type Leaves<T> = {
 
 export type TranslationKey = Leaves<Resources>;
 
-const resources: Record<Locale, Resources> = { en };
+/** The full resource tree per locale — exported for completeness tests */
+export const resources: Record<Locale, Resources> = { en };
 
 const [locale, setLocale] = createSignal<Locale>("en");
 export { locale, setLocale };

@@ -13,13 +13,13 @@ const DocNav: Component = () => {
         <a href="#/" class="docs-nav-logo">
           <picture>
             <source srcset={logoBlack} media="(prefers-color-scheme: light)" />
-            <img src={logoWhite} alt={t("common.logo_alt")} />
+            <img src={logoWhite} alt={t("docs.layout.logo_alt")} />
           </picture>
-          <span>{t("common.brand")}</span>
+          <span>{t("docs.layout.brand")}</span>
         </a>
       </div>
       <div class="docs-nav-right">
-        <a href="#/docs">{t("common.nav.docs")}</a>
+        <a href="#/docs">{t("docs.layout.nav_docs")}</a>
         <a
           href="https://github.com/creact-labs/creact"
           target="_blank"
@@ -27,7 +27,7 @@ const DocNav: Component = () => {
           class="docs-nav-github"
         >
           <GithubIcon />
-          {t("common.nav.github")}
+          {t("docs.layout.nav_github")}
         </a>
       </div>
     </header>

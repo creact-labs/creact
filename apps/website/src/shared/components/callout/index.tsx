@@ -9,7 +9,7 @@ interface CalloutProps {
 const Callout: Component<CalloutProps> = (props) => {
   return (
     <div class={`callout ${props.type}`}>
-      <div class="callout-title">{t(`docs.callout.${props.type}`)}</div>
+      <div class="callout-title">{t(`docs.ui.callout.${props.type}`)}</div>
       {props.children}
     </div>
   );

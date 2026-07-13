@@ -1,0 +1,53 @@
+name: Localize
+
+# Continuous localization for the website (lingo.dev CLI — Apache-2.0,
+# BYO-LLM, no platform account). resources/en is the only hand-edited
+# locale; every other locale is a generated artifact. The committed
+# i18n.lock fingerprints each source string, so only new or changed keys
+# are re-translated — existing translations never drift between runs.
+# Structural safety (key-tree parity, locked brand terms, placeholder
+# preservation) is enforced by the i18n test suite in Code Quality.
+on:
+  workflow_dispatch:
+  # Regenerates on the PR branch, so translations land in the same PR as
+  # the en copy change. The bot commit only touches generated locales and
+  # i18n.lock — never resources/en — so it cannot re-trigger this filter.
+  push:
+    branches: [develop]
+    paths:
+      - "apps/website/src/i18n/resources/en/**"
+      - "apps/website/i18n.json"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write # commits regenerated locale files back to the branch
+
+jobs:
+  localize:
+    name: Localize
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - name: Guard — no API key configured
+        if: env.ANTHROPIC_API_KEY == ''
+        run: echo "::notice::ANTHROPIC_API_KEY secret not set — skipping localization."
+      # persist-credentials stays on (unlike the read-only quality jobs):
+      # the CLI commits and pushes the regenerated locale files.
+      - uses: actions/checkout@v4
+        if: env.ANTHROPIC_API_KEY != ''
+      - uses: actions/setup-node@v4
+        if: env.ANTHROPIC_API_KEY != ''
+        with:
+          node-version: 22
+      - name: Translate changed keys and commit
+        if: env.ANTHROPIC_API_KEY != ''
+        run: |
+          npx --yes lingo.dev@0.138.0 ci \
+            --working-directory apps/website \
+            --commit-message "i18n: regenerate translations from en source" \
+            --commit-author-name "github-actions[bot]" \
+            --commit-author-email "41898282+github-actions[bot]@users.noreply.github.com"

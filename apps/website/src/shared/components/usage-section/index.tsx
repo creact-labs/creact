@@ -19,7 +19,7 @@ const UsageSection: Component<UsageSectionProps> = (props) => {
   return (
     <>
       <DocHeading level={2} id="usage">
-        {t("docs.usage")}
+        {t("docs.ui.usage")}
       </DocHeading>
       <DocCodeBlock code={props.code} filename={props.filename} />
       {props.children}

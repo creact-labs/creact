@@ -24,7 +24,7 @@ const ApiReference: Component<ApiReferenceProps> = (props) => {
   return (
     <>
       <DocHeading level={2} id="reference">
-        {t("docs.reference")}
+        {t("docs.ui.reference")}
       </DocHeading>
       <ApiSignature name={props.name} signature={props.signature} />
       {/* An empty list means "no parameters" — render no section for it */}
@@ -32,13 +32,13 @@ const ApiReference: Component<ApiReferenceProps> = (props) => {
         {(parameters) => (
           <>
             <DocHeading level={3} id="parameters">
-              {t("docs.parameters")}
+              {t("docs.ui.parameters")}
             </DocHeading>
             <DocTable
               headers={[
-                t("docs.param_table.parameter"),
-                t("docs.param_table.type"),
-                t("docs.param_table.description"),
+                t("docs.ui.param_table.parameter"),
+                t("docs.ui.param_table.type"),
+                t("docs.ui.param_table.description"),
               ]}
               rows={parameters()}
             />
@@ -47,7 +47,7 @@ const ApiReference: Component<ApiReferenceProps> = (props) => {
       </Show>
       <Show when={props.returns !== undefined}>
         <DocHeading level={3} id="returns">
-          {t("docs.returns")}
+          {t("docs.ui.returns")}
         </DocHeading>
         {props.returns}
       </Show>

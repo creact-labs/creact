@@ -11,25 +11,25 @@ describe("ApiReference", () => {
     ));
 
     expect(container.querySelector("#reference")?.textContent).toContain(
-      "docs.reference",
+      "docs.ui.reference",
     );
     expect(
       container.querySelector(".doc-code-filename")?.textContent,
     ).toBe(props.name);
     expect(container.querySelector("#parameters")?.textContent).toContain(
-      "docs.parameters",
+      "docs.ui.parameters",
     );
     const headerCells = [...container.querySelectorAll("thead th")];
     expect(headerCells.map((cell) => cell.textContent)).toEqual([
-      "docs.param_table.parameter",
-      "docs.param_table.type",
-      "docs.param_table.description",
+      "docs.ui.param_table.parameter",
+      "docs.ui.param_table.type",
+      "docs.ui.param_table.description",
     ]);
     expect(container.querySelectorAll("tbody tr")).toHaveLength(
       props.parameters.length,
     );
     expect(container.querySelector("#returns")?.textContent).toContain(
-      "docs.returns",
+      "docs.ui.returns",
     );
     expect(container.textContent).toContain(props.returns);
   });

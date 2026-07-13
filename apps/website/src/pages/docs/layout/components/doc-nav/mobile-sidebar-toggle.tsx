@@ -9,7 +9,7 @@ const MobileSidebarToggle: Component = () => {
     <button
       class="mobile-sidebar-toggle"
       onClick={toggle}
-      aria-label={t("docs.toggle_sidebar")}
+      aria-label={t("docs.layout.toggle_sidebar")}
     >
       <svg
         viewBox="0 0 24 24"

@@ -32,7 +32,7 @@ const PrevNext: Component = () => {
         <Show when={prev()}>
           {(p) => (
             <a href={`#${p().href}`} class="prev-next-link">
-              <span class="prev-next-label">&larr; {t("docs.prev")}</span>
+              <span class="prev-next-label">&larr; {t("docs.layout.prev")}</span>
               <span class="prev-next-title">{p().title}</span>
             </a>
           )}
@@ -40,7 +40,7 @@ const PrevNext: Component = () => {
         <Show when={next()}>
           {(n) => (
             <a href={`#${n().href}`} class="prev-next-link next">
-              <span class="prev-next-label">{t("docs.next")} &rarr;</span>
+              <span class="prev-next-label">{t("docs.layout.next")} &rarr;</span>
               <span class="prev-next-title">{n().title}</span>
             </a>
           )}

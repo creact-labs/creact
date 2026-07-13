@@ -9,7 +9,7 @@ const TableOfContents: Component = () => {
   return (
     <Show when={headings().length > 0}>
       <nav class="docs-toc">
-        <div class="docs-toc-title">{t("docs.toc_title")}</div>
+        <div class="docs-toc-title">{t("docs.layout.toc_title")}</div>
         <For each={headings()}>
           {(heading) => (
             <a

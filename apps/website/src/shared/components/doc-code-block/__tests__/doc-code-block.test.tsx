@@ -32,14 +32,14 @@ describe("DocCodeBlock", () => {
     const { container } = render(() => <DocCodeBlock code={code} />);
 
     const button = container.querySelector(".doc-code-copy")!;
-    expect(button.textContent).toContain("docs.copy");
+    expect(button.textContent).toContain("docs.ui.copy");
     fireEvent.click(button);
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(code);
     });
     await waitFor(() => {
-      expect(button.textContent).toContain("docs.copied");
+      expect(button.textContent).toContain("docs.ui.copied");
     });
   });
 });

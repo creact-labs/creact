@@ -22,7 +22,7 @@ const DocsContent: ParentComponent = (props) => {
     <div class="docs-body">
       <Sidebar />
       <main class="docs-content">
-        <Suspense fallback={<div class="docs-loading">{t("common.loading")}</div>}>
+        <Suspense fallback={<div class="docs-loading">{t("docs.layout.loading")}</div>}>
           <article class="docs-article">{props.children}</article>
         </Suspense>
         <PrevNext />

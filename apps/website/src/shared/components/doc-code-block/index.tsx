@@ -37,7 +37,7 @@ const DocCodeBlock: Component<DocCodeBlockProps> = (props) => {
       <div class="doc-code-header">
         <span class="doc-code-filename">{props.filename || ""}</span>
         <button class="doc-code-copy" onClick={copyCode}>
-          <Show when={!copied()} fallback={<>{t("docs.copied")}</>}>
+          <Show when={!copied()} fallback={<>{t("docs.ui.copied")}</>}>
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -47,7 +47,7 @@ const DocCodeBlock: Component<DocCodeBlockProps> = (props) => {
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
             </svg>
-            {t("docs.copy")}
+            {t("docs.ui.copy")}
           </Show>
         </button>
       </div>

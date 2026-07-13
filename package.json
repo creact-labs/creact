@@ -4,7 +4,9 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "libs/*",
+    "libs/examples/apps/*"
   ],
   "scripts": {
     "build": "npm run build -w packages/creact",
