@@ -1,82 +1,61 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "api-tour/src/reactive/create-root.ts";
 
 const CreateRoot: Component = () => {
   return (
     <>
-      <h1>createRoot</h1>
+      <h1>{t("docs.api.reactive.create_root.title")}</h1>
       <p class="docs-description">
-        Creates a reactive root that owns all computations inside it, with a
-        dispose function for teardown.
+        {t("docs.api.reactive.create_root.description")}
       </p>
 
       <ApiReference
-        name="createRoot"
-        signature="createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T"
+        name={t("docs.api.reactive.create_root.title")}
+        signature={t("docs.api.reactive.create_root.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>(dispose: () =&gt; void) =&gt; T</code></>, "Function that runs within the root. Receives a dispose function to tear down all owned computations."],
-          [<><code>detachedOwner</code></>, <><code>Owner</code></>, "Optional. Parent owner for the root. When provided, the root is attached to this owner's context chain (for lookupContext) but still independently disposable."],
+          [
+            <RichText k="docs.api.reactive.create_root.param_fn_name" />,
+            <RichText k="docs.api.reactive.create_root.param_fn_type" />,
+            <RichText k="docs.api.reactive.create_root.param_fn_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_root.param_detached_owner_name" />,
+            <RichText k="docs.api.reactive.create_root.param_detached_owner_type" />,
+            <RichText k="docs.api.reactive.create_root.param_detached_owner_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        The return value of <code>fn</code>.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.reactive.create_root.returns_body" />
+          </p>
         }
       />
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.reactive.create_root.heading_usage")}
       </DocHeading>
 
       <DocHeading level={3} id="basic">
-        Basic Root
+        {t("docs.api.reactive.create_root.heading_basic")}
       </DocHeading>
-      <DocCodeBlock
-        code={`import { createRoot, createSignal, createEffect } from '@creact-labs/creact';
-
-const dispose = createRoot((dispose) => {
-  const [count, setCount] = createSignal(0);
-
-  createEffect(() => {
-    console.log(count());
-  });
-
-  setCount(1);
-  return dispose;
-});
-
-// Later: tear down all effects and cleanups
-dispose();`}
-      />
+      <DocCodeBlock code={codeSample(samples, "basic")} />
 
       <DocHeading level={3} id="testing">
-        In Tests
+        {t("docs.api.reactive.create_root.heading_testing")}
       </DocHeading>
-      <DocCodeBlock
-        code={`it('signal tracks changes', () => {
-  createRoot(() => {
-    const [val, setVal] = createSignal(0);
-    let observed = -1;
-    createEffect(() => { observed = val(); });
-    expect(observed).toBe(0);
-    setVal(42);
-    expect(observed).toBe(42);
-  });
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "testing")} />
 
       <Callout type="info">
         <p>
-          <code>render()</code> creates a root automatically. You only need{" "}
-          <code>createRoot</code>
-          for standalone reactive scopes outside of <code>render()</code>, such
-          as tests.
+          <RichText k="docs.api.reactive.create_root.info_render_root" />
         </p>
       </Callout>
     </>

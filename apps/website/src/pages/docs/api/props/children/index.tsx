@@ -1,50 +1,39 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/props/children.tsx";
 
 const Children: Component = () => {
   return (
     <>
-      <h1>children</h1>
-      <p class="docs-description">
-        Resolves children passed to a component into a reactive accessor.
-        Handles lazy children and arrays.
-      </p>
+      <h1>{t("docs.api.props.children.title")}</h1>
+      <p class="docs-description">{t("docs.api.props.children.description")}</p>
 
-      <DocCodeBlock code={`const resolved = children(() => props.children);`} />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="children"
-        signature="children(fn: Accessor<JSXElement>): ChildrenReturn"
+        name={t("docs.api.props.children.title")}
+        signature={t("docs.api.props.children.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>Accessor&lt;JSXElement&gt;</code></>, "Accessor that returns the children prop."],
+          [
+            <RichText k="docs.api.props.children.param_fn_name" />,
+            <RichText k="docs.api.props.children.param_fn_type" />,
+            <RichText k="docs.api.props.children.param_fn_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        A <code>ChildrenReturn</code>, a callable accessor that returns the
-        resolved children. Also has a <code>toArray()</code> method that returns
-        the resolved children as a flat array.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.props.children.returns_desc" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`function Wrapper(props: { children: any }) {
-  const c = children(() => props.children);
-
-  createEffect(() => {
-    const resolved = c();
-    console.log('Children:', resolved);
-  });
-
-  return <></>;
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

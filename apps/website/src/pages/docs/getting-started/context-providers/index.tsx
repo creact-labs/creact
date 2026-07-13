@@ -1,79 +1,55 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "getting-started-tour/src/context-providers.tsx";
 
 const ContextProviders: Component = () => {
   return (
     <>
-      <h1>Context and Providers</h1>
+      <h1>{t("docs.getting_started.context_providers.title")}</h1>
       <p class="docs-description">
-        Contexts share data across the component tree without passing props
-        through every level.
+        {t("docs.getting_started.context_providers.description")}
       </p>
 
       <DocHeading level={2} id="creating-context">
-        Creating a Context
+        {t("docs.getting_started.context_providers.heading_creating_context")}
       </DocHeading>
       <p>
-        <code>createContext</code> creates a context with an optional default
-        value.
-        <code>useContext</code> reads the nearest provider's value.
+        <RichText k="docs.getting_started.context_providers.creating_context_intro" />
       </p>
       <DocCodeBlock
-        code={`import { createContext, useContext } from '@creact-labs/creact';
-
-const ConfigContext = createContext<{ region: string }>();
-
-function useConfig() {
-  const ctx = useContext(ConfigContext);
-  if (!ctx) throw new Error('useConfig must be used within ConfigProvider');
-  return ctx;
-}`}
-        filename="config-context.ts"
+        code={codeSample(samples, "create-context")}
+        filename={t(
+          "docs.getting_started.context_providers.filename_config_context",
+        )}
       />
 
       <DocHeading level={2} id="providing-values">
-        Providing Values
+        {t("docs.getting_started.context_providers.heading_providing_values")}
       </DocHeading>
       <p>
-        Wrap components with the context's <code>Provider</code>:
+        <RichText k="docs.getting_started.context_providers.providing_values_intro" />
       </p>
       <DocCodeBlock
-        code={`function App() {
-  return (
-    <ConfigContext.Provider value={{ region: 'us-east-1' }}>
-      <Infrastructure />
-    </ConfigContext.Provider>
-  );
-}
-
-function Infrastructure() {
-  const config = useConfig();
-  console.log(config.region); // 'us-east-1'
-  return <></>;
-}`}
-        filename="app.tsx"
+        code={codeSample(samples, "provide")}
+        filename={t("docs.getting_started.context_providers.filename_app")}
       />
 
       <DocHeading level={2} id="nested-providers">
-        Nested Providers
+        {t("docs.getting_started.context_providers.heading_nested_providers")}
       </DocHeading>
-      <p>Inner providers override outer ones for their subtree:</p>
-      <DocCodeBlock
-        code={`<ConfigContext.Provider value={{ region: 'us-east-1' }}>
-  <UsEastResources />
-  <ConfigContext.Provider value={{ region: 'eu-west-1' }}>
-    <EuResources />
-  </ConfigContext.Provider>
-</ConfigContext.Provider>`}
-      />
+      <p>
+        {t("docs.getting_started.context_providers.nested_providers_intro")}
+      </p>
+      <DocCodeBlock code={codeSample(samples, "nested")} />
 
       <Callout type="tip">
-        <p>
-          Use contexts for cross-cutting concerns like AWS region, environment
-          name, or shared credentials that many components need.
-        </p>
+        <p>{t("docs.getting_started.context_providers.tip_cross_cutting")}</p>
       </Callout>
     </>
   );

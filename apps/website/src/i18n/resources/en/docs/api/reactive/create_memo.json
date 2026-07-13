@@ -1,0 +1,19 @@
+{
+  "title": "createMemo",
+  "description": "Creates a cached derived value. Use when computing a value from other signals. Only recomputes when dependencies change.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(prev: T | undefined) =&gt; T</code>",
+  "param_fn_desc": "Computation function. Receives previous value.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Optional initial seed value.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>MemoOptions&lt;T&gt;</code>",
+  "param_options_desc": "Optional. <code>equals</code> for custom comparison.",
+  "returns_body": "An <code>Accessor&lt;T&gt;</code> that returns the memoized value. Acts as both a signal reader (trackable) and a computation (auto-updates).",
+  "heading_usage": "Usage",
+  "heading_derived_values": "Derived Values",
+  "heading_chaining": "Chaining Memos",
+  "heading_equality": "Custom Equality"
+}

@@ -1,54 +1,43 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/reactive/create-selector.ts";
 
 const CreateSelector: Component = () => {
   return (
     <>
-      <h1>createSelector</h1>
+      <h1>{t("docs.api.reactive.create_selector.title")}</h1>
       <p class="docs-description">
-        Creates an O(2) selection signal. Only the previous and new selection
-        re-evaluate.
+        {t("docs.api.reactive.create_selector.description")}
       </p>
 
       <ApiReference
-        name="createSelector"
-        signature="createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean"
+        name={t("docs.api.reactive.create_selector.title")}
+        signature={t("docs.api.reactive.create_selector.signature")}
         parameters={[
-          [<><code>source</code></>, <><code>Accessor&lt;T&gt;</code></>, "Signal that holds the currently selected value."],
-          [<><code>fn</code></>, <><code>(a: U, b: T) =&gt; boolean</code></>, <>Optional comparator. Defaults to <code>===</code>.</>],
+          [
+            <RichText k="docs.api.reactive.create_selector.param_source_name" />,
+            <RichText k="docs.api.reactive.create_selector.param_source_type" />,
+            <RichText k="docs.api.reactive.create_selector.param_source_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_selector.param_fn_name" />,
+            <RichText k="docs.api.reactive.create_selector.param_fn_type" />,
+            <RichText k="docs.api.reactive.create_selector.param_fn_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        A function <code>(key: U) =&gt; boolean</code> that returns{" "}
-        <code>true</code> if
-        <code>key</code> matches the current selection. Only the previously
-        selected and newly selected items re-evaluate. O(2) regardless of list
-        size.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.reactive.create_selector.returns_body" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`const [selected, setSelected] = createSignal('a');
-const isSelected = createSelector(selected);
-
-// In a loop: only 2 items update when selection changes
-items.forEach(item => {
-  createEffect(() => {
-    if (isSelected(item.id)) {
-      console.log(item.id, 'is now selected');
-    }
-  });
-});
-
-setSelected('b'); // Only 'a' and 'b' effects re-run`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

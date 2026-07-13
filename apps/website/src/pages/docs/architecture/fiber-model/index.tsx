@@ -1,116 +1,79 @@
 import type { Component } from "solid-js";
+import { t } from "@/i18n";
+import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import RichText from "@/shared/components/rich-text";
 
 const FiberModel: Component = () => {
   return (
     <>
-      <h1>Fiber Model</h1>
+      <h1>{t("docs.architecture.fiber_model.title")}</h1>
       <p class="docs-description">
-        Fibers are CReact's internal representation of the component tree. Each
-        component instance maps to a fiber node.
+        {t("docs.architecture.fiber_model.description")}
       </p>
 
       <DocHeading level={2} id="what-is-fiber">
-        What Is a Fiber?
+        {t("docs.architecture.fiber_model.heading_what_is_fiber")}
       </DocHeading>
-      <p>
-        A fiber is a unit of work in the render tree. Each component instance in
-        your JSX corresponds to a fiber node. Fibers form a tree that mirrors
-        your component hierarchy.
-      </p>
+      <p>{t("docs.architecture.fiber_model.what_is_fiber_body")}</p>
 
       <DocHeading level={2} id="fiber-structure">
-        Fiber Structure
+        {t("docs.architecture.fiber_model.heading_fiber_structure")}
       </DocHeading>
       <DocCodeBlock
-        code={`// Component function, intrinsic tag, Fragment symbol, or nothing
-type FiberType =
-  | ((props: Record<string, unknown>) => unknown)
-  | string
-  | symbol
-  | null;
-
-interface Fiber {
-  type: FiberType;
-  props: Record<string, unknown>;
-  children: Fiber[];
-  path: string[];               // Path segments from root to this fiber
-  key?: string | number;        // User-provided key for stable identity
-
-  // Instance bindings (from useAsyncOutput)
-  instanceNodes: InstanceNode[];
-
-  // Store (from createStore, JSON-serializable)
-  store?: object;
-
-  // Owner for reactive scope (effects, cleanups)
-  owner?: Owner | null;
-}`}
-        filename="fiber.ts (simplified)"
+        code={t("docs.architecture.fiber_model.code_fiber_structure")}
+        filename={t("docs.architecture.fiber_model.code_fiber_structure_filename")}
       />
 
       <DocHeading level={2} id="lifecycle">
-        Fiber Lifecycle
+        {t("docs.architecture.fiber_model.heading_lifecycle")}
       </DocHeading>
       <DocSteps
         steps={[
-          { label: "Creation", body: "when JSX is evaluated, fibers are created for each component" },
-          { label: "Reconciliation", body: "fibers are compared against the previous state" },
-          { label: "Execution", body: "handlers run for new or changed fibers" },
-          { label: "Serialization", body: "fiber outputs are saved to Memory" },
-          { label: "Cleanup", body: "removed fibers have their cleanup handlers called" },
+          {
+            label: t("docs.architecture.fiber_model.step_creation_label"),
+            body: <RichText k="docs.architecture.fiber_model.step_creation_body" />,
+          },
+          {
+            label: t("docs.architecture.fiber_model.step_reconciliation_label"),
+            body: <RichText k="docs.architecture.fiber_model.step_reconciliation_body" />,
+          },
+          {
+            label: t("docs.architecture.fiber_model.step_execution_label"),
+            body: <RichText k="docs.architecture.fiber_model.step_execution_body" />,
+          },
+          {
+            label: t("docs.architecture.fiber_model.step_serialization_label"),
+            body: <RichText k="docs.architecture.fiber_model.step_serialization_body" />,
+          },
+          {
+            label: t("docs.architecture.fiber_model.step_cleanup_label"),
+            body: <RichText k="docs.architecture.fiber_model.step_cleanup_body" />,
+          },
         ]}
       />
 
       <DocHeading level={2} id="paths">
-        Fiber Paths
+        {t("docs.architecture.fiber_model.heading_paths")}
       </DocHeading>
       <p>
-        Each fiber has a <code>path</code>, an array of string segments from the
-        root to that fiber. Instance nodes derive their ID by joining the path
-        with <code>"."</code> (e.g., <code>app.aws.web-site-blog</code>). Paths
-        are used to match nodes across runs for reconciliation.
+        <RichText k="docs.architecture.fiber_model.paths_body" />
       </p>
-      <DocCodeBlock
-        code={`// <App>
-//   <AWS region="us-east-1">
-//     <WebSite key="blog" name="blog" />
-//     <WebSite key="docs" name="docs" />
-//   </AWS>
-// </App>
-
-// Fiber paths (string[]):
-// ["App"]
-// ["App", "AWS"]
-// ["App", "AWS", "WebSite"]   (key="blog")
-// ["App", "AWS", "WebSite"]   (key="docs")
-
-// Instance node IDs (path.join(".")):
-// "app.aws.web-site-blog"
-// "app.aws.web-site-docs"`}
-      />
+      <DocCodeBlock code={t("docs.architecture.fiber_model.code_paths")} />
 
       <DocHeading level={2} id="instance-nodes">
-        Fibers vs Instance Nodes
+        {t("docs.architecture.fiber_model.heading_instance_nodes")}
       </DocHeading>
       <p>
-        Fibers represent the component tree structure. When a component calls{" "}
-        <code>useAsyncOutput</code>, it creates an <code>InstanceNode</code>{" "}
-        that is attached to the fiber via <code>instanceNodes</code>. Instance
-        nodes are what the reconciler diffs and the runtime deploys. They carry
-        the handler, outputs, and cleanup function.
+        <RichText k="docs.architecture.fiber_model.instance_nodes_body" />
       </p>
 
       <DocHeading level={2} id="source">
-        Source
+        {t("docs.architecture.fiber_model.heading_source")}
       </DocHeading>
       <p>
-        The fiber interface and <code>createFiber</code> live in{" "}
-        <code>runtime/src/fiber.ts</code>. Instance nodes are defined in{" "}
-        <code>runtime/src/instance.ts</code>. Rendering logic is in{" "}
-        <code>runtime/src/render.ts</code>.
+        <RichText k="docs.architecture.fiber_model.source_body" />
       </p>
     </>
   );

@@ -1,53 +1,46 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
-import DocTable from "@/shared/components/doc-table";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/lifecycle/on-cleanup.ts";
 
 const OnCleanup: Component = () => {
   return (
     <>
-      <h1>onCleanup</h1>
+      <h1>{t("docs.api.lifecycle.on_cleanup.title")}</h1>
       <p class="docs-description">
-        Registers a cleanup function on the current reactive owner. Runs when
-        the owner is disposed or before an effect re-runs.
+        {t("docs.api.lifecycle.on_cleanup.description")}
       </p>
 
-      <DocCodeBlock
-        code={`onCleanup(() => {
-  clearInterval(interval);
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="onCleanup"
-        signature="onCleanup<T extends () => any>(fn: T): T"
+        name={t("docs.api.lifecycle.on_cleanup.title")}
+        signature={t("docs.api.lifecycle.on_cleanup.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>() =&gt; any</code></>, "Cleanup function. Called when the owner disposes."],
+          [
+            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_name" />,
+            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_type" />,
+            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>The same function passed in, for convenience.</p>
-          </>
+          <p>
+            <RichText k="docs.api.lifecycle.on_cleanup.returns_desc" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`createEffect(() => {
-  const interval = setInterval(() => tick(), 1000);
-  onCleanup(() => clearInterval(interval));
-  // interval is cleared before the next run, or when disposed
-});`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
 
       <Callout type="warning">
         <p>
-          <code>onCleanup</code> called outside a <code>createRoot</code> or{" "}
-          <code>render</code>
-          will warn and the cleanup will never run.
+          <RichText k="docs.api.lifecycle.on_cleanup.warning_no_owner" />
         </p>
       </Callout>
     </>

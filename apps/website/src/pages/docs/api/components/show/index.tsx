@@ -1,74 +1,75 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "api-tour/src/components/show.tsx";
 
 const ShowApi: Component = () => {
   return (
     <>
-      <h1>Show</h1>
+      <h1>{t("docs.api.components.show.title")}</h1>
       <p class="docs-description">
-        Conditionally renders children based on a reactive condition.
+        {t("docs.api.components.show.description")}
       </p>
 
-      <DocCodeBlock
-        code={`<Show when={() => isReady()} fallback={<Loading />}>
-  <App />
-</Show>`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="Show"
-        signature="Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement"
+        name={t("docs.api.components.show.title")}
+        signature={t("docs.api.components.show.signature")}
       />
 
       <DocHeading level={3} id="props">
-        Props
+        {t("docs.api.components.show.heading_props")}
       </DocHeading>
       <DocTable
-        headers={["Prop", "Type", "Description"]}
+        headers={[
+          t("docs.ui.prop_table.prop"),
+          t("docs.ui.prop_table.type"),
+          t("docs.ui.prop_table.description"),
+        ]}
         rows={[
-          [<><code>when</code></>, <><code>MaybeAccessor&lt;T | undefined | null | false&gt;</code></>, "Reactive condition. Children render when truthy. Accepts a value or an accessor."],
-          [<><code>fallback</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, <>Optional content to render when <code>when</code> is falsy.</>],
-          [<><code>children</code></>, <><code>
-                CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt;
-                CReactNode)
-              </code></>, "Content to render, or a callback receiving the truthy value as an accessor."],
+          [
+            <RichText k="docs.api.components.show.prop_when_name" />,
+            <RichText k="docs.api.components.show.prop_when_type" />,
+            <RichText k="docs.api.components.show.prop_when_desc" />,
+          ],
+          [
+            <RichText k="docs.api.components.show.prop_fallback_name" />,
+            <RichText k="docs.api.components.show.prop_fallback_type" />,
+            <RichText k="docs.api.components.show.prop_fallback_desc" />,
+          ],
+          [
+            <RichText k="docs.api.components.show.prop_children_name" />,
+            <RichText k="docs.api.components.show.prop_children_type" />,
+            <RichText k="docs.api.components.show.prop_children_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.components.show.heading_usage")}
       </DocHeading>
 
       <DocHeading level={3} id="basic">
-        Basic Condition
+        {t("docs.api.components.show.heading_basic")}
       </DocHeading>
-      <DocCodeBlock
-        code={`<Show when={() => enabled()}>
-  <Server port={3000} />
-</Show>`}
-      />
+      <DocCodeBlock code={codeSample(samples, "basic")} />
 
       <DocHeading level={3} id="callback">
-        Callback Children
+        {t("docs.api.components.show.heading_callback")}
       </DocHeading>
-      <DocCodeBlock
-        code={`<Show when={() => user()}>
-  {(u) => <Profile name={u().name} email={u().email} />}
-</Show>`}
-      />
+      <DocCodeBlock code={codeSample(samples, "callback")} />
 
       <DocHeading level={3} id="fallback">
-        With Fallback
+        {t("docs.api.components.show.heading_fallback")}
       </DocHeading>
-      <DocCodeBlock
-        code={`<Show when={() => data()} fallback={<Placeholder />}>
-  {(d) => <Display data={d()} />}
-</Show>`}
-      />
+      <DocCodeBlock code={codeSample(samples, "fallback")} />
     </>
   );
 };

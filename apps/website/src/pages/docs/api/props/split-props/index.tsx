@@ -1,44 +1,29 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/props/split-props.tsx";
 
 const SplitProps: Component = () => {
   return (
     <>
-      <h1>splitProps</h1>
+      <h1>{t("docs.api.props.split_props.title")}</h1>
       <p class="docs-description">
-        Splits a props object into multiple groups by key. Preserves reactivity.
+        {t("docs.api.props.split_props.description")}
       </p>
 
-      <DocCodeBlock
-        code={`const [local, others] = splitProps(props, ['class', 'style']);`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="splitProps"
-        signature="splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]"
+        name={t("docs.api.props.split_props.title")}
+        signature={t("docs.api.props.split_props.signature")}
       />
-      <p>
-        Takes the props object followed by one or more arrays of keys. Returns a
-        tuple with one object per key group plus a remainder object containing
-        all unmatched keys.
-      </p>
+      <p>{t("docs.api.props.split_props.behavior")}</p>
 
-      <UsageSection
-        code={`function Server(props: { port: number; host?: string; handler: () => void }) {
-  const [local, rest] = splitProps(props, ['handler']);
-
-  const server = useAsyncOutput(rest, async (p, setOutputs) => {
-    // rest has port and host but not handler
-    setOutputs({ url: \`http://\${p.host ?? 'localhost'}:\${p.port}\` });
-  });
-
-  return <></>;
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

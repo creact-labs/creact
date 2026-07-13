@@ -1,0 +1,12 @@
+{
+  "title": "runWithOwner",
+  "description": "Runs a function under a specific reactive owner. Required for creating effects in async callbacks.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<code>owner</code>",
+  "param_owner_type": "<code>Owner | null</code>",
+  "param_owner_desc": "The owner scope to run under. Get this from <code>getOwner()</code>. Accepts <code>null</code>.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Function to run. Any effects/cleanups created inside are owned by <code>owner</code>.",
+  "info_async_owner": "After <code>await</code> or inside callbacks, the reactive owner is lost. Capture it synchronously with <code>getOwner()</code> and restore it with <code>runWithOwner()</code>."
+}

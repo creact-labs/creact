@@ -9,7 +9,7 @@
  * component boundary; parent context does not.
  */
 
-import type { CReactNode } from "../jsx/jsx-runtime";
+import type { CReactNode, JSXElement } from "../jsx/jsx-runtime";
 import { Fragment, jsx } from "../jsx/jsx-runtime";
 import { deriveInstanceAddress, useAsyncOutput } from "./instance";
 import type { Memory } from "./memory";
@@ -52,10 +52,10 @@ export interface RuntimeOutputs {
  */
 export function createRuntime<P extends Record<string, unknown>>(
   Root: (props: P) => CReactNode,
-): (props: P & { memory?: Memory }) => CReactNode {
+): (props: P & { memory?: Memory }) => JSXElement {
   const rootName = Root.name || "Root";
 
-  const RuntimeBoundary = (props: P & { memory?: Memory }): CReactNode => {
+  const RuntimeBoundary = (props: P & { memory?: Memory }): JSXElement => {
     const { memory, ...rootProps } = props;
 
     const fiber = getCurrentFiber();

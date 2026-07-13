@@ -1,39 +1,28 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/props/merge-props.tsx";
 
 const MergeProps: Component = () => {
   return (
     <>
-      <h1>mergeProps</h1>
+      <h1>{t("docs.api.props.merge_props.title")}</h1>
       <p class="docs-description">
-        Merges multiple props objects reactively, with later sources overriding
-        earlier ones. Use for default props.
+        {t("docs.api.props.merge_props.description")}
       </p>
 
-      <DocCodeBlock
-        code={`const merged = mergeProps({ color: 'blue', size: 'md' }, props);`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="mergeProps"
-        signature="mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
+        name={t("docs.api.props.merge_props.title")}
+        signature={t("docs.api.props.merge_props.signature")}
       />
 
-      <UsageSection
-        code={`function Button(props: { color?: string; size?: string; label: string }) {
-  const merged = mergeProps({ color: 'blue', size: 'md' }, props);
-
-  createEffect(() => {
-    console.log(merged.color, merged.size, merged.label);
-  });
-
-  return <></>;
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

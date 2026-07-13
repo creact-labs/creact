@@ -1,75 +1,68 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "api-tour/src/reactive/create-memo.ts";
 
 const CreateMemo: Component = () => {
   return (
     <>
-      <h1>createMemo</h1>
+      <h1>{t("docs.api.reactive.create_memo.title")}</h1>
       <p class="docs-description">
-        Creates a cached derived value. Use when computing a value from other
-        signals. Only recomputes when dependencies change.
+        {t("docs.api.reactive.create_memo.description")}
       </p>
 
-      <DocCodeBlock code={`const doubled = createMemo(() => count() * 2);`} />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createMemo"
-        signature="createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>"
+        name={t("docs.api.reactive.create_memo.title")}
+        signature={t("docs.api.reactive.create_memo.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>(prev: T | undefined) =&gt; T</code></>, "Computation function. Receives previous value."],
-          [<><code>value</code></>, <><code>T</code></>, "Optional initial seed value."],
-          [<><code>options</code></>, <><code>MemoOptions&lt;T&gt;</code></>, <>Optional. <code>equals</code> for custom comparison.</>],
+          [
+            <RichText k="docs.api.reactive.create_memo.param_fn_name" />,
+            <RichText k="docs.api.reactive.create_memo.param_fn_type" />,
+            <RichText k="docs.api.reactive.create_memo.param_fn_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_memo.param_value_name" />,
+            <RichText k="docs.api.reactive.create_memo.param_value_type" />,
+            <RichText k="docs.api.reactive.create_memo.param_value_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_memo.param_options_name" />,
+            <RichText k="docs.api.reactive.create_memo.param_options_type" />,
+            <RichText k="docs.api.reactive.create_memo.param_options_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        An <code>Accessor&lt;T&gt;</code> that returns the memoized value. Acts
-        as both a signal reader (trackable) and a computation (auto-updates).
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.reactive.create_memo.returns_body" />
+          </p>
         }
       />
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.reactive.create_memo.heading_usage")}
       </DocHeading>
 
       <DocHeading level={3} id="derived-values">
-        Derived Values
+        {t("docs.api.reactive.create_memo.heading_derived_values")}
       </DocHeading>
-      <DocCodeBlock
-        code={`const [items, setItems] = createSignal([1, 2, 3]);
-const total = createMemo(() => items().reduce((a, b) => a + b, 0));
-
-console.log(total()); // 6
-setItems([10, 20]);
-console.log(total()); // 30`}
-      />
+      <DocCodeBlock code={codeSample(samples, "derived-values")} />
 
       <DocHeading level={3} id="chaining">
-        Chaining Memos
+        {t("docs.api.reactive.create_memo.heading_chaining")}
       </DocHeading>
-      <DocCodeBlock
-        code={`const [count, setCount] = createSignal(1);
-const doubled = createMemo(() => count() * 2);
-const quadrupled = createMemo(() => doubled() * 2);
-
-console.log(quadrupled()); // 4`}
-      />
+      <DocCodeBlock code={codeSample(samples, "chaining")} />
 
       <DocHeading level={3} id="equality">
-        Custom Equality
+        {t("docs.api.reactive.create_memo.heading_equality")}
       </DocHeading>
-      <DocCodeBlock
-        code={`const filtered = createMemo(
-  () => items().filter(i => i.active),
-  [],
-  { equals: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]) }
-);`}
-      />
+      <DocCodeBlock code={codeSample(samples, "equality")} />
     </>
   );
 };

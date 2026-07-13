@@ -1,0 +1,16 @@
+{
+  "title": "File System Operations",
+  "description": "Build reactive file read and write components using Node.js APIs.",
+  "heading_read_component": "Read Component",
+  "read_intro": "The <code>Read</code> component loads a file and passes its content as an accessor to a render callback. Children receive the content reactively.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Write Component",
+  "write_intro": "The <code>Write</code> component watches a content accessor with <code>createEffect</code>. When the content changes, it writes to disk. The <code>untrack</code> guard prevents re-writing the same content.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Using Read and Write Together",
+  "usage_intro": "Compose <code>Read</code> and <code>Write</code> to build pipelines that transform file content reactively:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "File-Based Memory",
+  "file_memory_intro": "The most common file system pattern in CReact is the <code>FileMemory</code> implementation for state persistence:",
+  "filename_memory": "src/memory.ts"
+}

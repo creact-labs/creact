@@ -1,0 +1,15 @@
+{
+  "title": "Reactive Primitives",
+  "description": "Signals, effects, and memos make components respond to change.",
+  "heading_signals": "Signals",
+  "signals_intro": "A signal is a reactive value. It returns a getter and setter pair. Reading the getter inside an effect registers a dependency. The effect re-runs when the signal changes.",
+  "heading_effects": "Effects",
+  "effects_intro": "Effects run side effects when their dependencies change. CReact tracks which signals are read inside the effect function.",
+  "info_batched_effects": "Effects are queued and batched. Multiple signal updates in a single synchronous block only trigger one effect re-run.",
+  "heading_memos": "Memos",
+  "memos_intro": "A memo is a derived reactive value. It caches the result and only recomputes when its dependencies change.",
+  "heading_batching": "Batching",
+  "batching_intro": "<code>batch()</code> groups multiple signal updates into a single re-evaluation pass:",
+  "heading_untrack": "Untrack",
+  "untrack_intro": "<code>untrack()</code> reads a signal without creating a dependency:"
+}

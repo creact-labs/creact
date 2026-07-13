@@ -1,43 +1,41 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/context/use-context.tsx";
 
 const UseContext: Component = () => {
   return (
     <>
-      <h1>useContext</h1>
+      <h1>{t("docs.api.context.use_context.title")}</h1>
       <p class="docs-description">
-        Reads the value of the nearest context Provider above in the tree.
+        {t("docs.api.context.use_context.description")}
       </p>
 
-      <DocCodeBlock code={`const config = useContext(ConfigContext);`} />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="useContext"
-        signature="useContext<T>(context: Context<T>): T"
+        name={t("docs.api.context.use_context.title")}
+        signature={t("docs.api.context.use_context.signature")}
         parameters={[
-          [<><code>context</code></>, <><code>Context&lt;T&gt;</code></>, <>The context object created by <code>createContext</code>.</>],
+          [
+            <RichText k="docs.api.context.use_context.param_context_name" />,
+            <RichText k="docs.api.context.use_context.param_context_type" />,
+            <RichText k="docs.api.context.use_context.param_context_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        The value from the nearest <code>Provider</code> above. If no Provider
-        exists, returns the default value passed to <code>createContext</code>.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.context.use_context.returns_desc" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`function Infrastructure() {
-  const config = useContext(ConfigContext);
-  console.log(config.region); // 'us-east-1'
-  return <></>;
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

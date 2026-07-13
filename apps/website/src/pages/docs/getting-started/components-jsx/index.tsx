@@ -1,131 +1,82 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "getting-started-tour/src/components-jsx.tsx";
 
 const ComponentsJsx: Component = () => {
   return (
     <>
-      <h1>Components and JSX</h1>
+      <h1>{t("docs.getting_started.components_jsx.title")}</h1>
       <p class="docs-description">
-        CReact components are functions that return JSX. JSX describes resources
-        and processes, not DOM elements.
+        {t("docs.getting_started.components_jsx.description")}
       </p>
 
       <DocHeading level={2} id="what-is-jsx">
-        JSX in CReact
+        {t("docs.getting_started.components_jsx.heading_jsx")}
       </DocHeading>
       <p>
-        CReact uses JSX to describe <strong>resources and processes</strong>,
-        not DOM elements. <code>&lt;WebSite name="blog" /&gt;</code>
-        declares that a website named "blog" should exist.
+        <RichText k="docs.getting_started.components_jsx.jsx_intro" />
       </p>
       <DocCodeBlock
-        code={`function App() {
-  return (
-    <>
-      <S3Bucket name="my-bucket" />
-      <CloudFront origin="my-bucket" />
-    </>
-  );
-}`}
-        filename="app.tsx"
+        code={codeSample(samples, "resources")}
+        filename={t("docs.getting_started.components_jsx.filename_app")}
       />
 
       <DocHeading level={2} id="component-functions">
-        Component Functions
+        {t("docs.getting_started.components_jsx.heading_component_functions")}
       </DocHeading>
       <p>
-        Components are plain functions that return JSX. They receive props as
-        their first argument and run once. Reactivity is handled by signals, not
-        re-renders.
+        {t("docs.getting_started.components_jsx.component_functions_intro")}
       </p>
       <DocCodeBlock
-        code={`function Counter(props: { initial: number }) {
-  const [count, setCount] = createSignal(props.initial);
-
-  createEffect(() => {
-    console.log('Count is:', count());
-  });
-
-  return <></>;
-}`}
-        filename="counter.tsx"
+        code={codeSample(samples, "component-functions")}
+        filename={t("docs.getting_started.components_jsx.filename_counter")}
       />
 
       <DocHeading level={2} id="fragments">
-        Fragments
+        {t("docs.getting_started.components_jsx.heading_fragments")}
       </DocHeading>
       <p>
-        Use <code>&lt;&gt;...&lt;/&gt;</code> to return multiple elements
-        without a wrapper:
+        <RichText k="docs.getting_started.components_jsx.fragments_intro" />
       </p>
       <DocCodeBlock
-        code={`function Infrastructure() {
-  return (
-    <>
-      <Database type="postgres" />
-      <Cache type="redis" />
-      <Server handler={app} />
-    </>
-  );
-}`}
-        filename="infra.tsx"
+        code={codeSample(samples, "fragments")}
+        filename={t("docs.getting_started.components_jsx.filename_infra")}
       />
 
       <DocHeading level={2} id="reactive-props">
-        Reactive Props
+        {t("docs.getting_started.components_jsx.heading_reactive_props")}
       </DocHeading>
       <p>
-        Props in CReact are often <strong>accessors</strong> (getter functions)
-        to preserve reactivity. Components run once; effects re-run when their
-        dependencies change.
+        <RichText k="docs.getting_started.components_jsx.reactive_props_intro" />
       </p>
       <DocCodeBlock
-        code={`function Display(props: { value: () => number }) {
-  createEffect(() => {
-    // Re-runs whenever props.value() changes
-    console.log('Value:', props.value());
-  });
-
-  return <></>;
-}
-
-// Usage:
-const [count, setCount] = createSignal(0);
-<Display value={count} />`}
-        filename="reactive-props.tsx"
+        code={codeSample(samples, "reactive-props")}
+        filename={t(
+          "docs.getting_started.components_jsx.filename_reactive_props",
+        )}
       />
 
       <Callout type="tip">
         <p>
-          Use the <code>access()</code> helper to unwrap values that may or may
-          not be accessors:
-          <code>access(props.value)</code> works whether <code>value</code> is{" "}
-          <code>5</code> or <code>() =&gt; 5</code>.
+          <RichText k="docs.getting_started.components_jsx.tip_access" />
         </p>
       </Callout>
 
       <DocHeading level={2} id="children">
-        Children
+        {t("docs.getting_started.components_jsx.heading_children")}
       </DocHeading>
       <p>
-        Components can receive children through JSX nesting. Use the{" "}
-        <code>children()</code> helper to resolve them reactively.
+        <RichText k="docs.getting_started.components_jsx.children_intro" />
       </p>
       <DocCodeBlock
-        code={`import { children } from '@creact-labs/creact';
-
-function Wrapper(props: { children: any }) {
-  const resolved = children(() => props.children);
-
-  createEffect(() => {
-    console.log('Children:', resolved());
-  });
-
-  return <></>;
-}`}
-        filename="children.tsx"
+        code={codeSample(samples, "children")}
+        filename={t("docs.getting_started.components_jsx.filename_children")}
       />
     </>
   );

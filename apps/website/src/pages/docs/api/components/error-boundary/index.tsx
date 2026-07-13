@@ -1,53 +1,54 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/components/error-boundary.tsx";
 
 const ErrorBoundaryApi: Component = () => {
   return (
     <>
-      <h1>ErrorBoundary</h1>
+      <h1>{t("docs.api.components.error_boundary.title")}</h1>
       <p class="docs-description">
-        Catches errors thrown in child components and renders a fallback.
+        {t("docs.api.components.error_boundary.description")}
       </p>
 
-      <DocCodeBlock
-        code={`<ErrorBoundary fallback={(err, reset) => <p>Error: {err.message}</p>}>
-  <RiskyComponent />
-</ErrorBoundary>`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="ErrorBoundary"
-        signature="ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement"
+        name={t("docs.api.components.error_boundary.title")}
+        signature={t("docs.api.components.error_boundary.signature")}
       />
 
       <DocHeading level={3} id="props">
-        Props
+        {t("docs.api.components.error_boundary.heading_props")}
       </DocHeading>
       <DocTable
-        headers={["Prop", "Type", "Description"]}
+        headers={[
+          t("docs.ui.prop_table.prop"),
+          t("docs.ui.prop_table.type"),
+          t("docs.ui.prop_table.description"),
+        ]}
         rows={[
-          [<><code>fallback</code></>, <><code>
-                MaybeAccessor&lt;CReactNode&gt; | ((err: any, reset: () =&gt;
-                void) =&gt; CReactNode)
-              </code></>, "Static fallback or render function called with the caught error and a reset function."],
-          [<><code>children</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, "Content to render. Errors in this subtree are caught."],
+          [
+            <RichText k="docs.api.components.error_boundary.prop_fallback_name" />,
+            <RichText k="docs.api.components.error_boundary.prop_fallback_type" />,
+            <RichText k="docs.api.components.error_boundary.prop_fallback_desc" />,
+          ],
+          [
+            <RichText k="docs.api.components.error_boundary.prop_children_name" />,
+            <RichText k="docs.api.components.error_boundary.prop_children_type" />,
+            <RichText k="docs.api.components.error_boundary.prop_children_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`<ErrorBoundary fallback={(err, reset) => {
-  console.error('Deployment failed:', err);
-  // Call reset() to clear the error and re-render children
-  return <></>;
-}}>
-  <WebSite name="blog" content={generateContent} />
-</ErrorBoundary>`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

@@ -1,43 +1,36 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
-import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/lifecycle/on-mount.tsx";
 
 const OnMount: Component = () => {
   return (
     <>
-      <h1>onMount</h1>
+      <h1>{t("docs.api.lifecycle.on_mount.title")}</h1>
       <p class="docs-description">
-        Runs a function once when the component initializes, without tracking
-        dependencies.
+        {t("docs.api.lifecycle.on_mount.description")}
       </p>
 
-      <DocCodeBlock
-        code={`onMount(() => {
-  console.log('Component mounted');
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="onMount"
-        signature="onMount(fn: () => void): void"
+        name={t("docs.api.lifecycle.on_mount.title")}
+        signature={t("docs.api.lifecycle.on_mount.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>() =&gt; void</code></>, "Function to run once on mount. Runs untracked; signal reads don't create dependencies."],
+          [
+            <RichText k="docs.api.lifecycle.on_mount.param_fn_name" />,
+            <RichText k="docs.api.lifecycle.on_mount.param_fn_type" />,
+            <RichText k="docs.api.lifecycle.on_mount.param_fn_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`function App() {
-  onMount(() => {
-    console.log('App started');
-  });
-
-  return <></>;
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

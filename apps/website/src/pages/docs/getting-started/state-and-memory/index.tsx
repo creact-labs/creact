@@ -1,174 +1,97 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "getting-started-tour/src/state-and-memory.tsx";
 
 const StateAndMemory: Component = () => {
   return (
     <>
-      <h1>State and Memory</h1>
+      <h1>{t("docs.getting_started.state_and_memory.title")}</h1>
       <p class="docs-description">
-        The Memory interface saves and restores deployment state between runs.
+        {t("docs.getting_started.state_and_memory.description")}
       </p>
 
       <DocHeading level={2} id="why-persistence">
-        Why Persistence Matters
+        {t("docs.getting_started.state_and_memory.heading_why_persistence")}
       </DocHeading>
       <p>
-        CReact apps describe infrastructure and processes. When the app stops
-        and restarts, you need to know what was already deployed. Otherwise
-        every restart re-creates everything from scratch. The{" "}
-        <code>Memory</code> interface solves this by saving and restoring
-        deployment state.
+        <RichText k="docs.getting_started.state_and_memory.why_persistence_body" />
       </p>
 
       <DocHeading level={2} id="memory-interface">
-        The Memory Interface
+        {t("docs.getting_started.state_and_memory.heading_memory_interface")}
       </DocHeading>
       <p>
-        <code>render()</code> requires a <code>Memory</code> implementation. You
-        implement two methods: <code>getState</code> and <code>saveState</code>.
-        CReact does not ship a built-in implementation. You choose the storage
-        backend.
+        <RichText k="docs.getting_started.state_and_memory.memory_interface_intro" />
       </p>
       <DocCodeBlock
-        code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
-
-class MyMemory implements Memory {
-  async getState(stackName: string): Promise<DeploymentState | null> {
-    // Load previously saved state, or null on first run
-  }
-
-  async saveState(stackName: string, state: DeploymentState): Promise<void> {
-    // Persist state after each render cycle
-  }
-}`}
-        filename="memory.ts"
+        code={codeSample(samples, "memory-interface")}
+        filename={t("docs.getting_started.state_and_memory.filename_memory")}
       />
 
       <DocHeading level={2} id="file-memory">
-        FileMemory Example
+        {t("docs.getting_started.state_and_memory.heading_file_memory")}
       </DocHeading>
-      <p>The simplest implementation persists state as JSON files on disk:</p>
+      <p>{t("docs.getting_started.state_and_memory.file_memory_intro")}</p>
       <DocCodeBlock
-        code={`import type { Memory, DeploymentState } from '@creact-labs/creact';
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-
-export class FileMemory implements Memory {
-  constructor(private dir: string) {}
-
-  async getState(stackName: string): Promise<DeploymentState | null> {
-    try {
-      const data = await readFile(
-        join(this.dir, \`\${stackName}.json\`), 'utf-8'
-      );
-      return JSON.parse(data);
-    } catch {
-      return null; // First run, no state yet
-    }
-  }
-
-  async saveState(stackName: string, state: DeploymentState): Promise<void> {
-    await mkdir(this.dir, { recursive: true });
-    await writeFile(
-      join(this.dir, \`\${stackName}.json\`),
-      JSON.stringify(state, null, 2)
-    );
-  }
-}`}
-        filename="src/memory.ts"
+        code={codeSample("getting-started-tour/src/memory.ts", "file-memory")}
+        filename={t(
+          "docs.getting_started.state_and_memory.filename_src_memory",
+        )}
       />
 
       <DocHeading level={2} id="using-memory">
-        Passing Memory to render()
+        {t("docs.getting_started.state_and_memory.heading_using_memory")}
       </DocHeading>
       <DocCodeBlock
-        code={`import { render } from '@creact-labs/creact';
-import { FileMemory } from './src/memory';
-import { App } from './src/app';
-
-export default async function() {
-  const memory = new FileMemory('./.state');
-  return render(() => <App />, memory, 'my-app');
-}`}
-        filename="index.tsx"
+        code={codeSample("getting-started-tour/index.tsx", "using-memory")}
+        filename={t("docs.getting_started.state_and_memory.filename_index_tsx")}
       />
 
       <Callout type="tip">
         <p>
-          The third argument to <code>render()</code> is the stack name. It
-          identifies your app's state file. Different stack names allow multiple
-          independent state stores.
+          <RichText k="docs.getting_started.state_and_memory.tip_stack_name" />
         </p>
       </Callout>
 
       <DocHeading level={2} id="useAsyncOutput">
-        Persisting Outputs with useAsyncOutput
+        {t("docs.getting_started.state_and_memory.heading_use_async_output")}
       </DocHeading>
       <p>
-        <code>useAsyncOutput</code> creates resources whose outputs CReact
-        persists. On restart, the handler receives saved outputs via{" "}
-        <code>setOutputs(prev =&gt; ...)</code>.
+        <RichText k="docs.getting_started.state_and_memory.use_async_output_intro" />
       </p>
       <DocCodeBlock
-        code={`import { useAsyncOutput, createEffect } from '@creact-labs/creact';
-
-function Counter() {
-  const counter = useAsyncOutput({}, async (_props, setOutputs) => {
-    // On restart, prev.count holds the last saved value
-    setOutputs(prev => ({ count: prev?.count ?? 0 }));
-
-    const interval = setInterval(() => {
-      setOutputs(prev => ({ count: (prev?.count ?? 0) + 1 }));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  });
-
-  createEffect(() => {
-    console.log('Count:', counter.count());
-  });
-
-  return <></>;
-}`}
-        filename="counter.tsx"
+        code={codeSample(samples, "use-async-output")}
+        filename={t("docs.getting_started.state_and_memory.filename_counter")}
       />
 
       <DocHeading level={2} id="what-gets-persisted">
-        What Gets Persisted
+        {t(
+          "docs.getting_started.state_and_memory.heading_what_gets_persisted",
+        )}
       </DocHeading>
       <p>
-        Only values passed to <code>setOutputs()</code> are persisted. Regular
-        signals, effects, and local variables are <strong>not</strong> saved.
-        They reinitialize on each run.
+        <RichText k="docs.getting_started.state_and_memory.what_gets_persisted_body" />
       </p>
 
       <DocHeading level={2} id="reconciliation">
-        Reconciliation on Restart
+        {t("docs.getting_started.state_and_memory.heading_reconciliation")}
       </DocHeading>
-      <p>
-        When the app restarts, CReact compares the new component tree against
-        the saved state. Outputs are hydrated from the saved state, but handlers
-        re-run for all nodes to re-establish side effects (intervals,
-        subscriptions, etc.). Handlers must be idempotent. They receive
-        previously saved outputs and can skip work that's already done.
-      </p>
+      <p>{t("docs.getting_started.state_and_memory.reconciliation_body")}</p>
 
       <Callout type="info">
         <p>
-          Add the state directory (e.g. <code>.state/</code>) to your{" "}
-          <code>.gitignore</code>.
+          <RichText k="docs.getting_started.state_and_memory.info_gitignore" />
         </p>
       </Callout>
 
       <p>
-        For the full Memory interface including optional locking, audit logging,
-        and the DeploymentState structure, see{" "}
-        <a href="#/docs/architecture/memory-system">
-          Architecture: Memory System
-        </a>
-        .
+        <RichText k="docs.getting_started.state_and_memory.memory_system_link" />
       </p>
     </>
   );

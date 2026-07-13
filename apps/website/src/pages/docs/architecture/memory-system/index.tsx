@@ -1,220 +1,202 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
 import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 
 const MemorySystem: Component = () => {
   return (
     <>
-      <h1>Memory System</h1>
+      <h1>{t("docs.architecture.memory_system.title")}</h1>
       <p class="docs-description">
-        The Memory interface persists deployment state to disk, a database, or
-        any backend.
+        {t("docs.architecture.memory_system.description")}
       </p>
 
       <DocHeading level={2} id="overview">
-        Overview
+        {t("docs.architecture.memory_system.heading_overview")}
       </DocHeading>
       <p>
-        Every <code>render()</code> call requires a <code>Memory</code>{" "}
-        implementation. The runtime calls <code>getState</code> at startup to
-        restore previous state and <code>saveState</code> after each render
-        cycle to persist changes. CReact does not provide a built-in
-        implementation. You bring your own.
+        <RichText k="docs.architecture.memory_system.overview_body" />
       </p>
 
       <DocHeading level={2} id="interface">
-        The Memory Interface
+        {t("docs.architecture.memory_system.heading_interface")}
       </DocHeading>
       <ApiSignature
-        name="Memory"
-        signature={`interface Memory {
-  // Required
-  getState(stackName: string): Promise<DeploymentState | null>;
-  saveState(stackName: string, state: DeploymentState): Promise<void>;
-
-  // Optional
-  acquireLock?(stackName: string, holder: string, ttlSeconds: number): Promise<boolean>;
-  releaseLock?(stackName: string): Promise<void>;
-  appendAuditLog?(stackName: string, entry: AuditLogEntry): Promise<void>;
-  getAuditLog?(stackName: string, limit?: number): Promise<AuditLogEntry[]>;
-}`}
+        name={t("docs.architecture.memory_system.signature_name")}
+        signature={t("docs.architecture.memory_system.signature")}
       />
 
       <DocHeading level={3} id="required-methods">
-        Required Methods
+        {t("docs.architecture.memory_system.heading_required_methods")}
       </DocHeading>
       <DocTable
-        headers={["Method", "Description"]}
+        headers={[
+          t("docs.architecture.memory_system.table_header_method"),
+          t("docs.architecture.memory_system.table_header_description"),
+        ]}
         rows={[
-          [<><code>getState(stackName)</code></>, <>Retrieve previously saved state. Return <code>null</code> on first
-              run.</>],
-          [<><code>saveState(stackName, state)</code></>, "Persist the current state after each render cycle."],
+          [
+            <RichText k="docs.architecture.memory_system.method_get_state_name" />,
+            <RichText k="docs.architecture.memory_system.method_get_state_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.method_save_state_name" />,
+            <RichText k="docs.architecture.memory_system.method_save_state_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={3} id="optional-methods">
-        Optional Methods
+        {t("docs.architecture.memory_system.heading_optional_methods")}
       </DocHeading>
       <DocTable
-        headers={["Method", "Description"]}
+        headers={[
+          t("docs.architecture.memory_system.table_header_method"),
+          t("docs.architecture.memory_system.table_header_description"),
+        ]}
         rows={[
-          [<><code>acquireLock(stackName, holder, ttlSeconds)</code></>, <>Acquire a deploy lock to prevent concurrent deploys. Returns{" "}
-              <code>true</code> if acquired.</>],
-          [<><code>releaseLock(stackName)</code></>, "Release a previously acquired lock."],
-          [<><code>appendAuditLog(stackName, entry)</code></>, "Append an entry to the deployment audit trail."],
-          [<><code>getAuditLog(stackName, limit?)</code></>, "Retrieve audit log entries for a stack."],
+          [
+            <RichText k="docs.architecture.memory_system.method_acquire_lock_name" />,
+            <RichText k="docs.architecture.memory_system.method_acquire_lock_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.method_release_lock_name" />,
+            <RichText k="docs.architecture.memory_system.method_release_lock_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.method_append_audit_log_name" />,
+            <RichText k="docs.architecture.memory_system.method_append_audit_log_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.method_get_audit_log_name" />,
+            <RichText k="docs.architecture.memory_system.method_get_audit_log_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="deployment-state">
-        DeploymentState
+        {t("docs.architecture.memory_system.heading_deployment_state")}
       </DocHeading>
-      <p>
-        The state object contains the full snapshot of all nodes, their props,
-        outputs, and deployment status.
-      </p>
+      <p>{t("docs.architecture.memory_system.deployment_state_body")}</p>
       <DocCodeBlock
-        code={`interface DeploymentState {
-  nodes: SerializedNode[];
-  status: "pending" | "applying" | "deployed" | "failed";
-  applyingNodeId?: string;   // For crash recovery
-  stackName: string;
-  lastDeployedAt: number;
-  user?: string;
-  storeValues?: Record<string, any>; // For createStore hydration
-}`}
-        filename="Types"
+        code={t("docs.architecture.memory_system.code_deployment_state")}
+        filename={t("docs.architecture.memory_system.code_filename_types")}
       />
 
       <DocHeading level={3} id="serialized-node">
-        SerializedNode
+        {t("docs.architecture.memory_system.heading_serialized_node")}
       </DocHeading>
       <DocCodeBlock
-        code={`interface SerializedNode {
-  id: string;
-  path: string[];
-  props: Record<string, any>;
-  outputs?: Record<string, any>;
-  state?: "pending" | "applying" | "deployed" | "failed";
-  store?: any;
-}`}
-        filename="Types"
+        code={t("docs.architecture.memory_system.code_serialized_node")}
+        filename={t("docs.architecture.memory_system.code_filename_types")}
       />
 
       <DocHeading level={3} id="audit-log-entry">
-        AuditLogEntry
+        {t("docs.architecture.memory_system.heading_audit_log_entry")}
       </DocHeading>
       <DocCodeBlock
-        code={`interface AuditLogEntry {
-  timestamp: number;
-  action:
-    | "deploy_start"
-    | "deploy_complete"
-    | "deploy_failed"
-    | "resource_applied"
-    | "resource_destroyed";
-  nodeId?: string;
-  details?: Record<string, any>;
-  user?: string;
-}`}
-        filename="Types"
+        code={t("docs.architecture.memory_system.code_audit_log_entry")}
+        filename={t("docs.architecture.memory_system.code_filename_types")}
       />
 
       <DocHeading level={2} id="lifecycle">
-        How Memory Fits the Lifecycle
+        {t("docs.architecture.memory_system.heading_lifecycle")}
       </DocHeading>
       <ol>
         <li>
-          <code>render()</code> is called with your Memory implementation
+          <RichText k="docs.architecture.memory_system.lifecycle_step_render" />
         </li>
         <li>
-          Runtime calls <code>memory.getState(stackName)</code> to load previous
-          state
+          <RichText k="docs.architecture.memory_system.lifecycle_step_get_state" />
         </li>
         <li>
-          Saved output values are hydrated into nodes (so child components can
-          read them immediately)
+          <RichText k="docs.architecture.memory_system.lifecycle_step_hydrate_outputs" />
         </li>
         <li>
-          <code>createStore</code> values are hydrated from{" "}
-          <code>storeValues</code>
-        </li>
-        <li>The reconciler diffs new JSX tree against saved nodes</li>
-        <li>
-          Handlers re-run for all nodes to re-establish side effects. They
-          receive previously saved outputs and should be idempotent
+          <RichText k="docs.architecture.memory_system.lifecycle_step_hydrate_stores" />
         </li>
         <li>
-          After the cycle, <code>memory.saveState(stackName, state)</code>{" "}
-          persists the result
+          <RichText k="docs.architecture.memory_system.lifecycle_step_diff" />
+        </li>
+        <li>
+          <RichText k="docs.architecture.memory_system.lifecycle_step_rerun" />
+        </li>
+        <li>
+          <RichText k="docs.architecture.memory_system.lifecycle_step_save_state" />
         </li>
       </ol>
 
       <DocHeading level={2} id="crash-recovery">
-        Crash Recovery
+        {t("docs.architecture.memory_system.heading_crash_recovery")}
       </DocHeading>
       <p>
-        If the process crashes mid-deploy, <code>applyingNodeId</code> records
-        which node was in progress. On restart, the runtime resumes from that
-        node instead of starting over.
+        <RichText k="docs.architecture.memory_system.crash_recovery_body" />
       </p>
 
       <DocHeading level={2} id="what-memory-enables">
-        What Memory Enables
+        {t("docs.architecture.memory_system.heading_what_memory_enables")}
       </DocHeading>
       <ul>
         <li>
-          <strong>Crash recovery:</strong> nodes with saved outputs are treated
-          as deployed
+          <RichText k="docs.architecture.memory_system.enables_crash_recovery" />
         </li>
         <li>
-          <strong>Incremental deploys:</strong> only changed resources are
-          re-applied
+          <RichText k="docs.architecture.memory_system.enables_incremental_deploys" />
         </li>
         <li>
-          <strong>Store hydration:</strong> <code>createStore</code> values
-          restored on restart
+          <RichText k="docs.architecture.memory_system.enables_store_hydration" />
         </li>
         <li>
-          <strong>Drift detection:</strong> compare expected state vs actual
+          <RichText k="docs.architecture.memory_system.enables_drift_detection" />
         </li>
         <li>
-          <strong>Concurrency protection:</strong> optional locking prevents
-          parallel deploys
+          <RichText k="docs.architecture.memory_system.enables_concurrency_protection" />
         </li>
         <li>
-          <strong>Audit trail:</strong> optional logging tracks deployment
-          history
+          <RichText k="docs.architecture.memory_system.enables_audit_trail" />
         </li>
       </ul>
 
       <DocHeading level={2} id="backend-options">
-        Backend Options
+        {t("docs.architecture.memory_system.heading_backend_options")}
       </DocHeading>
-      <p>
-        The interface works with any storage backend. Common implementations:
-      </p>
+      <p>{t("docs.architecture.memory_system.backend_options_intro")}</p>
       <DocTable
-        headers={["Backend", "Best For"]}
+        headers={[
+          t("docs.architecture.memory_system.table_header_backend"),
+          t("docs.architecture.memory_system.table_header_best_for"),
+        ]}
         rows={[
-          [<><strong>Local files</strong></>, "Development, single-machine deploys"],
-          [<><strong>DynamoDB</strong></>, "Serverless, low-latency, supports conditional writes for locking"],
-          [<><strong>S3</strong></>, "Large state files, cheap storage"],
-          [<><strong>PostgreSQL</strong></>, "Transactional, native audit log support"],
-          [<><strong>Redis</strong></>, "Fast, TTL-based cleanup for short-lived stacks"],
+          [
+            <RichText k="docs.architecture.memory_system.backend_files_name" />,
+            <RichText k="docs.architecture.memory_system.backend_files_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.backend_dynamodb_name" />,
+            <RichText k="docs.architecture.memory_system.backend_dynamodb_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.backend_s3_name" />,
+            <RichText k="docs.architecture.memory_system.backend_s3_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.backend_postgres_name" />,
+            <RichText k="docs.architecture.memory_system.backend_postgres_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.memory_system.backend_redis_name" />,
+            <RichText k="docs.architecture.memory_system.backend_redis_desc" />,
+          ],
         ]}
       />
 
       <Callout type="tip">
         <p>
-          For a minimal working example, see{" "}
-          <a href="#/docs/getting-started/state-and-memory">
-            Getting Started: State and Memory
-          </a>
-          .
+          <RichText k="docs.architecture.memory_system.tip_minimal_example" />
         </p>
       </Callout>
     </>

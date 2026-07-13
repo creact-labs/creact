@@ -1,157 +1,118 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
 
 const Installation: Component = () => {
   return (
     <>
-      <h1>Installation</h1>
+      <h1>{t("docs.getting_started.installation.title")}</h1>
       <p class="docs-description">
-        Set up a new CReact project from scratch. CReact runs on Node.js and
-        uses JSX with TypeScript.
+        {t("docs.getting_started.installation.description")}
       </p>
 
       <DocHeading level={2} id="requirements">
-        Requirements
+        {t("docs.getting_started.installation.heading_requirements")}
       </DocHeading>
       <ul>
-        <li>Node.js 18.0.0 or later</li>
-        <li>npm, yarn, or pnpm</li>
+        <li>{t("docs.getting_started.installation.requirement_node")}</li>
+        <li>
+          {t("docs.getting_started.installation.requirement_package_manager")}
+        </li>
       </ul>
 
       <DocHeading level={2} id="create-project">
-        Create a New Project
+        {t("docs.getting_started.installation.heading_create_project")}
       </DocHeading>
-      <p>Create a directory and initialize it:</p>
+      <p>{t("docs.getting_started.installation.create_project_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`mkdir my-app && cd my-app
-npm init -y`}
-        filename="Terminal"
+        code={t("docs.getting_started.installation.code_init_project")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
       />
 
-      <p>Install CReact:</p>
+      <p>{t("docs.getting_started.installation.install_creact_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`npm install @creact-labs/creact`}
-        filename="Terminal"
+        code={t("docs.getting_started.installation.code_install_creact")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
       />
 
-      <p>Install TypeScript as a dev dependency:</p>
+      <p>{t("docs.getting_started.installation.install_typescript_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`npm install -D typescript @types/node`}
-        filename="Terminal"
+        code={t("docs.getting_started.installation.code_install_typescript")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
       />
 
       <DocHeading level={2} id="configure-typescript">
-        Configure TypeScript
+        {t("docs.getting_started.installation.heading_configure_typescript")}
       </DocHeading>
       <p>
-        Create a <code>tsconfig.json</code> with JSX configured for CReact:
+        <RichText k="docs.getting_started.installation.configure_typescript_intro" />
       </p>
       <DocCodeBlock
         lang="json"
-        code={`{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "jsxImportSource": "@creact-labs/creact",
-    "strict": true,
-    "outDir": "dist"
-  },
-  "include": ["index.tsx", "src"]
-}`}
-        filename="tsconfig.json"
+        code={t("docs.getting_started.installation.code_tsconfig")}
+        filename={t("docs.getting_started.installation.filename_tsconfig")}
       />
 
       <Callout type="tip">
         <p>
-          <code>jsxImportSource</code> tells TypeScript to use CReact's JSX
-          runtime instead of React's, enabling <code>&lt;Component /&gt;</code>{" "}
-          syntax.
+          <RichText k="docs.getting_started.installation.tip_jsx_import_source" />
         </p>
       </Callout>
 
       <DocHeading level={2} id="add-scripts">
-        Add Scripts
+        {t("docs.getting_started.installation.heading_add_scripts")}
       </DocHeading>
       <p>
-        Update your <code>package.json</code> with a module type and run
-        scripts:
+        <RichText k="docs.getting_started.installation.add_scripts_intro" />
       </p>
       <DocCodeBlock
         lang="json"
-        code={`{
-  "type": "module",
-  "scripts": {
-    "start": "creact index.tsx",
-    "dev": "creact --watch index.tsx"
-  }
-}`}
-        filename="package.json"
+        code={t("docs.getting_started.installation.code_package_scripts")}
+        filename={t("docs.getting_started.installation.filename_package_json")}
       />
 
       <DocHeading level={2} id="create-entry">
-        Create Your Entry Point
+        {t("docs.getting_started.installation.heading_create_entry")}
       </DocHeading>
       <p>
-        Create <code>index.tsx</code>. CReact apps export a default async
-        function that calls <code>render()</code> with a component, a{" "}
-        <a href="#/docs/getting-started/state-and-memory">Memory</a>{" "}
-        implementation, and a stack name:
+        <RichText k="docs.getting_started.installation.create_entry_intro" />
       </p>
       <DocCodeBlock
-        code={`import { render } from '@creact-labs/creact';
-import { FileMemory } from './src/memory';
-
-function App() {
-  return <></>;
-}
-
-export default async function() {
-  const memory = new FileMemory('./.state');
-  return render(() => <App />, memory, 'my-app');
-}`}
-        filename="index.tsx"
+        code={codeSample("getting-started-tour/first-entry.tsx", "entry-point")}
+        filename={t("docs.getting_started.installation.filename_index_tsx")}
       />
 
       <DocHeading level={2} id="run">
-        Run the App
-      </DocHeading>
-      <DocCodeBlock lang="bash" code={`npm run dev`} filename="Terminal" />
-
-      <p>
-        Your CReact app is now running. The <code>--watch</code> flag restarts
-        on file changes.
-      </p>
-
-      <DocHeading level={2} id="project-files">
-        Project Structure
+        {t("docs.getting_started.installation.heading_run")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`my-app/
-├── index.tsx           # Entry point, exports default async function
-├── src/
-│   ├── app.tsx         # Root component
-│   ├── memory.ts       # Memory implementation (state persistence)
-│   └── components/     # Your components
-├── .state/             # Persisted state (auto-generated)
-├── package.json
-└── tsconfig.json`}
-        filename="Structure"
+        code={t("docs.getting_started.installation.code_run_dev")}
+        filename={t("docs.getting_started.installation.filename_terminal")}
       />
 
       <p>
-        The entry point (<code>index.tsx</code>) exports a default async
-        function that the <code>creact</code> CLI calls. This function calls{" "}
-        <code>render()</code> with your root component, a{" "}
-        <a href="#/docs/getting-started/state-and-memory">Memory</a>{" "}
-        implementation, and a stack name.
+        <RichText k="docs.getting_started.installation.run_outro" />
+      </p>
+
+      <DocHeading level={2} id="project-files">
+        {t("docs.getting_started.installation.heading_project_files")}
+      </DocHeading>
+      <DocCodeBlock
+        lang="bash"
+        code={t("docs.getting_started.installation.code_project_structure")}
+        filename={t("docs.getting_started.installation.filename_structure")}
+      />
+
+      <p>
+        <RichText k="docs.getting_started.installation.project_files_outro" />
       </p>
     </>
   );

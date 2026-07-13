@@ -1,0 +1,8 @@
+{
+  "title": "onMount",
+  "description": "Runs a function once when the component initializes, without tracking dependencies.",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_desc": "Function to run once on mount. Runs untracked; signal reads don't create dependencies."
+}

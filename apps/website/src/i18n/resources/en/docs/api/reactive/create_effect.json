@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Creates a reactive side effect that runs when its dependencies change. Use for side effects (logging, external calls). Runs after the current batch.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect function. Receives previous return value. Automatically tracked.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Optional initial value passed to the first run.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Optional. <code>name</code> for debugging.",
+  "heading_usage": "Usage",
+  "heading_tracking": "Tracking Dependencies",
+  "heading_previous": "Using Previous Value",
+  "heading_cleanup": "Cleanup with onCleanup",
+  "info_batching": "Effects are batched. Multiple synchronous signal updates only trigger one re-run. Use <code>batch()</code> explicitly for complex update sequences."
+}

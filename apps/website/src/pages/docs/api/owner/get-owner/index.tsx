@@ -1,37 +1,29 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/owner/get-owner.ts";
 
 const GetOwner: Component = () => {
   return (
     <>
-      <h1>getOwner</h1>
-      <p class="docs-description">
-        Returns the current reactive owner (the computation or root that owns
-        the current scope).
-      </p>
+      <h1>{t("docs.api.owner.get_owner.title")}</h1>
+      <p class="docs-description">{t("docs.api.owner.get_owner.description")}</p>
 
       <ApiReference
-        name="getOwner"
-        signature="getOwner(): Owner | null"
+        name={t("docs.api.owner.get_owner.title")}
+        signature={t("docs.api.owner.get_owner.signature")}
         returns={
-          <>
-      <p>
-        The current <code>Owner</code>, or <code>null</code> if called outside a
-        reactive scope.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.owner.get_owner.returns_desc" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`const owner = getOwner();
-// Use with runWithOwner to restore ownership context
-// in async callbacks or event handlers`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

@@ -1,108 +1,60 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "getting-started-tour/src/reactive-primitives.ts";
 
 const ReactivePrimitives: Component = () => {
   return (
     <>
-      <h1>Reactive Primitives</h1>
+      <h1>{t("docs.getting_started.reactive_primitives.title")}</h1>
       <p class="docs-description">
-        Signals, effects, and memos make components respond to change.
+        {t("docs.getting_started.reactive_primitives.description")}
       </p>
 
       <DocHeading level={2} id="signals">
-        Signals
+        {t("docs.getting_started.reactive_primitives.heading_signals")}
       </DocHeading>
-      <p>
-        A signal is a reactive value. It returns a getter and setter pair.
-        Reading the getter inside an effect registers a dependency. The effect
-        re-runs when the signal changes.
-      </p>
-      <DocCodeBlock
-        code={`import { createSignal, createEffect } from '@creact-labs/creact';
-
-const [count, setCount] = createSignal(0);
-
-createEffect(() => {
-  console.log(count()); // Tracks count, re-runs on change
-});
-
-setCount(1);        // Logs: 1
-setCount(c => c + 1); // Logs: 2 (functional update)`}
-      />
+      <p>{t("docs.getting_started.reactive_primitives.signals_intro")}</p>
+      <DocCodeBlock code={codeSample(samples, "signals")} />
 
       <DocHeading level={2} id="effects">
-        Effects
+        {t("docs.getting_started.reactive_primitives.heading_effects")}
       </DocHeading>
-      <p>
-        Effects run side effects when their dependencies change. CReact tracks
-        which signals are read inside the effect function.
-      </p>
-      <DocCodeBlock
-        code={`createEffect(() => {
-  // Runs whenever name() or count() changes
-  console.log(\`\${name()} has count: \${count()}\`);
-});`}
-      />
+      <p>{t("docs.getting_started.reactive_primitives.effects_intro")}</p>
+      <DocCodeBlock code={codeSample(samples, "effects")} />
 
       <Callout type="info">
         <p>
-          Effects are queued and batched. Multiple signal updates in a single
-          synchronous block only trigger one effect re-run.
+          {t("docs.getting_started.reactive_primitives.info_batched_effects")}
         </p>
       </Callout>
 
       <DocHeading level={2} id="memos">
-        Memos
+        {t("docs.getting_started.reactive_primitives.heading_memos")}
       </DocHeading>
-      <p>
-        A memo is a derived reactive value. It caches the result and only
-        recomputes when its dependencies change.
-      </p>
-      <DocCodeBlock
-        code={`import { createMemo } from '@creact-labs/creact';
-
-const [count, setCount] = createSignal(0);
-const doubled = createMemo(() => count() * 2);
-
-console.log(doubled()); // 0
-setCount(5);
-console.log(doubled()); // 10`}
-      />
+      <p>{t("docs.getting_started.reactive_primitives.memos_intro")}</p>
+      <DocCodeBlock code={codeSample(samples, "memos")} />
 
       <DocHeading level={2} id="batching">
-        Batching
+        {t("docs.getting_started.reactive_primitives.heading_batching")}
       </DocHeading>
       <p>
-        <code>batch()</code> groups multiple signal updates into a single
-        re-evaluation pass:
+        <RichText k="docs.getting_started.reactive_primitives.batching_intro" />
       </p>
-      <DocCodeBlock
-        code={`import { batch } from '@creact-labs/creact';
-
-batch(() => {
-  setFirstName('John');
-  setLastName('Doe');
-  setAge(30);
-});
-// Effects depending on any of these run once, not three times`}
-      />
+      <DocCodeBlock code={codeSample(samples, "batching")} />
 
       <DocHeading level={2} id="untrack">
-        Untrack
+        {t("docs.getting_started.reactive_primitives.heading_untrack")}
       </DocHeading>
       <p>
-        <code>untrack()</code> reads a signal without creating a dependency:
+        <RichText k="docs.getting_started.reactive_primitives.untrack_intro" />
       </p>
-      <DocCodeBlock
-        code={`import { untrack } from '@creact-labs/creact';
-
-createEffect(() => {
-  // Only re-runs when a() changes, not b()
-  console.log(a(), untrack(b));
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "untrack")} />
     </>
   );
 };

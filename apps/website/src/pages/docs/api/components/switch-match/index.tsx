@@ -1,75 +1,81 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
 import ApiSignature from "@/shared/components/api-signature";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
 
 const SwitchMatch: Component = () => {
   return (
     <>
-      <h1>Switch / Match</h1>
+      <h1>{t("docs.api.components.switch_match.title")}</h1>
       <p class="docs-description">
-        Multi-branch conditional rendering. Renders the first matching branch.
+        {t("docs.api.components.switch_match.description")}
       </p>
 
-      <DocCodeBlock
-        code={`<Switch fallback={<Default />}>
-  <Match when={() => mode() === 'a'}><A /></Match>
-  <Match when={() => mode() === 'b'}><B /></Match>
-</Switch>`}
-      />
+      <DocCodeBlock code={t("docs.api.components.switch_match.code_hero")} />
 
       <ApiReference
-        name="Switch"
-        signature="Switch(props: { fallback?: MaybeAccessor<CReactNode>; children: MatchResult<any>[] | MatchResult<any> }): JSXElement"
+        name={t("docs.api.components.switch_match.name_switch")}
+        signature={t("docs.api.components.switch_match.signature_switch")}
       />
       <ApiSignature
-        name="Match"
-        signature="Match<T>(props: { when: MaybeAccessor<T | undefined | null | false>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): MatchResult<T>"
+        name={t("docs.api.components.switch_match.name_match")}
+        signature={t("docs.api.components.switch_match.signature_match")}
       />
 
       <DocHeading level={3} id="props">
-        Props
+        {t("docs.api.components.switch_match.heading_props")}
       </DocHeading>
       <p>
-        <strong>Switch</strong>
+        <strong>{t("docs.api.components.switch_match.name_switch")}</strong>
       </p>
       <DocTable
-        headers={["Prop", "Type", "Description"]}
+        headers={[
+          t("docs.ui.prop_table.prop"),
+          t("docs.ui.prop_table.type"),
+          t("docs.ui.prop_table.description"),
+        ]}
         rows={[
-          [<><code>fallback</code></>, <><code>MaybeAccessor&lt;CReactNode&gt;</code></>, "Rendered when no Match is truthy."],
-          [<><code>children</code></>, <><code>MatchResult[]</code></>, "Match components."],
+          [
+            <RichText k="docs.api.components.switch_match.switch_prop_fallback_name" />,
+            <RichText k="docs.api.components.switch_match.switch_prop_fallback_type" />,
+            <RichText k="docs.api.components.switch_match.switch_prop_fallback_desc" />,
+          ],
+          [
+            <RichText k="docs.api.components.switch_match.switch_prop_children_name" />,
+            <RichText k="docs.api.components.switch_match.switch_prop_children_type" />,
+            <RichText k="docs.api.components.switch_match.switch_prop_children_desc" />,
+          ],
         ]}
       />
       <p>
-        <strong>Match</strong>
+        <strong>{t("docs.api.components.switch_match.name_match")}</strong>
       </p>
       <DocTable
-        headers={["Prop", "Type", "Description"]}
+        headers={[
+          t("docs.ui.prop_table.prop"),
+          t("docs.ui.prop_table.type"),
+          t("docs.ui.prop_table.description"),
+        ]}
         rows={[
-          [<><code>when</code></>, <><code>MaybeAccessor&lt;T | undefined | null | false&gt;</code></>, "Condition for this branch. Accepts a value or an accessor."],
-          [<><code>children</code></>, <><code>
-                CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt;
-                CReactNode)
-              </code></>, "Content or callback receiving the truthy value."],
+          [
+            <RichText k="docs.api.components.switch_match.match_prop_when_name" />,
+            <RichText k="docs.api.components.switch_match.match_prop_when_type" />,
+            <RichText k="docs.api.components.switch_match.match_prop_when_desc" />,
+          ],
+          [
+            <RichText k="docs.api.components.switch_match.match_prop_children_name" />,
+            <RichText k="docs.api.components.switch_match.match_prop_children_type" />,
+            <RichText k="docs.api.components.switch_match.match_prop_children_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`<Switch>
-  <Match when={() => env() === 'production'}>
-    <ProductionStack replicas={3} />
-  </Match>
-  <Match when={() => env() === 'staging'}>
-    <StagingStack replicas={1} />
-  </Match>
-  <Match when={() => env() === 'dev'}>
-    <DevStack />
-  </Match>
-</Switch>`}
-      />
+      <UsageSection code={t("docs.api.components.switch_match.code_usage")} />
     </>
   );
 };

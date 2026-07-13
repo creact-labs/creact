@@ -1,0 +1,13 @@
+{
+  "title": "Error Handling",
+  "description": "ErrorBoundary and catchError catch errors in reactive computations and child components.",
+  "heading_error_boundary": "ErrorBoundary Component",
+  "error_boundary_intro": "<code>ErrorBoundary</code> catches errors thrown in its children and renders a fallback:",
+  "heading_catch_error": "catchError Primitive",
+  "catch_error_intro": "For lower-level control, <code>catchError</code> wraps a function and catches errors in child computations:",
+  "heading_error_propagation": "Error Propagation",
+  "error_propagation_body": "Errors propagate up the owner chain. If no error boundary catches an error, it bubbles to the root and throws. Nested error boundaries catch errors from their subtree only.",
+  "heading_handler_errors": "Errors in Handlers",
+  "handler_errors_intro": "<code>useAsyncOutput</code> handlers run in the runtime's async deployment loop, not inside reactive computations. Errors thrown in handlers cause the deployment to fail. They are <strong>not</strong> caught by <code>ErrorBoundary</code>. Handle errors inside your handler with try/catch:",
+  "warning_cleanup": "Cleanup functions registered with <code>onCleanup</code> still run when an error boundary catches an error. Resources are released."
+}

@@ -1,125 +1,124 @@
 import type { Component } from "solid-js";
+import { t } from "@/i18n";
+import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import RichText from "@/shared/components/rich-text";
 
 const Reconciliation: Component = () => {
   return (
     <>
-      <h1>Reconciliation</h1>
+      <h1>{t("docs.architecture.reconciliation.title")}</h1>
       <p class="docs-description">
-        The reconciler compares the current component tree against saved state
-        and computes the minimal diff.
+        {t("docs.architecture.reconciliation.description")}
       </p>
 
       <DocHeading level={2} id="how-it-works">
-        How It Works
+        {t("docs.architecture.reconciliation.heading_how_it_works")}
       </DocHeading>
       <DocSteps
         steps={[
-          { label: "Render", body: "the component tree is evaluated, producing a fiber tree with instance nodes" },
-          { label: "Load state", body: "the previous state is loaded from Memory" },
-          { label: "Diff", body: "the reconciler compares previous and current instance nodes by ID (path-based)" },
-          { label: "Change set", body: "produces creates, updates, and deletes" },
-          { label: "Dependency graph", body: "builds a parent-child dependency graph from node paths" },
-          { label: "Topological sort", body: "orders nodes so parents deploy before children" },
-          { label: "Apply", body: "handlers run for created and updated nodes, cleanup runs for deleted nodes" },
-          { label: "Save state", body: "the new state is persisted to Memory" },
+          {
+            label: t("docs.architecture.reconciliation.step_render_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_render_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_load_state_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_load_state_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_diff_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_diff_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_change_set_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_change_set_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_dependency_graph_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_dependency_graph_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_topological_sort_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_topological_sort_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_apply_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_apply_body" />,
+          },
+          {
+            label: t("docs.architecture.reconciliation.step_save_state_label"),
+            body: <RichText k="docs.architecture.reconciliation.step_save_state_body" />,
+          },
         ]}
       />
 
       <DocHeading level={2} id="change-detection">
-        Change Detection
+        {t("docs.architecture.reconciliation.heading_change_detection")}
       </DocHeading>
-      <p>The reconciler detects three types of changes:</p>
+      <p>{t("docs.architecture.reconciliation.change_detection_intro")}</p>
       <ul>
         <li>
-          <strong>Creates:</strong> nodes in the current tree whose ID wasn't in
-          the previous state
+          <RichText k="docs.architecture.reconciliation.change_creates" />
         </li>
         <li>
-          <strong>Deletes:</strong> nodes in the previous state whose ID isn't
-          in the current tree
+          <RichText k="docs.architecture.reconciliation.change_deletes" />
         </li>
         <li>
-          <strong>Updates:</strong> nodes present in both, whose props differ
-          (deep equality check)
+          <RichText k="docs.architecture.reconciliation.change_updates" />
         </li>
       </ul>
       <p>
-        Nodes are matched by their <code>id</code>, which is derived from the
-        path (e.g., <code>app.aws.web-site-blog</code>). There is no type-based
-        matching.
+        <RichText k="docs.architecture.reconciliation.matching_body" />
       </p>
 
       <DocHeading level={2} id="deep-equal">
-        Deep Equality
+        {t("docs.architecture.reconciliation.heading_deep_equal")}
       </DocHeading>
       <p>
-        Props are compared using deep equality (<code>deepEqual</code>).
-        Identical props, even new object references, won't trigger a handler
-        re-run.
+        <RichText k="docs.architecture.reconciliation.deep_equal_body" />
       </p>
-      <DocCodeBlock
-        code={`// These produce the same result, no handler re-run:
-// Run 1: <WebSite name="blog" content="<h1>Hello</h1>" />
-// Run 2: <WebSite name="blog" content="<h1>Hello</h1>" />
-
-// This triggers a re-run, content changed:
-// Run 1: <WebSite name="blog" content="<h1>Hello</h1>" />
-// Run 2: <WebSite name="blog" content="<h1>Updated</h1>" />`}
-      />
+      <DocCodeBlock code={t("docs.architecture.reconciliation.code_deep_equal")} />
 
       <DocHeading level={2} id="parallel-deployment">
-        Parallel Deployment
+        {t("docs.architecture.reconciliation.heading_parallel_deployment")}
       </DocHeading>
       <p>
-        After computing the change set, the reconciler builds a dependency graph
-        from path hierarchy (parents must deploy before children) and groups
-        independent nodes into parallel batches. The <code>ChangeSet</code>{" "}
-        includes:
+        <RichText k="docs.architecture.reconciliation.parallel_deployment_intro" />
       </p>
       <ul>
         <li>
-          <code>deploymentOrder</code>: topologically sorted node IDs
+          <RichText k="docs.architecture.reconciliation.parallel_deployment_order" />
         </li>
         <li>
-          <code>parallelBatches</code>: groups of nodes that can be deployed
-          concurrently
+          <RichText k="docs.architecture.reconciliation.parallel_deployment_batches" />
         </li>
       </ul>
 
       <DocHeading level={2} id="source">
-        Source
+        {t("docs.architecture.reconciliation.heading_source")}
       </DocHeading>
       <p>
-        The reconciliation logic lives in <code>runtime/src/reconcile.ts</code>.
-        Key exports:
+        <RichText k="docs.architecture.reconciliation.source_intro" />
       </p>
       <ul>
         <li>
-          <code>reconcile()</code>: main reconciliation function, returns a{" "}
-          <code>ChangeSet</code>
+          <RichText k="docs.architecture.reconciliation.source_reconcile" />
         </li>
         <li>
-          <code>deepEqual()</code>: deep equality comparison
+          <RichText k="docs.architecture.reconciliation.source_deep_equal" />
         </li>
         <li>
-          <code>buildDependencyGraph()</code>: builds parent-child dependency
-          graph from node paths
+          <RichText k="docs.architecture.reconciliation.source_build_dependency_graph" />
         </li>
         <li>
-          <code>topologicalSort()</code>: Kahn's algorithm for deployment
-          ordering
+          <RichText k="docs.architecture.reconciliation.source_topological_sort" />
         </li>
         <li>
-          <code>computeParallelBatches()</code>: groups independent nodes for
-          concurrent deployment
+          <RichText k="docs.architecture.reconciliation.source_compute_parallel_batches" />
         </li>
         <li>
-          <code>hasChanges()</code>, <code>hasNewNodes()</code>,{" "}
-          <code>hasRemovedNodes()</code>, <code>hasPropChanges()</code>: change
-          detectors
+          <RichText k="docs.architecture.reconciliation.source_change_detectors" />
         </li>
       </ul>
     </>

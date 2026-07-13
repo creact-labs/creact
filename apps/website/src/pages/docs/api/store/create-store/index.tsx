@@ -1,56 +1,51 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/store/create-store.ts";
 
 const CreateStore: Component = () => {
   return (
     <>
-      <h1>createStore</h1>
+      <h1>{t("docs.api.store.create_store.title")}</h1>
       <p class="docs-description">
-        Creates a reactive store proxy for managing nested state.
+        {t("docs.api.store.create_store.description")}
       </p>
 
-      <DocCodeBlock
-        code={`const [store, setStore] = createStore({ count: 0, user: { name: 'Alice' } });`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createStore"
-        signature="createStore<T extends object>(value: T): [T, SetStoreFunction<T>]"
+        name={t("docs.api.store.create_store.title")}
+        signature={t("docs.api.store.create_store.signature")}
         parameters={[
-          [<><code>value</code></>, <><code>T</code></>, "Initial store value. Must be an object."],
+          [
+            <RichText k="docs.api.store.create_store.param_value_name" />,
+            <RichText k="docs.api.store.create_store.param_value_type" />,
+            <RichText k="docs.api.store.create_store.param_value_desc" />,
+          ],
         ]}
         returns={
           <>
-      <p>
-        A tuple of <code>[store, setStore]</code>:
-      </p>
-      <ul>
-        <li>
-          <code>store</code>: a reactive proxy. Property access is tracked.
-        </li>
-        <li>
-          <code>setStore</code>: setter that accepts path-based updates.
-        </li>
-      </ul>
+            <p>
+              <RichText k="docs.api.store.create_store.returns_intro" />
+            </p>
+            <ul>
+              <li>
+                <RichText k="docs.api.store.create_store.returns_store" />
+              </li>
+              <li>
+                <RichText k="docs.api.store.create_store.returns_setstore" />
+              </li>
+            </ul>
           </>
         }
       />
 
-      <UsageSection
-        code={`const [state, setState] = createStore({
-  todos: [{ text: 'Learn CReact', done: false }],
-});
-
-// Update nested properties
-setState('todos', 0, 'done', true);
-
-// Functional update
-setState('todos', (todos) => [...todos, { text: 'Build app', done: false }]);`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

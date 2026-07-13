@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "Returns the current reactive owner (the computation or root that owns the current scope).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "The current <code>Owner</code>, or <code>null</code> if called outside a reactive scope."
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Context and Providers",
+  "description": "Contexts share data across the component tree without passing props through every level.",
+  "heading_creating_context": "Creating a Context",
+  "creating_context_intro": "<code>createContext</code> creates a context with an optional default value. <code>useContext</code> reads the nearest provider's value.",
+  "heading_providing_values": "Providing Values",
+  "providing_values_intro": "Wrap components with the context's <code>Provider</code>:",
+  "heading_nested_providers": "Nested Providers",
+  "nested_providers_intro": "Inner providers override outer ones for their subtree:",
+  "tip_cross_cutting": "Use contexts for cross-cutting concerns like AWS region, environment name, or shared credentials that many components need.",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

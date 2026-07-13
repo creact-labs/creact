@@ -1,0 +1,16 @@
+{
+  "title": "createRoot",
+  "description": "Creates a reactive root that owns all computations inside it, with a dispose function for teardown.",
+  "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(dispose: () =&gt; void) =&gt; T</code>",
+  "param_fn_desc": "Function that runs within the root. Receives a dispose function to tear down all owned computations.",
+  "param_detached_owner_name": "<code>detachedOwner</code>",
+  "param_detached_owner_type": "<code>Owner</code>",
+  "param_detached_owner_desc": "Optional. Parent owner for the root. When provided, the root is attached to this owner's context chain (for lookupContext) but still independently disposable.",
+  "returns_body": "The return value of <code>fn</code>.",
+  "heading_usage": "Usage",
+  "heading_basic": "Basic Root",
+  "heading_testing": "In Tests",
+  "info_render_root": "<code>render()</code> creates a root automatically. You only need <code>createRoot</code> for standalone reactive scopes outside of <code>render()</code>, such as tests."
+}

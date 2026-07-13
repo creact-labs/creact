@@ -1,103 +1,93 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 
 const StateMachine: Component = () => {
   return (
     <>
-      <h1>State Machine</h1>
+      <h1>{t("docs.architecture.state_machine.title")}</h1>
       <p class="docs-description">
-        Each component instance moves through deployment stages: pending,
-        applying, deployed, or failed.
+        {t("docs.architecture.state_machine.description")}
       </p>
 
       <DocHeading level={2} id="resource-states">
-        Resource States
+        {t("docs.architecture.state_machine.heading_resource_states")}
       </DocHeading>
       <p>
-        Each resource (instance node) has a <code>ResourceState</code>:
+        <RichText k="docs.architecture.state_machine.resource_states_intro" />
       </p>
       <DocTable
-        headers={["State", "Description"]}
+        headers={[
+          t("docs.architecture.state_machine.table_header_state"),
+          t("docs.architecture.state_machine.table_header_description"),
+        ]}
         rows={[
-          [<><code>pending</code></>, "Resource has been declared but handler hasn't run yet."],
-          [<><code>applying</code></>, "Handler is currently executing."],
-          [<><code>deployed</code></>, "Handler finished successfully. Outputs are available."],
-          [<><code>failed</code></>, "Handler threw an error. Deployment failed."],
+          [
+            <RichText k="docs.architecture.state_machine.state_pending_name" />,
+            <RichText k="docs.architecture.state_machine.state_pending_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.state_machine.state_applying_name" />,
+            <RichText k="docs.architecture.state_machine.state_applying_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.state_machine.state_deployed_name" />,
+            <RichText k="docs.architecture.state_machine.state_deployed_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.state_machine.state_failed_name" />,
+            <RichText k="docs.architecture.state_machine.state_failed_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="deployment-status">
-        Deployment Status
+        {t("docs.architecture.state_machine.heading_deployment_status")}
       </DocHeading>
       <p>
-        The overall deployment also tracks a <code>DeploymentStatus</code> with
-        the same values: <code>pending</code>, <code>applying</code>,{" "}
-        <code>deployed</code>, <code>failed</code>. This is persisted to Memory
-        and used for crash recovery. If the status is <code>applying</code> on
-        startup, the previous deployment was interrupted.
+        <RichText k="docs.architecture.state_machine.deployment_status_body" />
       </p>
 
       <DocHeading level={2} id="transitions">
-        Transitions
+        {t("docs.architecture.state_machine.heading_transitions")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`Resource states:
-  pending → applying → deployed
-                    ↘ failed
-
-Deployment lifecycle:
-  applying → deployed   (all resources applied successfully)
-  applying → failed     (a resource handler threw an error)`}
-        filename="State transitions"
+        code={t("docs.architecture.state_machine.code_transitions")}
+        filename={t("docs.architecture.state_machine.code_transitions_filename")}
       />
 
-      <p>
-        When a resource is removed from the tree, its cleanup handler runs and
-        it is deleted from the state map entirely. There is no separate
-        "removing" or "removed" state.
-      </p>
+      <p>{t("docs.architecture.state_machine.removal_body")}</p>
 
       <DocHeading level={2} id="persistence">
-        Persistence
+        {t("docs.architecture.state_machine.heading_persistence")}
       </DocHeading>
       <p>
-        The state machine state is part of what gets persisted to Memory. On
-        restart, CReact restores resource states from saved nodes. Nodes with
-        outputs are treated as <code>deployed</code>, others default to{" "}
-        <code>pending</code>. The deployment status tells CReact whether the
-        previous run completed or was interrupted mid-apply.
+        <RichText k="docs.architecture.state_machine.persistence_body" />
       </p>
 
       <DocHeading level={2} id="crash-recovery">
-        Crash Recovery
+        {t("docs.architecture.state_machine.heading_crash_recovery")}
       </DocHeading>
       <p>
-        <code>applyingNodeId</code> records which node was being applied when a
-        crash occurred. On restart, <code>canResume()</code> checks if the
-        deployment status is <code>applying</code>, and{" "}
-        <code>getInterruptedNodeId()</code> returns that node's ID. The runtime
-        resumes from that node instead of re-applying everything.
+        <RichText k="docs.architecture.state_machine.crash_recovery_body" />
       </p>
 
       <DocHeading level={2} id="audit-log">
-        Audit Log
+        {t("docs.architecture.state_machine.heading_audit_log")}
       </DocHeading>
       <p>
-        When <code>enableAuditLog</code> is set and the Memory backend supports
-        it, state transitions are recorded as <code>AuditLogEntry</code>{" "}
-        records. Actions logged: <code>deploy_start</code>,{" "}
-        <code>deploy_complete</code>, <code>deploy_failed</code>,{" "}
-        <code>resource_applied</code>, <code>resource_destroyed</code>.
+        <RichText k="docs.architecture.state_machine.audit_log_body" />
       </p>
 
       <DocHeading level={2} id="source">
-        Source
+        {t("docs.architecture.state_machine.heading_source")}
       </DocHeading>
       <p>
-        Implementation in <code>runtime/src/state-machine.ts</code>.
+        <RichText k="docs.architecture.state_machine.source_body" />
       </p>
     </>
   );

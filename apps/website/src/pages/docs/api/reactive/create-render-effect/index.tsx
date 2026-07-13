@@ -1,44 +1,48 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
-import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/reactive/create-render-effect.ts";
 
 const CreateRenderEffect: Component = () => {
   return (
     <>
-      <h1>createRenderEffect</h1>
+      <h1>{t("docs.api.reactive.create_render_effect.title")}</h1>
       <p class="docs-description">
-        Runs a function synchronously during render instead of queuing it. Used
-        internally by the runtime; rarely needed in application code.
+        {t("docs.api.reactive.create_render_effect.description")}
       </p>
 
       <ApiReference
-        name="createRenderEffect"
-        signature="createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void"
+        name={t("docs.api.reactive.create_render_effect.title")}
+        signature={t("docs.api.reactive.create_render_effect.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>(v: Init | Next) =&gt; Next</code></>, "Effect function. Runs immediately during render."],
-          [<><code>value</code></>, <><code>Init</code></>, "Optional initial value."],
-          [<><code>options</code></>, <><code>EffectOptions</code></>, <>Optional. <code>name</code> for debugging.</>],
+          [
+            <RichText k="docs.api.reactive.create_render_effect.param_fn_name" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_fn_type" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_fn_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_render_effect.param_value_name" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_value_type" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_value_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_render_effect.param_options_name" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_options_type" />,
+            <RichText k="docs.api.reactive.create_render_effect.param_options_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`createRenderEffect(() => {
-  // Runs synchronously during component initialization
-  // and again whenever dependencies change
-  console.log('Render-phase:', value());
-});`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
 
       <Callout type="info">
         <p>
-          Render effects run before user effects (<code>createEffect</code>).
-          Use this when you need synchronous reactions during the render phase,
-          such as component render tracking.
+          <RichText k="docs.api.reactive.create_render_effect.info_ordering" />
         </p>
       </Callout>
     </>

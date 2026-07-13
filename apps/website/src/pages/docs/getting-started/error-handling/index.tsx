@@ -1,98 +1,53 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "getting-started-tour/src/error-handling.tsx";
 
 const ErrorHandling: Component = () => {
   return (
     <>
-      <h1>Error Handling</h1>
+      <h1>{t("docs.getting_started.error_handling.title")}</h1>
       <p class="docs-description">
-        ErrorBoundary and catchError catch errors in reactive computations and
-        child components.
+        {t("docs.getting_started.error_handling.description")}
       </p>
 
       <DocHeading level={2} id="error-boundary">
-        ErrorBoundary Component
+        {t("docs.getting_started.error_handling.heading_error_boundary")}
       </DocHeading>
       <p>
-        <code>ErrorBoundary</code> catches errors thrown in its children and
-        renders a fallback:
+        <RichText k="docs.getting_started.error_handling.error_boundary_intro" />
       </p>
-      <DocCodeBlock
-        code={`import { ErrorBoundary } from '@creact-labs/creact';
-
-function App() {
-  return (
-    <ErrorBoundary fallback={(err, reset) => {
-      console.error('Failed:', err.message);
-      // Call reset() to clear the error and re-render children
-      return <></>;
-    }}>
-      <Deploy />
-    </ErrorBoundary>
-  );
-}`}
-      />
+      <DocCodeBlock code={codeSample(samples, "error-boundary")} />
 
       <DocHeading level={2} id="catch-error">
-        catchError Primitive
+        {t("docs.getting_started.error_handling.heading_catch_error")}
       </DocHeading>
       <p>
-        For lower-level control, <code>catchError</code> wraps a function and
-        catches errors in child computations:
+        <RichText k="docs.getting_started.error_handling.catch_error_intro" />
       </p>
-      <DocCodeBlock
-        code={`import { catchError, createEffect } from '@creact-labs/creact';
-
-catchError(
-  () => {
-    createEffect(() => {
-      // If this throws, the handler catches it
-      riskyOperation();
-    });
-  },
-  (err) => {
-    console.error('Caught:', err.message);
-  }
-);`}
-      />
+      <DocCodeBlock code={codeSample(samples, "catch-error")} />
 
       <DocHeading level={2} id="error-propagation">
-        Error Propagation
+        {t("docs.getting_started.error_handling.heading_error_propagation")}
       </DocHeading>
-      <p>
-        Errors propagate up the owner chain. If no error boundary catches an
-        error, it bubbles to the root and throws. Nested error boundaries catch
-        errors from their subtree only.
-      </p>
+      <p>{t("docs.getting_started.error_handling.error_propagation_body")}</p>
 
       <DocHeading level={2} id="handler-errors">
-        Errors in Handlers
+        {t("docs.getting_started.error_handling.heading_handler_errors")}
       </DocHeading>
       <p>
-        <code>useAsyncOutput</code> handlers run in the runtime's async
-        deployment loop, not inside reactive computations. Errors thrown in
-        handlers cause the deployment to fail. They are <strong>not</strong>{" "}
-        caught by <code>ErrorBoundary</code>. Handle errors inside your handler
-        with try/catch:
+        <RichText k="docs.getting_started.error_handling.handler_errors_intro" />
       </p>
-      <DocCodeBlock
-        code={`const site = useAsyncOutput(props, async (p, setOutputs) => {
-  try {
-    const html = await generateHtml(p.prompt());
-    setOutputs({ html });
-  } catch (err) {
-    console.error('Handler failed:', err);
-    setOutputs({ html: null, error: err.message });
-  }
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "handler-errors")} />
 
       <Callout type="warning">
         <p>
-          Cleanup functions registered with <code>onCleanup</code> still run
-          when an error boundary catches an error. Resources are released.
+          <RichText k="docs.getting_started.error_handling.warning_cleanup" />
         </p>
       </Callout>
     </>

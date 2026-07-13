@@ -1,0 +1,19 @@
+{
+  "title": "AWS Integration",
+  "description": "Build S3 bucket, file upload, and website deployment components using the AWS SDK.",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "Wrap AWS clients in a context provider. Child components access the S3 client, region, and account ID via hooks. The provider fetches the account ID with <code>useAsyncOutput</code> and waits for it with <code>Show</code> before rendering children.",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Bucket Component",
+  "bucket_intro": "The <code>Bucket</code> component creates an S3 bucket with <code>useAsyncOutput</code>. It checks saved outputs to skip creation on restart. The cleanup handler empties and deletes the bucket when the component is removed from the tree. Children render only after the bucket is ready.",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "S3 File Upload",
+  "s3_file_intro": "The <code>S3File</code> component uploads content to S3. It hashes the content and compares against saved state to skip uploads when nothing changed.",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "Composing a WebSite",
+  "website_intro": "<code>WebSite</code> composes <code>Bucket</code> and <code>S3File</code>. The bucket creates and configures itself, then <code>S3File</code> uploads content as a child.",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Deploying Multiple Sites",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "Implement cleanup handlers for AWS resources. Without cleanup, removing a component from the tree won't delete the underlying resource."
+}

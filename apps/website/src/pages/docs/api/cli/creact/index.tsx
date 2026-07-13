@@ -1,82 +1,89 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 
 const CreactCli: Component = () => {
   return (
     <>
-      <h1>creact</h1>
-      <p class="docs-description">
-        The CReact CLI. Type-checks and runs your entry point with state
-        persistence.
-      </p>
+      <h1>{t("docs.api.cli.creact_cli.title")}</h1>
+      <p class="docs-description">{t("docs.api.cli.creact_cli.description")}</p>
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.cli.creact_cli.heading_usage")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`creact <entry-file>`}
-        filename="Terminal"
+        code={t("docs.api.cli.creact_cli.code_usage")}
+        filename={t("docs.api.cli.creact_cli.filename_terminal")}
       />
 
       <DocHeading level={2} id="arguments">
-        Arguments
+        {t("docs.api.cli.creact_cli.heading_arguments")}
       </DocHeading>
       <DocTable
-        headers={["Argument", "Description"]}
+        headers={[
+          t("docs.api.cli.creact_cli.table_header_argument"),
+          t("docs.api.cli.creact_cli.table_header_description"),
+        ]}
         rows={[
-          [<><code>&lt;entry-file&gt;</code></>, <>Path to the entry TypeScript/TSX file (e.g. <code>index.tsx</code>
-              ).</>],
+          [
+            <RichText k="docs.api.cli.creact_cli.row_entry_file_name" />,
+            <RichText k="docs.api.cli.creact_cli.row_entry_file_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="options">
-        Options
+        {t("docs.api.cli.creact_cli.heading_options")}
       </DocHeading>
       <DocTable
-        headers={["Flag", "Description"]}
+        headers={[
+          t("docs.api.cli.creact_cli.table_header_flag"),
+          t("docs.api.cli.creact_cli.table_header_description"),
+        ]}
         rows={[
-          [<><code>--watch</code></>, "Watch source files and restart on changes."],
-          [<><code>--help</code></>, "Show help message."],
+          [
+            <RichText k="docs.api.cli.creact_cli.row_watch_name" />,
+            <RichText k="docs.api.cli.creact_cli.row_watch_desc" />,
+          ],
+          [
+            <RichText k="docs.api.cli.creact_cli.row_help_name" />,
+            <RichText k="docs.api.cli.creact_cli.row_help_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="examples">
-        Examples
+        {t("docs.api.cli.creact_cli.heading_examples")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`# Single run
-creact index.tsx
-
-# Watch mode
-creact --watch index.tsx
-
-# Via npm scripts
-npm run start    # "creact index.tsx"
-npm run dev      # "creact --watch index.tsx"`}
-        filename="Terminal"
+        code={t("docs.api.cli.creact_cli.code_examples")}
+        filename={t("docs.api.cli.creact_cli.filename_terminal")}
       />
 
       <DocHeading level={2} id="behavior">
-        Behavior
+        {t("docs.api.cli.creact_cli.heading_behavior")}
       </DocHeading>
       <ol>
         <li>
-          Runs TypeScript type checking on your project (skipped if TypeScript
-          is not installed)
+          <RichText k="docs.api.cli.creact_cli.behavior_typecheck" />
         </li>
         <li>
-          If type checking passes, executes the entry file using{" "}
-          <code>tsx</code>
+          <RichText k="docs.api.cli.creact_cli.behavior_execute" />
         </li>
-        <li>The entry file's default export (an async function) is called</li>
         <li>
-          The render cycle runs: build tree, reconcile, run handlers, save state
+          <RichText k="docs.api.cli.creact_cli.behavior_default_export" />
         </li>
-        <li>In single-run mode, exits after completion</li>
+        <li>
+          <RichText k="docs.api.cli.creact_cli.behavior_render_cycle" />
+        </li>
+        <li>
+          <RichText k="docs.api.cli.creact_cli.behavior_exit" />
+        </li>
       </ol>
     </>
   );

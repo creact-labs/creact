@@ -1,115 +1,76 @@
 import type { Component } from "solid-js";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/runtime/create-runtime.tsx";
 
 const CreateRuntime: Component = () => {
   return (
     <>
-      <h1>createRuntime</h1>
+      <h1>{t("docs.api.runtime.create_runtime.title")}</h1>
       <p class="docs-description">
-        Wraps a root component so that mounting it boots a child runtime
-        with its own ledger, its own lock, and its own failure domain.
+        {t("docs.api.runtime.create_runtime.description")}
       </p>
 
-      <DocCodeBlock
-        code={`import { createRuntime } from '@creact-labs/creact';
-
-const TenantApp = createRuntime(App);
-
-<TenantApp key="tenant-a" region="us-east-1" />`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createRuntime"
-        signature="createRuntime<P>(Root: (props: P) => CReactNode): (props: P & { memory?: Memory }) => CReactNode"
+        name={t("docs.api.runtime.create_runtime.title")}
+        signature={t("docs.api.runtime.create_runtime.signature")}
         parameters={[
           [
-            <>
-              <code>Root</code>
-            </>,
-            <>
-              <code>(props: P) =&gt; CReactNode</code>
-            </>,
-            "Required. The child universe's root component. Its props are the entire boundary contract.",
+            <RichText k="docs.api.runtime.create_runtime.param_root_name" />,
+            <RichText k="docs.api.runtime.create_runtime.param_root_type" />,
+            <RichText k="docs.api.runtime.create_runtime.param_root_desc" />,
           ],
         ]}
         returns={
           <p>
-            A component accepting <code>Root</code>'s props plus an optional{" "}
-            <code>memory</code>. A <code>key</code> is required, as for any
-            resource component — the wrapper node's path+key address becomes
-            the child's stack name and ledger name.
+            <RichText k="docs.api.runtime.create_runtime.returns_desc" />
           </p>
         }
       />
 
       <UsageSection
-        code={`const TenantApp = createRuntime(App);
-
-function Fleet() {
-  return (
-    <>
-      {/* memory omitted → inherits the parent runtime's backend */}
-      <TenantApp key="tenant-a" region="us-east-1" />
-      {/* memory supplied → sovereign ledger */}
-      <TenantApp key="tenant-b" region="eu-west-1" memory={tenantBMemory} />
-    </>
-  );
-}`}
-        filename="fleet.tsx"
+        code={codeSample(samples, "usage")}
+        filename={t("docs.api.runtime.create_runtime.usage_filename")}
       >
         <p>
-          All other <code>RenderOptions</code> (<code>user</code>,{" "}
-          <code>enableAuditLog</code>, <code>lockTtlSeconds</code>,{" "}
-          <code>maxHandlerExecutions</code>) inherit from the parent
-          runtime. The wrapper node's outputs are runtime-provided only:
+          <RichText k="docs.api.runtime.create_runtime.outputs_intro" />
         </p>
         <DocTable
-          headers={["Output", "Type", "Meaning"]}
+          headers={[
+            t("docs.api.runtime.create_runtime.outputs_table_output"),
+            t("docs.api.runtime.create_runtime.outputs_table_type"),
+            t("docs.api.runtime.create_runtime.outputs_table_meaning"),
+          ]}
           rows={[
             [
-              <>
-                <code>status</code>
-              </>,
-              <>
-                <code>"deploying" | "ready" | "failed"</code>
-              </>,
-              "The child universe's deployment state.",
+              <RichText k="docs.api.runtime.create_runtime.output_status_name" />,
+              <RichText k="docs.api.runtime.create_runtime.output_status_type" />,
+              <RichText k="docs.api.runtime.create_runtime.output_status_desc" />,
             ],
             [
-              <>
-                <code>ready</code>
-              </>,
-              <>
-                <code>boolean</code>
-              </>,
-              "True once the child's initial deployment completed.",
+              <RichText k="docs.api.runtime.create_runtime.output_ready_name" />,
+              <RichText k="docs.api.runtime.create_runtime.output_ready_type" />,
+              <RichText k="docs.api.runtime.create_runtime.output_ready_desc" />,
             ],
             [
-              <>
-                <code>error</code>
-              </>,
-              <>
-                <code>string | undefined</code>
-              </>,
-              "Set when the child failed — deployment errors and lock-acquisition failures surface here as data; they never throw through the parent's executor.",
+              <RichText k="docs.api.runtime.create_runtime.output_error_name" />,
+              <RichText k="docs.api.runtime.create_runtime.output_error_type" />,
+              <RichText k="docs.api.runtime.create_runtime.output_error_desc" />,
             ],
           ]}
         />
         <Callout type="info">
           <p>
-            Unmounting the wrapper (or disposing the parent){" "}
-            <em>detaches</em> the child: its ledger persists, and
-            re-mounting re-hydrates and re-converges. Parent context does
-            not cross the boundary; props cross verbatim, exactly as at any
-            component boundary. See{" "}
-            <a href="#/docs/architecture/runtime-boundaries">
-              Runtime Boundaries
-            </a>{" "}
-            for the full sovereignty model.
+            <RichText k="docs.api.runtime.create_runtime.callout_detach" />
           </p>
         </Callout>
       </UsageSection>

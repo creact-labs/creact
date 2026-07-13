@@ -1,51 +1,41 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/context/create-context.tsx";
 
 const CreateContext: Component = () => {
   return (
     <>
-      <h1>createContext</h1>
+      <h1>{t("docs.api.context.create_context.title")}</h1>
       <p class="docs-description">
-        Creates a context for passing data through the component tree without
-        props.
+        {t("docs.api.context.create_context.description")}
       </p>
 
-      <DocCodeBlock
-        code={`const ThemeContext = createContext<'light' | 'dark'>('dark');`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createContext"
-        signature="createContext<T>(defaultValue?: T): Context<T>"
+        name={t("docs.api.context.create_context.title")}
+        signature={t("docs.api.context.create_context.signature")}
         parameters={[
-          [<><code>defaultValue</code></>, <><code>T</code></>, <>Optional. Value returned by <code>useContext</code> when no
-              Provider exists above.</>],
+          [
+            <RichText k="docs.api.context.create_context.param_default_value_name" />,
+            <RichText k="docs.api.context.create_context.param_default_value_type" />,
+            <RichText k="docs.api.context.create_context.param_default_value_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        A <code>Context&lt;T&gt;</code> object with a <code>Provider</code>{" "}
-        component.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.context.create_context.returns_desc" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`const ConfigContext = createContext<{ region: string }>();
-
-function App() {
-  return (
-    <ConfigContext.Provider value={{ region: 'us-east-1' }}>
-      <Infrastructure />
-    </ConfigContext.Provider>
-  );
-}`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

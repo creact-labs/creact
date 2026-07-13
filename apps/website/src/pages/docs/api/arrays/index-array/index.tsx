@@ -1,40 +1,38 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
-import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/arrays/index-array.ts";
 
 const IndexArray: Component = () => {
   return (
     <>
-      <h1>indexArray</h1>
+      <h1>{t("docs.api.arrays.index_array.title")}</h1>
       <p class="docs-description">
-        Indexed iteration. Each position is a reactive accessor. Best for
-        primitive arrays.
+        {t("docs.api.arrays.index_array.description")}
       </p>
 
       <ApiReference
-        name="indexArray"
-        signature="indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]"
+        name={t("docs.api.arrays.index_array.title")}
+        signature={t("docs.api.arrays.index_array.signature")}
         parameters={[
-          [<><code>list</code></>, <><code>
-                Accessor&lt;readonly T[] | undefined | null | false&gt;
-              </code></>, "Reactive array source."],
-          [<><code>mapFn</code></>, <><code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code></>, <>Map function. <code>v</code> is an accessor (reactive).{" "}
-              <code>i</code> is a static index.</>],
+          [
+            <RichText k="docs.api.arrays.index_array.param_list_name" />,
+            <RichText k="docs.api.arrays.index_array.param_list_type" />,
+            <RichText k="docs.api.arrays.index_array.param_list_desc" />,
+          ],
+          [
+            <RichText k="docs.api.arrays.index_array.param_map_fn_name" />,
+            <RichText k="docs.api.arrays.index_array.param_map_fn_type" />,
+            <RichText k="docs.api.arrays.index_array.param_map_fn_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`const [names, setNames] = createSignal(['Alice', 'Bob', 'Charlie']);
-
-const upper = indexArray(names, (name, i) => {
-  // name is an accessor, reactive to changes at index i
-  return { index: i, value: name };
-});`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

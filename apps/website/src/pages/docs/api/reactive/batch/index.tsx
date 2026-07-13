@@ -1,55 +1,39 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/reactive/batch.ts";
 
 const Batch: Component = () => {
   return (
     <>
-      <h1>batch</h1>
-      <p class="docs-description">
-        Groups multiple signal updates into a single computation pass.
-      </p>
+      <h1>{t("docs.api.reactive.batch.title")}</h1>
+      <p class="docs-description">{t("docs.api.reactive.batch.description")}</p>
 
-      <DocCodeBlock
-        code={`batch(() => {
-  setA(1);
-  setB(2);
-  setC(3);
-}); // Effects run once, not three times`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="batch"
-        signature="batch<T>(fn: () => T): T"
+        name={t("docs.api.reactive.batch.title")}
+        signature={t("docs.api.reactive.batch.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>() =&gt; T</code></>, "Function containing signal updates. All updates are deferred until the function completes."],
+          [
+            <RichText k="docs.api.reactive.batch.param_fn_name" />,
+            <RichText k="docs.api.reactive.batch.param_fn_type" />,
+            <RichText k="docs.api.reactive.batch.param_fn_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        The return value of <code>fn</code>.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.reactive.batch.returns_body" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`const [firstName, setFirstName] = createSignal('');
-const [lastName, setLastName] = createSignal('');
-
-createEffect(() => {
-  // Only runs once per batch, not twice
-  console.log(\`\${firstName()} \${lastName()}\`);
-});
-
-batch(() => {
-  setFirstName('John');
-  setLastName('Doe');
-}); // Logs: "John Doe" (once)`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

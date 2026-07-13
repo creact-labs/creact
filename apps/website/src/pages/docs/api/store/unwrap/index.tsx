@@ -1,38 +1,31 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
-import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/store/unwrap.ts";
 
 const Unwrap: Component = () => {
   return (
     <>
-      <h1>unwrap</h1>
-      <p class="docs-description">
-        Returns a deep clone of the underlying data from a store proxy,
-        stripping all reactivity.
-      </p>
+      <h1>{t("docs.api.store.unwrap.title")}</h1>
+      <p class="docs-description">{t("docs.api.store.unwrap.description")}</p>
 
       <ApiReference
-        name="unwrap"
-        signature="unwrap<T>(store: T): T"
+        name={t("docs.api.store.unwrap.title")}
+        signature={t("docs.api.store.unwrap.signature")}
         parameters={[
-          [<><code>store</code></>, <><code>T</code></>, <>A store proxy created by <code>createStore</code>.</>],
+          [
+            <RichText k="docs.api.store.unwrap.param_store_name" />,
+            <RichText k="docs.api.store.unwrap.param_store_type" />,
+            <RichText k="docs.api.store.unwrap.param_store_desc" />,
+          ],
         ]}
       />
 
-      <UsageSection
-        code={`const [store, setStore] = createStore({ count: 0 });
-const plain = unwrap(store);
-
-// plain is a regular object, not reactive
-console.log(plain); // { count: 0 }
-
-// Useful for serialization
-JSON.stringify(unwrap(store));`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

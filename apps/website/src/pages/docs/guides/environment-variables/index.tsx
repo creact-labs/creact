@@ -1,69 +1,53 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "guides-tour/src/environment-variables.tsx";
 
 const EnvironmentVariables: Component = () => {
   return (
     <>
-      <h1>Environment Variables</h1>
+      <h1>{t("docs.guides.environment_variables.title")}</h1>
       <p class="docs-description">
-        Configure your app for different environments using process.env.
+        {t("docs.guides.environment_variables.description")}
       </p>
 
       <DocHeading level={2} id="reading">
-        Reading Environment Variables
+        {t("docs.guides.environment_variables.heading_reading")}
       </DocHeading>
       <p>
-        Access environment variables through <code>process.env</code> as in any
-        Node.js app:
+        <RichText k="docs.guides.environment_variables.reading_intro" />
       </p>
       <DocCodeBlock
-        code={`const region = process.env.AWS_REGION ?? 'us-east-1';
-const apiKey = process.env.API_KEY;
-
-function App() {
-  return (
-    <AWS region={region}>
-      <Service apiKey={apiKey} />
-    </AWS>
-  );
-}`}
-        filename="app.tsx"
+        code={codeSample(samples, "reading")}
+        filename={t("docs.guides.environment_variables.filename_app")}
       />
 
       <DocHeading level={2} id="per-environment">
-        Per-Environment Configuration
+        {t("docs.guides.environment_variables.heading_per_environment")}
       </DocHeading>
       <DocCodeBlock
-        code={`const config = {
-  production: { region: 'us-east-1', replicas: 3 },
-  staging: { region: 'us-west-2', replicas: 1 },
-};
-
-const env = process.env.NODE_ENV ?? 'staging';
-const { region, replicas } = config[env as keyof typeof config];`}
-        filename="config.ts"
+        code={codeSample(samples, "per-environment")}
+        filename={t("docs.guides.environment_variables.filename_config")}
       />
 
       <DocHeading level={2} id="secrets">
-        Handling Secrets
+        {t("docs.guides.environment_variables.heading_secrets")}
       </DocHeading>
-      <p>Pass secrets via environment variables or a secret manager:</p>
+      <p>{t("docs.guides.environment_variables.secrets_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`# .env (add to .gitignore)
-AWS_ACCESS_KEY_ID=AKIA...
-AWS_SECRET_ACCESS_KEY=...
-ANTHROPIC_API_KEY=sk-ant-...`}
-        filename=".env"
+        code={t("docs.guides.environment_variables.code_env")}
+        filename={t("docs.guides.environment_variables.filename_env")}
       />
 
       <Callout type="warning">
         <p>
-          CReact does not have built-in <code>.env</code> file loading. Use a
-          package like <code>dotenv</code>
-          or set variables in your shell / CI environment.
+          <RichText k="docs.guides.environment_variables.warning_dotenv" />
         </p>
       </Callout>
     </>

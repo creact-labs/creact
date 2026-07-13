@@ -1,77 +1,56 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
 
 const WatchMode: Component = () => {
   return (
     <>
-      <h1>Watch Mode</h1>
-      <p class="docs-description">
-        CReact's watch mode restarts your app automatically when files change.
-      </p>
+      <h1>{t("docs.guides.watch_mode.title")}</h1>
+      <p class="docs-description">{t("docs.guides.watch_mode.description")}</p>
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.guides.watch_mode.heading_usage")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`creact --watch index.tsx`}
-        filename="Terminal"
+        code={t("docs.guides.watch_mode.code_usage")}
+        filename={t("docs.guides.watch_mode.filename_terminal")}
       />
-      <p>
-        Watch mode monitors your source files and restarts the app on changes.
-        State is preserved between restarts through the Memory interface.
-      </p>
+      <p>{t("docs.guides.watch_mode.usage_desc")}</p>
 
       <DocHeading level={2} id="how-it-works">
-        How It Works
+        {t("docs.guides.watch_mode.heading_how_it_works")}
       </DocHeading>
       <ol>
-        <li>CReact starts your app normally</li>
+        <li>{t("docs.guides.watch_mode.step_start")}</li>
         <li>
-          File system watchers monitor <code>.ts</code>, <code>.tsx</code>,{" "}
-          <code>.js</code>, and <code>.jsx</code> files
+          <RichText k="docs.guides.watch_mode.step_watchers" />
         </li>
-        <li>
-          When a file changes, the current run is stopped cleanly (cleanup
-          functions execute)
-        </li>
-        <li>A new run starts, reading persisted state from memory</li>
-        <li>
-          Reconciliation ensures only changed components re-run their handlers
-        </li>
+        <li>{t("docs.guides.watch_mode.step_stop")}</li>
+        <li>{t("docs.guides.watch_mode.step_restart")}</li>
+        <li>{t("docs.guides.watch_mode.step_reconcile")}</li>
       </ol>
 
       <DocHeading level={2} id="development-workflow">
-        Development Workflow
+        {t("docs.guides.watch_mode.heading_development_workflow")}
       </DocHeading>
-      <p>A typical development session:</p>
+      <p>{t("docs.guides.watch_mode.workflow_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`# Start in watch mode
-npm run dev
-
-# Edit your components, app restarts automatically
-# State persists across restarts
-# Press Ctrl+C to stop`}
-        filename="Terminal"
+        code={t("docs.guides.watch_mode.code_workflow")}
+        filename={t("docs.guides.watch_mode.filename_terminal")}
       />
 
       <DocHeading level={2} id="type-checking">
-        Type Checking
+        {t("docs.guides.watch_mode.heading_type_checking")}
       </DocHeading>
-      <p>
-        Watch mode runs TypeScript type checking before each restart. If type
-        checking fails, the restart is aborted and errors are displayed.
-      </p>
+      <p>{t("docs.guides.watch_mode.type_checking_desc")}</p>
 
       <Callout type="tip">
-        <p>
-          In watch mode, CReact performs a type check pass before running your
-          code. Failed type checks show clear error messages with file
-          locations.
-        </p>
+        <p>{t("docs.guides.watch_mode.tip_type_check")}</p>
       </Callout>
     </>
   );

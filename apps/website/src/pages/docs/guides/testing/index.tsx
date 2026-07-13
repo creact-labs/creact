@@ -1,105 +1,60 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "guides-tour/src/testing.tsx";
 
 const Testing: Component = () => {
   return (
     <>
-      <h1>Testing</h1>
-      <p class="docs-description">
-        Test CReact components and reactive logic with Vitest and createRoot.
-      </p>
+      <h1>{t("docs.guides.testing.title")}</h1>
+      <p class="docs-description">{t("docs.guides.testing.description")}</p>
 
       <DocHeading level={2} id="setup">
-        Setup
+        {t("docs.guides.testing.heading_setup")}
       </DocHeading>
-      <p>Install Vitest:</p>
+      <p>{t("docs.guides.testing.setup_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`npm install -D vitest`}
-        filename="Terminal"
+        code={t("docs.guides.testing.code_install")}
+        filename={t("docs.guides.testing.filename_terminal")}
       />
 
       <DocHeading level={2} id="testing-signals">
-        Testing Signals
+        {t("docs.guides.testing.heading_testing_signals")}
       </DocHeading>
       <p>
-        Test reactive primitives by wrapping them in <code>createRoot</code>:
+        <RichText k="docs.guides.testing.testing_signals_intro" />
       </p>
       <DocCodeBlock
-        code={`import { describe, it, expect } from 'vitest';
-import { createSignal, createEffect, createRoot } from '@creact-labs/creact';
-
-describe('signals', () => {
-  it('tracks changes', () => {
-    createRoot(() => {
-      const [count, setCount] = createSignal(0);
-      let observed = 0;
-
-      createEffect(() => {
-        observed = count();
-      });
-
-      expect(observed).toBe(0);
-      setCount(5);
-      expect(observed).toBe(5);
-    });
-  });
-});`}
-        filename="signals.spec.ts"
+        code={codeSample(samples, "testing-signals")}
+        filename={t("docs.guides.testing.filename_signals_spec")}
       />
 
       <DocHeading level={2} id="testing-components">
-        Testing Components
+        {t("docs.guides.testing.heading_testing_components")}
       </DocHeading>
-      <p>
-        Test components by calling them directly and inspecting their handler
-        outputs:
-      </p>
+      <p>{t("docs.guides.testing.testing_components_intro")}</p>
       <DocCodeBlock
-        code={`import { createRoot, createSignal } from '@creact-labs/creact';
-
-it('counter persists state', async () => {
-  await createRoot(async () => {
-    const counter = Counter({ initial: 10 });
-    // Assert handler outputs via the returned accessors
-  });
-});`}
-        filename="counter.spec.ts"
+        code={codeSample(samples, "testing-components")}
+        filename={t("docs.guides.testing.filename_counter_spec")}
       />
 
       <DocHeading level={2} id="testing-flow">
-        Testing Flow Components
+        {t("docs.guides.testing.heading_testing_flow")}
       </DocHeading>
       <DocCodeBlock
-        code={`import { Show, createSignal, createRoot, createMemo } from '@creact-labs/creact';
-
-it('Show renders when truthy', () => {
-  createRoot(() => {
-    const [show, setShow] = createSignal(false);
-
-    const result = createMemo(() => {
-      // Flow components return reactive accessors when called directly
-      const r = Show({
-        when: show,
-        children: () => 'visible'
-      }) as unknown as () => unknown;
-      return r();
-    });
-
-    expect(result()).toBeFalsy();
-    setShow(true);
-    expect(result()).toBe('visible');
-  });
-});`}
-        filename="flow.spec.ts"
+        code={codeSample(samples, "testing-flow")}
+        filename={t("docs.guides.testing.filename_flow_spec")}
       />
 
       <Callout type="tip">
         <p>
-          Wrap tests in <code>createRoot</code> so effects, cleanups, and
-          ownership tracking work.
+          <RichText k="docs.guides.testing.tip_create_root" />
         </p>
       </Callout>
     </>

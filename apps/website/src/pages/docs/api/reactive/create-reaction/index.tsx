@@ -1,56 +1,43 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import UsageSection from "@/shared/components/usage-section";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
+import RichText from "@/shared/components/rich-text";
+import UsageSection from "@/shared/components/usage-section";
+
+const samples = "api-tour/src/reactive/create-reaction.ts";
 
 const CreateReaction: Component = () => {
   return (
     <>
-      <h1>createReaction</h1>
+      <h1>{t("docs.api.reactive.create_reaction.title")}</h1>
       <p class="docs-description">
-        Separates tracking from execution. Track one expression, run a different
-        function when it changes. The reaction fires once, then must be
-        re-armed.
+        {t("docs.api.reactive.create_reaction.description")}
       </p>
 
       <ApiReference
-        name="createReaction"
-        signature="createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void"
+        name={t("docs.api.reactive.create_reaction.title")}
+        signature={t("docs.api.reactive.create_reaction.signature")}
         parameters={[
-          [<><code>onInvalidate</code></>, <><code>() =&gt; void</code></>, "Callback that fires once when tracked signals change."],
-          [<><code>options</code></>, <><code>EffectOptions</code></>, <>Optional. <code>name</code> for debugging.</>],
+          [
+            <RichText k="docs.api.reactive.create_reaction.param_on_invalidate_name" />,
+            <RichText k="docs.api.reactive.create_reaction.param_on_invalidate_type" />,
+            <RichText k="docs.api.reactive.create_reaction.param_on_invalidate_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_reaction.param_options_name" />,
+            <RichText k="docs.api.reactive.create_reaction.param_options_type" />,
+            <RichText k="docs.api.reactive.create_reaction.param_options_desc" />,
+          ],
         ]}
         returns={
-          <>
-      <p>
-        A function <code>(tracking: () =&gt; void) =&gt; void</code> that arms
-        the reaction. Call it with a tracking expression. Signals read inside
-        are tracked. When any of them change, <code>onInvalidate</code> fires
-        once and tracking stops until you call the function again.
-      </p>
-          </>
+          <p>
+            <RichText k="docs.api.reactive.create_reaction.returns_body" />
+          </p>
         }
       />
 
-      <UsageSection
-        code={`const [count, setCount] = createSignal(0);
-
-const track = createReaction(() => {
-  console.log('count changed!');
-});
-
-// Arm the reaction: track count()
-track(() => count());
-
-setCount(1); // Logs: "count changed!"
-setCount(2); // Nothing, reaction was consumed
-
-// Re-arm
-track(() => count());
-setCount(3); // Logs: "count changed!"`}
-      />
+      <UsageSection code={codeSample(samples, "usage")} />
     </>
   );
 };

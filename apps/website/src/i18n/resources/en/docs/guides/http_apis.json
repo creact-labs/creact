@@ -1,0 +1,13 @@
+{
+  "title": "HTTP APIs and Channels",
+  "description": "Build a channel component that exposes HTTP endpoints and feeds input into the reactive system.",
+  "heading_channels": "What Are Channels?",
+  "channels_desc": "A channel is a component that starts an HTTP server on mount and stops it on cleanup. Incoming requests call callback props, which update signals and trigger downstream components.",
+  "heading_http_server": "Channel Component",
+  "http_server_intro": "The <code>Channel</code> component starts a Hono server inside <code>onMount</code>. Route handlers are passed in as props. <code>onCleanup</code> shuts down the server when the component is removed.",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Connecting to the Reactive System",
+  "reactive_flow_intro": "The channel's callback props call <code>setSites</code>, <code>setPendingGeneration</code>, and other setters. Those signal updates trigger effects and <code>Show</code>/<code>For</code> components downstream.",
+  "filename_app": "app.tsx",
+  "info_cleanup": "The <code>onCleanup</code> callback releases the port when the component is removed or the app stops."
+}

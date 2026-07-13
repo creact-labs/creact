@@ -1,102 +1,50 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "guides-tour/src/typescript.tsx";
 
 const Typescript: Component = () => {
   return (
     <>
-      <h1>TypeScript</h1>
-      <p class="docs-description">
-        CReact is written in TypeScript. Here's how to get the most out of the
-        type system for signals, props, and components.
-      </p>
+      <h1>{t("docs.guides.typescript.title")}</h1>
+      <p class="docs-description">{t("docs.guides.typescript.description")}</p>
 
       <DocHeading level={2} id="tsconfig">
-        TypeScript Configuration
+        {t("docs.guides.typescript.heading_tsconfig")}
       </DocHeading>
       <p>
-        The key setting is <code>jsxImportSource</code>. This tells TypeScript
-        to use CReact's JSX types:
+        <RichText k="docs.guides.typescript.tsconfig_intro" />
       </p>
       <DocCodeBlock
         lang="json"
-        code={`{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "jsxImportSource": "@creact-labs/creact",
-    "strict": true,
-    "outDir": "dist"
-  }
-}`}
-        filename="tsconfig.json"
+        code={t("docs.guides.typescript.code_tsconfig")}
+        filename={t("docs.guides.typescript.filename_tsconfig")}
       />
 
       <DocHeading level={2} id="typed-signals">
-        Typed Signals
+        {t("docs.guides.typescript.heading_typed_signals")}
       </DocHeading>
-      <p>
-        Signals infer their type from the initial value, or you can specify it
-        explicitly:
-      </p>
-      <DocCodeBlock
-        code={`// Inferred as Signal<number>
-const [count, setCount] = createSignal(0);
-
-// Explicit generic
-const [items, setItems] = createSignal<string[]>([]);
-
-// Optional initial value
-const [user, setUser] = createSignal<User>();
-// user() returns User | undefined`}
-      />
+      <p>{t("docs.guides.typescript.typed_signals_intro")}</p>
+      <DocCodeBlock code={codeSample(samples, "typed-signals")} />
 
       <DocHeading level={2} id="typed-props">
-        Typed Props
+        {t("docs.guides.typescript.heading_typed_props")}
       </DocHeading>
-      <DocCodeBlock
-        code={`interface WebSiteProps {
-  name: () => string;
-  content: () => string;
-  region?: string;
-}
-
-function WebSite(props: WebSiteProps) {
-  const site = useAsyncOutput(props, async (p, setOutputs) => {
-    // p is typed as WebSiteProps
-    const name = p.name(); // string
-    setOutputs({ url: \`https://\${name}.example.com\` });
-  });
-
-  return <></>;
-}`}
-      />
+      <DocCodeBlock code={codeSample(samples, "typed-props")} />
 
       <DocHeading level={2} id="accessor-types">
-        Accessor and MaybeAccessor
+        {t("docs.guides.typescript.heading_accessor_types")}
       </DocHeading>
-      <DocCodeBlock
-        code={`import type { Accessor, MaybeAccessor } from '@creact-labs/creact';
-import { access } from '@creact-labs/creact';
-
-// Accessor<T> = () => T
-const getter: Accessor<number> = () => 42;
-
-// MaybeAccessor<T> = T | () => T
-function useValue(v: MaybeAccessor<string>) {
-  return access(v); // unwraps to string
-}`}
-      />
+      <DocCodeBlock code={codeSample(samples, "accessor-types")} />
 
       <Callout type="info">
         <p>
-          CReact re-exports key types: <code>Accessor</code>,{" "}
-          <code>Setter</code>,<code>MaybeAccessor</code>,{" "}
-          <code>SignalOptions</code>, <code>MemoOptions</code>,
-          <code>Owner</code>, <code>Context</code>, and all runtime types.
+          <RichText k="docs.guides.typescript.info_types" />
         </p>
       </Callout>
     </>

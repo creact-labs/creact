@@ -1,68 +1,62 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 
 const PackageJson: Component = () => {
   return (
     <>
-      <h1>package.json</h1>
-      <p class="docs-description">Package configuration for CReact projects.</p>
+      <h1>{t("docs.api.config.package_json.title")}</h1>
+      <p class="docs-description">
+        {t("docs.api.config.package_json.description")}
+      </p>
 
       <DocHeading level={2} id="minimal">
-        Minimal Configuration
+        {t("docs.api.config.package_json.heading_minimal")}
       </DocHeading>
       <DocCodeBlock
         lang="json"
-        code={`{
-  "name": "my-creact-app",
-  "type": "module",
-  "scripts": {
-    "start": "creact index.tsx",
-    "dev": "creact --watch index.tsx"
-  },
-  "dependencies": {
-    "@creact-labs/creact": "^0.3.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
-  }
-}`}
-        filename="package.json"
+        code={t("docs.api.config.package_json.code_minimal")}
+        filename={t("docs.api.config.package_json.filename_package_json")}
       />
 
       <DocHeading level={2} id="key-fields">
-        Key Fields
+        {t("docs.api.config.package_json.heading_key_fields")}
       </DocHeading>
       <DocTable
-        headers={["Field", "Value", "Why"]}
+        headers={[
+          t("docs.api.config.package_json.table_header_field"),
+          t("docs.api.config.package_json.table_header_value"),
+          t("docs.api.config.package_json.table_header_why"),
+        ]}
         rows={[
-          [<><code>"type"</code></>, <><code>"module"</code></>, "CReact is ESM-only. Required for proper module resolution."],
-          [<><code>"scripts.start"</code></>, <><code>"creact index.tsx"</code></>, "Single run: reconcile and exit."],
-          [<><code>"scripts.dev"</code></>, <><code>"creact --watch index.tsx"</code></>, "Watch mode: restarts on file changes."],
+          [
+            <RichText k="docs.api.config.package_json.row_type_name" />,
+            <RichText k="docs.api.config.package_json.row_type_value" />,
+            <RichText k="docs.api.config.package_json.row_type_why" />,
+          ],
+          [
+            <RichText k="docs.api.config.package_json.row_start_name" />,
+            <RichText k="docs.api.config.package_json.row_start_value" />,
+            <RichText k="docs.api.config.package_json.row_start_why" />,
+          ],
+          [
+            <RichText k="docs.api.config.package_json.row_dev_name" />,
+            <RichText k="docs.api.config.package_json.row_dev_value" />,
+            <RichText k="docs.api.config.package_json.row_dev_why" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="with-testing">
-        With Testing
+        {t("docs.api.config.package_json.heading_with_testing")}
       </DocHeading>
       <DocCodeBlock
         lang="json"
-        code={`{
-  "scripts": {
-    "start": "creact index.tsx",
-    "dev": "creact --watch index.tsx",
-    "test": "vitest --run",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0",
-    "vitest": "^3.0.0"
-  }
-}`}
-        filename="package.json"
+        code={t("docs.api.config.package_json.code_with_testing")}
+        filename={t("docs.api.config.package_json.filename_package_json")}
       />
     </>
   );

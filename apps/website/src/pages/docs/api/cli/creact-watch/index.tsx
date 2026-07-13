@@ -1,71 +1,60 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
 
 const CreactWatch: Component = () => {
   return (
     <>
-      <h1>creact --watch</h1>
+      <h1>{t("docs.api.cli.creact_watch.title")}</h1>
       <p class="docs-description">
-        Run CReact in watch mode. Automatically restarts when source files
-        change.
+        {t("docs.api.cli.creact_watch.description")}
       </p>
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.cli.creact_watch.heading_usage")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`creact --watch <entry-file>`}
-        filename="Terminal"
+        code={t("docs.api.cli.creact_watch.code_usage")}
+        filename={t("docs.api.cli.creact_watch.filename_terminal")}
       />
 
       <DocHeading level={2} id="behavior">
-        Behavior
+        {t("docs.api.cli.creact_watch.heading_behavior")}
       </DocHeading>
       <ol>
-        <li>Type checks and runs your entry file</li>
         <li>
-          Watches <code>.ts</code>, <code>.tsx</code>, <code>.js</code>, and{" "}
-          <code>.jsx</code> files for changes
+          <RichText k="docs.api.cli.creact_watch.behavior_run" />
         </li>
         <li>
-          On file change: stops the current run (executes cleanups),
-          re-type-checks, and restarts
+          <RichText k="docs.api.cli.creact_watch.behavior_watch" />
         </li>
-        <li>State persists between restarts via the Memory interface</li>
         <li>
-          Press <code>Ctrl+C</code> to stop
+          <RichText k="docs.api.cli.creact_watch.behavior_restart" />
+        </li>
+        <li>
+          <RichText k="docs.api.cli.creact_watch.behavior_state" />
+        </li>
+        <li>
+          <RichText k="docs.api.cli.creact_watch.behavior_stop" />
         </li>
       </ol>
 
       <DocHeading level={2} id="output">
-        Output
+        {t("docs.api.cli.creact_watch.heading_output")}
       </DocHeading>
       <DocCodeBlock
         lang="bash"
-        code={`$ creact --watch index.tsx
-
- ╭──────────────────────╮
- │    CReact v0.3.0     │
- ╰──────────────────────╯
-
- ✓ Type check passed (3 files, 120ms)
- ▶ App started
- ◎ Watching for changes...
-
- ⟳ File changed: src/app.tsx
- ⟳ Restarting...
- ✓ Type check passed (3 files, 95ms)
- ▶ App started`}
-        filename="Terminal"
+        code={t("docs.api.cli.creact_watch.code_output")}
+        filename={t("docs.api.cli.creact_watch.filename_terminal")}
       />
 
       <Callout type="tip">
         <p>
-          State persists across restarts. Edit your component tree without
-          losing deployed state.
+          <RichText k="docs.api.cli.creact_watch.tip_state_persists" />
         </p>
       </Callout>
     </>

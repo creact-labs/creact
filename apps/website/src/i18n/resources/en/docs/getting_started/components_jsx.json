@@ -1,0 +1,20 @@
+{
+  "title": "Components and JSX",
+  "description": "CReact components are functions that return JSX. JSX describes resources and processes, not DOM elements.",
+  "heading_jsx": "JSX in CReact",
+  "jsx_intro": "CReact uses JSX to describe <strong>resources and processes</strong>, not DOM elements. <code>&lt;WebSite name=\"blog\" /&gt;</code> declares that a website named \"blog\" should exist.",
+  "heading_component_functions": "Component Functions",
+  "component_functions_intro": "Components are plain functions that return JSX. They receive props as their first argument and run once. Reactivity is handled by signals, not re-renders.",
+  "heading_fragments": "Fragments",
+  "fragments_intro": "Use <code>&lt;&gt;...&lt;/&gt;</code> to return multiple elements without a wrapper:",
+  "heading_reactive_props": "Reactive Props",
+  "reactive_props_intro": "Props in CReact are often <strong>accessors</strong> (getter functions) to preserve reactivity. Components run once; effects re-run when their dependencies change.",
+  "tip_access": "Use the <code>access()</code> helper to unwrap values that may or may not be accessors: <code>access(props.value)</code> works whether <code>value</code> is <code>5</code> or <code>() =&gt; 5</code>.",
+  "heading_children": "Children",
+  "children_intro": "Components can receive children through JSX nesting. Use the <code>children()</code> helper to resolve them reactively.",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

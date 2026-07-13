@@ -1,93 +1,110 @@
 import type { Component } from "solid-js";
+import { t } from "@/i18n";
+import Callout from "@/shared/components/callout";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import Callout from "@/shared/components/callout";
 import DocTable from "@/shared/components/doc-table";
+import RichText from "@/shared/components/rich-text";
 
 const ReactiveSystem: Component = () => {
   return (
     <>
-      <h1>Reactive System</h1>
+      <h1>{t("docs.architecture.reactive_system.title")}</h1>
       <p class="docs-description">
-        CReact tracks dependencies at the signal level. Changes propagate
-        synchronously through a DAG of signals and computations.
+        {t("docs.architecture.reactive_system.description")}
       </p>
 
       <DocHeading level={2} id="core-concepts">
-        Core Concepts
+        {t("docs.architecture.reactive_system.heading_core_concepts")}
       </DocHeading>
 
       <DocHeading level={3} id="signals">
-        Signals
+        {t("docs.architecture.reactive_system.heading_signals")}
       </DocHeading>
-      <p>
-        A signal holds a value and maintains a list of observers (computations
-        that depend on it). When the value changes, all observers are marked
-        stale and scheduled for re-execution.
-      </p>
+      <p>{t("docs.architecture.reactive_system.signals_body")}</p>
 
       <DocHeading level={3} id="computations">
-        Computations
+        {t("docs.architecture.reactive_system.heading_computations")}
       </DocHeading>
-      <p>
-        A computation is a function that reads signals. Any signal read during
-        execution registers the computation as an observer. The dependency graph
-        builds at runtime.
-      </p>
+      <p>{t("docs.architecture.reactive_system.computations_body")}</p>
 
       <DocHeading level={3} id="ownership">
-        Ownership
+        {t("docs.architecture.reactive_system.heading_ownership")}
       </DocHeading>
-      <p>
-        Every computation has an owner (the computation or root that created
-        it). This forms a tree. When an owner is disposed, all its children are
-        disposed too, including their effects and cleanup functions.
-      </p>
+      <p>{t("docs.architecture.reactive_system.ownership_body")}</p>
 
       <DocHeading level={2} id="execution-model">
-        Execution Model
+        {t("docs.architecture.reactive_system.heading_execution_model")}
       </DocHeading>
       <DocSteps
         steps={[
-          { label: "Signal write", body: "marks all observers as STALE" },
-          { label: "Schedule", body: "stale computations are added to the update queue" },
-          { label: "Batch", body: "multiple writes in a synchronous block are batched" },
-          { label: "Run queue", body: "pure computations (memos) run first, then effects" },
-          { label: "Clean", body: "before a computation re-runs, its old dependencies are cleaned" },
-          { label: "Re-track", body: "the computation re-runs, re-registering dependencies" },
+          {
+            label: t("docs.architecture.reactive_system.step_signal_write_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_signal_write_body" />,
+          },
+          {
+            label: t("docs.architecture.reactive_system.step_schedule_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_schedule_body" />,
+          },
+          {
+            label: t("docs.architecture.reactive_system.step_batch_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_batch_body" />,
+          },
+          {
+            label: t("docs.architecture.reactive_system.step_run_queue_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_run_queue_body" />,
+          },
+          {
+            label: t("docs.architecture.reactive_system.step_clean_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_clean_body" />,
+          },
+          {
+            label: t("docs.architecture.reactive_system.step_retrack_label"),
+            body: <RichText k="docs.architecture.reactive_system.step_retrack_body" />,
+          },
         ]}
       />
 
       <DocHeading level={2} id="source-modules">
-        Source Modules
+        {t("docs.architecture.reactive_system.heading_source_modules")}
       </DocHeading>
       <DocTable
-        headers={["Module", "Responsibility"]}
+        headers={[
+          t("docs.architecture.reactive_system.table_header_module"),
+          t("docs.architecture.reactive_system.table_header_responsibility"),
+        ]}
         rows={[
-          [<><code>tracking.ts</code></>, "Core scheduler: runUpdates, runQueue, runComputation, cleanComputation"],
-          [<><code>signal.ts</code></>, "createSignal, createMemo, on, catchError"],
-          [<><code>effect.ts</code></>, "createEffect, createComputed, createRenderEffect, createReaction, onCleanup, onMount"],
-          [<><code>owner.ts</code></>, "createRoot, getOwner, runWithOwner, ownership chain"],
-          [<><code>selector.ts</code></>, "createSelector, O(2) selection tracking"],
+          [
+            <RichText k="docs.architecture.reactive_system.module_tracking_name" />,
+            <RichText k="docs.architecture.reactive_system.module_tracking_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.reactive_system.module_signal_name" />,
+            <RichText k="docs.architecture.reactive_system.module_signal_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.reactive_system.module_effect_name" />,
+            <RichText k="docs.architecture.reactive_system.module_effect_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.reactive_system.module_owner_name" />,
+            <RichText k="docs.architecture.reactive_system.module_owner_desc" />,
+          ],
+          [
+            <RichText k="docs.architecture.reactive_system.module_selector_name" />,
+            <RichText k="docs.architecture.reactive_system.module_selector_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="glitch-free">
-        Glitch-Free Propagation
+        {t("docs.architecture.reactive_system.heading_glitch_free")}
       </DocHeading>
-      <p>
-        The system guarantees that no computation observes an inconsistent
-        state. Memos (pure computations) run before effects, and dependencies
-        are resolved upstream-first. This eliminates "glitches" where a
-        computation sees partially-updated values.
-      </p>
+      <p>{t("docs.architecture.reactive_system.glitch_free_body")}</p>
 
       <Callout type="info">
         <p>
-          The reactive system is entirely synchronous within a batch. Async
-          operations (like <code>useAsyncOutput</code> handlers) are managed by
-          the runtime layer above.
+          <RichText k="docs.architecture.reactive_system.callout_synchronous" />
         </p>
       </Callout>
     </>

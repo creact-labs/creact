@@ -1,82 +1,68 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
-import DocTable from "@/shared/components/doc-table";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "api-tour/src/reactive/create-effect.ts";
 
 const CreateEffect: Component = () => {
   return (
     <>
-      <h1>createEffect</h1>
+      <h1>{t("docs.api.reactive.create_effect.title")}</h1>
       <p class="docs-description">
-        Creates a reactive side effect that runs when its dependencies change.
-        Use for side effects (logging, external calls). Runs after the current
-        batch.
+        {t("docs.api.reactive.create_effect.description")}
       </p>
 
-      <DocCodeBlock
-        code={`createEffect(() => {
-  console.log('Count is:', count());
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createEffect"
-        signature="createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void"
+        name={t("docs.api.reactive.create_effect.title")}
+        signature={t("docs.api.reactive.create_effect.signature")}
         parameters={[
-          [<><code>fn</code></>, <><code>(v: Init | Next) =&gt; Next</code></>, "Effect function. Receives previous return value. Automatically tracked."],
-          [<><code>value</code></>, <><code>Init</code></>, "Optional initial value passed to the first run."],
-          [<><code>options</code></>, <><code>EffectOptions</code></>, <>Optional. <code>name</code> for debugging.</>],
+          [
+            <RichText k="docs.api.reactive.create_effect.param_fn_name" />,
+            <RichText k="docs.api.reactive.create_effect.param_fn_type" />,
+            <RichText k="docs.api.reactive.create_effect.param_fn_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_effect.param_value_name" />,
+            <RichText k="docs.api.reactive.create_effect.param_value_type" />,
+            <RichText k="docs.api.reactive.create_effect.param_value_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_effect.param_options_name" />,
+            <RichText k="docs.api.reactive.create_effect.param_options_type" />,
+            <RichText k="docs.api.reactive.create_effect.param_options_desc" />,
+          ],
         ]}
       />
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.reactive.create_effect.heading_usage")}
       </DocHeading>
 
       <DocHeading level={3} id="basic">
-        Tracking Dependencies
+        {t("docs.api.reactive.create_effect.heading_tracking")}
       </DocHeading>
-      <DocCodeBlock
-        code={`const [a, setA] = createSignal(1);
-const [b, setB] = createSignal(2);
-
-createEffect(() => {
-  // Re-runs when a() OR b() changes
-  console.log(a() + b());
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "tracking")} />
 
       <DocHeading level={3} id="with-previous">
-        Using Previous Value
+        {t("docs.api.reactive.create_effect.heading_previous")}
       </DocHeading>
-      <DocCodeBlock
-        code={`createEffect((prev) => {
-  const current = count();
-  console.log(\`Changed from \${prev} to \${current}\`);
-  return current;
-}, 0);`}
-      />
+      <DocCodeBlock code={codeSample(samples, "with-previous")} />
 
       <DocHeading level={3} id="cleanup">
-        Cleanup with onCleanup
+        {t("docs.api.reactive.create_effect.heading_cleanup")}
       </DocHeading>
-      <DocCodeBlock
-        code={`import { createEffect, onCleanup } from '@creact-labs/creact';
-
-createEffect(() => {
-  const interval = setInterval(() => tick(), 1000);
-  onCleanup(() => clearInterval(interval));
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "cleanup")} />
 
       <Callout type="info">
         <p>
-          Effects are batched. Multiple synchronous signal updates only trigger
-          one re-run. Use <code>batch()</code> explicitly for complex update
-          sequences.
+          <RichText k="docs.api.reactive.create_effect.info_batching" />
         </p>
       </Callout>
     </>

@@ -1,91 +1,72 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
-import DocCodeBlock from "@/shared/components/doc-code-block";
+import { t } from "@/i18n";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
 
 const Deploying: Component = () => {
   return (
     <>
-      <h1>Deploying</h1>
+      <h1>{t("docs.getting_started.deploying.title")}</h1>
       <p class="docs-description">
-        Run CReact apps in production with state persistence and proper process
-        management.
+        {t("docs.getting_started.deploying.description")}
       </p>
 
       <DocHeading level={2} id="production-run">
-        Running in Production
+        {t("docs.getting_started.deploying.heading_production_run")}
       </DocHeading>
       <p>
-        Use the <code>start</code> script (without <code>--watch</code>) for
-        production:
-      </p>
-      <DocCodeBlock lang="bash" code={`npm run start`} filename="Terminal" />
-      <p>
-        This runs your entry point once. CReact reconciles the current component
-        tree against persisted state, applies changes, saves the new state, and
-        exits.
-      </p>
-
-      <DocHeading level={2} id="ci-cd">
-        CI/CD Integration
-      </DocHeading>
-      <p>
-        CReact apps work well in CI/CD pipelines. The app reads previous state,
-        reconciles, deploys changes, and writes new state, all in a single run.
+        <RichText k="docs.getting_started.deploying.production_run_intro" />
       </p>
       <DocCodeBlock
         lang="bash"
-        code={`# GitHub Actions example
-- name: Deploy infrastructure
-  run: npx creact index.tsx
-  env:
-    AWS_ACCESS_KEY_ID: \${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: \${{ secrets.AWS_SECRET_ACCESS_KEY }}`}
-        filename=".github/workflows/deploy.yml"
+        code={t("docs.getting_started.deploying.code_run_start")}
+        filename={t("docs.getting_started.deploying.filename_terminal")}
+      />
+      <p>{t("docs.getting_started.deploying.production_run_outro")}</p>
+
+      <DocHeading level={2} id="ci-cd">
+        {t("docs.getting_started.deploying.heading_ci_cd")}
+      </DocHeading>
+      <p>{t("docs.getting_started.deploying.ci_cd_intro")}</p>
+      <DocCodeBlock
+        lang="bash"
+        code={t("docs.getting_started.deploying.code_ci_cd")}
+        filename={t("docs.getting_started.deploying.filename_workflow")}
       />
 
       <DocHeading level={2} id="state-storage">
-        State Storage
+        {t("docs.getting_started.deploying.heading_state_storage")}
       </DocHeading>
       <p>
-        For production, store state in a remote backend instead of the local
-        file system. Implement the <code>Memory</code> interface for your
-        storage:
+        <RichText k="docs.getting_started.deploying.state_storage_intro" />
       </p>
       <ul>
         <li>
-          <strong>S3:</strong> store state JSON in an S3 bucket
+          <RichText k="docs.getting_started.deploying.storage_s3" />
         </li>
         <li>
-          <strong>DynamoDB:</strong> use a table for concurrent-safe state
+          <RichText k="docs.getting_started.deploying.storage_dynamodb" />
         </li>
         <li>
-          <strong>Database:</strong> PostgreSQL, Redis, etc.
+          <RichText k="docs.getting_started.deploying.storage_database" />
         </li>
       </ul>
 
       <DocHeading level={2} id="watch-mode">
-        Long-Running with Watch Mode
+        {t("docs.getting_started.deploying.heading_watch_mode")}
       </DocHeading>
-      <p>
-        For apps that should run continuously (like servers or monitors), use
-        watch mode:
-      </p>
+      <p>{t("docs.getting_started.deploying.watch_mode_intro")}</p>
       <DocCodeBlock
         lang="bash"
-        code={`creact --watch index.tsx`}
-        filename="Terminal"
+        code={t("docs.getting_started.deploying.code_watch")}
+        filename={t("docs.getting_started.deploying.filename_terminal")}
       />
-      <p>
-        Watch mode restarts the app when source files change, preserving state
-        between restarts.
-      </p>
+      <p>{t("docs.getting_started.deploying.watch_mode_outro")}</p>
 
       <Callout type="tip">
-        <p>
-          For long-running processes, use PM2 or systemd to manage restarts and
-          logging.
-        </p>
+        <p>{t("docs.getting_started.deploying.tip_process_manager")}</p>
       </Callout>
     </>
   );
