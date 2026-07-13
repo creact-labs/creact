@@ -7,6 +7,12 @@ name: Localize
 # are re-translated — existing translations never drift between runs.
 # Structural safety (key-tree parity, locked brand terms, placeholder
 # preservation) is enforced by the i18n test suite in Code Quality.
+#
+# Translation runs on Grok through xAI's OpenAI-compatible API, reusing
+# the XAI_API_KEY secret that already powers the Grok fallow review.
+# lingo.dev's config-level baseUrl is dropped upstream (it passes
+# `baseUrl` where the AI SDK expects `baseURL`), so the redirect to
+# x.ai rides the SDK's OPENAI_BASE_URL env var instead.
 on:
   workflow_dispatch:
   # Regenerates on the PR branch, so translations land in the same PR as
@@ -30,21 +36,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      OPENAI_BASE_URL: https://api.x.ai/v1
     steps:
       - name: Guard — no API key configured
-        if: env.ANTHROPIC_API_KEY == ''
-        run: echo "::notice::ANTHROPIC_API_KEY secret not set — skipping localization."
+        if: env.OPENAI_API_KEY == ''
+        run: echo "::notice::XAI_API_KEY secret not set — skipping localization."
       # persist-credentials stays on (unlike the read-only quality jobs):
       # the CLI commits and pushes the regenerated locale files.
       - uses: actions/checkout@v4
-        if: env.ANTHROPIC_API_KEY != ''
+        if: env.OPENAI_API_KEY != ''
       - uses: actions/setup-node@v4
-        if: env.ANTHROPIC_API_KEY != ''
+        if: env.OPENAI_API_KEY != ''
         with:
-          node-version: 22
+          node-version-file: .nvmrc
       - name: Translate changed keys and commit
-        if: env.ANTHROPIC_API_KEY != ''
+        if: env.OPENAI_API_KEY != ''
         run: |
           npx --yes lingo.dev@0.138.0 ci \
             --working-directory apps/website \
