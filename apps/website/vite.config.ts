@@ -35,8 +35,10 @@ const crossOriginIsolation = {
 export default defineConfig({
   plugins: [solidPlugin(), buildStamp()],
   base: "/creact/",
-  server: { headers: crossOriginIsolation },
-  preview: { headers: crossOriginIsolation },
+  // Allow the Tailscale funnel host to reach the dev/preview server so the
+  // running playground can be shared over the tailnet.
+  server: { headers: crossOriginIsolation, allowedHosts: [".ts.net"] },
+  preview: { headers: crossOriginIsolation, allowedHosts: [".ts.net"] },
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),

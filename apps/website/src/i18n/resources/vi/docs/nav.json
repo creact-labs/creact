@@ -19,7 +19,9 @@
     "cli": "CLI"
   },
   "pages": {
+    "why_creact": "Tại sao CReact",
     "installation": "Cài đặt",
+    "troubleshooting": "Khắc phục sự cố",
     "durable_counter": "Durable Counter",
     "uptime_monitor": "Uptime Monitor",
     "site_publisher": "Site Publisher",

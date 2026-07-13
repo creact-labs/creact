@@ -23,6 +23,7 @@ export const sidebarNav: NavSection[] = [
   {
     title: "docs.nav.sections.getting_started",
     links: [
+      { title: "docs.nav.pages.why_creact", href: "/docs/getting-started/why-creact" },
       { title: "docs.nav.pages.installation", href: "/docs/getting-started/installation" },
       { title: "docs.nav.pages.components_jsx", href: "/docs/getting-started/components-jsx" },
       { title: "docs.nav.pages.reactive_primitives", href: "/docs/getting-started/reactive-primitives" },
@@ -34,6 +35,7 @@ export const sidebarNav: NavSection[] = [
       { title: "docs.nav.pages.typescript", href: "/docs/guides/typescript" },
       { title: "docs.nav.pages.environment_variables", href: "/docs/guides/environment-variables" },
       { title: "docs.nav.pages.testing", href: "/docs/guides/testing" },
+      { title: "docs.nav.pages.troubleshooting", href: "/docs/guides/troubleshooting" },
     ],
   },
   {

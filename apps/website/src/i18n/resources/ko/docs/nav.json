@@ -19,7 +19,9 @@
     "cli": "CLI"
   },
   "pages": {
+    "why_creact": "왜 CReact인가",
     "installation": "설치",
+    "troubleshooting": "문제 해결",
     "durable_counter": "Durable Counter",
     "uptime_monitor": "Uptime Monitor",
     "site_publisher": "Site Publisher",

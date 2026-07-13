@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { faker } from "@faker-js/faker";
 
 // The global setup mock turns t() into a key passthrough; this suite tests
@@ -50,5 +50,51 @@ describe("t", () => {
 describe("locale", () => {
   it("defaults to english", () => {
     expect(i18n.locale()).toBe("en");
+  });
+});
+
+describe("matchLocale", () => {
+  it.each([
+    { pref: "en-US", expected: "en" },
+    { pref: "de", expected: "de" },
+    { pref: "pt-BR", expected: "pt-BR" },
+    { pref: "pt", expected: "pt-BR" },
+    { pref: "PT-br", expected: "pt-BR" },
+    { pref: "fr-CA", expected: "fr" },
+    { pref: "zh", expected: "zh-Hans" },
+    { pref: "zh-CN", expected: "zh-Hans" },
+    { pref: "zh-TW", expected: "zh-Hant" },
+    { pref: "zh-HK", expected: "zh-Hant" },
+    { pref: "zh-Hant", expected: "zh-Hant" },
+  ])("$pref → $expected", ({ pref, expected }) => {
+    expect(i18n.matchLocale(pref)).toBe(expected);
+  });
+
+  it("returns undefined for an unsupported language", () => {
+    expect(i18n.matchLocale("xx-YY")).toBeUndefined();
+  });
+});
+
+describe("detectLocale", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("picks the first supported browser preference", () => {
+    vi.stubGlobal("navigator", { languages: ["xx", "de-DE", "fr"] });
+    expect(i18n.detectLocale()).toBe("de");
+  });
+
+  it("falls back to navigator.language when languages is empty", () => {
+    vi.stubGlobal("navigator", { languages: [], language: "ja-JP" });
+    expect(i18n.detectLocale()).toBe("ja");
+  });
+
+  it("falls back to english when nothing matches", () => {
+    vi.stubGlobal("navigator", { languages: ["xx", "yy"] });
+    expect(i18n.detectLocale()).toBe("en");
+  });
+
+  it("returns english when there is no navigator", () => {
+    vi.stubGlobal("navigator", undefined);
+    expect(i18n.detectLocale()).toBe("en");
   });
 });

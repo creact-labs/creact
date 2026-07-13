@@ -19,7 +19,9 @@
     "cli": "CLI"
   },
   "pages": {
+    "why_creact": "為什麼選擇 CReact",
     "installation": "安裝",
+    "troubleshooting": "疑難排解",
     "durable_counter": "持久計數器",
     "uptime_monitor": "正常運作監控",
     "site_publisher": "網站發布器",

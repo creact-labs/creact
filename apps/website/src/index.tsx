@@ -8,6 +8,9 @@ import "./docs.css";
 import DocsLayout from "@/pages/docs/layout";
 
 // Getting Started
+const WhyCreact = lazy(
+  () => import("@/pages/docs/getting-started/why-creact"),
+);
 const Installation = lazy(
   () => import("@/pages/docs/getting-started/installation"),
 );
@@ -44,6 +47,9 @@ const EnvironmentVariables = lazy(
   () => import("@/pages/docs/guides/environment-variables"),
 );
 const WatchMode = lazy(() => import("@/pages/docs/guides/watch-mode"));
+const Troubleshooting = lazy(
+  () => import("@/pages/docs/guides/troubleshooting"),
+);
 
 // API Reference - Reactive
 const CreateSignal = lazy(
@@ -147,8 +153,9 @@ const TenantFleetExample = lazy(
 function GettingStartedRoutes() {
   return (
     <>
-      <Route path="/" component={Installation} />
+      <Route path="/" component={WhyCreact} />
       {/* Getting Started */}
+      <Route path="/getting-started/why-creact" component={WhyCreact} />
       <Route path="/getting-started/installation" component={Installation} />
       <Route path="/getting-started/components-jsx" component={ComponentsJsx} />
       <Route
@@ -185,6 +192,7 @@ function GuidesRoutes() {
         component={EnvironmentVariables}
       />
       <Route path="/guides/watch-mode" component={WatchMode} />
+      <Route path="/guides/troubleshooting" component={Troubleshooting} />
     </>
   );
 }
