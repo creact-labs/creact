@@ -1,0 +1,20 @@
+{
+  "title": "State và Memory",
+  "description": "Interface Memory lưu và khôi phục deployment state giữa các lần chạy.",
+  "heading_why_persistence": "Tại sao Persistence quan trọng",
+  "why_persistence_body": "Các ứng dụng CReact mô tả infrastructure và process. Khi app dừng và khởi động lại, bạn cần biết những gì đã được deploy, nếu không mỗi lần restart sẽ tạo lại mọi thứ từ đầu. Interface <0>Memory</0> giải quyết vấn đề này bằng cách lưu và khôi phục deployment state.",
+  "heading_memory_interface": "Interface Memory",
+  "memory_interface_intro": "Một implementation <0>Memory</0> cung cấp hai method, <1>getState</1> và <2>saveState</2>. Ví dụ <3>FileMemory</3> đọc và ghi một file JSON cho mỗi stack, và CReact không bao giờ kèm theo backend tích hợp sẵn nên bạn tự chọn storage.",
+  "heading_using_memory": "Truyền Memory vào render()",
+  "using_memory_intro": "Entry point khởi tạo một <0>FileMemory</0> và truyền nó cho <1>render()</1> cùng với tên stack. Hàm này là tất cả những gì một ứng dụng CReact cần để boot.",
+  "tip_stack_name": "Tham số thứ ba của <0>render()</0> là tên stack. Nó đặt tên cho file state, vì vậy các tên stack khác nhau giữ các state store độc lập cạnh nhau.",
+  "heading_use_async_output": "Persist output với useAsyncOutput",
+  "use_async_output_intro": "<0>useAsyncOutput</0> sở hữu các output bền vững của một resource. Handler của counter seed count từ <1>setOutputs(prev => ...)</1>, vì vậy khi restart sẽ tiếp tục từ giá trị đã lưu cuối cùng thay vì về zero.",
+  "heading_what_gets_persisted": "Những gì được persist",
+  "what_gets_persisted_body": "Chỉ các giá trị được truyền vào <0>setOutputs()</0> mới được persist. Signal, effect và biến local thông thường <1>không</1> được lưu, vì vậy chúng được khởi tạo lại mỗi lần chạy.",
+  "info_gitignore": "Thêm thư mục state như <0>.state/</0> vào <1>.gitignore</1> của bạn.",
+  "durable_counter_link": "Xem Memory, setOutputs và crash recovery hoạt động end-to-end trong <0>durable-counter walkthrough</0>.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

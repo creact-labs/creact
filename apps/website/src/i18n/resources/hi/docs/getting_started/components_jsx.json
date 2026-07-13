@@ -1,0 +1,13 @@
+{
+  "title": "Components और JSX",
+  "description": "CReact components वे functions हैं जो JSX लौटाते हैं। JSX resources और processes का वर्णन करता है, DOM elements का नहीं।",
+  "heading_jsx": "CReact में JSX",
+  "jsx_intro": "CReact <0>resources और processes</0> का वर्णन करने के लिए JSX का उपयोग करता है, DOM elements का नहीं। durable counter का <1>App</1> एक single <2>Counter</2> node लौटाता है जो घोषित करता है कि counter मौजूद होना चाहिए।",
+  "heading_component_functions": "Components एक बार चलते हैं",
+  "component_functions_intro": "एक component एक plain function है जो JSX लौटाता है। यह setup के रूप में एक ही बार चलता है। <0>Counter</0> अपने durable state को own करने के लिए <1>useAsyncOutput</1> को call करता है, एक effect wire करता है, और return करता है। Reactivity signals और effects से आती है, re-rendering से कभी नहीं।",
+  "heading_composing": "Resources को Compose करना",
+  "composing_intro": "JSX को nest करने से real resources एक tree में compose होते हैं। uptime monitor का <0>App</0> अपने targets पर एक <1>For</1> को <2>StatusPage</2> के साथ pair करता है, ताकि प्रत्येक probe और rendered page सभी एक component body में रहें।",
+  "filename_app": "durable-counter/src/app.tsx",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "tip_reactive_props": "Props reactive हो सकते हैं। <0>overall</0> जैसा accessor या <1>onSample</1> जैसा callback pass करें और value बदलने पर children re-run होते हैं, बिना parent को re-run किए।"
+}

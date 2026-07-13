@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "子コンポーネントでスローされたエラーを捕捉し、フォールバックをレンダリングします。",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "静的なフォールバック、または捕捉したエラーとリセット関数を受け取るレンダー関数。",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "レンダリングするコンテンツ。このサブツリー内のエラーが捕捉されます。",
+  "heading_guarding_the_sweep": "プローブスイープの保護",
+  "usage_guarding_the_sweep": "アップタイムモニターは、<0>HttpCheck</0> プローブのフリート全体を 1 つの <1>ErrorBoundary</1> でラップします。いずれかのプローブからの throw は捕捉され、スイープをクラッシュさせる代わりに <2>fallback</2> レンダー関数に渡されます。",
+  "heading_rendering_the_fault": "フォールトのレンダリング",
+  "usage_rendering_the_fault": "フォールバックは捕捉した <0>error</0> を受け取り、<1>MonitorFault</1> をレンダリングします。これはチェックが停止したことをログに記録します。ツリーの残りの部分は引き続き実行されます。",
+  "in_the_wild": "このバウンダリがステータスページを稼働させ続ける様子は、<0>uptime-monitor walkthrough</0> で確認できます。",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

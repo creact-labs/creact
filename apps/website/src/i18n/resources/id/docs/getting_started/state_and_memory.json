@@ -1,0 +1,20 @@
+{
+  "title": "State dan Memory",
+  "description": "Interface Memory menyimpan dan memulihkan state deployment di antara run.",
+  "heading_why_persistence": "Mengapa Persistence Penting",
+  "why_persistence_body": "Aplikasi CReact mendeskripsikan infrastruktur dan proses. Ketika app berhenti dan di-restart, Anda perlu tahu apa yang sudah di-deploy; jika tidak, setiap restart akan membuat ulang semuanya dari awal. Interface <0>Memory</0> menyelesaikan ini dengan menyimpan dan memulihkan state deployment.",
+  "heading_memory_interface": "Interface Memory",
+  "memory_interface_intro": "Implementasi <0>Memory</0> menyediakan dua method, <1>getState</1> dan <2>saveState</2>. Contoh <3>FileMemory</3> membaca dan menulis satu file JSON per stack, dan CReact tidak pernah menyertakan backend bawaan sehingga Anda yang memilih storage-nya.",
+  "heading_using_memory": "Meneruskan Memory ke render()",
+  "using_memory_intro": "Entry point membuat <0>FileMemory</0> dan menyerahkannya ke <1>render()</1> bersama nama stack. Fungsi ini adalah semua yang dibutuhkan aplikasi CReact untuk boot.",
+  "tip_stack_name": "Argumen ketiga dari <0>render()</0> adalah nama stack. Nama tersebut menamai file state, sehingga nama stack yang berbeda menjaga store state yang independen secara berdampingan.",
+  "heading_use_async_output": "Mempersistensi Output dengan useAsyncOutput",
+  "use_async_output_intro": "<0>useAsyncOutput</0> mengelola output durable dari sebuah resource. Handler counter menginisialisasi count-nya dari <1>setOutputs(prev => ...)</1>, sehingga restart melanjutkan dari nilai terakhir yang disimpan, bukan dari nol.",
+  "heading_what_gets_persisted": "Apa yang Di-persist",
+  "what_gets_persisted_body": "Hanya nilai yang diteruskan ke <0>setOutputs()</0> yang di-persist. Signal biasa, effect, dan variabel lokal <1>tidak</1> disimpan, sehingga diinisialisasi ulang pada setiap run.",
+  "info_gitignore": "Tambahkan direktori state seperti <0>.state/</0> ke <1>.gitignore</1> Anda.",
+  "durable_counter_link": "Lihat Memory, setOutputs, dan crash recovery bekerja end to end di <0>panduan durable-counter</0>.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

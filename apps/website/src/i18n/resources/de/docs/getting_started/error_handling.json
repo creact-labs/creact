@@ -1,0 +1,14 @@
+{
+  "title": "Fehlerbehandlung",
+  "description": "ErrorBoundary, catchError und try/catch in Handlern verhindern, dass eine fehlschlagende Ressource den gesamten Tree mitreißt.",
+  "heading_error_boundary": "ErrorBoundary-Komponente",
+  "error_boundary_intro": "<0>ErrorBoundary</0> fängt Fehler ab, die in den Kindkomponenten geworfen werden, und rendert einen Fallback. Der Uptime-Monitor wickelt seine Probes darin ein und rendert <1>MonitorFault</1>, das protokolliert, dass die Checks angehalten wurden, anstatt den Prozess zum Absturz zu bringen.",
+  "heading_catch_error": "catchError-Primitive",
+  "catch_error_intro": "Für feinere Kontrolle umschließt <0>catchError</0> eine einzelne Computation. Die Statusseite rendert ihr HTML über <0>catchError</0>, und ein fehlgeschlagenes Render gibt <1>undefined</1> zurück, sodass der Effect den Publish überspringt, anstatt zu werfen.",
+  "heading_handler_errors": "Fehler in Handlern",
+  "handler_errors_intro": "Handler von <0>useAsyncOutput</0> laufen in der Deployment-Loop, daher werden ihre Throws <1>nicht</1> von <2>ErrorBoundary</2> abgefangen. Der Handler des Page-Writers umschließt die Generierung mit try/catch und protokolliert den Fehler als durable Output, anstatt den Deployment werfen zu lassen.",
+  "warning_cleanup": "Cleanup-Funktionen, die mit <0>onCleanup</0> registriert wurden, laufen weiterhin, wenn eine Error Boundary einen Fehler abfängt, sodass Ressourcen freigegeben werden.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

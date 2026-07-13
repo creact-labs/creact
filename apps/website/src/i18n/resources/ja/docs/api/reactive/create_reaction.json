@@ -1,0 +1,16 @@
+{
+  "title": "createReaction",
+  "description": "トラッキングと実行を分離します。1つの式をトラッキングし、それが変化したときに別の関数を実行します。リアクションは一度発火した後、再アームする必要があります。",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "トラッキング対象のシグナルが変化したときに一度だけ発火するコールバック。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "オプション。<0>name</0> はデバッグ用。",
+  "returns_body": "リアクションをアームする関数 <0>(tracking: () => void) => void</0> を返します。トラッキング式を渡して呼び出します。内部で読み取られたシグナルがトラッキングされます。いずれかが変化すると、<1>onInvalidate</1> が一度発火し、この関数を再度呼び出すまでトラッキングは停止します。",
+  "heading_alert_on_first_failure": "最初の障害時のアラート",
+  "usage_alert_on_first_failure": "アップタイムモニターの <0>Alert</0> コンポーネントは <1>props.incidents()</1> に対してリアクションをアームします。リストが変化するたびに、まだアラートしていないインシデントを記録し、次の変化でも再び発火するよう自身を再アームします。通常の effect ではスキャン全体が再実行されますが、リアクションはトラッキングと副作用を分離したままにします。",
+  "in_the_wild": "このリアクションがアラートログを駆動する様子は、<0>uptime-monitor walkthrough</0> で確認できます。",
+  "filename_alert": "uptime-monitor/src/components/alert/index.tsx"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "batch",
+  "description": "Agrupa múltiples actualizaciones de señales en un único paso de cómputo.",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Función que contiene actualizaciones de señales. Todas las actualizaciones se aplazan hasta que la función finaliza.",
+  "returns_body": "El valor de retorno de <0>fn</0>.",
+  "heading_record_sample": "Confirmando una sonda en un solo paso",
+  "usage_record_sample": "Cuando el monitor de uptime registra una sonda, <0>recordSample</0> escribe tanto <1>setSamples</1> como <2>setLastSweepAt</2> dentro de un único batch, de modo que cada memo y effect que los lee se vuelve a ejecutar una sola vez en lugar de dos.",
+  "in_the_wild": "Consulta cómo esta escritura por lotes alimenta una página de estado en vivo en el <0>tutorial de uptime-monitor</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

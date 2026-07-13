@@ -1,0 +1,16 @@
+{
+  "title": "Thao tác hệ thống tệp",
+  "description": "Ghi tệp từ trạng thái reactive và lưu trạng thái ứng dụng ra đĩa, trích từ ví dụ uptime-monitor.",
+  "heading_write_effect": "Ghi tệp từ một Effect",
+  "write_effect_intro": "Component status page của uptime-monitor chuyển trạng thái reactive thành một tệp trên đĩa. Một <0>createEffect</0> render lại HTML mỗi khi kết quả probe thay đổi, và <1>catchError</1> ngăn một lần render lỗi làm crash ứng dụng:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "Effect theo dõi <0>props.overall()</0> và <1>rows()</1> một cách đồng bộ, rồi chuyển HTML hoàn chỉnh sang bước publish bất đồng bộ. Việc đọc signal trước await đầu tiên là điều giúp dependency graph luôn chính xác.",
+  "heading_publish": "Bước Publish",
+  "publish_intro": "Việc ghi đĩa thực tế là một hàm async thông thường dựa trên <0>node:fs/promises</0>. Hàm này tạo thư mục output khi cần và ghi đè <1>./out/status.html</1> tại chỗ:",
+  "publish_notice": "Không có gì ở đây là đặc thù của CReact — hệ thống reactive quyết định khi nào ghi, còn các API Node.js thông thường thực hiện việc ghi. Mỗi lần chạy effect tạo ra một tệp mới, đầy đủ.",
+  "heading_file_memory": "Memory dựa trên tệp",
+  "file_memory_intro": "Mẫu hình hệ thống tệp khác mà mọi ứng dụng cần là persistence. <0>FileMemory</0> triển khai contract <1>Memory</1> với một tệp JSON cho mỗi stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> trả về null khi chưa có ledger, và <1>saveState</1> ghi lại toàn bộ trạng thái deployment sau mỗi thay đổi. Đây là ledger mà các ứng dụng ví dụ dùng để sống sót qua các lần restart.",
+  "see_walkthrough": "Xem toàn bộ ứng dụng trong <0>uptime-monitor walkthrough</0>."
+}

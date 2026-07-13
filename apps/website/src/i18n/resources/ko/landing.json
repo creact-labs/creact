@@ -1,0 +1,12 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "nav_docs": "문서",
+  "nav_github": "GitHub",
+  "nav_aria": "메인 내비게이션",
+  "hero_subtitle": "JSX로 내구성 있는 워크플로를 자동화하세요",
+  "get_started": "시작하기",
+  "view_demo": "데모 보기",
+  "footer_license": "Apache 2.0",
+  "code_filename": "app.tsx"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Операции с файловой системой",
+  "description": "Запись файлов из реактивного состояния и сохранение состояния приложения на диск — фрагмент из примера uptime-monitor.",
+  "heading_write_effect": "Запись файлов из Effect",
+  "write_effect_intro": "Компонент status page в uptime-monitor превращает реактивное состояние в файл на диске. <0>createEffect</0> перерендеривает HTML при каждом изменении результата probe, а <1>catchError</1> не даёт сбойному render обрушить приложение:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "Effect синхронно отслеживает <0>props.overall()</0> и <1>rows()</1>, затем передаёт готовый HTML в асинхронный шаг publish. Чтение signals до первого await — вот что сохраняет точность графа зависимостей.",
+  "heading_publish": "Шаг публикации",
+  "publish_intro": "Сама запись на диск — обычная async-функция на базе <0>node:fs/promises</0>. Она создаёт выходной каталог по требованию и перезаписывает <1>./out/status.html</1> на месте:",
+  "publish_notice": "Здесь нет ничего специфичного для CReact — реактивная система решает, когда писать, а обычные API Node.js выполняют запись. Каждый запуск effect создаёт свежий полный файл.",
+  "heading_file_memory": "Файловая Memory",
+  "file_memory_intro": "Другой необходимый любому приложению паттерн работы с файловой системой — персистентность. <0>FileMemory</0> реализует контракт <1>Memory</1> с одним JSON-файлом на каждый stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> возвращает null, если ledger ещё не существует, а <1>saveState</1> после каждого изменения полностью перезаписывает состояние deployment. Именно этот ledger используют примеры приложений, чтобы переживать перезапуски.",
+  "see_walkthrough": "Полное приложение см. в <0>uptime-monitor walkthrough</0>."
+}

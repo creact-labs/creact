@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "캐시된 파생 값을 생성합니다. 다른 시그널에서 값을 계산할 때 사용합니다. 의존성이 변경될 때만 재계산합니다.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "계산 함수입니다. 이전 값을 받습니다.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "선택적 초기 시드 값입니다.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "선택 사항입니다. 사용자 정의 비교를 위한 <0>equals</0>입니다.",
+  "returns_body": "메모이제이션된 값을 반환하는 <0>Accessor<T></0>입니다. 시그널 리더(추적 가능)와 계산(자동 업데이트) 역할을 모두 합니다.",
+  "heading_chained_status": "파생 상태 체이닝",
+  "usage_chained_status": "업타임 모니터는 원시 샘플 기록에서 <0>latestSamples</0>를 파생한 다음, 이를 하나의 <1>overall</1> 상태로 집계합니다. 메모는 알림 전에 결과를 비교하므로, 집계된 상태가 변하지 않는 스윕은 그 지점에서 체인을 중단합니다.",
+  "heading_table_rows": "상태 행 구성",
+  "usage_table_rows": "상태 페이지는 단일 메모로 대상, 샘플, 집계를 표시 행으로 변환합니다. write effect는 <0>rows()</0>만 읽고 대상별 계산을 반복하지 않습니다.",
+  "in_the_wild": "두 메모가 생성된 상태 페이지에 사용되는 예는 <0>uptime-monitor walkthrough</0>에서 확인하세요.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

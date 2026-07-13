@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Computation dependencies को explicit बनाता है। Specific signals को track करें जबकि अन्य को untracked पढ़ें।",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<0>deps</0>",
+  "param_deps_type": "<0>Accessor<S> | Accessor<unknown>[]</0>",
+  "param_deps_desc": "Explicitly track करने के लिए signal(s)।",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(input, prevInput, prevValue) => T</0>",
+  "param_fn_desc": "Callback। Untracked चलता है; केवल <0>deps</0> track होते हैं।",
+  "param_defer_name": "<0>options.defer</0>",
+  "param_defer_type": "<0>boolean</0>",
+  "param_defer_desc": "यदि <0>true</0> हो, तो पहली run skip करता है।",
+  "heading_status_transitions": "Status changes पर प्रतिक्रिया",
+  "usage_status_transitions": "Uptime monitor अपने transition effect को <0>on(status, ...)</0> में wrap करता है, इसलिए यह केवल तब re-run होता है जब किसी check का <1>status</1> signal बदलता है। Callback को <2>next</2> और <3>prev</3> मिलते हैं, और <4>defer: true</4> पास करने से पहली run skip हो जाती है ताकि mount पर कोई transition log न हो।",
+  "in_the_wild": "ये transitions <0>uptime-monitor walkthrough</0> में logged देखें।",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

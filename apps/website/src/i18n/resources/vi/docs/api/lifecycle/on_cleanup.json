@@ -1,0 +1,17 @@
+{
+  "title": "onCleanup",
+  "description": "Đăng ký một hàm cleanup trên reactive owner hiện tại. Chạy khi owner bị dispose hoặc trước khi một effect chạy lại.",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "Hàm cleanup. Được gọi khi owner dispose.",
+  "returns_desc": "Cùng hàm được truyền vào, để tiện sử dụng.",
+  "heading_timer": "Xóa một interval",
+  "usage_timer": "<0>HttpCheck</0> của uptime monitor khởi động một probe timer trong <1>onMount</1> và đăng ký <2>onCleanup</2> để xóa nó. Khi check unmount, interval dừng lại thay vì fire trên một component đã dispose.",
+  "heading_server": "Đóng một server thật",
+  "usage_server": "<0>HttpChannel</0> của page writer mở một HTTP server bên trong handler và trả về <1>closeServer</1> làm teardown. Cleanup được trả về đó chạy khi dispose, gọi <2>server.close()</2> để giải phóng port trước khi process thoát.",
+  "warning_no_owner": "<0>onCleanup</0> được gọi bên ngoài <1>createRoot</1> hoặc <2>render</2> sẽ cảnh báo và cleanup sẽ không bao giờ chạy.",
+  "in_the_wild": "Xem các teardown này chạy khi các check đến và đi trong <0>uptime-monitor walkthrough</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx",
+  "filename_http_channel": "page-writer/src/components/http-channel/index.tsx"
+}

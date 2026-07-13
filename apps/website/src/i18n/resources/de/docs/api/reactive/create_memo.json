@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "Erstellt einen gecachten abgeleiteten Wert. Verwenden, wenn ein Wert aus anderen Signals berechnet wird. Wird nur neu berechnet, wenn sich Abhängigkeiten ändern.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "Berechnungsfunktion. Erhält den vorherigen Wert.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Optionaler Anfangswert.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "Optional. <0>equals</0> für benutzerdefinierten Vergleich.",
+  "returns_body": "Ein <0>Accessor<T></0>, der den memoisierten Wert zurückgibt. Fungiert sowohl als Signal-Reader (trackbar) als auch als Computation (aktualisiert sich automatisch).",
+  "heading_chained_status": "Abgeleiteten Status verketten",
+  "usage_chained_status": "Der Uptime-Monitor leitet <0>latestSamples</0> aus der rohen Sample-Historie ab und fasst sie dann zu einem <1>overall</1>-Status zusammen. Da Memos Ergebnisse vor dem Benachrichtigen vergleichen, stoppt ein Sweep, der den zusammengefassten Status unverändert lässt, die Kette genau dort.",
+  "heading_table_rows": "Statuszeilen formen",
+  "usage_table_rows": "Die Statusseite wandelt Targets, Samples und Tallies mit einem einzigen Memo in Anzeigezeilen um. Der Write-Effect liest einfach <0>rows()</0> und wiederholt nie die pro-Target-Berechnungen.",
+  "in_the_wild": "Siehe, wie beide Memos die generierte Statusseite im <0>uptime-monitor walkthrough</0> speisen.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

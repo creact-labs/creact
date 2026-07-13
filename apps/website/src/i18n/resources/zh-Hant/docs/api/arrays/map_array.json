@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "鍵控迭代。每個項目只會映射一次，並以身分作為鍵。只有新增或移除的項目才會觸發重新計算。",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "響應式陣列來源。",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "映射函式。<0>v</0> 是項目的 accessor。<1>i</1> 是響應式索引。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "選用。<0>keyFn</0> 為項目提供穩定的身分識別。",
+  "heading_one_line_per_tenant": "每個租戶一行狀態",
+  "usage_one_line_per_tenant": "租戶機群的 <0>FleetStatus</0> 會將其響應式租戶名冊映射為每個租戶一個 <1>createMemo</1>，分別描述該租戶的部署。由於 <2>mapArray</2> 以項目作為鍵，當租戶出現時會建立一次 memo，並只在該租戶離開時才會銷毀。",
+  "in_the_wild": "在 <0>tenant-fleet walkthrough</0> 中查看這些狀態列如何追蹤即時機群。",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

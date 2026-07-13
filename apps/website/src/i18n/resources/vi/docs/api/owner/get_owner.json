@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "Trả về reactive owner hiện tại (computation hoặc root sở hữu scope hiện tại).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "<0>Owner</0> hiện tại, hoặc <1>null</1> nếu được gọi ngoài reactive scope.",
+  "usage_states": "<0>Page</0> của page writer gọi <1>getOwner</1> trong thân component, khi synchronous scope vẫn còn tồn tại. Nó chuyển owner đó cho handler để <2>onCleanup</2> sau này có thể gắn vào đúng scope sau khi await.",
+  "in_the_wild": "Xem owner này được truyền qua async work trong <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

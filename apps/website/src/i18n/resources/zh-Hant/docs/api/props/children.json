@@ -1,0 +1,13 @@
+{
+  "title": "children",
+  "description": "將傳入元件的 children 解析為響應式 accessor。可處理懶加載 children 與陣列。",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
+  "param_fn_desc": "回傳 children prop 的 Accessor。",
+  "returns_desc": "一個 <0>ChildrenReturn</0>，即可呼叫的 accessor，會回傳已解析的 children。另外提供 <1>toArray()</1> 方法，以扁平陣列形式回傳已解析的 children。",
+  "heading_provider": "解析 provider 的 children",
+  "usage_provider": "site publisher 的 <0>AwsProvider</0> 會以 <1>children(() => props.children)</1> 包住其子樹，並在 context provider 內渲染 <2>resolved()</2>，讓 S3 client 能與它所服務的樹一併解析與銷毀。",
+  "in_the_wild": "請參閱 <0>site-publisher walkthrough</0>，了解此 provider 如何串接整個部署樹。",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

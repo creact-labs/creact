@@ -1,0 +1,15 @@
+{
+  "title": "unwrap",
+  "description": "返回 store 代理底层数据的深拷贝，剥离所有响应性。",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "由 <0>createStore</0> 创建的 store 代理。",
+  "heading_the_store_source": "代理的来源",
+  "usage_the_store_source": "站点发布器将其文件清单保存在由 <0>createManifestStore</0> 创建的 store 中。子组件读取的每个 <1>ManifestEntry</1> 都是响应式代理，而非普通对象。",
+  "heading_snapshotting_props": "对代理 prop 创建快照",
+  "usage_snapshotting_props": "每个 <0>SiteObject</0> 接收一个清单条目作为响应式 prop。其 handler props 对该条目调用 <1>unwrap</1>，以便异步上传基于普通的、已分离的快照运行，而非实时代理。",
+  "in_the_wild": "在 <0>site-publisher 演练</0> 中查看此快照如何为 S3 上传提供数据。",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

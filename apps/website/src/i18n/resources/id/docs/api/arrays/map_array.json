@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Iterasi ber-key. Setiap item di-map sekali dan di-key berdasarkan identitas. Hanya item baru atau yang dihapus yang menyebabkan komputasi ulang.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Sumber array reaktif.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Fungsi map. <0>v</0> adalah accessor ke item. <1>i</1> adalah indeks reaktif.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Opsional. <0>keyFn</0> menyediakan identitas stabil untuk item.",
+  "heading_one_line_per_tenant": "Satu baris status per tenant",
+  "usage_one_line_per_tenant": "<0>FleetStatus</0> armada tenant memetakan roster tenant reaktifnya menjadi satu <1>createMemo</1> per tenant, masing-masing mendeskripsikan deployment tenant tersebut. Karena <2>mapArray</2> memberi key berdasarkan item, memo dibuat sekali saat tenant muncul dan dibongkar hanya saat tenant tersebut keluar.",
+  "in_the_wild": "Lihat baris-baris ini melacak armada live di <0>tenant-fleet walkthrough</0>.",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "元件與 JSX",
+  "description": "CReact 元件是回傳 JSX 的函式。JSX 描述資源與程序，而非 DOM 元素。",
+  "heading_jsx": "CReact 中的 JSX",
+  "jsx_intro": "CReact 使用 JSX 描述 <0>資源與程序</0>，而非 DOM 元素。持久計數器的 <1>App</1> 回傳單一的 <2>Counter</2> 節點，宣告該計數器應該存在。",
+  "heading_component_functions": "元件只執行一次",
+  "component_functions_intro": "元件是回傳 JSX 的普通函式。它作為設定只執行一次。<0>Counter</0> 呼叫 <1>useAsyncOutput</1> 來擁有其持久狀態、綁定 effect，然後回傳。反應性來自 signals 與 effects，而非重新渲染。",
+  "heading_composing": "組合資源",
+  "composing_intro": "巢狀 JSX 會將真實資源組合成樹狀結構。uptime 監控的 <0>App</0> 將遍歷其目標的 <1>For</1> 與 <2>StatusPage</2> 配對，使每個探測與渲染出的頁面都存在於同一個元件本體中。",
+  "filename_app": "durable-counter/src/app.tsx",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "tip_reactive_props": "Props 可以是反應式的。傳入如 <0>overall</0> 的 accessor 或如 <1>onSample</1> 的 callback，當值變更時 children 會重新執行，而不會重新執行父元件。"
+}

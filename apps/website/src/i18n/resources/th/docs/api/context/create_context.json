@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "สร้าง context สำหรับส่งข้อมูลผ่าน component tree โดยไม่ต้องใช้ props",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "ไม่บังคับ ค่าที่ <0>useContext</0> คืนเมื่อไม่มี Provider อยู่ด้านบน",
+  "returns_desc": "อ็อบเจ็กต์ <0>Context<T></0> ที่มี component <1>Provider</1>",
+  "heading_declaring_the_context": "การประกาศ AWS context",
+  "usage_declaring_the_context": "site publisher ประกาศ <0>AwsContext</0> ที่เก็บ region และ S3 client ค่าเริ่มต้นคือ <1>null</1> เพื่อให้ component ตรวจจับได้เมื่อไม่มี <2>AwsProvider</2> อยู่ด้านบน",
+  "heading_providing_a_value": "การให้ connection",
+  "usage_providing_a_value": "<0>AwsProvider</0> สร้าง S3 client ครั้งเดียวและเปิดเผยผ่าน <1>AwsContext.Provider</1> ทุก descendant ที่ publish object จะใช้ connection นี้ร่วมกัน",
+  "in_the_wild": "ดู provider นี้เชื่อมต่อ S3 ใน <0>site-publisher walkthrough</0>",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

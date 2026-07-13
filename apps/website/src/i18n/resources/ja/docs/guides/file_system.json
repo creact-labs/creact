@@ -1,0 +1,16 @@
+{
+  "title": "ファイルシステム操作",
+  "description": "リアクティブな状態からファイルを書き込み、アプリの状態をディスクに永続化します。uptime-monitor の例から抜粋しています。",
+  "heading_write_effect": "Effect からファイルを書き込む",
+  "write_effect_intro": "uptime-monitor のステータスページコンポーネントは、リアクティブな状態をディスク上のファイルに変換します。<0>createEffect</0> はプローブ結果が変わるたびに HTML を再レンダーし、<1>catchError</1> は失敗したレンダーでアプリがクラッシュしないようにします:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "この effect は <0>props.overall()</0> と <1>rows()</1> を同期的に追跡し、完成した HTML を非同期の publish ステップに渡します。最初の await の前にシグナルを読むことで、依存関係グラフの正確さが保たれます。",
+  "heading_publish": "Publish ステップ",
+  "publish_intro": "実際のディスク書き込みは、<0>node:fs/promises</0> 上に構築された普通の非同期関数です。必要に応じて出力ディレクトリを作成し、<1>./out/status.html</1> をその場で上書きします:",
+  "publish_notice": "ここには CReact 固有のものはありません — いつ書き込むかはリアクティブシステムが決め、書き込み自体は通常の Node.js API が行います。effect の実行のたびに、新しい完全なファイルが生成されます。",
+  "heading_file_memory": "ファイルベースの Memory",
+  "file_memory_intro": "すべてのアプリが必要とするもう 1 つのファイルシステムパターンが永続化です。<0>FileMemory</0> は、スタックごとに 1 つの JSON ファイルで <1>Memory</1> コントラクトを実装します:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "レジャーがまだ存在しない場合、<0>getState</0> は null を返します。<1>saveState</1> は変更のたびにデプロイ状態全体を書き換えます。これは、サンプルアプリが再起動を乗り越えるために使うレジャーです。",
+  "see_walkthrough": "アプリ全体は <0>uptime-monitor walkthrough</0> で確認できます。"
+}

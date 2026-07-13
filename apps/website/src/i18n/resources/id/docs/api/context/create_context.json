@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "Membuat context untuk meneruskan data melalui pohon komponen tanpa props.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "Opsional. Nilai yang dikembalikan oleh <0>useContext</0> jika tidak ada Provider di atasnya.",
+  "returns_desc": "Objek <0>Context<T></0> dengan komponen <1>Provider</1>.",
+  "heading_declaring_the_context": "Mendeklarasikan context AWS",
+  "usage_declaring_the_context": "Site publisher mendeklarasikan <0>AwsContext</0> yang membawa region dan client S3. Default-nya adalah <1>null</1>, sehingga komponen dapat mendeteksi ketika tidak ada <2>AwsProvider</2> di atasnya.",
+  "heading_providing_a_value": "Menyediakan koneksi",
+  "usage_providing_a_value": "<0>AwsProvider</0> membuat client S3 sekali dan mengeksposnya melalui <1>AwsContext.Provider</1>. Setiap turunan yang mempublikasikan objek berbagi koneksi yang sama ini.",
+  "in_the_wild": "Lihat provider ini menghubungkan S3 di <0>panduan site-publisher</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "ตัวแปรสภาพแวดล้อม",
+  "description": "กำหนดค่าแอปของคุณสำหรับสภาพแวดล้อมต่างๆ โดยใช้ process.env",
+  "heading_reading": "การอ่านตัวแปรสภาพแวดล้อม",
+  "reading_intro": "อ่านตัวแปรสภาพแวดล้อมผ่าน <0>process.env</0> เหมือนในแอป Node.js ทั่วไป Site publisher จะห่อการ lookup แต่ละครั้งด้วย helper <1>requireEnv</1> ที่คืนค่า หรือ throw ข้อความซึ่งชี้ไปที่ <2>.env.example</2>",
+  "filename_app": "site-publisher/src/app.tsx",
+  "heading_fail_fast": "Fail Fast เมื่อไม่มี key",
+  "fail_fast_intro": "page writer ตรวจสอบ <0>ANTHROPIC_API_KEY</0> ที่ด้านบนของ entry point และเรียก <1>process.exit(1)</1> พร้อมคำแนะนำการตั้งค่าเมื่อไม่มี key นี้ เพื่อให้การรันหยุดก่อนที่งานใดๆ จะเริ่ม แทนที่จะล้มเหลวลึกภายใน handler",
+  "filename_entry": "page-writer/index.tsx",
+  "heading_secrets": "การจัดการ Secrets",
+  "secrets_intro": "ส่ง secrets ผ่าน environment variables หรือ secret manager:",
+  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact ไม่มีการโหลดไฟล์ <0>.env</0> ในตัว ใช้ package เช่น <1>dotenv</1> หรือตั้งค่าตัวแปรใน shell / สภาพแวดล้อม CI ของคุณ",
+  "in_the_wild": "ดูการตรวจสอบ env เหล่านี้ที่ควบคุมการ deployment จริงได้ใน <0>site-publisher walkthrough</0>"
+}

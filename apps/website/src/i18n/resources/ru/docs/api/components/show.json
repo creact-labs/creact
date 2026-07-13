@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "Условно рендерит children на основе реактивного условия.",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Свойства",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "Реактивное условие. Children рендерятся, когда значение truthy. Принимает значение или accessor.",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "Необязательный контент для рендера, когда <0>when</0> falsy.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "Контент для рендера или callback, получающий truthy-значение как accessor.",
+  "heading_usage": "Использование",
+  "usage_intro": "Uptime-монитор держит весь слой отчётности за одним гейтом <0>Show</0>: страница статуса и баннер остаются размонтированными, пока первый sweep не запишет timestamp, после чего <1>lastSweepAt()</1> становится truthy и поддерево монтируется.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "Этот фрагмент — layout uptime-монитора. Смотрите, как гейт вписывается в полное дерево, в <0>uptime-monitor walkthrough</0>."
+}

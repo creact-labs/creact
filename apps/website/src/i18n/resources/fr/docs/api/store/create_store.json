@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Crée un proxy de store réactif pour gérer un état imbriqué.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valeur initiale du store. Doit être un objet.",
+  "returns_intro": "Un tuple de <0>[store, setStore]</0> :",
+  "returns_store": "<0>store</0> : un proxy réactif. L'accès aux propriétés est suivi.",
+  "returns_setstore": "<0>setStore</0> : setter qui accepte des mises à jour basées sur le chemin.",
+  "heading_the_manifest_shape": "La forme du manifeste",
+  "usage_the_manifest_shape": "Le site publisher modélise le site déployé comme un <0>Manifest</0> de fichiers hachés. Chaque <1>ManifestEntry</1> porte un chemin, un hash et une taille, et le store maintient cette forme imbriquée réactive.",
+  "heading_a_reactive_manifest": "Un manifeste réactif",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> parcourt le répertoire de build et transmet le manifeste résultant à <1>createStore</1>. Le proxy renvoyé suit les lectures jusqu'aux entrées individuelles, de sorte qu'un composant qui rend un fichier ne se réexécute que lorsque le hash de ce fichier change.",
+  "in_the_wild": "Voyez ce store piloter des uploads incrémentaux dans le <0>guide site-publisher</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Context และ Providers",
+  "description": "Context แชร์ข้อมูลทั่วทั้งต้นไม้คอมโพเนนต์โดยไม่ต้องส่ง props ผ่านทุกระดับ",
+  "heading_creating_context": "การสร้าง Context",
+  "creating_context_intro": "<0>createContext</0> ประกาศช่องทางแบบ typed พร้อมค่าเริ่มต้น Site publisher สร้าง <1>AwsContext</1> ที่พา S3 client ที่ใช้งานอยู่และ region ของมันลงไปตามต้นไม้",
+  "heading_providing_values": "การให้ค่า",
+  "providing_values_intro": "คอมโพเนนต์ห่อ children ด้วย <0>Provider</0> ของ context <1>AwsProvider</1> สร้าง S3 client ครั้งเดียว ลงทะเบียน cleanup และเผยแพร่การเชื่อมต่อไปยังทุกอย่างที่ซ้อนอยู่ข้างใน",
+  "heading_consuming": "การใช้ Context",
+  "consuming_intro": "<0>useContext</0> อ่านค่าจาก provider ที่ใกล้ที่สุด Hook <1>useAws</1> ห่อการอ่านนั้นไว้และ throw error ที่ชัดเจนเมื่อรันนอก provider",
+  "tip_cross_cutting": "ใช้ context สำหรับ cross-cutting concerns เช่น AWS region, client ที่แชร์กัน หรือ credentials ที่คอมโพเนนต์หลายตัวต้องการ",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

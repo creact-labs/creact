@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "Chạy một hàm đồng bộ trong quá trình render thay vì xếp vào hàng đợi. Được runtime sử dụng nội bộ; hiếm khi cần trong mã ứng dụng.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Hàm effect. Chạy ngay trong quá trình render.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Giá trị ban đầu tùy chọn.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Tùy chọn. <0>name</0> dùng để gỡ lỗi.",
+  "heading_reporting_state": "Báo cáo state trong quá trình render",
+  "usage_reporting_state": "Component <0>Page</0> của page writer báo cáo các output của nó cho parent khi chúng thay đổi. Một <1>createRenderEffect</1> đọc snapshot của page và gọi <2>props.onState</2> đồng bộ trong quá trình render, để ledger của parent thấy state đầu tiên trước khi bất kỳ effect nào trong hàng đợi chạy.",
+  "info_ordering": "Render effect chạy trước user effect (<0>createEffect</0>). Dùng khi bạn cần phản ứng đồng bộ trong giai đoạn render, chẳng hạn theo dõi render của component.",
+  "in_the_wild": "Xem effect này stream state của page tới parent trong <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

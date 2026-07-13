@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "Devuelve el owner reactivo actual (la computación o la raíz que posee el ámbito actual).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "El <0>Owner</0> actual, o <1>null</1> si se llama fuera de un ámbito reactivo.",
+  "usage_states": "El <0>Page</0> de page-writer llama a <1>getOwner</1> en el cuerpo del componente, mientras aún existe un ámbito síncrono. Pasa ese owner al handler para que un <2>onCleanup</2> posterior pueda adjuntarse al ámbito correcto tras el await.",
+  "in_the_wild": "Consulta este owner transmitido a través de trabajo asíncrono en la <0>guía de page-writer</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

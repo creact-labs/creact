@@ -1,0 +1,15 @@
+{
+  "title": "unwrap",
+  "description": "Возвращает глубокий клон исходных данных из прокси store, снимая всю реактивность.",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Прокси store, созданный с помощью <0>createStore</0>.",
+  "heading_the_store_source": "Откуда берутся прокси",
+  "usage_the_store_source": "Site publisher хранит манифест файлов в store из <0>createManifestStore</0>. Каждый <1>ManifestEntry</1>, который читает дочерний компонент, — это реактивный прокси, а не обычный объект.",
+  "heading_snapshotting_props": "Снимок проксированного prop",
+  "usage_snapshotting_props": "Каждый <0>SiteObject</0> получает запись манифеста как реактивный prop. Его handler props вызывают <1>unwrap</1> для этой записи, чтобы асинхронная загрузка работала с обычным, отсоединённым снимком, а не с живым прокси.",
+  "in_the_wild": "См., как этот снимок обеспечивает загрузки в S3, в <0>site-publisher walkthrough</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

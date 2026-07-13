@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "Props के बिना component tree के माध्यम से data पास करने के लिए context बनाता है।",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "वैकल्पिक। ऊपर कोई Provider मौजूद न होने पर <0>useContext</0> द्वारा लौटाया गया value।",
+  "returns_desc": "एक <1>Provider</1> component के साथ <0>Context<T></0> object।",
+  "heading_declaring_the_context": "AWS context घोषित करना",
+  "usage_declaring_the_context": "Site publisher एक <0>AwsContext</0> घोषित करता है जो region और S3 client रखता है। इसका default <1>null</1> है, ताकि components पता लगा सकें जब उनके ऊपर कोई <2>AwsProvider</2> न हो।",
+  "heading_providing_a_value": "Connection प्रदान करना",
+  "usage_providing_a_value": "<0>AwsProvider</0> S3 client एक बार बनाता है और इसे <1>AwsContext.Provider</1> के माध्यम से expose करता है। हर descendant जो object publish करता है, यही एक connection साझा करता है।",
+  "in_the_wild": "इस provider को S3 से wire up करते हुए <0>site-publisher walkthrough</0> में देखें।",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "State और Memory",
+  "description": "Memory इंटरफ़ेस रन के बीच deployment state को सेव और रिस्टोर करता है।",
+  "heading_why_persistence": "Persistence क्यों ज़रूरी है",
+  "why_persistence_body": "CReact ऐप्स infrastructure और processes का वर्णन करते हैं। जब ऐप रुकता है और फिर से शुरू होता है, तो आपको पता होना चाहिए कि पहले क्या deploy हो चुका है, वरना हर restart सब कुछ शुरू से दोबारा बनाता है। <0>Memory</0> इंटरफ़ेस deployment state को सेव और रिस्टोर करके इसे हल करता है।",
+  "heading_memory_interface": "Memory इंटरफ़ेस",
+  "memory_interface_intro": "एक <0>Memory</0> implementation दो methods प्रदान करती है, <1>getState</1> और <2>saveState</2>। उदाहरण <3>FileMemory</3> प्रत्येक stack के लिए एक JSON फ़ाइल पढ़ता और लिखता है, और CReact कभी built-in backend नहीं देता, इसलिए storage आप चुनते हैं।",
+  "heading_using_memory": "render() को Memory पास करना",
+  "using_memory_intro": "Entry point एक <0>FileMemory</0> बनाता है और stack name के साथ इसे <1>render()</1> को सौंपता है। CReact ऐप को boot करने के लिए यही function काफ़ी है।",
+  "tip_stack_name": "<0>render()</0> का तीसरा argument stack name है। यह state फ़ाइल का नाम तय करता है, इसलिए अलग-अलग stack names स्वतंत्र state stores को साथ-साथ रखते हैं।",
+  "heading_use_async_output": "useAsyncOutput से Outputs को Persist करना",
+  "use_async_output_intro": "<0>useAsyncOutput</0> किसी resource के durable outputs का स्वामी है। Counter handler अपना count <1>setOutputs(prev => ...)</1> से seed करता है, इसलिए restart शून्य के बजाय अंतिम saved value से फिर शुरू होता है।",
+  "heading_what_gets_persisted": "क्या Persist होता है",
+  "what_gets_persisted_body": "केवल <0>setOutputs()</0> को पास किए गए values persist होते हैं। Regular signals, effects, और local variables <1>नहीं</1> save होते, इसलिए वे हर run पर reinitialize होते हैं।",
+  "info_gitignore": "State directory जैसे <0>.state/</0> को अपने <1>.gitignore</1> में जोड़ें।",
+  "durable_counter_link": "Memory, setOutputs, और crash recovery को end to end काम करते हुए <0>durable-counter walkthrough</0> में देखें।",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

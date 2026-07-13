@@ -1,0 +1,16 @@
+{
+  "title": "createSelector",
+  "description": "Erstellt ein O(2)-Selection-Signal. Nur die vorherige und die neue Selection werden neu ausgewertet.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<0>source</0>",
+  "param_source_type": "<0>Accessor<T></0>",
+  "param_source_desc": "Signal, das den aktuell ausgewählten Wert hält.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(a: U, b: T) => boolean</0>",
+  "param_fn_desc": "Optionaler Comparator. Standardmäßig <0>===</0>.",
+  "returns_body": "Eine Funktion <0>(key: U) => boolean</0>, die <1>true</1> zurückgibt, wenn <2>key</2> mit der aktuellen Selection übereinstimmt. Nur die zuvor ausgewählten und die neu ausgewählten Items werden neu ausgewertet. O(2) unabhängig von der Listengröße.",
+  "heading_latest_request": "Die neueste bereite Seite markieren",
+  "usage_latest_request": "Der Page-Writer baut <0>isLatest</0> aus einem Memo des neuesten Slugs, dessen Seite bereit ist. Jede Zeile ruft <1>isLatest(request.slug)</1> auf, um zu wissen, ob sie die aktuelle ist; nur die Zeile, die das Flag verloren hat, und die, die es gewonnen hat, werden neu ausgewertet, wenn eine neue Seite settled.",
+  "in_the_wild": "Sieh dir an, wie dieser Selector die neueste Seite im <0>page-writer walkthrough</0> hervorhebt.",
+  "filename_app": "page-writer/src/app.tsx"
+}

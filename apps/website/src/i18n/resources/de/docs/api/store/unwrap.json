@@ -1,0 +1,15 @@
+{
+  "title": "unwrap",
+  "description": "Gibt einen Deep Clone der zugrunde liegenden Daten eines Store-Proxys zurück und entfernt sämtliche Reaktivität.",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Ein Store-Proxy, der von <0>createStore</0> erstellt wurde.",
+  "heading_the_store_source": "Woher die Proxys kommen",
+  "usage_the_store_source": "Der Site Publisher hält sein Datei-Manifest in einem Store von <0>createManifestStore</0>. Jeder <1>ManifestEntry</1>, den ein Child liest, ist ein reaktiver Proxy, kein plain Object.",
+  "heading_snapshotting_props": "Snapshot eines proxied Props",
+  "usage_snapshotting_props": "Jedes <0>SiteObject</0> erhält einen Manifest-Eintrag als reaktives Prop. Seine Handler-Props rufen <1>unwrap</1> auf diesem Eintrag auf, sodass der asynchrone Upload von einem plain, abgekoppelten Snapshot statt von einem live Proxy aus arbeitet.",
+  "in_the_wild": "Sieh dir an, wie dieser Snapshot S3-Uploads im <0>site-publisher walkthrough</0> speist.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

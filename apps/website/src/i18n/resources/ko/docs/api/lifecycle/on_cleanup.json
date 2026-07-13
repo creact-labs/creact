@@ -1,0 +1,17 @@
+{
+  "title": "onCleanup",
+  "description": "현재 반응형 소유자에 클린업 함수를 등록합니다. 소유자가 dispose되거나 effect가 다시 실행되기 전에 실행됩니다.",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "클린업 함수. 소유자가 dispose될 때 호출됩니다.",
+  "returns_desc": "편의상 전달받은 함수를 그대로 반환합니다.",
+  "heading_timer": "인터벌 정리하기",
+  "usage_timer": "업타임 모니터의 <0>HttpCheck</0>는 <1>onMount</1>에서 프로브 타이머를 시작하고, 이를 정리하기 위해 <2>onCleanup</2>을 등록합니다. 체크가 언마운트되면 dispose된 컴포넌트에 대해 실행되는 대신 인터벌이 중지됩니다.",
+  "heading_server": "실제 서버 닫기",
+  "usage_server": "페이지 라이터의 <0>HttpChannel</0>은 핸들러 내부에서 HTTP 서버를 열고 teardown으로 <1>closeServer</1>를 반환합니다. 반환된 클린업은 dispose 시 실행되어, 프로세스가 종료되기 전에 <2>server.close()</2>를 호출해 포트를 해제합니다.",
+  "warning_no_owner": "<1>createRoot</1> 또는 <2>render</2> 외부에서 <0>onCleanup</0>을 호출하면 경고가 발생하며 클린업은 실행되지 않습니다.",
+  "in_the_wild": "체크가 나타났다 사라질 때 이러한 teardown이 실행되는 모습을 <0>uptime-monitor walkthrough</0>에서 확인하세요.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx",
+  "filename_http_channel": "page-writer/src/components/http-channel/index.tsx"
+}

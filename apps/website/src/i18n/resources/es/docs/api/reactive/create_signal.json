@@ -1,0 +1,22 @@
+{
+  "title": "createSignal",
+  "description": "Crea una señal reactiva con un getter y un setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valor inicial de la señal. Opcional; omítelo para <0>T | undefined</0>.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>SignalOptions<T></0>",
+  "param_options_desc": "Opcional. Establece <0>equals</0> en <1>false</1> para desactivar las comprobaciones de igualdad, o proporciona un comparador personalizado.",
+  "returns_intro": "Una tupla de <0>[getter, setter]</0>:",
+  "returns_getter": "<0>getter()</0>: lee el valor actual y registra una dependencia cuando se llama dentro de un ámbito de seguimiento",
+  "returns_setter": "<0>setter(value)</0>: actualiza el valor. Acepta un valor directo o una función <1>(prev) => next</1>.",
+  "heading_sweep_state": "Recopilación del estado de barrido",
+  "usage_sweep_state": "El <0>App</0> del monitor de uptime almacena cada muestra de sonda y el recuento por comprobación en señales. Cada escritura usa la forma funcional <1>prev => next</1>, de modo que una nueva muestra se añade al historial de ese objetivo sin tocar el resto.",
+  "heading_latest_probe": "Seguimiento de la última sonda",
+  "usage_latest_probe": "Cada <0>HttpCheck</0> mantiene el resultado de su sonda más reciente en una señal. El bucle de barrido lo escribe a través de <1>setLatest</1>, y cada memo o effect que lee <2>latest()</2> se vuelve a ejecutar cuando llega el siguiente barrido.",
+  "tip_equality": "Por defecto, las señales usan la comparación <0>===</0>. Establecer el mismo valor de nuevo no activará una recomputación.",
+  "in_the_wild": "Mira cómo estas señales impulsan una página de estado en vivo en el <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

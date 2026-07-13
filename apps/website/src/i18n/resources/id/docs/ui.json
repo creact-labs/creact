@@ -1,0 +1,23 @@
+{
+  "reference": "Referensi",
+  "usage": "Penggunaan",
+  "parameters": "Parameter",
+  "returns": "Mengembalikan",
+  "param_table": {
+    "parameter": "Parameter",
+    "type": "Tipe",
+    "description": "Deskripsi"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Tipe",
+    "description": "Deskripsi"
+  },
+  "copy": "Salin",
+  "copied": "Disalin",
+  "callout": {
+    "info": "Catatan",
+    "warning": "Peringatan",
+    "tip": "Perlu diketahui"
+  }
+}

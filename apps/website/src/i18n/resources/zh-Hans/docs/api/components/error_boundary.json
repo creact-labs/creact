@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "捕获子组件中抛出的错误并渲染 fallback。",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "静态 fallback，或以捕获的错误和 reset 函数为参数调用的渲染函数。",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "要渲染的内容。此子树中的错误会被捕获。",
+  "heading_guarding_the_sweep": "守护探测扫描",
+  "usage_guarding_the_sweep": "uptime 监控器将其整组 <0>HttpCheck</0> 探测包装在一个 <1>ErrorBoundary</1> 中。任一探测抛出的错误都会被捕获并传递给 <2>fallback</2> 渲染函数，而不会使扫描崩溃。",
+  "heading_rendering_the_fault": "渲染故障",
+  "usage_rendering_the_fault": "fallback 接收捕获的 <0>error</0> 并渲染 <1>MonitorFault</1>，后者会记录检查已停止。树的其余部分继续运行。",
+  "in_the_wild": "在 <0>uptime-monitor 演练</0> 中查看此边界如何保持状态页存活。",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

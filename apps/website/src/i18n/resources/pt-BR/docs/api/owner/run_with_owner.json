@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "Executa uma função sob um owner reativo específico. Necessário para criar effects em callbacks assíncronos.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "O escopo de owner sob o qual executar. Obtenha-o com <0>getOwner()</0>. Aceita <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Função a ser executada. Quaisquer effects/cleanups criados internamente são owned por <0>owner</0>.",
+  "info_async_owner": "Após <0>await</0> ou dentro de callbacks, o owner reativo é perdido. Capture-o de forma síncrona com <1>getOwner()</1> e restaure-o com <2>runWithOwner()</2>.",
+  "usage_deploy_write": "O <0>retainOnDetach</0> do page writer é executado sob o owner capturado para que seu <1>onCleanup</1> se anexe ao escopo da page. Esse registro acontece após a escrita assíncrona, onde <2>runWithOwner</2> é a única forma de retornar ao owner correto.",
+  "in_the_wild": "Veja este owner restaurado em torno de uma escrita de arquivo durável no <0>walkthrough do page-writer</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "ネストした状態を管理するためのリアクティブなストアプロキシを作成します。",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "ストアの初期値。オブジェクトである必要があります。",
+  "returns_intro": "<0>[store, setStore]</0> のタプル:",
+  "returns_store": "<0>store</0>: リアクティブなプロキシ。プロパティへのアクセスが追跡されます。",
+  "returns_setstore": "<0>setStore</0>: パスベースの更新を受け付けるセッター。",
+  "heading_the_manifest_shape": "マニフェストの形状",
+  "usage_the_manifest_shape": "サイトパブリッシャーは、デプロイ済みサイトをハッシュ付きファイルの <0>Manifest</0> としてモデル化します。各 <1>ManifestEntry</1> はパス、ハッシュ、サイズを持ち、ストアはこのネストした構造をリアクティブに保ちます。",
+  "heading_a_reactive_manifest": "リアクティブなマニフェスト",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> はビルドディレクトリを走査し、得られたマニフェストを <1>createStore</1> に渡します。返されたプロキシは個々のエントリまで読み取りを追跡するため、1 つのファイルをレンダーするコンポーネントは、そのファイルのハッシュが変わったときだけ再実行されます。",
+  "in_the_wild": "このストアがインクリメンタルアップロードを駆動する様子は、<0>site-publisher ウォークスルー</0> をご覧ください。",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

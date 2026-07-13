@@ -1,0 +1,20 @@
+{
+  "title": "État et Memory",
+  "description": "L'interface Memory enregistre et restaure l'état de déploiement entre les exécutions.",
+  "heading_why_persistence": "Pourquoi la persistance est importante",
+  "why_persistence_body": "Les applications CReact décrivent des infrastructures et des processus. Lorsque l'application s'arrête et redémarre, vous devez savoir ce qui a déjà été déployé, sinon chaque redémarrage recrée tout depuis zéro. L'interface <0>Memory</0> résout ce problème en enregistrant et en restaurant l'état de déploiement.",
+  "heading_memory_interface": "L'interface Memory",
+  "memory_interface_intro": "Une implémentation de <0>Memory</0> fournit deux méthodes, <1>getState</1> et <2>saveState</2>. L'exemple <3>FileMemory</3> lit et écrit un fichier JSON par stack, et CReact ne livre jamais de backend intégré : le choix du stockage vous appartient.",
+  "heading_using_memory": "Passer Memory à render()",
+  "using_memory_intro": "Le point d'entrée construit un <0>FileMemory</0> et le transmet à <1>render()</1> avec le nom de la stack. Cette fonction est tout ce dont une application CReact a besoin pour démarrer.",
+  "tip_stack_name": "Le troisième argument de <0>render()</0> est le nom de la stack. Il nomme le fichier d'état, de sorte que des noms de stack distincts maintiennent des stores d'état indépendants côte à côte.",
+  "heading_use_async_output": "Persister les outputs avec useAsyncOutput",
+  "use_async_output_intro": "<0>useAsyncOutput</0> gère les outputs durables d'une ressource. Le handler du compteur initialise son compte à partir de <1>setOutputs(prev => ...)</1>, de sorte qu'un redémarrage reprend à la dernière valeur enregistrée au lieu de zéro.",
+  "heading_what_gets_persisted": "Ce qui est persisté",
+  "what_gets_persisted_body": "Seules les valeurs passées à <0>setOutputs()</0> sont persistées. Les signals, effects et variables locales ordinaires ne sont <1>pas</1> enregistrés ; ils se réinitialisent donc à chaque exécution.",
+  "info_gitignore": "Ajoutez le répertoire d'état, par exemple <0>.state/</0>, à votre <1>.gitignore</1>.",
+  "durable_counter_link": "Découvrez Memory, setOutputs et la reprise après crash de bout en bout dans le <0>tutoriel durable-counter</0>.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

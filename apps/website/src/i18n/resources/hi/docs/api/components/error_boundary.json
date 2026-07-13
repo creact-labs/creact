@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "Child components में throw हुए errors को catch करता है और fallback render करता है।",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "Static fallback या render function जो caught error और एक reset function के साथ call होती है।",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "Render करने के लिए content। इस subtree में errors catch हो जाते हैं।",
+  "heading_guarding_the_sweep": "Probe sweep की सुरक्षा",
+  "usage_guarding_the_sweep": "Uptime monitor अपने पूरे <0>HttpCheck</0> probes के fleet को एक <1>ErrorBoundary</1> में wrap करता है। किसी भी probe से throw को catch करके sweep crash होने के बजाय <2>fallback</2> render function को pass किया जाता है।",
+  "heading_rendering_the_fault": "Fault को render करना",
+  "usage_rendering_the_fault": "Fallback को caught <0>error</0> मिलता है और वह <1>MonitorFault</1> render करता है, जो log करता है कि checks रुक गए हैं। Tree का बाकी हिस्सा चलता रहता है।",
+  "in_the_wild": "देखें कि यह boundary <0>uptime-monitor walkthrough</0> में status page को कैसे alive रखता है।",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

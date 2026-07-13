@@ -1,0 +1,16 @@
+{
+  "title": "createReaction",
+  "description": "将追踪与执行分离。追踪一个表达式，在其变化时运行另一个函数。该 reaction 触发一次后，必须重新武装。",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "当被追踪的 signal 发生变化时触发一次的回调。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "可选。<0>name</0> 用于调试。",
+  "returns_body": "一个用于武装 reaction 的函数 <0>(tracking: () => void) => void</0>。调用时传入一个追踪表达式。在其中读取的 signal 会被追踪。当其中任何一个发生变化时，<1>onInvalidate</1> 触发一次，追踪停止，直到你再次调用该函数。",
+  "heading_alert_on_first_failure": "在首次失败时告警",
+  "usage_alert_on_first_failure": "uptime monitor 的 <0>Alert</0> 组件对 <1>props.incidents()</1> 武装了一个 reaction。每当列表变化时，它会记录尚未告警过的 incident，然后重新武装自身，以便下次变化再次触发。普通 effect 会重新运行整个扫描；而 reaction 将追踪与副作用保持分离。",
+  "in_the_wild": "在 <0>uptime-monitor walkthrough</0> 中查看此 reaction 如何驱动告警日志。",
+  "filename_alert": "uptime-monitor/src/components/alert/index.tsx"
+}

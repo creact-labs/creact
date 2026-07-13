@@ -1,0 +1,18 @@
+{
+  "title": "测试",
+  "description": "通过将 CReact 应用渲染到内存中的 Memory 后端，并对真实的 handler 输出进行断言来测试它们。",
+  "heading_setup": "设置",
+  "setup_intro": "安装 Vitest：",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "终端",
+  "heading_rendering": "渲染应用",
+  "rendering_intro": "向 <0>render</0> 传入内存中的 Memory 后端和 stack 名称，然后 await <1>result.ready</1>，让每个 handler 稳定后再进行断言。",
+  "rendering_outputs": "使用 <0>getNodes()</0> 读取已部署的实例并检查其 <1>outputs</1>。由于 handler 会真实运行，当输出随时间变化时，请使用 Vitest 的 <0>vi.waitFor</0>。",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "在 afterEach hook 中调用 <0>resetRuntime()</0> 和 <1>result.dispose()</1>，确保 runtime 状态和 interval 不会在测试之间泄漏。",
+  "heading_mocking": "Mock 全局对象",
+  "mocking_intro": "Handler 会调用与应用相同的全局对象，因此请在边界处替换它们。使用 <1>vi.stubGlobal</1> 对 <0>fetch</0> 进行 stub，以驱动组件按脚本化的响应序列运行。",
+  "mocking_transitions": "向 stub 提供脚本，渲染组件，并断言其报告的状态转换。在每次测试后使用 <0>vi.unstubAllGlobals</0> 恢复 stub。",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "在 <0>uptime-monitor walkthrough</0> 中查看这些模式如何覆盖完整的状态页面。"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "untrack",
+  "description": "讀取 signals 而不建立響應式依賴。",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "在不進行追蹤的情況下執行的函式。內部的 signal 讀取不會註冊依賴。",
+  "heading_reading_aside": "在一旁讀取值",
+  "usage_reading_aside": "uptime monitor 僅在檢查的 <0>status</0> 變更時記錄轉換。訊息仍需要最新的延遲時間，因此透過 <2>untrack</2> 讀取 <1>latest()</1>，讓延遲時間不納入 effect 的依賴，而僅由 status 驅動重新執行。",
+  "in_the_wild": "請參閱 <0>uptime-monitor walkthrough</0> 中的此轉換記錄。",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

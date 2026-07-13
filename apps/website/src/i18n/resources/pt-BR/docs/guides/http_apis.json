@@ -1,0 +1,17 @@
+{
+  "title": "APIs HTTP e Canais",
+  "description": "Execute um servidor node:http real como recurso gerenciado, extraído do exemplo page-writer.",
+  "heading_channels": "O Que São Canais?",
+  "channels_desc": "Um canal é um componente que possui um endpoint de rede. Ele inicia um servidor quando seu handler é executado, alimenta o sistema reativo com as requisições recebidas por meio de props de callback e fecha o socket no cleanup.",
+  "heading_server_resource": "O Recurso de Servidor",
+  "server_intro": "O <0>HttpChannel</0> do page-writer encapsula um servidor <1>node:http</1> em useAsyncOutput, para que o socket em escuta tenha o mesmo ciclo de vida de qualquer outro recurso gerenciado:",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "O handler só resolve depois que <0>listen</0> é bem-sucedido, publica a URL com <1>setOutputs</1> e retorna uma função de cleanup. As requisições nunca tocam o runtime diretamente — elas chamam as props de callback que o pai passou.",
+  "heading_routes": "Roteamento de Requisições",
+  "routes_intro": "O roteamento é código Node.js puro. Cada rota valida sua entrada e delega a uma prop como <0>onCreatePage</0> ou <1>onListPages</1>:",
+  "routes_notice": "O canal permanece genérico — ele conhece HTTP, não páginas. <0>onCreatePage</0> atualiza um store no pai, novos recursos Page são montados e a resposta retorna imediatamente com o slug aceito.",
+  "heading_teardown": "Respostas e Teardown",
+  "teardown_intro": "Dois pequenos helpers finalizam o componente: um respondedor JSON e um <0>server.close</0> envolvido em promise, usado pela função de cleanup:",
+  "info_cleanup": "O cleanup retornado pelo handler libera a porta quando o componente é desmontado ou antes de o handler ser reexecutado, para que reinícios com <0>--watch</0> nunca encontrem um erro de address-in-use.",
+  "see_walkthrough": "Veja todo o pipeline de requisição até página no <0>walkthrough do page-writer</0>."
+}

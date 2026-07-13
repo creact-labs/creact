@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Macht Berechnungsabhängigkeiten explizit. Tracke spezifische Signals, während andere untracked gelesen werden.",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<0>deps</0>",
+  "param_deps_type": "<0>Accessor<S> | Accessor<unknown>[]</0>",
+  "param_deps_desc": "Signal(e), die explizit getrackt werden sollen.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(input, prevInput, prevValue) => T</0>",
+  "param_fn_desc": "Callback. Läuft untracked; nur <0>deps</0> werden getrackt.",
+  "param_defer_name": "<0>options.defer</0>",
+  "param_defer_type": "<0>boolean</0>",
+  "param_defer_desc": "Wenn <0>true</0>, wird der erste Durchlauf übersprungen.",
+  "heading_status_transitions": "Auf Statusänderungen reagieren",
+  "usage_status_transitions": "Der Uptime-Monitor wickelt seinen Transition-Effect in <0>on(status, ...)</0> ein, sodass er nur dann erneut ausgeführt wird, wenn sich das <1>status</1>-Signal eines Checks ändert. Der Callback erhält <2>next</2> und <3>prev</3>, und mit <4>defer: true</4> wird der allererste Durchlauf übersprungen, sodass beim Mount keine Transition geloggt wird.",
+  "in_the_wild": "Sieh dir diese geloggten Transitions im <0>uptime-monitor Walkthrough</0> an.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

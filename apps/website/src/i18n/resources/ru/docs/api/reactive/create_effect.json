@@ -1,0 +1,22 @@
+{
+  "title": "createEffect",
+  "description": "Создаёт реактивный побочный эффект, который выполняется при изменении зависимостей. Используйте для побочных эффектов (логирование, внешние вызовы). Выполняется после текущего batch.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Функция эффекта. Получает предыдущее возвращаемое значение. Отслеживается автоматически.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Необязательное начальное значение, передаваемое при первом запуске.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательно. <0>name</0> для отладки.",
+  "heading_durable_outputs": "Реагирование на durable outputs",
+  "usage_durable_outputs": "Durable counter логирует каждый тик. Эффект читает <0>counter.count()</0>, поэтому перезапускается каждый раз, когда обработчик сохраняет новое значение, включая восстановленный count после перезапуска.",
+  "heading_publish": "Публикация страницы статуса",
+  "usage_publish": "Uptime monitor перезаписывает <0>./out/status.html</0> при изменении общего статуса или любой строки таблицы. <1>createEffect</1> отслеживает оба чтения и повторно выполняет публикацию после каждого sweep.",
+  "info_batching": "Эффекты объединяются в batch. Несколько синхронных обновлений signal вызывают только один повторный запуск. Используйте <0>batch()</0> явно для сложных последовательностей обновлений.",
+  "in_the_wild": "Смотрите эти эффекты в руководствах <0>durable-counter</0> и <1>uptime-monitor</1>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

@@ -1,0 +1,22 @@
+{
+  "title": "createSignal",
+  "description": "Создаёт реактивный сигнал с геттером и сеттером.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Начальное значение сигнала. Необязательный параметр; опустите для <0>T | undefined</0>.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>SignalOptions<T></0>",
+  "param_options_desc": "Необязательный. Установите <0>equals</0> в <1>false</1>, чтобы отключить проверки равенства, или передайте свой компаратор.",
+  "returns_intro": "Кортеж <0>[getter, setter]</0>:",
+  "returns_getter": "<0>getter()</0>: читает текущее значение и регистрирует зависимость при вызове внутри области отслеживания",
+  "returns_setter": "<0>setter(value)</0>: обновляет значение. Принимает значение напрямую или функцию <1>(prev) => next</1>.",
+  "heading_sweep_state": "Сбор состояния прохода",
+  "usage_sweep_state": "В мониторе uptime компонент <0>App</0> хранит каждый sample пробы и счётчики по проверкам в сигналах. Каждая запись использует функциональную форму <1>prev => next</1>, поэтому новый sample добавляется к истории этой цели, не затрагивая остальное.",
+  "heading_latest_probe": "Отслеживание последней пробы",
+  "usage_latest_probe": "Каждый <0>HttpCheck</0> хранит результат последней пробы в сигнале. Цикл прохода записывает его через <1>setLatest</1>, и каждый memo или effect, который читает <2>latest()</2>, перезапускается при следующем проходе.",
+  "tip_equality": "По умолчанию сигналы используют сравнение <0>===</0>. Повторная запись того же значения не запускает пересчёт.",
+  "in_the_wild": "Посмотрите, как эти сигналы управляют живой страницей статуса, в <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

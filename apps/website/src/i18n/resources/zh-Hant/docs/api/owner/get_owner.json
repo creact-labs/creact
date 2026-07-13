@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "回傳目前的響應式擁有者（擁有目前作用域的計算或 root）。",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "目前的 <0>Owner</0>，若在響應式作用域外呼叫則為 <1>null</1>。",
+  "usage_states": "page-writer 的 <0>Page</0> 在元件本體中呼叫 <1>getOwner</1>，此時同步作用域仍存在。它將該擁有者交給 handler，以便之後在 await 完成後，<2>onCleanup</2> 能掛接到正確的作用域。",
+  "in_the_wild": "在 <0>page-writer walkthrough</0> 中查看此擁有者如何在非同步工作中傳遞。",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

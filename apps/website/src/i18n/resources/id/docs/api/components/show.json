@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "Merender children secara kondisional berdasarkan kondisi reaktif.",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "Kondisi reaktif. Children dirender ketika truthy. Menerima value atau accessor.",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "Konten opsional untuk dirender ketika <0>when</0> falsy.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "Konten untuk dirender, atau callback yang menerima value truthy sebagai accessor.",
+  "heading_usage": "Penggunaan",
+  "usage_intro": "Uptime monitor menjaga seluruh layer pelaporannya di balik satu gate <0>Show</0>: halaman status dan banner tetap unmounted hingga sweep pertama mencatat timestamp, lalu <1>lastSweepAt()</1> menjadi truthy dan subtree dimount.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "Slice ini adalah layout dari uptime monitor. Lihat bagaimana gate tersebut cocok dengan full tree di <0>uptime-monitor walkthrough</0>."
+}

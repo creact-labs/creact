@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Tạo một reactive store proxy để quản lý nested state.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Giá trị ban đầu của store. Phải là một object.",
+  "returns_intro": "Một tuple gồm <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: một reactive proxy. Việc truy cập property được theo dõi.",
+  "returns_setstore": "<0>setStore</0>: setter chấp nhận các cập nhật theo path.",
+  "heading_the_manifest_shape": "Cấu trúc manifest",
+  "usage_the_manifest_shape": "Site publisher mô hình hóa site đã deploy dưới dạng một <0>Manifest</0> gồm các file đã hash. Mỗi <1>ManifestEntry</1> mang theo path, hash và size, và store giữ cấu trúc lồng nhau này ở trạng thái reactive.",
+  "heading_a_reactive_manifest": "Một manifest reactive",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> duyệt thư mục build và đưa manifest kết quả vào <1>createStore</1>. Proxy được trả về theo dõi các lần đọc xuống tới từng entry riêng lẻ, vì vậy một component render một file chỉ re-run khi hash của file đó thay đổi.",
+  "in_the_wild": "Xem store này điều khiển incremental upload trong <0>site-publisher walkthrough</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

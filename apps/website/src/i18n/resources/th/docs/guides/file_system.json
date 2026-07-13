@@ -1,0 +1,16 @@
+{
+  "title": "การดำเนินการระบบไฟล์",
+  "description": "เขียนไฟล์จาก reactive state และ persist app state ลงดิสก์ ตัดมาจากตัวอย่าง uptime-monitor",
+  "heading_write_effect": "การเขียนไฟล์จาก Effect",
+  "write_effect_intro": "คอมโพเนนต์ status page ของ uptime-monitor แปลง reactive state เป็นไฟล์บนดิสก์ <0>createEffect</0> จะ re-render HTML ทุกครั้งที่ผลลัพธ์ของ probe เปลี่ยน และ <1>catchError</1> ป้องกันไม่ให้ render ที่ล้มเหลวทำให้แอป crash:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "Effect จะ track <0>props.overall()</0> และ <1>rows()</1> แบบ synchronous จากนั้นส่ง HTML ที่เสร็จแล้วไปยัง async publish step การอ่าน signal ก่อน await ครั้งแรกคือสิ่งที่ทำให้ dependency graph ถูกต้องแม่นยำ",
+  "heading_publish": "ขั้นตอน Publish",
+  "publish_intro": "การเขียนลงดิสก์จริงๆ คือ async function ธรรมดาที่สร้างบน <0>node:fs/promises</0> มันสร้าง output directory ตามความต้องการ และเขียนทับ <1>./out/status.html</1> แทนที่เดิม:",
+  "publish_notice": "ไม่มีอะไรที่เป็น CReact-specific ที่นี่ — ระบบ reactive ตัดสินใจว่าเมื่อไหร่จะเขียน และ Node.js API ธรรมดาเป็นผู้เขียน ทุกครั้งที่ effect รันจะได้ไฟล์ใหม่ที่สมบูรณ์",
+  "heading_file_memory": "Memory แบบใช้ไฟล์",
+  "file_memory_intro": "รูปแบบระบบไฟล์อีกอย่างที่ทุกแอปต้องการคือ persistence <0>FileMemory</0> implement สัญญา <1>Memory</1> ด้วย JSON file หนึ่งไฟล์ต่อ stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> คืนค่า null เมื่อยังไม่มี ledger และ <1>saveState</1> เขียนทับ deployment state ทั้งหมดหลังทุกการเปลี่ยนแปลง นี่คือ ledger ที่แอปตัวอย่างใช้เพื่ออยู่รอดหลัง restart",
+  "see_walkthrough": "ดูแอปทั้งหมดใน <0>uptime-monitor walkthrough</0>"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "현재 반응형 소유자(현재 스코프를 소유하는 computation 또는 root)를 반환합니다.",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "현재 <0>Owner</0>이거나, 반응형 스코프 밖에서 호출된 경우 <1>null</1>입니다.",
+  "usage_states": "페이지 작성기의 <0>Page</0>는 동기 스코프가 아직 존재하는 동안 컴포넌트 본문에서 <1>getOwner</1>를 호출합니다. 이후 await한 뒤에 <2>onCleanup</2>이 올바른 스코프에 연결될 수 있도록 그 소유자를 핸들러에 넘깁니다.",
+  "in_the_wild": "<0>page-writer walkthrough</0>에서 async 작업에 걸쳐 이 owner가 전달되는 방식을 확인하세요.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "เรนเดอร์ children แบบมีเงื่อนไขตาม reactive condition",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "เงื่อนไขแบบ reactive เรนเดอร์ children เมื่อค่าเป็น truthy รับได้ทั้งค่าหรือ accessor",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "เนื้อหาทางเลือกที่จะเรนเดอร์เมื่อ <0>when</0> เป็น falsy",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "เนื้อหาที่จะเรนเดอร์ หรือ callback ที่รับค่า truthy ในรูป accessor",
+  "heading_usage": "การใช้งาน",
+  "usage_intro": "uptime monitor เก็บชั้น reporting ทั้งก้อนไว้หลังเกต <0>Show</0> อันเดียว: หน้า status และแบนเนอร์ยังไม่ถูก mount จนกว่า sweep ครั้งแรกจะบันทึก timestamp จากนั้น <1>lastSweepAt()</1> จะกลายเป็น truthy แล้ว subtree จะถูก mount",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "ส่วนนี้คือ layout ของ uptime monitor ดูว่าเกตนี้เข้ากับ tree ทั้งก้อนอย่างไรใน <0>uptime-monitor walkthrough</0>"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "CReact TypeScript में लिखा गया है। signals, props और components के लिए type system का अधिकतम लाभ उठाने का तरीका यहाँ बताया गया है।",
+  "heading_tsconfig": "TypeScript Configuration",
+  "tsconfig_intro": "मुख्य setting है <0>jsxImportSource</0>। यह TypeScript को बताता है कि CReact के JSX types उपयोग करें:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "value-or-accessor props की typing",
+  "value_or_accessor_intro": "site publisher के <0>SiteObjectProps</0> में <1>bucket</1> और <2>entry</2> को <0>MaybeAccessor</0> के रूप में type किया गया है, ताकि एक ही interface plain values और getters दोनों स्वीकार करे और access unwrap करने के बाद भी handler पूरी तरह typed रहे।",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "defaults के साथ typed props",
+  "typed_defaults_intro": "tenant fleet के <0>TenantTreeProps</0> में <1>plan</1> को optional चिह्नित किया गया है, फिर <2>mergeProps</2> default प्रदान करता है और परिणाम को fully-required shape में narrow करता है जिस पर tree का बाकी हिस्सा निर्भर रह सकता है।",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact प्रमुख types re-export करता है: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, और सभी runtime types।",
+  "in_the_wild": "इन typed props को वास्तविक resources provision करते हुए <0>site-publisher walkthrough</0> में देखें।"
+}

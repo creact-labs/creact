@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "Перехватывает ошибки, выброшенные в дочерних компонентах, и отображает fallback.",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "Статический fallback или функция рендера, вызываемая с перехваченной ошибкой и функцией reset.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "Содержимое для рендера. Ошибки в этом поддереве перехватываются.",
+  "heading_guarding_the_sweep": "Защита прохода проб",
+  "usage_guarding_the_sweep": "Монитор uptime оборачивает весь свой флот проб <0>HttpCheck</0> в один <1>ErrorBoundary</1>. Исключение из любой пробы перехватывается и передаётся в render-функцию <2>fallback</2>, вместо того чтобы обрушить проход.",
+  "heading_rendering_the_fault": "Рендеринг сбоя",
+  "usage_rendering_the_fault": "Fallback получает перехваченную <0>error</0> и рендерит <1>MonitorFault</1>, который логирует, что проверки остановлены. Остальное дерево продолжает работать.",
+  "in_the_wild": "Смотрите, как этот boundary сохраняет status page в рабочем состоянии в <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

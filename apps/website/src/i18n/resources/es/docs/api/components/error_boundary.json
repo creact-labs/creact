@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "Captura los errores lanzados en los componentes hijos y renderiza un fallback.",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "Fallback estático o función de renderizado llamada con el error capturado y una función de reset.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "Contenido a renderizar. Los errores en este subárbol se capturan.",
+  "heading_guarding_the_sweep": "Protegiendo el barrido de sondas",
+  "usage_guarding_the_sweep": "El monitor de uptime envuelve toda su flota de sondas <0>HttpCheck</0> en un <1>ErrorBoundary</1>. Un throw de cualquier sonda se captura y se pasa a la función de renderizado <2>fallback</2> en lugar de hacer fallar el barrido.",
+  "heading_rendering_the_fault": "Renderizando el fallo",
+  "usage_rendering_the_fault": "El fallback recibe el <0>error</0> capturado y renderiza <1>MonitorFault</1>, que registra que los checks se han detenido. El resto del árbol sigue ejecutándose.",
+  "in_the_wild": "Mira cómo este boundary mantiene viva una página de estado en el <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

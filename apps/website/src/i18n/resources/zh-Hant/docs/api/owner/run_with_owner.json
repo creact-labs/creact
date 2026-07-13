@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "在指定的響應式 owner 下執行函式。在非同步回呼中建立 effect 時必須使用。",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "要在其下執行的 owner 範圍。可透過 <0>getOwner()</0> 取得。接受 <1>null</1>。",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "要執行的函式。在其中建立的任何 effect／cleanup 皆由 <0>owner</0> 擁有。",
+  "info_async_owner": "在 <0>await</0> 之後或回呼內，響應式 owner 會遺失。請同步地以 <1>getOwner()</1> 擷取，並以 <2>runWithOwner()</2> 還原。",
+  "usage_deploy_write": "page writer 的 <0>retainOnDetach</0> 會在已擷取的 owner 下執行，使其 <1>onCleanup</1> 附加至 page scope。該註冊發生在非同步寫入之後，此時 <2>runWithOwner</2> 是回到正確 owner 的唯一方式。",
+  "in_the_wild": "在 <0>page-writer 逐步教學</0> 中查看此 owner 如何在持久化檔案寫入周圍被還原。",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

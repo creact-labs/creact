@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "创建一个上下文，用于在组件树中传递数据而无需使用 props。",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "可选。当上层不存在 Provider 时，<0>useContext</0> 返回的值。",
+  "returns_desc": "一个带有 <1>Provider</1> 组件的 <0>Context<T></0> 对象。",
+  "heading_declaring_the_context": "声明 AWS 上下文",
+  "usage_declaring_the_context": "站点发布器声明一个携带 region 和 S3 客户端的 <0>AwsContext</0>。其默认值为 <1>null</1>，因此组件可以检测上层何时不存在 <2>AwsProvider</2>。",
+  "heading_providing_a_value": "提供连接",
+  "usage_providing_a_value": "<0>AwsProvider</0> 只创建一次 S3 客户端，并通过 <1>AwsContext.Provider</1> 将其暴露出去。每个发布对象的后代组件都共享这一个连接。",
+  "in_the_wild": "在 <0>site-publisher walkthrough</0> 中查看此 provider 如何接入 S3。",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

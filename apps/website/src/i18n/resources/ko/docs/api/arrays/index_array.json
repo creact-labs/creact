@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "인덱싱된 반복. 각 위치는 리액티브 액세서입니다. 프리미티브 배열에 적합합니다.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "리액티브 배열 소스.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "맵 함수. <0>v</0>는 액세서(리액티브)입니다. <1>i</1>는 정적 인덱스입니다.",
+  "heading_numbered_roster": "슬롯별 번호 로스터",
+  "usage_numbered_roster": "tenant fleet은 디스크에서 tenant 스펙을 읽어 signal에 담은 뒤, <0>indexArray</0>로 번호가 매겨진 로스터를 구성합니다. 각 위치는 <1>slot</1> 번호를 유지하고 <2>tenant()</2>는 액세서로 남기 때문에, 스펙을 제자리에서 수정하면 해당 줄만 업데이트되고 나머지 번호는 다시 매기지 않습니다.",
+  "in_the_wild": "이 로스터가 라이브 스펙 파일을 따라가는 모습은 <0>tenant-fleet walkthrough</0>에서 확인하세요.",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

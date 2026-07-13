@@ -1,0 +1,13 @@
+{
+  "title": "access",
+  "description": "MaybeAccessor를 언랩합니다. 함수인 경우 호출하고, 그렇지 않으면 그대로 반환합니다.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "값 또는 접근자 함수입니다.",
+  "returns_desc": "타입 <0>T</0>의 언랩된 값입니다.",
+  "heading_unwrapping": "값 또는 접근자 props 언랩하기",
+  "usage_unwrapping": "사이트 퍼블리셔의 <0>SiteObject</0>는 <1>bucket</1>과 <2>entry</2>를 <3>MaybeAccessor</3>로 받으므로, 호출자는 일반 값이나 getter를 전달할 수 있습니다. 핸들러의 반응형 props 객체는 각각에 대해 access를 호출하여, 전달된 형태가 무엇이든 업로드에 필요한 실제 값으로 해석합니다.",
+  "in_the_wild": "<0>site-publisher walkthrough</0>에서 각 파일이 업로드 전에 bucket과 entry를 해석하는 과정을 확인하세요.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

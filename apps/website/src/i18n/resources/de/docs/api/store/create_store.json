@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Erstellt einen reaktiven Store-Proxy zur Verwaltung von verschachteltem State.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Initialer Store-Wert. Muss ein Objekt sein.",
+  "returns_intro": "Ein Tupel aus <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: ein reaktiver Proxy. Property-Zugriffe werden getrackt.",
+  "returns_setstore": "<0>setStore</0>: Setter, der pfadbasierte Updates akzeptiert.",
+  "heading_the_manifest_shape": "Die Manifest-Struktur",
+  "usage_the_manifest_shape": "Der Site-Publisher modelliert die deployte Site als <0>Manifest</0> gehashter Dateien. Jeder <1>ManifestEntry</1> enthält einen Pfad, einen Hash und eine Größe, und der Store hält diese verschachtelte Struktur reaktiv.",
+  "heading_a_reactive_manifest": "Ein reaktives Manifest",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> durchläuft das Build-Verzeichnis und übergibt das resultierende Manifest an <1>createStore</1>. Der zurückgegebene Proxy trackt Lesezugriffe bis zu einzelnen Einträgen, sodass eine Komponente, die eine Datei rendert, nur dann erneut ausgeführt wird, wenn sich der Hash dieser Datei ändert.",
+  "in_the_wild": "Sieh dir an, wie dieser Store im <0>site-publisher Walkthrough</0> inkrementelle Uploads steuert.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

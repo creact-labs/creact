@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Iteração com chave. Cada item é mapeado uma vez e chaveado por identidade. Apenas itens novos ou removidos causam recomputação.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Fonte reativa de array.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Função de mapeamento. <0>v</0> é um accessor para o item. <1>i</1> é um índice reativo.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Opcional. <0>keyFn</0> fornece identidade estável para os itens.",
+  "heading_one_line_per_tenant": "Uma linha de status por tenant",
+  "usage_one_line_per_tenant": "O <0>FleetStatus</0> da frota de tenants mapeia sua lista reativa de tenants em um <1>createMemo</1> por tenant, cada um descrevendo o deployment daquele tenant. Como o <2>mapArray</2> chaveia por item, um memo é criado uma vez quando um tenant aparece e é destruído apenas quando ele sai.",
+  "in_the_wild": "Veja essas linhas acompanhando uma frota ao vivo no <0>passo a passo do tenant-fleet</0>.",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

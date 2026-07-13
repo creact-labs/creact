@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "Ponto de entrada para aplicações CReact. Renderiza a árvore de componentes, reconcilia o estado e executa os handlers.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "Função que retorna a árvore de componentes raiz.",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "Obrigatório. Backend de persistência de estado.",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "Obrigatório. Identificador do store de estado.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "Opcional. Configuração adicional de render.",
+  "returns_desc": "Um objeto <0>RenderResult</0>. Sua propriedade <1>ready</1> é uma <2>Promise<void></2> que resolve quando o deployment inicial é concluído.",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "Aguardando o deployment",
+  "usage_awaiting": "O valor que <0>render</0> retorna é síncrono, mas o trabalho que ele inicia não é. O entry de tenant-fleet aguarda <1>ready</1> no primeiro deployment e, em seguida, <2>settled</2> a cada cascade que ele dispara, para que uma execução one-shot persista tudo antes do processo encerrar.",
+  "in_the_wild": "Veja uma única chamada inicializar um app durável no <0>durable-counter walkthrough</0>."
+}

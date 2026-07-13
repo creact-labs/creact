@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Keyed iteration. प्रत्येक item एक बार map होता है और identity से keyed होता है। केवल नए या हटाए गए items re-computation का कारण बनते हैं।",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Reactive array स्रोत।",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Map function. <0>v</0> item का accessor है। <1>i</1> reactive index है।",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Optional. <0>keyFn</0> items के लिए stable identity प्रदान करता है।",
+  "heading_one_line_per_tenant": "प्रति tenant एक status line",
+  "usage_one_line_per_tenant": "Tenant fleet का <0>FleetStatus</0> अपने reactive tenant roster को प्रति tenant एक <1>createMemo</1> में map करता है, प्रत्येक उस tenant के deployment का वर्णन करता है। चूंकि <2>mapArray</2> item से key करता है, memo tenant के आने पर एक बार बनाया जाता है और केवल छोड़ने पर tear down होता है।",
+  "in_the_wild": "इन lines को live fleet track करते हुए <0>tenant-fleet walkthrough</0> में देखें।",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "createComputed",
+  "description": "Синхронно выполняет функцию на этапе вычислений, до эффектов. Используйте, когда нужно записывать в другие сигналы при обновлении зависимостей.",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Функция вычисления. Выполняется синхронно.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Необязательное начальное значение.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательно. <0>name</0> для отладки.",
+  "heading_tracking_incidents": "Вычисление открытых инцидентов",
+  "usage_tracking_incidents": "Монитор доступности хранит список открытых инцидентов в сигнале <0>incidents</0>. <1>createComputed</1> читает <2>latestSamples()</2>, затем записывает обратно согласованный список инцидентов, чтобы запись в сигнал произошла синхронно до того, как его прочитает любой эффект.",
+  "warning_prefer_memo": "Для производных значений предпочитайте <0>createMemo</0>. Используйте <1>createComputed</1> только когда нужно синхронно записывать в другие сигналы на этапе вычислений.",
+  "in_the_wild": "Посмотрите, как это вычисление открывает и закрывает инциденты в <0>руководстве uptime-monitor</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

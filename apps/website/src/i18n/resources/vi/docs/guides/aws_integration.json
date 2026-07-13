@@ -1,0 +1,23 @@
+{
+  "title": "Tích hợp AWS",
+  "description": "Quản lý tài nguyên S3 thực với các handler idempotent, trích từ ví dụ site-publisher.",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "site-publisher chia sẻ một <0>S3Client</0> qua context. Provider tạo client, đăng ký <1>onCleanup</1> để destroy nó, và truyền connection cho mọi descendant:",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "Mọi component dưới provider gọi <0>useAws</0> để lấy client và region. Một connection phục vụ toàn bộ tree, và bị destroy đúng một lần khi tree <1>disposes</1>.",
+  "heading_ensure_bucket": "Đảm bảo Bucket tồn tại",
+  "ensure_bucket_intro": "Handler của bucket tạo bucket và coi <0>BucketAlreadyOwnedByYou</0> là success, vì các handler chạy lại mỗi lần startup:",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "Bắt lỗi already-owned là pattern idempotency cho cloud resource — handler hội tụ về trạng thái mong muốn thay vì giả định blank slate. Mọi lỗi khác vẫn <0>throws</0> và làm fail node.",
+  "heading_website_config": "Cấu hình Static Hosting",
+  "website_config_intro": "Sau khi bucket tồn tại, cùng handler đó bật website hosting và publish URL của site bằng <0>setOutputs</0>:",
+  "website_config_notice": "URL trở thành reactive output — <0>bucket.url()</0> — mà các child component và effect có thể consume ngay khi được set.",
+  "heading_changed_check": "Bỏ qua các file không thay đổi",
+  "changed_check_intro": "Mỗi file được upload là một resource riêng. Trước khi upload, handler so sánh content hash của file với các output đã persist qua <0>setOutputs(prev => …)</0>:",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "Khi hash khớp, handler return sớm — <0>prev</0> là giá trị đã persist lần trước, nên file không đổi tốn zero API call khi redeploy.",
+  "heading_upload": "Upload các file đã thay đổi",
+  "upload_intro": "Chỉ các file đã thay đổi mới tới <0>PutObjectCommand</0>. Hash mới được persist cùng path, sẵn sàng cho lần so sánh của run tiếp theo:",
+  "warning_idempotent": "Cloud handler phải idempotent: chúng chạy lại mỗi lần startup, nên các pattern create-or-confirm và change detection giúp các lần chạy lặp lại không nhân đôi công việc hay fail trên resource đã tồn tại.",
+  "see_walkthrough": "Xem toàn bộ câu chuyện deployment, bao gồm cả manifest hashing, trong <0>site-publisher walkthrough</0>."
+}

@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "响应式地合并多个 props 对象，后面的源会覆盖前面的源。用于默认 props。",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "填充默认 props",
+  "usage_bucket": "站点发布者的 <0>SiteBucket</0> 在 <1>rawProps</1> 之前合并一个 defaults 对象，因此省略 <2>indexDocument</2> 和 <2>errorDocument</2> 的调用方会回退到 index.html，而任何提供的值仍会优先生效。",
+  "heading_tenant": "跨运行时边界的默认值",
+  "usage_tenant": "租户集群的 <0>TenantTree</0> 在传入的 props 之前合并一个起始 <1>plan</1>，为每个租户提供默认层级，而无需强制每个调用方都明确写出。",
+  "in_the_wild": "在 <0>site-publisher 演练</0> 中查看这些默认值如何塑造真实的 bucket 和 tenant。",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

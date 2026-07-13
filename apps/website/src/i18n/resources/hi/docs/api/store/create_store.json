@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Nested state प्रबंधित करने के लिए एक reactive store proxy बनाता है।",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "प्रारंभिक store value। एक object होना चाहिए।",
+  "returns_intro": "<0>[store, setStore]</0> का एक tuple:",
+  "returns_store": "<0>store</0>: एक reactive proxy। Property access track किया जाता है।",
+  "returns_setstore": "<0>setStore</0>: path-based updates स्वीकार करने वाला setter।",
+  "heading_the_manifest_shape": "Manifest shape",
+  "usage_the_manifest_shape": "Site publisher deployed site को hashed files के एक <0>Manifest</0> के रूप में model करता है। प्रत्येक <1>ManifestEntry</1> में path, hash और size होता है, और store इस nested shape को reactive रखता है।",
+  "heading_a_reactive_manifest": "एक reactive manifest",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> build directory को walk करता है और resulting manifest को <1>createStore</1> को सौंपता है। Returned proxy individual entries तक reads track करता है, इसलिए एक component जो एक file render करता है केवल तभी re-run होता है जब उस file का hash बदलता है।",
+  "in_the_wild": "देखें कि यह store <0>site-publisher walkthrough</0> में incremental uploads को कैसे drive करता है।",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

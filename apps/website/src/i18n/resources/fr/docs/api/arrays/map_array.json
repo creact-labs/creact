@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Itération avec clé. Chaque élément est mappé une seule fois et est clé par identité. Seuls les éléments nouveaux ou supprimés provoquent un recalcul.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Source de tableau réactive.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Fonction de mapping. <0>v</0> est un accesseur vers l'élément. <1>i</1> est un index réactif.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Optionnel. <0>keyFn</0> fournit une identité stable pour les éléments.",
+  "heading_one_line_per_tenant": "Une ligne de statut par tenant",
+  "usage_one_line_per_tenant": "Le <0>FleetStatus</0> de la flotte de tenants mappe son registre de tenants réactif en un <1>createMemo</1> par tenant, chacun décrivant le déploiement de ce tenant. Comme <2>mapArray</2> clé par élément, un memo est créé une seule fois lorsqu'un tenant apparaît et n'est détruit que lorsqu'il part.",
+  "in_the_wild": "Voyez ces lignes suivre une flotte en direct dans le <0>tenant-fleet walkthrough</0>.",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

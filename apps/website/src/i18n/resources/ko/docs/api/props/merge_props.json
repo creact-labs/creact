@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "여러 props 객체를 반응적으로 병합하며, 이후 소스가 이전 소스를 덮어씁니다. 기본 props에 사용하세요.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "기본 props 채우기",
+  "usage_bucket": "사이트 퍼블리셔의 <0>SiteBucket</0>은 기본값 객체를 <1>rawProps</1>보다 앞에 병합하므로, <2>indexDocument</2>와 <2>errorDocument</2>를 생략한 호출자는 index.html로 폴백되고, 제공된 값은 그대로 우선합니다.",
+  "heading_tenant": "런타임 경계를 넘는 기본값",
+  "usage_tenant": "테넌트 플릿의 <0>TenantTree</0>는 들어오는 props 앞에 시작용 <1>plan</1>을 병합하여, 호출자가 일일이 지정하지 않아도 모든 테넌트에 기본 티어를 부여합니다.",
+  "in_the_wild": "이 기본값이 실제 버킷과 테넌트를 어떻게 구성하는지 <0>site-publisher walkthrough</0>에서 확인하세요.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

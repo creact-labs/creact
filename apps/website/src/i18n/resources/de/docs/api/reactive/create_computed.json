@@ -1,0 +1,19 @@
+{
+  "title": "createComputed",
+  "description": "Führt eine Funktion synchron während der Computation-Phase aus, vor Effects. Verwenden, wenn Sie in andere Signals schreiben müssen, sobald sich Abhängigkeiten aktualisieren.",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Computation-Funktion. Wird synchron ausgeführt.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Optionaler Anfangswert.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Optional. <0>name</0> zum Debuggen.",
+  "heading_tracking_incidents": "Ableiten offener Incidents",
+  "usage_tracking_incidents": "Der Uptime-Monitor hält eine Liste offener Incidents im <0>incidents</0>-Signal. Ein <1>createComputed</1> liest <2>latestSamples()</2> und schreibt die abgeglichene Incident-Liste zurück, sodass ein Signal-Write synchron erfolgt, bevor ein Effect ihn liest.",
+  "warning_prefer_memo": "Bevorzugen Sie <0>createMemo</0> für abgeleitete Werte. Verwenden Sie <1>createComputed</1> nur, wenn Sie während der Computation-Phase synchron in andere Signals schreiben müssen.",
+  "in_the_wild": "Sehen Sie, wie diese Computation Incidents im <0>uptime-monitor walkthrough</0> öffnet und schließt.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

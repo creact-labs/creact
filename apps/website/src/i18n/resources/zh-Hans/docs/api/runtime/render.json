@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "CReact 应用的入口点。渲染组件树、协调状态、运行处理函数。",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "返回根组件树的函数。",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "必需。状态持久化后端。",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "必需。状态存储的标识符。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "可选。额外的渲染配置。",
+  "returns_desc": "一个 <0>RenderResult</0> 对象。其 <1>ready</1> 属性是一个 <2>Promise<void></2>，在初始部署完成时 resolve。",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "等待部署",
+  "usage_awaiting": "<0>render</0> 返回的值是同步的，但它启动的工作并非同步。tenant-fleet 入口会 await <1>ready</1> 以完成首次部署，再 await <2>settled</2> 以等待其触发的每次级联，以便一次性运行能在进程退出前将所有内容持久化。",
+  "in_the_wild": "在 <0>durable-counter 演练</0> 中观看单次调用如何启动一个持久化应用。"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "creact --watch",
+  "description": "CReact をウォッチモードで実行します。ソースファイルが変更されると自動的に再起動します。",
+  "heading_usage": "使い方",
+  "code_usage": "creact --watch <entry-file>",
+  "filename_terminal": "ターミナル",
+  "heading_behavior": "動作",
+  "behavior_run": "エントリファイルを型チェックして実行します",
+  "behavior_watch": "<0>.ts</0>、<1>.tsx</1>、<2>.js</2>、<3>.jsx</3> ファイルの変更を監視します",
+  "behavior_restart": "ファイル変更時: 現在の実行を停止（クリーンアップを実行）、再型チェック、再起動します",
+  "behavior_state": "Memory インターフェイス経由で、再起動間でも状態が保持されます",
+  "behavior_stop": "停止するには <0>Ctrl+C</0> を押します",
+  "heading_output": "出力",
+  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
+  "tip_state_persists": "状態は再起動をまたいで保持されます。デプロイ済みの状態を失うことなく、コンポーネントツリーを編集できます。"
+}

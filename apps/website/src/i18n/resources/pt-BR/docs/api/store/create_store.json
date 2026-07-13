@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Cria um proxy de store reativo para gerenciar estado aninhado.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valor inicial da store. Deve ser um objeto.",
+  "returns_intro": "Uma tupla de <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: um proxy reativo. O acesso a propriedades é rastreado.",
+  "returns_setstore": "<0>setStore</0>: setter que aceita atualizações baseadas em path.",
+  "heading_the_manifest_shape": "A estrutura do manifest",
+  "usage_the_manifest_shape": "O site publisher modela o site implantado como um <0>Manifest</0> de arquivos com hash. Cada <1>ManifestEntry</1> carrega um path, hash e size, e a store mantém essa estrutura aninhada reativa.",
+  "heading_a_reactive_manifest": "Um manifest reativo",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> percorre o diretório de build e passa o manifest resultante para <1>createStore</1>. O proxy retornado rastreia leituras até entradas individuais, de modo que um componente que renderiza um arquivo só é reexecutado quando o hash daquele arquivo muda.",
+  "in_the_wild": "Veja esta store impulsionar uploads incrementais no <0>guia do site-publisher</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

@@ -1,0 +1,23 @@
+{
+  "reference": "Tham chiếu",
+  "usage": "Cách sử dụng",
+  "parameters": "Tham số",
+  "returns": "Trả về",
+  "param_table": {
+    "parameter": "Tham số",
+    "type": "Kiểu",
+    "description": "Mô tả"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Kiểu",
+    "description": "Mô tả"
+  },
+  "copy": "Sao chép",
+  "copied": "Đã sao chép",
+  "callout": {
+    "info": "Lưu ý",
+    "warning": "Cảnh báo",
+    "tip": "Nên biết"
+  }
+}

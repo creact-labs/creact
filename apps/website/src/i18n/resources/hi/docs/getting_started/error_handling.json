@@ -1,0 +1,14 @@
+{
+  "title": "एरर हैंडलिंग",
+  "description": "ErrorBoundary, catchError, और handler try/catch किसी failing resource को पूरे tree को नीचे गिराने से रोकते हैं।",
+  "heading_error_boundary": "ErrorBoundary Component",
+  "error_boundary_intro": "<0>ErrorBoundary</0> अपने children में throw हुए errors को catch करता है और एक fallback render करता है। uptime monitor अपने probes को इसमें wrap करता है और <1>MonitorFault</1> render करता है, जो process को crash करने के बजाय यह log करता है कि checks रुक गए।",
+  "heading_catch_error": "catchError Primitive",
+  "catch_error_intro": "बेहतर नियंत्रण के लिए, <0>catchError</0> एक single computation को wrap करता है। status page अपना HTML <0>catchError</0> के माध्यम से render करता है, और failed render <1>undefined</1> return करता है ताकि effect throw करने के बजाय publish को skip कर दे।",
+  "heading_handler_errors": "Handlers में Errors",
+  "handler_errors_intro": "<0>useAsyncOutput</0> handlers deployment loop में चलते हैं, इसलिए उनके throws <2>ErrorBoundary</2> द्वारा <1>नहीं</1> catch किए जाते हैं। page writer का handler generation को try/catch में wrap करता है और deployment को throw करने देने के बजाय failure को durable output के रूप में record करता है।",
+  "warning_cleanup": "<0>onCleanup</0> के साथ register किए गए cleanup functions तब भी run होते हैं जब error boundary किसी error को catch करता है, इसलिए resources release हो जाते हैं।",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

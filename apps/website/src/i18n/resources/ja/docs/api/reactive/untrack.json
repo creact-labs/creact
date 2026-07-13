@@ -1,0 +1,12 @@
+{
+  "title": "untrack",
+  "description": "リアクティブな依存関係を作成せずにシグナルを読み取ります。",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "トラッキングなしで実行する関数。内部でのシグナルの読み取りは依存関係として登録されません。",
+  "heading_reading_aside": "値をサイドで読み取る",
+  "usage_reading_aside": "アップタイムモニターは、チェックの <0>status</0> が変化したときのみ遷移をログに記録します。メッセージには最新のレイテンシも必要なため、<2>untrack</2> 経由で <1>latest()</1> を読み取ります。これにより、レイテンシを effect の依存関係から外しつつ、status だけが再実行を駆動します。",
+  "in_the_wild": "この遷移ログは <0>uptime-monitor ウォークスルー</0> で確認できます。",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Penanganan Error",
+  "description": "ErrorBoundary, catchError, dan try/catch di handler mencegah resource yang gagal meruntuhkan seluruh tree.",
+  "heading_error_boundary": "Komponen ErrorBoundary",
+  "error_boundary_intro": "<0>ErrorBoundary</0> menangkap error yang dilempar di children-nya dan merender fallback. Uptime monitor membungkus probe-nya di dalamnya dan merender <1>MonitorFault</1>, yang mencatat bahwa pemeriksaan dihentikan alih-alih membuat proses crash.",
+  "heading_catch_error": "Primitive catchError",
+  "catch_error_intro": "Untuk kontrol yang lebih halus, <0>catchError</0> membungkus satu komputasi. Status page merender HTML-nya melalui <0>catchError</0>, dan render yang gagal mengembalikan <1>undefined</1> sehingga effect melewatkan publish alih-alih melempar error.",
+  "heading_handler_errors": "Error di Handler",
+  "handler_errors_intro": "Handler <0>useAsyncOutput</0> berjalan di deployment loop, sehingga throw-nya <1>tidak</1> ditangkap oleh <2>ErrorBoundary</2>. Handler page writer membungkus generation dalam try/catch dan mencatat kegagalan sebagai durable output alih-alih membiarkan deployment melempar error.",
+  "warning_cleanup": "Fungsi cleanup yang didaftarkan dengan <0>onCleanup</0> tetap dijalankan ketika error boundary menangkap error, sehingga resource dilepaskan.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

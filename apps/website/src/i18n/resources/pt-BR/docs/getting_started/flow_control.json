@@ -1,0 +1,11 @@
+{
+  "title": "Controle de Fluxo",
+  "description": "Show, For, Switch, Match e ErrorBoundary decidem quais componentes são executados com base em condições reativas.",
+  "heading_one_tree": "Uma Árvore, Todas as Primitivas",
+  "one_tree_intro": "O layout do uptime monitor usa todos os componentes de fluxo de uma vez. <0>ErrorBoundary</0> envolve um <1>For</1> que monta uma sonda por alvo, <2>Show</2> retém a página de status até a primeira varredura ser concluída, e um <3>Switch</3> de ramos <4>Match</4> escolhe um banner a partir do status geral.",
+  "info_accessor_conditions": "Os componentes de fluxo recebem funções acessoras como <0>() => value</0> para suas condições. A condição é reavaliada por conta própria quando os signals mudam, sem reexecutar o componente pai.",
+  "heading_switch_states": "Ramificação pelo Estado do Resource",
+  "switch_states_intro": "Um <0>Switch</0> lê diretamente de um resource. Cada página no page writer expõe um acessor <1>state</1>, e os ramos Match renderizam as views writing, ready e failed conforme o handler avança por elas.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

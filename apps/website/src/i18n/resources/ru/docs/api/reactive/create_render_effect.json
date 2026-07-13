@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "Синхронно выполняет функцию во время рендера вместо постановки в очередь. Используется внутри рантайма; в коде приложения требуется редко.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Функция эффекта. Выполняется немедленно во время рендера.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Необязательное начальное значение.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательно. <0>name</0> для отладки.",
+  "heading_reporting_state": "Передача состояния во время рендера",
+  "usage_reporting_state": "Компонент <0>Page</0> в page-writer сообщает родителю о своих outputs по мере их изменения. <1>createRenderEffect</1> читает снимок страницы и синхронно вызывает <2>props.onState</2> во время рендера, поэтому родительский ledger видит первое состояние до запуска любого эффекта из очереди.",
+  "info_ordering": "Эффекты рендера выполняются раньше пользовательских эффектов (<0>createEffect</0>). Используйте это, когда нужны синхронные реакции на этапе рендера, например для отслеживания рендера компонента.",
+  "in_the_wild": "См., как этот эффект передаёт состояние страницы родителю, в <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

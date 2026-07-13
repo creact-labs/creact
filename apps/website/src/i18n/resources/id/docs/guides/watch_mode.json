@@ -1,0 +1,20 @@
+{
+  "title": "Mode Watch",
+  "description": "Mode watch CReact memulai ulang aplikasi Anda secara otomatis saat file berubah.",
+  "heading_usage": "Penggunaan",
+  "code_usage": "creact --watch index.tsx",
+  "filename_terminal": "Terminal",
+  "usage_desc": "Mode watch memantau file sumber Anda dan memulai ulang aplikasi saat ada perubahan. State dipertahankan antar restart melalui antarmuka Memory.",
+  "heading_how_it_works": "Cara Kerja",
+  "step_start": "CReact memulai aplikasi Anda secara normal",
+  "step_watchers": "Pemantau sistem file memantau file <0>.ts</0>, <1>.tsx</1>, <2>.js</2>, dan <3>.jsx</3>",
+  "step_stop": "Saat file berubah, eksekusi saat ini dihentikan dengan bersih (fungsi cleanup dijalankan)",
+  "step_restart": "Eksekusi baru dimulai, membaca state yang disimpan dari memory",
+  "step_reconcile": "Reconciliation memastikan hanya komponen yang berubah menjalankan ulang handlernya",
+  "heading_development_workflow": "Alur Kerja Pengembangan",
+  "workflow_intro": "Sesi pengembangan yang tipikal:",
+  "code_workflow": "# Mulai dalam mode watch\nnpm run dev\n\n# Edit komponen Anda, app restart secara otomatis\n# State bertahan antar restart\n# Tekan Ctrl+C untuk berhenti",
+  "heading_type_checking": "Type Checking",
+  "type_checking_desc": "Mode watch menjalankan type checking TypeScript sebelum setiap restart. Jika type checking gagal, restart dibatalkan dan error ditampilkan.",
+  "tip_type_check": "Dalam mode watch, CReact melakukan type check sebelum menjalankan kode Anda. Type check yang gagal menampilkan pesan error yang jelas beserta lokasi file."
+}

@@ -1,0 +1,11 @@
+{
+  "title": "การควบคุม Flow",
+  "description": "Show, For, Switch, Match และ ErrorBoundary ตัดสินใจว่าคอมโพเนนต์ใดจะทำงานตามเงื่อนไขแบบ reactive",
+  "heading_one_tree": "Tree เดียว ครบทุก Primitive",
+  "one_tree_intro": "เลย์เอาต์ของ uptime monitor ใช้ flow component ทุกตัวพร้อมกัน <0>ErrorBoundary</0> ห่อหุ้ม <1>For</1> ที่ mount probe หนึ่งตัวต่อ target, <2>Show</2> หน่วง status page ไว้จนกว่า sweep แรกจะเสร็จ และ <3>Switch</3> ของสาขา <4>Match</4> เลือกแบนเนอร์จากสถานะโดยรวม",
+  "info_accessor_conditions": "Flow component รับฟังก์ชัน accessor เช่น <0>() => value</0> เป็นเงื่อนไข เงื่อนไขจะถูกประเมินใหม่เองเมื่อ signals เปลี่ยน โดยไม่ต้องรัน parent component ใหม่",
+  "heading_switch_states": "แตกสาขาตาม Resource State",
+  "switch_states_intro": "<0>Switch</0> อ่านตรงจาก resource แต่ละ page ใน page writer เปิดเผย accessor ชื่อ <1>state</1> และสาขา Match จะ render มุมมอง writing, ready และ failed ตามที่ handler ดำเนินผ่านสถานะเหล่านี้",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

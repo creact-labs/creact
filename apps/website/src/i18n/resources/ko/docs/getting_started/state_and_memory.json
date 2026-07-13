@@ -1,0 +1,20 @@
+{
+  "title": "상태와 Memory",
+  "description": "Memory 인터페이스는 실행 간에 배포 상태를 저장하고 복원합니다.",
+  "heading_why_persistence": "영속성이 중요한 이유",
+  "why_persistence_body": "CReact 앱은 인프라와 프로세스를 기술합니다. 앱이 중지되었다가 다시 시작될 때 이미 배포된 내용을 알아야 합니다. 그렇지 않으면 재시작할 때마다 처음부터 모든 것을 다시 생성합니다. <0>Memory</0> 인터페이스는 배포 상태를 저장하고 복원하여 이 문제를 해결합니다.",
+  "heading_memory_interface": "Memory 인터페이스",
+  "memory_interface_intro": "<0>Memory</0> 구현체는 <1>getState</1>와 <2>saveState</2> 두 가지 메서드를 제공합니다. 예제인 <3>FileMemory</3>는 스택마다 JSON 파일 하나를 읽고 쓰며, CReact는 내장 백엔드를 제공하지 않으므로 저장소를 직접 선택합니다.",
+  "heading_using_memory": "render()에 Memory 전달하기",
+  "using_memory_intro": "진입점에서 <0>FileMemory</0>를 생성하고 스택 이름과 함께 <1>render()</1>에 전달합니다. CReact 앱을 시작하는 데 필요한 것은 이 함수뿐입니다.",
+  "tip_stack_name": "<0>render()</0>의 세 번째 인수는 스택 이름입니다. 상태 파일의 이름을 지정하므로, 서로 다른 스택 이름을 사용하면 독립적인 상태 저장소를 나란히 유지할 수 있습니다.",
+  "heading_use_async_output": "useAsyncOutput으로 출력 영속화하기",
+  "use_async_output_intro": "<0>useAsyncOutput</0>은 리소스의 내구성 있는 출력을 담당합니다. 카운터 핸들러는 <1>setOutputs(prev => ...)</1>에서 카운트를 시드하므로, 재시작 시 0이 아닌 마지막으로 저장된 값부터 재개합니다.",
+  "heading_what_gets_persisted": "영속화되는 항목",
+  "what_gets_persisted_body": "<0>setOutputs()</0>에 전달된 값만 영속화됩니다. 일반 시그널, effect, 지역 변수는 <1>저장되지 않으므로</1>, 실행할 때마다 다시 초기화됩니다.",
+  "info_gitignore": "<0>.state/</0>와 같은 상태 디렉터리를 <1>.gitignore</1>에 추가하세요.",
+  "durable_counter_link": "Memory, setOutputs, 크래시 복구가 end-to-end로 동작하는 모습을 <0>durable-counter 워크스루</0>에서 확인하세요.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

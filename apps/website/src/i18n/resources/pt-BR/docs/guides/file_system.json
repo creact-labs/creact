@@ -1,0 +1,16 @@
+{
+  "title": "Operações do Sistema de Arquivos",
+  "description": "Escreva arquivos a partir de estado reativo e persista o estado do app no disco, extraído do exemplo uptime-monitor.",
+  "heading_write_effect": "Escrevendo Arquivos a partir de um Effect",
+  "write_effect_intro": "O componente de página de status do uptime-monitor transforma estado reativo em um arquivo no disco. Um <0>createEffect</0> re-renderiza o HTML sempre que o resultado de um probe muda, e <1>catchError</1> impede que um render com erro derrube o app:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "O effect rastreia <0>props.overall()</0> e <1>rows()</1> de forma síncrona e, em seguida, passa o HTML pronto para uma etapa assíncrona de publicação. Ler signals antes do primeiro await é o que mantém o grafo de dependências preciso.",
+  "heading_publish": "A Etapa de Publicação",
+  "publish_intro": "A escrita real no disco é uma função async simples construída sobre <0>node:fs/promises</0>. Ela cria o diretório de saída sob demanda e sobrescreve <1>./out/status.html</1> no local:",
+  "publish_notice": "Nada aqui é específico do CReact — o sistema reativo decide quando escrever, e as APIs comuns do Node.js fazem a escrita. Cada execução do effect produz um arquivo novo e completo.",
+  "heading_file_memory": "Memory Baseada em Arquivo",
+  "file_memory_intro": "O outro padrão de sistema de arquivos que todo app precisa é a persistência. <0>FileMemory</0> implementa o contrato <1>Memory</1> com um arquivo JSON por stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> retorna null quando ainda não existe um ledger, e <1>saveState</1> reescreve o estado completo do deployment após cada alteração. Este é o ledger que os apps de exemplo usam para sobreviver a reinícios.",
+  "see_walkthrough": "Veja o app completo no <0>walkthrough do uptime-monitor</0>."
+}

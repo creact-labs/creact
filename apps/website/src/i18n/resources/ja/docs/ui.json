@@ -1,0 +1,23 @@
+{
+  "reference": "リファレンス",
+  "usage": "使い方",
+  "parameters": "パラメーター",
+  "returns": "戻り値",
+  "param_table": {
+    "parameter": "パラメーター",
+    "type": "型",
+    "description": "説明"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "型",
+    "description": "説明"
+  },
+  "copy": "コピー",
+  "copied": "コピーしました",
+  "callout": {
+    "info": "メモ",
+    "warning": "警告",
+    "tip": "知っておくと良いこと"
+  }
+}

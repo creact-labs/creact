@@ -1,0 +1,16 @@
+{
+  "title": "createSelector",
+  "description": "สร้าง selection signal แบบ O(2) โดย re-evaluate เฉพาะ previous และ new selection เท่านั้น",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<0>source</0>",
+  "param_source_type": "<0>Accessor<T></0>",
+  "param_source_desc": "Signal ที่เก็บค่าที่ถูกเลือกอยู่ในปัจจุบัน",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(a: U, b: T) => boolean</0>",
+  "param_fn_desc": "ตัวเปรียบเทียบแบบ optional ค่าเริ่มต้นคือ <0>===</0>",
+  "returns_body": "ฟังก์ชัน <0>(key: U) => boolean</0> ที่คืนค่า <1>true</1> หาก <2>key</2> ตรงกับ selection ปัจจุบัน มีเฉพาะรายการที่ถูกเลือกก่อนหน้าและรายการที่ถูกเลือกใหม่เท่านั้นที่ re-evaluate เป็น O(2) ไม่ว่ารายการจะมีขนาดเท่าใด",
+  "heading_latest_request": "การทำเครื่องหมายหน้า ready ล่าสุด",
+  "usage_latest_request": "page writer สร้าง <0>isLatest</0> จาก memo ของ slug ใหม่สุดที่หน้า ready แล้ว แต่ละแถวเรียก <1>isLatest(request.slug)</1> เพื่อรู้ว่าเป็นแถวปัจจุบันหรือไม่ และมีเฉพาะแถวที่เสีย flag และแถวที่ได้ flag เท่านั้นที่ re-evaluate เมื่อหน้าใหม่ settle",
+  "in_the_wild": "ดู selector นี้ไฮไลต์หน้าล่าสุดใน <0>page-writer walkthrough</0>",
+  "filename_app": "page-writer/src/app.tsx"
+}

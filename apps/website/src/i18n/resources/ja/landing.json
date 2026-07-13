@@ -1,0 +1,12 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "nav_docs": "ドキュメント",
+  "nav_github": "GitHub",
+  "nav_aria": "メインナビゲーション",
+  "hero_subtitle": "JSX を使って耐久性のあるワークフローを自動化",
+  "get_started": "はじめる",
+  "view_demo": "デモを見る",
+  "footer_license": "Apache 2.0",
+  "code_filename": "app.tsx"
+}

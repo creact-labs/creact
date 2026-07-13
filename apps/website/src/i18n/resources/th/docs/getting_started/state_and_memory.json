@@ -1,0 +1,20 @@
+{
+  "title": "State และ Memory",
+  "description": "อินเทอร์เฟซ Memory บันทึกและกู้คืน deployment state ระหว่างรอบการรัน",
+  "heading_why_persistence": "ทำไม Persistence จึงสำคัญ",
+  "why_persistence_body": "แอป CReact อธิบาย infrastructure และ processes เมื่อแอปหยุดและรีสตาร์ท คุณต้องรู้ว่ามีอะไรที่ deploy ไปแล้ว มิฉะนั้นทุกครั้งที่รีสตาร์ทจะสร้างทุกอย่างขึ้นใหม่จากศูนย์ อินเทอร์เฟซ <0>Memory</0> แก้ปัญหานี้โดยบันทึกและกู้คืน deployment state",
+  "heading_memory_interface": "อินเทอร์เฟซ Memory",
+  "memory_interface_intro": "implementation ของ <0>Memory</0> จัดเตรียมเมธอดสองตัว คือ <1>getState</1> และ <2>saveState</2> ตัวอย่าง <3>FileMemory</3> อ่านและเขียนไฟล์ JSON หนึ่งไฟล์ต่อ stack และ CReact ไม่มี built-in backend มาให้ ดังนั้นคุณเลือก storage เอง",
+  "heading_using_memory": "การส่ง Memory ไปยัง render()",
+  "using_memory_intro": "entry point สร้าง <0>FileMemory</0> แล้วส่งให้ <1>render()</1> พร้อมกับชื่อ stack ฟังก์ชันนี้คือทั้งหมดที่แอป CReact ต้องการเพื่อบูต",
+  "tip_stack_name": "อาร์กิวเมนต์ตัวที่สามของ <0>render()</0> คือชื่อ stack ใช้ตั้งชื่อไฟล์ state ดังนั้นชื่อ stack ที่ต่างกันจะเก็บ state store แยกกันอย่างอิสระเคียงข้างกัน",
+  "heading_use_async_output": "การ Persist Outputs ด้วย useAsyncOutput",
+  "use_async_output_intro": "<0>useAsyncOutput</0> เป็นเจ้าของ durable outputs ของ resource handler ของ counter เริ่มต้นค่า count จาก <1>setOutputs(prev => ...)</1> ดังนั้นเมื่อรีสตาร์ทจะทำงานต่อจากค่าที่บันทึกล่าสุดแทนที่จะเริ่มจากศูนย์",
+  "heading_what_gets_persisted": "สิ่งที่ถูก Persist",
+  "what_gets_persisted_body": "เฉพาะค่าที่ส่งให้ <0>setOutputs()</0> เท่านั้นที่ถูก persist signals, effects และตัวแปร local ทั่วไปจะ<1>ไม่</1>ถูกบันทึก จึงถูก initialize ใหม่ในแต่ละรอบการรัน",
+  "info_gitignore": "เพิ่มไดเรกทอรี state เช่น <0>.state/</0> ลงใน <1>.gitignore</1> ของคุณ",
+  "durable_counter_link": "ดูการทำงานของ Memory, setOutputs และการกู้คืนจาก crash แบบ end to end ใน <0>durable-counter walkthrough</0>",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}
