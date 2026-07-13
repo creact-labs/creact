@@ -1,0 +1,16 @@
+{
+  "title": "文件系统操作",
+  "description": "使用 Node.js API 构建响应式的文件读写组件。",
+  "heading_read_component": "Read 组件",
+  "read_intro": "<code>Read</code> 组件会加载文件，并将其内容作为 accessor 传递给 render 回调。子节点以响应式方式接收内容。",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Write 组件",
+  "write_intro": "<code>Write</code> 组件通过 <code>createEffect</code> 监听内容 accessor。当内容发生变化时，会将其写入磁盘。<code>untrack</code> 防护可避免重复写入相同内容。",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "组合使用 Read 与 Write",
+  "usage_intro": "组合 <code>Read</code> 与 <code>Write</code>，构建以响应式方式转换文件内容的管道：",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "基于文件的 Memory",
+  "file_memory_intro": "在 CReact 中，最常见的文件系统模式是用于状态持久化的 <code>FileMemory</code> 实现：",
+  "filename_memory": "src/memory.ts"
+}

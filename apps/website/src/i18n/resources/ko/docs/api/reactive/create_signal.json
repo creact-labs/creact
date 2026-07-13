@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "getter와 setter가 있는 반응형 시그널을 생성합니다.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "시그널의 초기 값입니다. 선택 사항이며, 생략하면 <code>T | undefined</code>가 됩니다.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "선택 사항입니다. 동등성 검사를 비활성화하려면 <code>equals</code>를 <code>false</code>로 설정하거나, 사용자 정의 비교 함수를 제공하세요.",
+  "returns_intro": "<code>[getter, setter]</code> 튜플:",
+  "returns_getter": "<code>getter()</code>: 현재 값을 읽고, 추적 스코프 내에서 호출될 때 의존성을 등록합니다",
+  "returns_setter": "<code>setter(value)</code>: 값을 업데이트합니다. 직접 값 또는 함수 <code>(prev) =&gt; next</code>를 받습니다.",
+  "heading_usage": "사용법",
+  "heading_basic": "기본 사용법",
+  "heading_functional_updates": "함수형 업데이트",
+  "heading_custom_equality": "사용자 정의 동등성",
+  "tip_equality": "기본적으로 시그널은 <code>===</code> 비교를 사용합니다. 같은 값을 다시 설정해도 재계산이 트리거되지 않습니다."
+}

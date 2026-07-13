@@ -1,0 +1,19 @@
+{
+  "title": "การผสานรวม AWS",
+  "description": "สร้างคอมโพเนนต์ S3 bucket, การอัปโหลดไฟล์ และการดีพลอยเว็บไซต์โดยใช้ AWS SDK",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "ห่อ AWS clients ไว้ใน context provider คอมโพเนนต์ลูกเข้าถึง S3 client, region และ account ID ผ่าน hooks Provider ดึง account ID ด้วย <code>useAsyncOutput</code> และรอด้วย <code>Show</code> ก่อน render children",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "คอมโพเนนต์ Bucket",
+  "bucket_intro": "คอมโพเนนต์ <code>Bucket</code> สร้าง S3 bucket ด้วย <code>useAsyncOutput</code> โดยตรวจสอบ saved outputs เพื่อข้ามการสร้างเมื่อ restart Cleanup handler จะล้างและลบ bucket เมื่อคอมโพเนนต์ถูกลบออกจาก tree Children จะ render เฉพาะเมื่อ bucket พร้อมแล้ว",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "การอัปโหลดไฟล์ S3",
+  "s3_file_intro": "คอมโพเนนต์ <code>S3File</code> อัปโหลด content ไปยัง S3 โดย hash content แล้วเปรียบเทียบกับ saved state เพื่อข้ามการอัปโหลดเมื่อไม่มีอะไรเปลี่ยนแปลง",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "การประกอบ WebSite",
+  "website_intro": "<code>WebSite</code> ประกอบ <code>Bucket</code> และ <code>S3File</code> เข้าด้วยกัน Bucket สร้างและกำหนดค่าตัวเอง จากนั้น <code>S3File</code> อัปโหลด content ในฐานะ child",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "การดีพลอยหลายไซต์",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "สร้าง cleanup handlers สำหรับ AWS resources หากไม่มี cleanup การลบคอมโพเนนต์ออกจาก tree จะไม่ลบ resource ที่อยู่เบื้องหลัง"
+}

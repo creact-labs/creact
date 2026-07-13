@@ -1,0 +1,19 @@
+{
+  "title": "AWS 整合",
+  "description": "使用 AWS SDK 建置 S3 bucket、檔案上傳與網站部署元件。",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "將 AWS 用戶端包裝於 Context Provider 中。子元件可透過 Hooks 存取 S3 client、region 與帳戶 ID。Provider 會以 <code>useAsyncOutput</code> 擷取帳戶 ID，並以 <code>Show</code> 等待完成後再渲染子元件。",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Bucket 元件",
+  "bucket_intro": "<code>Bucket</code> 元件會以 <code>useAsyncOutput</code> 建立 S3 bucket。它會檢查已儲存的輸出，以便在重新啟動時略過建立。清理處理常式會在元件從樹狀結構移除時清空並刪除 bucket。子元件僅在 bucket 就緒後才會渲染。",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "S3 檔案上傳",
+  "s3_file_intro": "<code>S3File</code> 元件會將內容上傳至 S3。它會對內容進行雜湊，並與已儲存狀態比對，以便在內容未變更時略過上傳。",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "組合 WebSite",
+  "website_intro": "<code>WebSite</code> 組合 <code>Bucket</code> 與 <code>S3File</code>。Bucket 會自行建立並設定，接著 <code>S3File</code> 會以子元件身份上傳內容。",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "部署多個網站",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "請為 AWS 資源實作清理處理常式。若未實作清理，從樹狀結構移除元件時將不會刪除底層資源。"
+}

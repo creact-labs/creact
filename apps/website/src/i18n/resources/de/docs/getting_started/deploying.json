@@ -1,0 +1,23 @@
+{
+  "title": "Deployment",
+  "description": "CReact-Apps in der Produktion mit Zustandspersistenz und ordnungsgemäßem Prozessmanagement ausführen.",
+  "heading_production_run": "In der Produktion ausführen",
+  "production_run_intro": "Verwenden Sie das <code>start</code>-Skript (ohne <code>--watch</code>) für die Produktion:",
+  "code_run_start": "npm run start",
+  "production_run_outro": "Dies führt Ihren Entry Point einmal aus. CReact gleicht den aktuellen Komponentenbaum mit dem persistierten Zustand ab, wendet Änderungen an, speichert den neuen Zustand und beendet sich.",
+  "heading_ci_cd": "CI/CD-Integration",
+  "ci_cd_intro": "CReact-Apps eignen sich gut für CI/CD-Pipelines. Die App liest den vorherigen Zustand, gleicht ab, deployed Änderungen und schreibt den neuen Zustand – alles in einem einzigen Lauf.",
+  "code_ci_cd": "# GitHub Actions-Beispiel\n- name: Infrastruktur deployen\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "Zustandsspeicherung",
+  "state_storage_intro": "Für die Produktion speichern Sie den Zustand in einem Remote-Backend statt im lokalen Dateisystem. Implementieren Sie die <code>Memory</code>-Schnittstelle für Ihren Speicher:",
+  "storage_s3": "<strong>S3:</strong> Zustand-JSON in einem S3-Bucket speichern",
+  "storage_dynamodb": "<strong>DynamoDB:</strong> eine Tabelle für nebenläufigkeitssicheren Zustand verwenden",
+  "storage_database": "<strong>Datenbank:</strong> PostgreSQL, Redis usw.",
+  "heading_watch_mode": "Dauerbetrieb mit Watch-Modus",
+  "watch_mode_intro": "Für Apps, die kontinuierlich laufen sollen (wie Server oder Monitore), verwenden Sie den Watch-Modus:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Der Watch-Modus startet die App neu, wenn sich Quelldateien ändern, und behält den Zustand zwischen Neustarts bei.",
+  "tip_process_manager": "Für langlebige Prozesse verwenden Sie PM2 oder systemd, um Neustarts und Logging zu verwalten.",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

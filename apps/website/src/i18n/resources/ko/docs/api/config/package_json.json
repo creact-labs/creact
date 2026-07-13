@@ -1,0 +1,22 @@
+{
+  "title": "package.json",
+  "description": "CReact 프로젝트의 패키지 구성.",
+  "heading_minimal": "최소 구성",
+  "code_minimal": "{\n  \"name\": \"my-creact-app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\"\n  },\n  \"dependencies\": {\n    \"@creact-labs/creact\": \"^0.3.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\"\n  }\n}",
+  "filename_package_json": "package.json",
+  "heading_key_fields": "주요 필드",
+  "table_header_field": "필드",
+  "table_header_value": "값",
+  "table_header_why": "이유",
+  "row_type_name": "<code>\"type\"</code>",
+  "row_type_value": "<code>\"module\"</code>",
+  "row_type_why": "CReact는 ESM 전용입니다. 올바른 모듈 해석에 필요합니다.",
+  "row_start_name": "<code>\"scripts.start\"</code>",
+  "row_start_value": "<code>\"creact index.tsx\"</code>",
+  "row_start_why": "단일 실행: reconcile 후 종료.",
+  "row_dev_name": "<code>\"scripts.dev\"</code>",
+  "row_dev_value": "<code>\"creact --watch index.tsx\"</code>",
+  "row_dev_why": "Watch 모드: 파일 변경 시 재시작.",
+  "heading_with_testing": "테스트 포함",
+  "code_with_testing": "{\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\",\n    \"test\": \"vitest --run\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\",\n    \"vitest\": \"^3.0.0\"\n  }\n}"
+}

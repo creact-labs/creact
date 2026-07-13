@@ -1,0 +1,11 @@
+{
+  "title": "indexArray",
+  "description": "Indexed iteration. प्रत्येक position एक reactive accessor है। Primitive arrays के लिए सर्वोत्तम।",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Reactive array स्रोत।",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code>",
+  "param_map_fn_desc": "Map function. <code>v</code> एक accessor (reactive) है। <code>i</code> एक static index है।"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "createComputed",
+  "description": "Menjalankan fungsi secara sinkron selama fase komputasi, sebelum effects. Gunakan saat Anda perlu menulis ke signal lain seiring dependencies diperbarui.",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Fungsi komputasi. Berjalan secara sinkron.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Nilai awal opsional.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opsional. <code>name</code> untuk debugging.",
+  "warning_prefer_memo": "Utamakan <code>createMemo</code> untuk nilai turunan. Gunakan <code>createComputed</code> hanya saat Anda perlu menulis ke signal lain secara sinkron selama fase komputasi."
+}

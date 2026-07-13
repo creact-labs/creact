@@ -1,0 +1,13 @@
+{
+  "title": "Gestion des erreurs",
+  "description": "ErrorBoundary et catchError interceptent les erreurs dans les calculs réactifs et les composants enfants.",
+  "heading_error_boundary": "Composant ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> intercepte les erreurs levées dans ses enfants et rend un fallback :",
+  "heading_catch_error": "Primitive catchError",
+  "catch_error_intro": "Pour un contrôle de plus bas niveau, <code>catchError</code> enveloppe une fonction et intercepte les erreurs dans les calculs enfants :",
+  "heading_error_propagation": "Propagation des erreurs",
+  "error_propagation_body": "Les erreurs se propagent le long de la chaîne d'owners. Si aucune error boundary n'intercepte une erreur, elle remonte jusqu'à la racine et est levée. Les error boundaries imbriqués n'interceptent que les erreurs de leur sous-arbre.",
+  "heading_handler_errors": "Erreurs dans les handlers",
+  "handler_errors_intro": "Les handlers de <code>useAsyncOutput</code> s'exécutent dans la boucle de déploiement asynchrone du runtime, et non à l'intérieur des calculs réactifs. Les erreurs levées dans les handlers font échouer le déploiement. Elles ne sont <strong>pas</strong> interceptées par <code>ErrorBoundary</code>. Gérez les erreurs à l'intérieur de votre handler avec try/catch :",
+  "warning_cleanup": "Les fonctions de nettoyage enregistrées avec <code>onCleanup</code> s'exécutent toujours lorsqu'une error boundary intercepte une erreur. Les ressources sont libérées."
+}

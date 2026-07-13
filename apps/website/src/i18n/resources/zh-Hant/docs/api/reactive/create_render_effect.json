@@ -1,0 +1,15 @@
+{
+  "title": "createRenderEffect",
+  "description": "在 render 期間同步執行函式，而不是將其排入佇列。由 runtime 內部使用；應用程式碼中很少需要。",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect 函式。在 render 期間立即執行。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "選用的初始值。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "選用。<code>name</code> 用於除錯。",
+  "info_ordering": "Render effects 會在 user effects（<code>createEffect</code>）之前執行。當你需要在 render 階段進行同步反應時使用，例如元件的 render tracking。"
+}

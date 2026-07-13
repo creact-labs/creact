@@ -1,0 +1,9 @@
+{
+  "title": "access",
+  "description": "MaybeAccessor をアンラップします。関数の場合は呼び出して返し、それ以外の場合はそのまま返します。",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_desc": "値、またはアクセサー関数。",
+  "returns_desc": "型 <code>T</code> のアンラップされた値。"
+}

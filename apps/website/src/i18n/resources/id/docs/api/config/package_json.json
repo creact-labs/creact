@@ -1,0 +1,22 @@
+{
+  "title": "package.json",
+  "description": "Konfigurasi package untuk proyek CReact.",
+  "heading_minimal": "Konfigurasi Minimal",
+  "code_minimal": "{\n  \"name\": \"my-creact-app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\"\n  },\n  \"dependencies\": {\n    \"@creact-labs/creact\": \"^0.3.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\"\n  }\n}",
+  "filename_package_json": "package.json",
+  "heading_key_fields": "Field Utama",
+  "table_header_field": "Field",
+  "table_header_value": "Nilai",
+  "table_header_why": "Alasan",
+  "row_type_name": "<code>\"type\"</code>",
+  "row_type_value": "<code>\"module\"</code>",
+  "row_type_why": "CReact hanya ESM. Diperlukan untuk resolusi modul yang benar.",
+  "row_start_name": "<code>\"scripts.start\"</code>",
+  "row_start_value": "<code>\"creact index.tsx\"</code>",
+  "row_start_why": "Jalankan sekali: reconcile lalu keluar.",
+  "row_dev_name": "<code>\"scripts.dev\"</code>",
+  "row_dev_value": "<code>\"creact --watch index.tsx\"</code>",
+  "row_dev_why": "Mode watch: restart saat file berubah.",
+  "heading_with_testing": "Dengan Testing",
+  "code_with_testing": "{\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\",\n    \"test\": \"vitest --run\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\",\n    \"vitest\": \"^3.0.0\"\n  }\n}"
+}

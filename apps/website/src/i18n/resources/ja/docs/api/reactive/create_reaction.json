@@ -1,0 +1,12 @@
+{
+  "title": "createReaction",
+  "description": "トラッキングと実行を分離します。1つの式をトラッキングし、それが変更されたときに別の関数を実行します。リアクションは一度発火し、その後再アームする必要があります。",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<code>onInvalidate</code>",
+  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_desc": "トラッキングされたシグナルが変更されたときに一度発火するコールバック。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "オプション。<code>name</code> はデバッグ用。",
+  "returns_body": "リアクションをアームする関数 <code>(tracking: () =&gt; void) =&gt; void</code>。トラッキング式を渡して呼び出します。内部で読み取られたシグナルがトラッキングされます。いずれかが変更されると、<code>onInvalidate</code> が一度発火し、関数を再度呼び出すまでトラッキングは停止します。"
+}

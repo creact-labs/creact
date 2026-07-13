@@ -1,0 +1,16 @@
+{
+  "title": "creact --watch",
+  "description": "Запуск CReact в режиме watch. Автоматически перезапускается при изменении исходных файлов.",
+  "heading_usage": "Использование",
+  "code_usage": "creact --watch <entry-file>",
+  "filename_terminal": "Терминал",
+  "heading_behavior": "Поведение",
+  "behavior_run": "Проверяет типы и запускает ваш entry-файл",
+  "behavior_watch": "Отслеживает изменения в файлах <code>.ts</code>, <code>.tsx</code>, <code>.js</code> и <code>.jsx</code>",
+  "behavior_restart": "При изменении файла: останавливает текущий запуск (выполняет cleanups), повторно проверяет типы и перезапускает",
+  "behavior_state": "Состояние сохраняется между перезапусками через интерфейс Memory",
+  "behavior_stop": "Нажмите <code>Ctrl+C</code>, чтобы остановить",
+  "heading_output": "Вывод",
+  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
+  "tip_state_persists": "Состояние сохраняется между перезапусками. Редактируйте дерево компонентов, не теряя развёрнутое состояние."
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Watch-Modus",
+  "description": "CReacts Watch-Modus startet deine App automatisch neu, wenn Dateien geändert werden.",
+  "heading_usage": "Verwendung",
+  "code_usage": "creact --watch index.tsx",
+  "filename_terminal": "Terminal",
+  "usage_desc": "Der Watch-Modus überwacht deine Quelldateien und startet die App bei Änderungen neu. Der Zustand bleibt zwischen Neustarts über das Memory-Interface erhalten.",
+  "heading_how_it_works": "So funktioniert es",
+  "step_start": "CReact startet deine App normal",
+  "step_watchers": "Dateisystem-Watcher überwachen <code>.ts</code>-, <code>.tsx</code>-, <code>.js</code>- und <code>.jsx</code>-Dateien",
+  "step_stop": "Wenn sich eine Datei ändert, wird der aktuelle Durchlauf sauber beendet (Cleanup-Funktionen werden ausgeführt)",
+  "step_restart": "Ein neuer Durchlauf startet und liest den persistierten Zustand aus dem Memory",
+  "step_reconcile": "Reconciliation stellt sicher, dass nur geänderte Komponenten ihre Handler erneut ausführen",
+  "heading_development_workflow": "Entwicklungs-Workflow",
+  "workflow_intro": "Eine typische Entwicklungssitzung:",
+  "code_workflow": "# Im Watch-Modus starten\nnpm run dev\n\n# Bearbeite deine Komponenten, die App startet automatisch neu\n# Zustand bleibt über Neustarts hinweg erhalten\n# Drücke Strg+C zum Beenden",
+  "heading_type_checking": "Typprüfung",
+  "type_checking_desc": "Der Watch-Modus führt vor jedem Neustart eine TypeScript-Typprüfung durch. Schlägt die Typprüfung fehl, wird der Neustart abgebrochen und Fehler werden angezeigt.",
+  "tip_type_check": "Im Watch-Modus führt CReact vor dem Ausführen deines Codes einen Type-Check-Durchlauf durch. Fehlgeschlagene Typprüfungen zeigen klare Fehlermeldungen mit Dateipfaden."
+}

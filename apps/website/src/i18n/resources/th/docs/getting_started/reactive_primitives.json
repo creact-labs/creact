@@ -1,0 +1,15 @@
+{
+  "title": "Reactive Primitives",
+  "description": "Signals, effects และ memos ทำให้ components ตอบสนองต่อการเปลี่ยนแปลง",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal คือค่าแบบ reactive ซึ่งคืนค่าคู่ getter และ setter การอ่าน getter ภายใน effect จะลงทะเบียน dependency Effect จะรันใหม่เมื่อ signal เปลี่ยนแปลง",
+  "heading_effects": "Effects",
+  "effects_intro": "Effects รัน side effects เมื่อ dependencies เปลี่ยนแปลง CReact ติดตามว่า signals ใดถูกอ่านภายใน effect function",
+  "info_batched_effects": "Effects ถูกจัดคิวและทำ batch การอัปเดต signal หลายครั้งใน synchronous block เดียวจะ trigger การ re-run ของ effect เพียงครั้งเดียว",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo คือค่า reactive ที่ derived มา มัน cache ผลลัพธ์และ recompute เฉพาะเมื่อ dependencies เปลี่ยนแปลง",
+  "heading_batching": "Batching",
+  "batching_intro": "<code>batch()</code> จัดกลุ่มการอัปเดต signal หลายรายการเข้าด้วยกันเป็นการ re-evaluation ครั้งเดียว:",
+  "heading_untrack": "Untrack",
+  "untrack_intro": "<code>untrack()</code> อ่าน signal โดยไม่สร้าง dependency:"
+}

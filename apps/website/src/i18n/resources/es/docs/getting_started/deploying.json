@@ -1,0 +1,23 @@
+{
+  "title": "Despliegue",
+  "description": "Ejecuta aplicaciones CReact en producción con persistencia de estado y una gestión de procesos adecuada.",
+  "heading_production_run": "Ejecución en producción",
+  "production_run_intro": "Usa el script <code>start</code> (sin <code>--watch</code>) para producción:",
+  "code_run_start": "npm run start",
+  "production_run_outro": "Esto ejecuta tu punto de entrada una sola vez. CReact reconcilia el árbol de componentes actual con el estado persistido, aplica los cambios, guarda el nuevo estado y finaliza.",
+  "heading_ci_cd": "Integración CI/CD",
+  "ci_cd_intro": "Las aplicaciones CReact funcionan bien en pipelines de CI/CD. La aplicación lee el estado anterior, reconcilia, despliega los cambios y escribe el nuevo estado, todo en una sola ejecución.",
+  "code_ci_cd": "# GitHub Actions example\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "Almacenamiento de estado",
+  "state_storage_intro": "Para producción, almacena el estado en un backend remoto en lugar del sistema de archivos local. Implementa la interfaz <code>Memory</code> para tu almacenamiento:",
+  "storage_s3": "<strong>S3:</strong> almacena el estado JSON en un bucket de S3",
+  "storage_dynamodb": "<strong>DynamoDB:</strong> usa una tabla para estado seguro ante concurrencia",
+  "storage_database": "<strong>Base de datos:</strong> PostgreSQL, Redis, etc.",
+  "heading_watch_mode": "Ejecución continua con modo watch",
+  "watch_mode_intro": "Para aplicaciones que deben ejecutarse de forma continua (como servidores o monitores), usa el modo watch:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "El modo watch reinicia la aplicación cuando cambian los archivos fuente, preservando el estado entre reinicios.",
+  "tip_process_manager": "Para procesos de larga duración, usa PM2 o systemd para gestionar reinicios y logging.",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

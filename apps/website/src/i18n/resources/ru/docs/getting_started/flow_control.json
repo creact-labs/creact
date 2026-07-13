@@ -1,0 +1,14 @@
+{
+  "title": "Управление потоком",
+  "description": "Show, For, Switch и ErrorBoundary управляют тем, какие компоненты выполняются на основе реактивных условий.",
+  "heading_show": "Условный рендеринг с Show",
+  "show_intro": "<code>Show</code> рендерит свои дочерние элементы только когда условие <code>when</code> является truthy. Также можно указать fallback.",
+  "show_callback_intro": "Доступ к truthy-значению можно получить через дочерний callback:",
+  "heading_for": "Итерация с For",
+  "for_intro": "<code>For</code> перебирает реактивный список. Каждый элемент ключуется по ссылке. При изменении списка обновляются только затронутые элементы.",
+  "heading_switch": "Многовариантное ветвление с Switch",
+  "switch_intro": "<code>Switch</code> с <code>Match</code> обеспечивает многоветвевую условную логику:",
+  "heading_error_boundary": "Обработка ошибок с ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> перехватывает ошибки, выброшенные в дочерних компонентах:",
+  "info_accessor_conditions": "Flow-компоненты принимают функции-аксессоры (<code>() =&gt; value</code>) для условий. Условие пересчитывается без повторного выполнения родительского компонента."
+}

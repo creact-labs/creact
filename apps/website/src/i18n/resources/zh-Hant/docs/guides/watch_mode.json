@@ -1,0 +1,20 @@
+{
+  "title": "Watch 模式",
+  "description": "CReact 的 Watch 模式會在檔案變更時自動重新啟動你的應用程式。",
+  "heading_usage": "使用方式",
+  "code_usage": "creact --watch index.tsx",
+  "filename_terminal": "終端機",
+  "usage_desc": "Watch 模式會監控你的原始碼檔案，並在變更時重新啟動應用程式。狀態會透過 Memory 介面在重新啟動之間保留。",
+  "heading_how_it_works": "運作原理",
+  "step_start": "CReact 正常啟動你的應用程式",
+  "step_watchers": "檔案系統監視器會監控 <code>.ts</code>、<code>.tsx</code>、<code>.js</code> 和 <code>.jsx</code> 檔案",
+  "step_stop": "當檔案變更時，目前的執行會妥善停止（cleanup 函式會執行）",
+  "step_restart": "新的執行會開始，從 memory 讀取已持久化的狀態",
+  "step_reconcile": "Reconciliation 會確保只有變更的元件會重新執行其 handlers",
+  "heading_development_workflow": "開發工作流程",
+  "workflow_intro": "典型的開發工作階段：",
+  "code_workflow": "# 以 Watch 模式啟動\nnpm run dev\n\n# 編輯你的元件，應用程式會自動重新啟動\n# 狀態會在重新啟動之間保留\n# 按 Ctrl+C 停止",
+  "heading_type_checking": "型別檢查",
+  "type_checking_desc": "Watch 模式會在每次重新啟動前執行 TypeScript 型別檢查。若型別檢查失敗，重新啟動會中止並顯示錯誤。",
+  "tip_type_check": "在 Watch 模式下，CReact 會在執行你的程式碼前進行型別檢查。失敗的型別檢查會顯示清楚的錯誤訊息與檔案位置。"
+}

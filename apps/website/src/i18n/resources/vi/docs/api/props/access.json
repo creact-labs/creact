@@ -1,0 +1,9 @@
+{
+  "title": "access",
+  "description": "Giải bọc một MaybeAccessor. Gọi nó nếu là function, trả về trực tiếp nếu không.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_desc": "Một giá trị hoặc một hàm accessor.",
+  "returns_desc": "Giá trị đã giải bọc có kiểu <code>T</code>."
+}

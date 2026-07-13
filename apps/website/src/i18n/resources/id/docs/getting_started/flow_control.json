@@ -1,0 +1,14 @@
+{
+  "title": "Kontrol Alur",
+  "description": "Show, For, Switch, dan ErrorBoundary mengontrol komponen mana yang dijalankan berdasarkan kondisi reaktif.",
+  "heading_show": "Rendering Bersyarat dengan Show",
+  "show_intro": "<code>Show</code> merender children-nya hanya ketika kondisi <code>when</code> bersifat truthy. Juga dapat menyediakan fallback.",
+  "show_callback_intro": "Anda dapat mengakses nilai truthy dengan callback child:",
+  "heading_for": "Iterasi dengan For",
+  "for_intro": "<code>For</code> mengiterasi daftar reaktif. Setiap item di-key berdasarkan referensi. Ketika daftar berubah, hanya item yang terpengaruh yang diperbarui.",
+  "heading_switch": "Percabangan Multi-jalur dengan Switch",
+  "switch_intro": "<code>Switch</code> dengan <code>Match</code> menyediakan logika bersyarat multi-cabang:",
+  "heading_error_boundary": "Penanganan Error dengan ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> menangkap error yang di-throw di child components:",
+  "info_accessor_conditions": "Komponen flow menerima fungsi accessor (<code>() =&gt; value</code>) untuk kondisi. Kondisi dievaluasi ulang tanpa menjalankan ulang parent component."
+}

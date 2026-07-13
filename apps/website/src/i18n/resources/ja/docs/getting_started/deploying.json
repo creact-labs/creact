@@ -1,0 +1,23 @@
+{
+  "title": "デプロイ",
+  "description": "状態の永続化と適切なプロセス管理により、本番環境でCReactアプリを実行します。",
+  "heading_production_run": "本番環境での実行",
+  "production_run_intro": "本番環境では<code>start</code>スクリプトを使用します（<code>--watch</code>なし）:",
+  "code_run_start": "npm run start",
+  "production_run_outro": "これによりエントリーポイントが1回実行されます。CReactは現在のコンポーネントツリーを永続化された状態とリコンサイルし、変更を適用して新しい状態を保存し、終了します。",
+  "heading_ci_cd": "CI/CD統合",
+  "ci_cd_intro": "CReactアプリはCI/CDパイプラインでうまく機能します。アプリは前回の状態を読み取り、リコンサイルし、変更をデプロイし、新しい状態を書き込みます。すべて単一の実行で完了します。",
+  "code_ci_cd": "# GitHub Actions example\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "状態ストレージ",
+  "state_storage_intro": "本番環境では、ローカルファイルシステムではなくリモートバックエンドに状態を保存します。ストレージ用に<code>Memory</code>インターフェースを実装します:",
+  "storage_s3": "<strong>S3:</strong> S3バケットに状態のJSONを保存",
+  "storage_dynamodb": "<strong>DynamoDB:</strong> 並行安全な状態管理のためのテーブルを使用",
+  "storage_database": "<strong>Database:</strong> PostgreSQL、Redisなど",
+  "heading_watch_mode": "Watchモードでの長時間実行",
+  "watch_mode_intro": "サーバーやモニターなど継続的に実行するアプリには、watchモードを使用します:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Watchモードはソースファイルが変更されるとアプリを再起動し、再起動の間も状態を保持します。",
+  "tip_process_manager": "長時間実行プロセスでは、PM2またはsystemdを使用して再起動とログ管理を行います。",
+  "filename_terminal": "ターミナル",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

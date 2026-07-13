@@ -1,0 +1,12 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "nav_docs": "Docs",
+  "nav_github": "GitHub",
+  "nav_aria": "Hauptnavigation",
+  "hero_subtitle": "JSX verwenden, um dauerhafte Workflows zu automatisieren",
+  "get_started": "Erste Schritte",
+  "view_demo": "Demo ansehen",
+  "footer_license": "Apache 2.0",
+  "code_filename": "app.tsx"
+}

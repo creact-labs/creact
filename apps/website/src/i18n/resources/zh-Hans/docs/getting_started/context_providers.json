@@ -1,0 +1,13 @@
+{
+  "title": "Context 与 Provider",
+  "description": "Context 可在组件树中共享数据，无需通过每一层传递 props。",
+  "heading_creating_context": "创建 Context",
+  "creating_context_intro": "<code>createContext</code> 用于创建带可选默认值的 Context。<code>useContext</code> 读取最近 Provider 的值。",
+  "heading_providing_values": "提供值",
+  "providing_values_intro": "使用 Context 的 <code>Provider</code> 包裹组件：",
+  "heading_nested_providers": "嵌套 Provider",
+  "nested_providers_intro": "内层 Provider 会在其子树中覆盖外层 Provider：",
+  "tip_cross_cutting": "将 Context 用于横切关注点，例如许多组件都需要的 AWS 区域、环境名称或共享凭证。",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

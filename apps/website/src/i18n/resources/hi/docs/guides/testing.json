@@ -1,0 +1,17 @@
+{
+  "title": "टेस्टिंग",
+  "description": "Vitest और createRoot के साथ CReact components और reactive logic टेस्ट करें।",
+  "heading_setup": "सेटअप",
+  "setup_intro": "Vitest इंस्टॉल करें:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Terminal",
+  "heading_testing_signals": "Signals टेस्टिंग",
+  "testing_signals_intro": "Reactive primitives को <code>createRoot</code> में wrap करके टेस्ट करें:",
+  "filename_signals_spec": "signals.spec.ts",
+  "heading_testing_components": "Components टेस्टिंग",
+  "testing_components_intro": "Components को सीधे call करके और उनके handler outputs inspect करके टेस्ट करें:",
+  "filename_counter_spec": "counter.spec.ts",
+  "heading_testing_flow": "Flow Components टेस्टिंग",
+  "filename_flow_spec": "flow.spec.tsx",
+  "tip_create_root": "Tests को <code>createRoot</code> में wrap करें ताकि effects, cleanups और ownership tracking काम करें।"
+}

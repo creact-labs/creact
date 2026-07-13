@@ -1,0 +1,5 @@
+{
+  "title": "mergeProps",
+  "description": "Реактивно объединяет несколько объектов props, при этом более поздние источники переопределяют более ранние. Используйте для props по умолчанию.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
+}

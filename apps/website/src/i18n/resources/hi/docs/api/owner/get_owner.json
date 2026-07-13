@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "वर्तमान reactive owner लौटाता है (वह computation या root जो वर्तमान scope का स्वामी है)।",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "वर्तमान <code>Owner</code>, या <code>null</code> यदि reactive scope के बाहर कॉल किया गया हो।"
+}

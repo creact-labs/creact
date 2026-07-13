@@ -1,0 +1,16 @@
+{
+  "title": "Operaciones del sistema de archivos",
+  "description": "Crea componentes reactivos de lectura y escritura de archivos usando las APIs de Node.js.",
+  "heading_read_component": "Componente Read",
+  "read_intro": "El componente <code>Read</code> carga un archivo y pasa su contenido como un accessor a un callback de render. Los children reciben el contenido de forma reactiva.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Componente Write",
+  "write_intro": "El componente <code>Write</code> observa un accessor de contenido con <code>createEffect</code>. Cuando el contenido cambia, lo escribe en disco. El guard <code>untrack</code> evita reescribir el mismo contenido.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Usar Read y Write juntos",
+  "usage_intro": "Compón <code>Read</code> y <code>Write</code> para crear pipelines que transformen el contenido de archivos de forma reactiva:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "Memoria basada en archivos",
+  "file_memory_intro": "El patrón de sistema de archivos más común en CReact es la implementación <code>FileMemory</code> para la persistencia de estado:",
+  "filename_memory": "src/memory.ts"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Components và JSX",
+  "description": "Các component CReact là các hàm trả về JSX. JSX mô tả tài nguyên và quy trình, không phải các phần tử DOM.",
+  "heading_jsx": "JSX trong CReact",
+  "jsx_intro": "CReact sử dụng JSX để mô tả <strong>tài nguyên và quy trình</strong>, không phải các phần tử DOM. <code>&lt;WebSite name=\"blog\" /&gt;</code> khai báo rằng một website tên \"blog\" sẽ tồn tại.",
+  "heading_component_functions": "Hàm component",
+  "component_functions_intro": "Components là các hàm thuần trả về JSX. Chúng nhận props làm đối số đầu tiên và chạy một lần. Reactivity được xử lý bởi signals, không phải re-renders.",
+  "heading_fragments": "Fragments",
+  "fragments_intro": "Dùng <code>&lt;&gt;...&lt;/&gt;</code> để trả về nhiều phần tử mà không cần wrapper:",
+  "heading_reactive_props": "Reactive props",
+  "reactive_props_intro": "Props trong CReact thường là <strong>accessors</strong> (các hàm getter) để duy trì reactivity. Components chạy một lần; effects chạy lại khi dependencies thay đổi.",
+  "tip_access": "Dùng helper <code>access()</code> để unwrap các giá trị có thể là hoặc không phải accessors: <code>access(props.value)</code> hoạt động dù <code>value</code> là <code>5</code> hay <code>() =&gt; 5</code>.",
+  "heading_children": "Children",
+  "children_intro": "Components có thể nhận children thông qua việc lồng JSX. Dùng helper <code>children()</code> để resolve chúng một cách reactive.",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

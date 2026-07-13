@@ -1,0 +1,12 @@
+{
+  "title": "runWithOwner",
+  "description": "在特定的響應式 owner 下執行函式。在非同步回呼中建立 effect 時必須使用。",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<code>owner</code>",
+  "param_owner_type": "<code>Owner | null</code>",
+  "param_owner_desc": "要在其下執行的 owner 範圍。可透過 <code>getOwner()</code> 取得。接受 <code>null</code>。",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "要執行的函式。在內部建立的任何 effect/cleanup 皆由 <code>owner</code> 擁有。",
+  "info_async_owner": "在 <code>await</code> 之後或回呼內部，響應式 owner 會遺失。請以同步方式使用 <code>getOwner()</code> 擷取它，並以 <code>runWithOwner()</code> 還原。"
+}

@@ -1,0 +1,22 @@
+{
+  "title": "package.json",
+  "description": "CReact プロジェクトのパッケージ設定。",
+  "heading_minimal": "最小構成",
+  "code_minimal": "{\n  \"name\": \"my-creact-app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\"\n  },\n  \"dependencies\": {\n    \"@creact-labs/creact\": \"^0.3.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\"\n  }\n}",
+  "filename_package_json": "package.json",
+  "heading_key_fields": "主要なフィールド",
+  "table_header_field": "フィールド",
+  "table_header_value": "値",
+  "table_header_why": "理由",
+  "row_type_name": "<code>\"type\"</code>",
+  "row_type_value": "<code>\"module\"</code>",
+  "row_type_why": "CReact は ESM 専用です。適切なモジュール解決に必要です。",
+  "row_start_name": "<code>\"scripts.start\"</code>",
+  "row_start_value": "<code>\"creact index.tsx\"</code>",
+  "row_start_why": "単発実行: reconcile して終了します。",
+  "row_dev_name": "<code>\"scripts.dev\"</code>",
+  "row_dev_value": "<code>\"creact --watch index.tsx\"</code>",
+  "row_dev_why": "ウォッチモード: ファイル変更時に再起動します。",
+  "heading_with_testing": "テスト付き",
+  "code_with_testing": "{\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\",\n    \"test\": \"vitest --run\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\",\n    \"vitest\": \"^3.0.0\"\n  }\n}"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Manejo de errores",
+  "description": "ErrorBoundary y catchError capturan errores en computaciones reactivas y componentes hijos.",
+  "heading_error_boundary": "Componente ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> captura los errores lanzados en sus hijos y renderiza un fallback:",
+  "heading_catch_error": "Primitiva catchError",
+  "catch_error_intro": "Para un control de más bajo nivel, <code>catchError</code> envuelve una función y captura errores en las computaciones hijas:",
+  "heading_error_propagation": "Propagación de errores",
+  "error_propagation_body": "Los errores se propagan hacia arriba por la cadena de owners. Si ningún error boundary captura un error, asciende hasta la raíz y se lanza. Los error boundaries anidados capturan solo los errores de su subárbol.",
+  "heading_handler_errors": "Errores en handlers",
+  "handler_errors_intro": "Los handlers de <code>useAsyncOutput</code> se ejecutan en el bucle de deployment asíncrono del runtime, no dentro de computaciones reactivas. Los errores lanzados en los handlers provocan el fallo del deployment. <strong>No</strong> los captura <code>ErrorBoundary</code>. Maneja los errores dentro de tu handler con try/catch:",
+  "warning_cleanup": "Las funciones de cleanup registradas con <code>onCleanup</code> se ejecutan igualmente cuando un error boundary captura un error. Los recursos se liberan."
+}

@@ -1,0 +1,16 @@
+{
+  "title": "createRoot",
+  "description": "สร้าง reactive root ที่เป็นเจ้าของ computations ทั้งหมดภายใน โดยมีฟังก์ชัน dispose สำหรับ teardown",
+  "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(dispose: () =&gt; void) =&gt; T</code>",
+  "param_fn_desc": "ฟังก์ชันที่ทำงานภายใน root รับฟังก์ชัน dispose เพื่อ tear down computations ทั้งหมดที่เป็นเจ้าของ",
+  "param_detached_owner_name": "<code>detachedOwner</code>",
+  "param_detached_owner_type": "<code>Owner</code>",
+  "param_detached_owner_desc": "ไม่บังคับ Parent owner สำหรับ root เมื่อระบุ root จะถูกแนบกับ context chain ของ owner นี้ (สำหรับ lookupContext) แต่ยังคง disposable ได้อิสระ",
+  "returns_body": "ค่าที่ส่งกลับจาก <code>fn</code>",
+  "heading_usage": "การใช้งาน",
+  "heading_basic": "Root พื้นฐาน",
+  "heading_testing": "ในการทดสอบ",
+  "info_render_root": "<code>render()</code> สร้าง root โดยอัตโนมัติ คุณจำเป็นต้องใช้ <code>createRoot</code> เฉพาะสำหรับ reactive scopes แบบ standalone ที่อยู่นอก <code>render()</code> เช่นในการทดสอบ"
+}

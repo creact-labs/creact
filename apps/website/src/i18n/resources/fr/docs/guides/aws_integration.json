@@ -1,0 +1,19 @@
+{
+  "title": "Intégration AWS",
+  "description": "Créez des composants de bucket S3, d'upload de fichiers et de déploiement de site web à l'aide du SDK AWS.",
+  "heading_aws_provider": "Provider AWS",
+  "provider_intro": "Enveloppez les clients AWS dans un context provider. Les composants enfants accèdent au client S3, à la région et à l'ID de compte via des hooks. Le provider récupère l'ID de compte avec <code>useAsyncOutput</code> et l'attend avec <code>Show</code> avant de rendre les enfants.",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Composant Bucket",
+  "bucket_intro": "Le composant <code>Bucket</code> crée un bucket S3 avec <code>useAsyncOutput</code>. Il vérifie les sorties sauvegardées pour ignorer la création au redémarrage. Le gestionnaire de nettoyage vide et supprime le bucket lorsque le composant est retiré de l'arbre. Les enfants ne sont rendus qu'une fois le bucket prêt.",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "Upload de fichier S3",
+  "s3_file_intro": "Le composant <code>S3File</code> téléverse du contenu vers S3. Il calcule le hash du contenu et le compare à l'état sauvegardé pour ignorer les uploads lorsque rien n'a changé.",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "Composer un WebSite",
+  "website_intro": "<code>WebSite</code> compose <code>Bucket</code> et <code>S3File</code>. Le bucket se crée et se configure, puis <code>S3File</code> téléverse le contenu en tant qu'enfant.",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Déployer plusieurs sites",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "Implémentez des gestionnaires de nettoyage pour les ressources AWS. Sans nettoyage, retirer un composant de l'arbre ne supprimera pas la ressource sous-jacente."
+}

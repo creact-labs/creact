@@ -1,0 +1,8 @@
+{
+  "title": "untrack",
+  "description": "讀取 signals 而不建立響應式依賴。",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "在不追蹤的情況下執行的函式。內部的 signal 讀取不會註冊依賴。"
+}

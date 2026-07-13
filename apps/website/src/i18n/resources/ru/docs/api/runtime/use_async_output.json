@@ -1,0 +1,13 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Создаёт ресурс с персистентными outputs. Основной хук для компонентов CReact, взаимодействующих с внешними системами.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<code>propsOrGetter</code>",
+  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
+  "param_props_or_getter_desc": "Статические props или getter-функция для реактивного отслеживания. При использовании getter handler повторно выполняется при изменении зависимостей.",
+  "param_handler_name": "<code>handler</code>",
+  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
+  "param_handler_desc": "Setup-функция, которая выполняет работу и устанавливает outputs. Может возвращать cleanup-функцию (синхронную или асинхронную).",
+  "returns_desc": "Объект с accessor-функциями для каждого ключа output. Например, если вызвать <code>setOutputs({ url: '...' })</code>, возвращаемое значение содержит <code>result.url()</code>.",
+  "callout_idempotent": "Handlers должны быть идемпотентными. При перезапуске handlers повторно выполняются для всех узлов, чтобы восстановить побочные эффекты (intervals, subscriptions и т.д.). Значения outputs восстанавливаются из state, но handlers должны заново создавать любые runtime-артефакты."
+}

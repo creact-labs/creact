@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "Membuat signal reaktif dengan getter dan setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Nilai awal signal. Opsional; biarkan kosong untuk <code>T | undefined</code>.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "Opsional. Setel <code>equals</code> ke <code>false</code> untuk menonaktifkan equality check, atau berikan comparator kustom.",
+  "returns_intro": "Tuple dari <code>[getter, setter]</code>:",
+  "returns_getter": "<code>getter()</code>: membaca nilai saat ini dan meregistrasikan dependency saat dipanggil di dalam tracking scope",
+  "returns_setter": "<code>setter(value)</code>: memperbarui nilai. Menerima nilai langsung atau fungsi <code>(prev) =&gt; next</code>.",
+  "heading_usage": "Penggunaan",
+  "heading_basic": "Penggunaan Dasar",
+  "heading_functional_updates": "Pembaruan Fungsional",
+  "heading_custom_equality": "Kesetaraan Kustom",
+  "tip_equality": "Secara default, signal menggunakan perbandingan <code>===</code>. Menyetel nilai yang sama lagi tidak akan memicu re-computation."
+}

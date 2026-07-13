@@ -1,0 +1,11 @@
+{
+  "title": "indexArray",
+  "description": "Iteração indexada. Cada posição é um acessor reativo. Ideal para arrays de primitivos.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Fonte do array reativo.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code>",
+  "param_map_fn_desc": "Função de mapeamento. <code>v</code> é um acessor (reativo). <code>i</code> é um índice estático."
+}

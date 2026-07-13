@@ -1,0 +1,13 @@
+{
+  "title": "错误处理",
+  "description": "ErrorBoundary 和 catchError 可捕获响应式计算与子组件中的错误。",
+  "heading_error_boundary": "ErrorBoundary 组件",
+  "error_boundary_intro": "<code>ErrorBoundary</code> 捕获其子节点中抛出的错误并渲染回退内容：",
+  "heading_catch_error": "catchError 原语",
+  "catch_error_intro": "如需更底层的控制，可用 <code>catchError</code> 包装函数并捕获子计算中的错误：",
+  "heading_error_propagation": "错误传播",
+  "error_propagation_body": "错误会沿所有者链向上传播。如果没有错误边界捕获错误，它会冒泡到根节点并抛出。嵌套的错误边界仅捕获其自身子树中的错误。",
+  "heading_handler_errors": "Handler 中的错误",
+  "handler_errors_intro": "<code>useAsyncOutput</code> 的 handler 在运行时的异步部署循环中执行，而非在响应式计算内部。handler 中抛出的错误会导致部署失败。它们<strong>不会</strong>被 <code>ErrorBoundary</code> 捕获。请在 handler 内部使用 try/catch 处理错误：",
+  "warning_cleanup": "当错误边界捕获错误时，通过 <code>onCleanup</code> 注册的清理函数仍会执行。资源会被释放。"
+}

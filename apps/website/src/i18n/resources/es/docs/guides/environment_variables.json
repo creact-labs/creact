@@ -1,0 +1,14 @@
+{
+  "title": "Variables de entorno",
+  "description": "Configura tu app para diferentes entornos usando process.env.",
+  "heading_reading": "Lectura de variables de entorno",
+  "reading_intro": "Accede a las variables de entorno a través de <code>process.env</code> como en cualquier app de Node.js:",
+  "filename_app": "app.tsx",
+  "heading_per_environment": "Configuración por entorno",
+  "filename_config": "config.ts",
+  "heading_secrets": "Gestión de secretos",
+  "secrets_intro": "Pasa los secretos mediante variables de entorno o un gestor de secretos:",
+  "code_env": "# .env (añadir a .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact no tiene carga integrada de archivos <code>.env</code>. Usa un paquete como <code>dotenv</code> o define las variables en tu shell o entorno de CI."
+}

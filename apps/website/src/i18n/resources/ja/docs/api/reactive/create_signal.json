@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "ゲッターとセッターを持つリアクティブなシグナルを作成します。",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "シグナルの初期値。省略可能です。<code>T | undefined</code> にする場合は省略します。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "省略可能。<code>equals</code> を <code>false</code> に設定すると等価性チェックを無効にします。またはカスタムの比較関数を指定できます。",
+  "returns_intro": "<code>[getter, setter]</code> のタプル:",
+  "returns_getter": "<code>getter()</code>: 現在の値を読み取り、トラッキングスコープ内で呼び出されたときに依存関係を登録します",
+  "returns_setter": "<code>setter(value)</code>: 値を更新します。直接の値、または関数 <code>(prev) =&gt; next</code> を受け付けます。",
+  "heading_usage": "使い方",
+  "heading_basic": "基本的な使い方",
+  "heading_functional_updates": "関数による更新",
+  "heading_custom_equality": "カスタム等価性",
+  "tip_equality": "デフォルトでは、シグナルは <code>===</code> 比較を使用します。同じ値を再度設定しても再計算はトリガーされません。"
+}

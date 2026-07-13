@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "Retourne le propriétaire réactif actuel (le calcul ou la racine qui possède la portée courante).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "L’<code>Owner</code> actuel, ou <code>null</code> si appelé en dehors d’une portée réactive."
+}

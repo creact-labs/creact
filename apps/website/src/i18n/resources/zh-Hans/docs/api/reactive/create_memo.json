@@ -1,0 +1,19 @@
+{
+  "title": "createMemo",
+  "description": "创建一个缓存的派生值。在根据其他 signal 计算值时使用。仅在依赖项变化时重新计算。",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(prev: T | undefined) =&gt; T</code>",
+  "param_fn_desc": "计算函数。接收上一次的值。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "可选的初始种子值。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>MemoOptions&lt;T&gt;</code>",
+  "param_options_desc": "可选。<code>equals</code> 用于自定义比较。",
+  "returns_body": "一个 <code>Accessor&lt;T&gt;</code>，返回记忆化后的值。既可作为 signal 读取器（可追踪），也可作为计算（自动更新）。",
+  "heading_usage": "用法",
+  "heading_derived_values": "派生值",
+  "heading_chaining": "串联 Memo",
+  "heading_equality": "自定义相等性"
+}

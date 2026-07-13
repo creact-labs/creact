@@ -1,0 +1,23 @@
+{
+  "title": "การ Deploy",
+  "description": "รันแอป CReact ใน production พร้อม state persistence และการจัดการ process ที่เหมาะสม",
+  "heading_production_run": "การรันใน Production",
+  "production_run_intro": "ใช้สคริปต์ <code>start</code> (โดยไม่มี <code>--watch</code>) สำหรับ production:",
+  "code_run_start": "npm run start",
+  "production_run_outro": "คำสั่งนี้จะรัน entry point ของคุณเพียงครั้งเดียว CReact จะ reconcile component tree ปัจจุบันกับ state ที่ถูก persist ไว้ นำการเปลี่ยนแปลงไปใช้ บันทึก state ใหม่ แล้วออกจากโปรแกรม",
+  "heading_ci_cd": "การผสาน CI/CD",
+  "ci_cd_intro": "แอป CReact ทำงานได้ดีใน CI/CD pipeline แอปจะอ่าน state ก่อนหน้า reconcile, deploy การเปลี่ยนแปลง และเขียน state ใหม่ ทั้งหมดในการรันครั้งเดียว",
+  "code_ci_cd": "# GitHub Actions example\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "การจัดเก็บ State",
+  "state_storage_intro": "สำหรับ production ให้เก็บ state ใน remote backend แทน local file system ใช้งาน interface <code>Memory</code> สำหรับ storage ของคุณ:",
+  "storage_s3": "<strong>S3:</strong> เก็บ state JSON ใน S3 bucket",
+  "storage_dynamodb": "<strong>DynamoDB:</strong> ใช้ table สำหรับ state ที่ปลอดภัยต่อการเข้าถึงพร้อมกัน",
+  "storage_database": "<strong>Database:</strong> PostgreSQL, Redis ฯลฯ",
+  "heading_watch_mode": "การรันต่อเนื่องด้วย Watch Mode",
+  "watch_mode_intro": "สำหรับแอปที่ควรรันอย่างต่อเนื่อง (เช่น server หรือ monitor) ให้ใช้ watch mode:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Watch mode จะรีสตาร์ทแอปเมื่อไฟล์ source เปลี่ยนแปลง โดยยังคง state ไว้ระหว่างการรีสตาร์ท",
+  "tip_process_manager": "สำหรับ process ที่รันต่อเนื่อง ใช้ PM2 หรือ systemd เพื่อจัดการการรีสตาร์ทและ logging",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

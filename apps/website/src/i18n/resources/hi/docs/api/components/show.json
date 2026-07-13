@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "एक reactive condition के आधार पर children को सशर्त रूप से render करता है।",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<code>when</code>",
+  "prop_when_type": "<code>MaybeAccessor&lt;T | undefined | null | false&gt;</code>",
+  "prop_when_desc": "Reactive condition। Children truthy होने पर render होते हैं। एक value या accessor स्वीकार करता है।",
+  "prop_fallback_name": "<code>fallback</code>",
+  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_fallback_desc": "जब <code>when</code> falsy हो तो render करने के लिए वैकल्पिक content।",
+  "prop_children_name": "<code>children</code>",
+  "prop_children_type": "<code>CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt; CReactNode)</code>",
+  "prop_children_desc": "Render करने के लिए content, या एक callback जो truthy value को accessor के रूप में प्राप्त करता है।",
+  "heading_usage": "उपयोग",
+  "heading_basic": "बेसिक Condition",
+  "heading_callback": "Callback Children",
+  "heading_fallback": "Fallback के साथ"
+}

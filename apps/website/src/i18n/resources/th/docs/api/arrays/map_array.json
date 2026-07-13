@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "การวนซ้ำแบบมีคีย์ แต่ละรายการจะถูก map เพียงครั้งเดียวและระบุคีย์ตาม identity มีเฉพาะรายการใหม่หรือที่ถูกลบเท่านั้นที่ทำให้เกิดการคำนวณใหม่",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "แหล่ง array แบบ reactive",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "ฟังก์ชัน map <code>v</code> เป็น accessor ของรายการ <code>i</code> เป็น index แบบ reactive",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "ไม่บังคับ <code>keyFn</code> ให้ identity ที่เสถียรสำหรับรายการ"
+}

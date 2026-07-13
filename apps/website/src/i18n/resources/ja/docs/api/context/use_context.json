@@ -1,0 +1,9 @@
+{
+  "title": "useContext",
+  "description": "ツリー内の上位にある最も近いコンテキスト Provider の値を読み取ります。",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<code>context</code>",
+  "param_context_type": "<code>Context&lt;T&gt;</code>",
+  "param_context_desc": "<code>createContext</code> で作成されたコンテキストオブジェクト。",
+  "returns_desc": "上位の最も近い <code>Provider</code> からの値。Provider が存在しない場合は、<code>createContext</code> に渡されたデフォルト値を返します。"
+}

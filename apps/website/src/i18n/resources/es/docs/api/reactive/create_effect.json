@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Crea un efecto secundario reactivo que se ejecuta cuando cambian sus dependencias. Úsalo para efectos secundarios (logging, llamadas externas). Se ejecuta después del batch actual.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Función del efecto. Recibe el valor de retorno anterior. Se rastrea automáticamente.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Valor inicial opcional que se pasa a la primera ejecución.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opcional. <code>name</code> para depuración.",
+  "heading_usage": "Uso",
+  "heading_tracking": "Rastreo de dependencias",
+  "heading_previous": "Uso del valor anterior",
+  "heading_cleanup": "Limpieza con onCleanup",
+  "info_batching": "Los efectos se agrupan en batches. Varias actualizaciones síncronas de signals solo provocan una reejecución. Usa <code>batch()</code> de forma explícita para secuencias de actualización complejas."
+}

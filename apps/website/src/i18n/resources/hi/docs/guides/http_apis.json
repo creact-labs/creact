@@ -1,0 +1,13 @@
+{
+  "title": "HTTP APIs और Channels",
+  "description": "एक channel component बनाएं जो HTTP endpoints expose करे और reactive system में input फीड करे।",
+  "heading_channels": "Channels क्या हैं?",
+  "channels_desc": "Channel एक component है जो mount पर HTTP server शुरू करता है और cleanup पर उसे बंद कर देता है। Incoming requests callback props को call करते हैं, जो signals को update करते हैं और downstream components को trigger करते हैं।",
+  "heading_http_server": "Channel Component",
+  "http_server_intro": "<code>Channel</code> component <code>onMount</code> के अंदर एक Hono server शुरू करता है। Route handlers props के रूप में pass किए जाते हैं। Component हटाए जाने पर <code>onCleanup</code> server को बंद कर देता है।",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Reactive System से जोड़ना",
+  "reactive_flow_intro": "Channel के callback props <code>setSites</code>, <code>setPendingGeneration</code>, और अन्य setters को call करते हैं। वे signal updates effects और downstream <code>Show</code>/<code>For</code> components को trigger करते हैं।",
+  "filename_app": "app.tsx",
+  "info_cleanup": "<code>onCleanup</code> callback component हटाए जाने या app बंद होने पर port को release करता है।"
+}

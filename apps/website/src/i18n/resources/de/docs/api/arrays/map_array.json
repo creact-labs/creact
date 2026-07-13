@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "Schlüsselbasierte Iteration. Jedes Element wird einmal gemappt und anhand der Identität geschlüsselt. Nur neue oder entfernte Elemente verursachen eine Neuberechnung.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Reaktive Array-Quelle.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "Map-Funktion. <code>v</code> ist ein Accessor auf das Element. <code>i</code> ist ein reaktiver Index.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "Optional. <code>keyFn</code> stellt eine stabile Identität für Elemente bereit."
+}

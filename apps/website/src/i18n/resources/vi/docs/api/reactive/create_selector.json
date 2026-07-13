@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "Tạo một selection signal O(2). Chỉ lựa chọn trước đó và lựa chọn mới được đánh giá lại.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "Signal chứa giá trị đang được chọn.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "Bộ so sánh tùy chọn. Mặc định là <code>===</code>.",
+  "returns_body": "Một hàm <code>(key: U) =&gt; boolean</code> trả về <code>true</code> nếu <code>key</code> khớp với lựa chọn hiện tại. Chỉ các mục được chọn trước đó và mới được chọn mới đánh giá lại. O(2) bất kể kích thước danh sách."
+}

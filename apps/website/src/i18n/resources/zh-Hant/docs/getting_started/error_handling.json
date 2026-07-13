@@ -1,0 +1,13 @@
+{
+  "title": "錯誤處理",
+  "description": "ErrorBoundary 與 catchError 會捕捉反應式計算與子元件中的錯誤。",
+  "heading_error_boundary": "ErrorBoundary 元件",
+  "error_boundary_intro": "<code>ErrorBoundary</code> 會捕捉其子項拋出的錯誤，並渲染 fallback：",
+  "heading_catch_error": "catchError 原語",
+  "catch_error_intro": "若需要更底層的控制，可用 <code>catchError</code> 包裝函式，並捕捉子計算中的錯誤：",
+  "heading_error_propagation": "錯誤傳播",
+  "error_propagation_body": "錯誤會沿著 owner 鏈向上傳播。若沒有錯誤邊界捕捉錯誤，錯誤會冒泡至根節點並拋出。巢狀錯誤邊界只會捕捉其自身子樹中的錯誤。",
+  "heading_handler_errors": "處理函式中的錯誤",
+  "handler_errors_intro": "<code>useAsyncOutput</code> 的處理函式在 runtime 的非同步部署迴圈中執行，而非在反應式計算內部。處理函式中拋出的錯誤會導致部署失敗。這些錯誤<strong>不會</strong>被 <code>ErrorBoundary</code> 捕捉。請在處理函式內部使用 try/catch 處理錯誤：",
+  "warning_cleanup": "以 <code>onCleanup</code> 註冊的清理函式，在錯誤邊界捕捉到錯誤時仍會執行。資源會被釋放。"
+}

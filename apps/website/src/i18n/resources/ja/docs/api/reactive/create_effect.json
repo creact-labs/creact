@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "依存関係が変更されたときに実行されるリアクティブな副作用を作成します。副作用（ログ記録、外部呼び出し）に使用します。現在のバッチの後に実行されます。",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "副作用関数。前回の戻り値を受け取ります。自動的に追跡されます。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "最初の実行に渡されるオプションの初期値。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "オプション。<code>name</code> はデバッグ用。",
+  "heading_usage": "使い方",
+  "heading_tracking": "依存関係の追跡",
+  "heading_previous": "前回の値の使用",
+  "heading_cleanup": "onCleanup によるクリーンアップ",
+  "info_batching": "Effect はバッチ処理されます。複数の同期的な signal の更新は、再実行を 1 回だけトリガーします。複雑な更新シーケンスには、明示的に <code>batch()</code> を使用してください。"
+}

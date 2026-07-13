@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "Devuelve el owner reactivo actual (la computation o root que posee el scope actual).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "El <code>Owner</code> actual, o <code>null</code> si se llama fuera de un scope reactivo."
+}

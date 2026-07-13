@@ -1,0 +1,14 @@
+{
+  "title": "AI 통합",
+  "description": "Anthropic SDK를 컨텍스트 프로바이더로 감싸고 리액티브 effect에서 Claude를 호출하세요.",
+  "heading_provider": "Claude 프로바이더",
+  "provider_intro": "Anthropic SDK를 컨텍스트 프로바이더로 감싸면 모든 자식 컴포넌트에서 API를 호출할 수 있습니다. 프로바이더는 클라이언트를 한 번만 생성합니다. 자식 컴포넌트는 <code>useComplete()</code>를 통해 접근합니다.",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "생성 컴포넌트",
+  "generate_intro": "<code>GenerateHtml</code> 컴포넌트는 <code>createEffect</code> 안에서 <code>useComplete()</code>를 호출합니다. prompt 시그널이 변경되면 effect가 실행되어 API를 호출하고, 결과를 콜백에 전달합니다. <code>untrack</code> 가드가 중복 생성을 방지합니다.",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "리액티브 파이프라인",
+  "pipeline_intro": "앱은 <code>Show</code>로 생성과 배포를 연결합니다. 대기 중인 생성이 있으면 <code>GenerateHtml</code>이 실행됩니다. 콘텐츠가 생성되면 <code>Write</code>가 디스크에 저장하고, 사이트 목록이 업데이트되어 다운스트림 AWS 배포가 트리거됩니다.",
+  "filename_app": "app.tsx",
+  "tip_persistence": "AI 출력은 다른 <code>useAsyncOutput</code> 결과와 마찬가지로 영속화됩니다. 생성은 입력 props가 변경될 때만 다시 실행됩니다."
+}

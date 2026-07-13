@@ -1,0 +1,12 @@
+{
+  "title": "runWithOwner",
+  "description": "Chạy một hàm dưới một reactive owner cụ thể. Bắt buộc để tạo effects trong các async callbacks.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<code>owner</code>",
+  "param_owner_type": "<code>Owner | null</code>",
+  "param_owner_desc": "Phạm vi owner để chạy bên dưới. Lấy giá trị này từ <code>getOwner()</code>. Chấp nhận <code>null</code>.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Hàm cần chạy. Mọi effects/cleanups được tạo bên trong đều thuộc về <code>owner</code>.",
+  "info_async_owner": "Sau <code>await</code> hoặc bên trong callbacks, reactive owner sẽ bị mất. Capture nó đồng bộ bằng <code>getOwner()</code> và khôi phục bằng <code>runWithOwner()</code>."
+}

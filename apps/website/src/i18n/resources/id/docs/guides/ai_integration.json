@@ -1,0 +1,14 @@
+{
+  "title": "Integrasi AI",
+  "description": "Bungkus Anthropic SDK dalam context provider dan panggil Claude dari reactive effects.",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "Bungkus Anthropic SDK dalam context provider agar komponen child apa pun dapat memanggil API. Provider membuat client sekali. Komponen child mengaksesnya melalui <code>useComplete()</code>.",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "Komponen Generation",
+  "generate_intro": "Komponen <code>GenerateHtml</code> memanggil <code>useComplete()</code> di dalam <code>createEffect</code>. Ketika signal prompt berubah, effect dijalankan, memanggil API, dan meneruskan hasilnya ke callback. Guard <code>untrack</code> mencegah generation yang duplikat.",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "Pipeline Reaktif",
+  "pipeline_intro": "Aplikasi menghubungkan generation dan deployment dengan <code>Show</code>. Ketika ada generation yang pending, <code>GenerateHtml</code> dijalankan. Ketika menghasilkan konten, <code>Write</code> menyimpannya ke disk, dan daftar site diperbarui, yang memicu deployment AWS di downstream.",
+  "filename_app": "app.tsx",
+  "tip_persistence": "Output AI disimpan secara persisten seperti hasil <code>useAsyncOutput</code> lainnya. Generation hanya dijalankan kembali jika props input-nya berubah."
+}

@@ -1,0 +1,12 @@
+{
+  "title": "runWithOwner",
+  "description": "Menjalankan fungsi di bawah reactive owner tertentu. Diperlukan untuk membuat effects di dalam async callbacks.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<code>owner</code>",
+  "param_owner_type": "<code>Owner | null</code>",
+  "param_owner_desc": "Scope owner untuk dijalankan. Dapatkan ini dari <code>getOwner()</code>. Menerima <code>null</code>.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Fungsi yang dijalankan. Semua effects/cleanups yang dibuat di dalamnya dimiliki oleh <code>owner</code>.",
+  "info_async_owner": "Setelah <code>await</code> atau di dalam callbacks, reactive owner hilang. Tangkap secara sinkron dengan <code>getOwner()</code> dan pulihkan dengan <code>runWithOwner()</code>."
+}

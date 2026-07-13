@@ -1,0 +1,12 @@
+{
+  "title": "ErrorBoundary",
+  "description": "捕获子组件中抛出的错误并渲染回退内容。",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "属性",
+  "prop_fallback_name": "<code>fallback</code>",
+  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt; | ((err: any, reset: () =&gt; void) =&gt; CReactNode)</code>",
+  "prop_fallback_desc": "静态回退内容，或接收捕获的错误和重置函数的渲染函数。",
+  "prop_children_name": "<code>children</code>",
+  "prop_children_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_children_desc": "要渲染的内容。此子树中的错误会被捕获。"
+}

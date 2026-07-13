@@ -1,0 +1,13 @@
+{
+  "title": "useAsyncOutput",
+  "description": "永続化された出力を持つリソースを作成します。外部システムと連携する CReact コンポーネント向けの主要なフックです。",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<code>propsOrGetter</code>",
+  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
+  "param_props_or_getter_desc": "静的な props、またはリアクティブ追跡用のゲッター関数。ゲッターを使用した場合、依存関係が変化すると handler が再実行されます。",
+  "param_handler_name": "<code>handler</code>",
+  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
+  "param_handler_desc": "処理を実行して出力を設定するセットアップ関数。クリーンアップ関数（同期または非同期）を返すことができます。",
+  "returns_desc": "各出力キーに対応するアクセサ関数を持つオブジェクト。たとえば、<code>setOutputs({ url: '...' })</code> を呼び出すと、戻り値には <code>result.url()</code> が含まれます。",
+  "callout_idempotent": "Handler は冪等でなければなりません。再起動時、すべてのノードで handler が再実行され、副作用（interval、subscription など）が再確立されます。出力値は state から復元されますが、handler はランタイム上のアーティファクトを再作成する必要があります。"
+}

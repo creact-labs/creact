@@ -1,0 +1,13 @@
+{
+  "title": "HTTP API とチャネル",
+  "description": "HTTP エンドポイントを公開し、リアクティブシステムに入力を供給するチャネルコンポーネントを構築します。",
+  "heading_channels": "チャネルとは？",
+  "channels_desc": "チャネルは、マウント時に HTTP サーバーを起動し、クリーンアップ時に停止するコンポーネントです。受信リクエストはコールバック props を呼び出し、シグナルを更新して下流のコンポーネントをトリガーします。",
+  "heading_http_server": "Channel コンポーネント",
+  "http_server_intro": "<code>Channel</code> コンポーネントは <code>onMount</code> 内で Hono サーバーを起動します。ルートハンドラーは props として渡されます。<code>onCleanup</code> はコンポーネントが削除されたときにサーバーをシャットダウンします。",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "リアクティブシステムへの接続",
+  "reactive_flow_intro": "チャネルのコールバック props は <code>setSites</code>、<code>setPendingGeneration</code>、およびその他のセッターを呼び出します。これらのシグナル更新はエフェクトと下流の <code>Show</code>/<code>For</code> コンポーネントをトリガーします。",
+  "filename_app": "app.tsx",
+  "info_cleanup": "コンポーネントが削除されたとき、またはアプリが停止したときに、<code>onCleanup</code> コールバックがポートを解放します。"
+}

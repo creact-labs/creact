@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "कंप्यूटेशन dependencies को स्पष्ट बनाता है। विशिष्ट signals को track करें, जबकि अन्य को untracked पढ़ें।",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "Explicitly track करने के लिए signal(s)।",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "Callback. Untracked चलता है; केवल <code>deps</code> track होते हैं।",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "यदि <code>true</code> हो, तो पहला run skip करता है।",
+  "heading_usage": "उपयोग",
+  "heading_single_dep": "Single Dependency",
+  "heading_multiple_deps": "Multiple Dependencies",
+  "heading_deferred": "Deferred Execution"
+}

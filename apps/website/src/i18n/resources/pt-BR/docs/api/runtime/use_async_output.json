@@ -1,0 +1,13 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Cria um recurso com outputs persistidos. O hook principal para componentes CReact que interagem com sistemas externos.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<code>propsOrGetter</code>",
+  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
+  "param_props_or_getter_desc": "Props estáticas ou uma função getter para rastreamento reativo. Quando um getter é usado, o handler é executado novamente quando as dependências mudam.",
+  "param_handler_name": "<code>handler</code>",
+  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
+  "param_handler_desc": "Função de setup que realiza o trabalho e define os outputs. Pode retornar uma função de cleanup (síncrona ou assíncrona).",
+  "returns_desc": "Um objeto com funções accessor para cada chave de output. Por exemplo, se você chamar <code>setOutputs({ url: '...' })</code>, o retorno tem <code>result.url()</code>.",
+  "callout_idempotent": "Handlers devem ser idempotentes. Na reinicialização, os handlers são executados novamente para todos os nodes a fim de restabelecer side effects (intervals, subscriptions, etc.). Os valores de output são restaurados a partir do state, mas os handlers devem recriar quaisquer artefatos de runtime."
+}

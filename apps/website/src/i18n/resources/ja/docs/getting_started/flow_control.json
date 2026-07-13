@@ -1,0 +1,14 @@
+{
+  "title": "フロー制御",
+  "description": "Show、For、Switch、および ErrorBoundary は、リアクティブな条件に基づいてどのコンポーネントが実行されるかを制御します。",
+  "heading_show": "Show による条件付きレンダリング",
+  "show_intro": "<code>Show</code> は、<code>when</code> 条件が truthy の場合にのみ子要素をレンダリングします。フォールバックを提供することもできます。",
+  "show_callback_intro": "コールバックの子を使って truthy な値にアクセスできます:",
+  "heading_for": "For による反復処理",
+  "for_intro": "<code>For</code> はリアクティブなリストを反復処理します。各アイテムは参照によってキー付けされます。リストが変更されると、影響を受けたアイテムのみが更新されます。",
+  "heading_switch": "Switch による多分岐",
+  "switch_intro": "<code>Match</code> を伴う <code>Switch</code> は、多分岐の条件付きロジックを提供します:",
+  "heading_error_boundary": "ErrorBoundary によるエラー処理",
+  "error_boundary_intro": "<code>ErrorBoundary</code> は子コンポーネントでスローされたエラーをキャッチします:",
+  "info_accessor_conditions": "フローコンポーネントは、条件にアクセサ関数（<code>() =&gt; value</code>）を受け取ります。条件は親コンポーネントを再実行せずに再評価されます。"
+}

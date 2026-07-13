@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "Tạo một proxy store reactive để quản lý state lồng nhau.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Giá trị store ban đầu. Phải là một object.",
+  "returns_intro": "Một tuple gồm <code>[store, setStore]</code>:",
+  "returns_store": "<code>store</code>: một proxy reactive. Việc truy cập property được theo dõi.",
+  "returns_setstore": "<code>setStore</code>: setter chấp nhận các cập nhật theo path."
+}

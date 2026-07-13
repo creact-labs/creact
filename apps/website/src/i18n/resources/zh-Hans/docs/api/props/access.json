@@ -1,0 +1,9 @@
+{
+  "title": "access",
+  "description": "解包 MaybeAccessor。如果它是函数则调用它，否则直接返回。",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_desc": "一个值或访问器函数。",
+  "returns_desc": "类型为 <code>T</code> 的解包后的值。"
+}

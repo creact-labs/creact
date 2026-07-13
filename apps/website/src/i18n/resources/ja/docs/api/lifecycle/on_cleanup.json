@@ -1,0 +1,10 @@
+{
+  "title": "onCleanup",
+  "description": "現在のリアクティブオーナーにクリーンアップ関数を登録します。オーナーが破棄されたとき、またはエフェクトが再実行される前に実行されます。",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "クリーンアップ関数。オーナーが破棄されたときに呼び出されます。",
+  "returns_desc": "便宜上、渡された関数と同じものを返します。",
+  "warning_no_owner": "<code>createRoot</code> または <code>render</code> の外で <code>onCleanup</code> を呼び出すと警告が表示され、クリーンアップは実行されません。"
+}

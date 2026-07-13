@@ -1,0 +1,15 @@
+{
+  "title": "createRenderEffect",
+  "description": "Menjalankan fungsi secara sinkron selama render alih-alih mengantrikannya. Digunakan secara internal oleh runtime; jarang dibutuhkan dalam kode aplikasi.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Fungsi effect. Berjalan segera selama render.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Nilai awal opsional.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opsional. <code>name</code> untuk debugging.",
+  "info_ordering": "Render effect berjalan sebelum user effect (<code>createEffect</code>). Gunakan ini ketika Anda membutuhkan reaksi sinkron selama fase render, seperti pelacakan render komponen."
+}

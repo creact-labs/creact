@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "根據響應式條件有條件地渲染 children。",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<code>when</code>",
+  "prop_when_type": "<code>MaybeAccessor&lt;T | undefined | null | false&gt;</code>",
+  "prop_when_desc": "響應式條件。當為 truthy 時渲染 children。可接受值或 accessor。",
+  "prop_fallback_name": "<code>fallback</code>",
+  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_fallback_desc": "當 <code>when</code> 為 falsy 時要渲染的可選內容。",
+  "prop_children_name": "<code>children</code>",
+  "prop_children_type": "<code>CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt; CReactNode)</code>",
+  "prop_children_desc": "要渲染的內容，或接收 truthy 值作為 accessor 的 callback。",
+  "heading_usage": "用法",
+  "heading_basic": "基本條件",
+  "heading_callback": "Callback Children",
+  "heading_fallback": "搭配 Fallback"
+}

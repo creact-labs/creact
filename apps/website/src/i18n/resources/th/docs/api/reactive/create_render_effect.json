@@ -1,0 +1,15 @@
+{
+  "title": "createRenderEffect",
+  "description": "รันฟังก์ชันแบบซิงโครนัสระหว่าง render แทนการจัดคิว ใช้ภายในโดย runtime ไม่ค่อยจำเป็นในโค้ดแอปพลิเคชัน",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "ฟังก์ชัน Effect รันทันทีระหว่าง render",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "ค่าเริ่มต้น (ไม่บังคับ)",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "ไม่บังคับ <code>name</code> สำหรับการดีบัก",
+  "info_ordering": "Render effects รันก่อน user effects (<code>createEffect</code>) ใช้เมื่อต้องการปฏิกิริยาแบบซิงโครนัสในช่วง render เช่น การติดตาม render ของ component"
+}

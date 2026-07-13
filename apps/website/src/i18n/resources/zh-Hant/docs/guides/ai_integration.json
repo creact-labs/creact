@@ -1,0 +1,14 @@
+{
+  "title": "AI 整合",
+  "description": "將 Anthropic SDK 包裝在 context provider 中，並從 reactive effects 呼叫 Claude。",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "將 Anthropic SDK 包裝在 context provider 中，讓任何子元件都能呼叫 API。Provider 只會建立一次 client。子元件透過 <code>useComplete()</code> 存取它。",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "生成元件",
+  "generate_intro": "<code>GenerateHtml</code> 元件在 <code>createEffect</code> 內呼叫 <code>useComplete()</code>。當 prompt signal 變更時，effect 會觸發、呼叫 API，並將結果傳給 callback。<code>untrack</code> 防護可避免重複生成。",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "響應式管線",
+  "pipeline_intro": "應用程式透過 <code>Show</code> 將生成與部署串接起來。當有待處理的生成時，會執行 <code>GenerateHtml</code>。產生內容後，<code>Write</code> 會將其儲存到磁碟，網站清單隨之更新，進而觸發下游的 AWS 部署。",
+  "filename_app": "app.tsx",
+  "tip_persistence": "AI 輸出會像其他 <code>useAsyncOutput</code> 結果一樣被持久化。只有在輸入 props 變更時，才會再次執行生成。"
+}

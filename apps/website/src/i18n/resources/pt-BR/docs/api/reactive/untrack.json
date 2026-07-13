@@ -1,0 +1,8 @@
+{
+  "title": "untrack",
+  "description": "Lê signals sem criar dependências reativas.",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Função a ser executada sem tracking. Leituras de signals no interior não registrarão dependências."
+}

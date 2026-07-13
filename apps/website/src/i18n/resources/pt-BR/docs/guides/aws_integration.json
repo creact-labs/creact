@@ -1,0 +1,19 @@
+{
+  "title": "Integração com AWS",
+  "description": "Crie componentes de bucket S3, upload de arquivos e implantação de site usando o AWS SDK.",
+  "heading_aws_provider": "Provedor AWS",
+  "provider_intro": "Encapsule clientes AWS em um provedor de contexto. Componentes filhos acessam o cliente S3, a região e o ID da conta via hooks. O provedor busca o ID da conta com <code>useAsyncOutput</code> e aguarda com <code>Show</code> antes de renderizar os filhos.",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Componente Bucket",
+  "bucket_intro": "O componente <code>Bucket</code> cria um bucket S3 com <code>useAsyncOutput</code>. Ele verifica as saídas salvas para pular a criação na reinicialização. O handler de limpeza esvazia e exclui o bucket quando o componente é removido da árvore. Os filhos só são renderizados depois que o bucket está pronto.",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "Upload de Arquivo S3",
+  "s3_file_intro": "O componente <code>S3File</code> faz upload de conteúdo para o S3. Ele calcula o hash do conteúdo e compara com o estado salvo para pular uploads quando nada mudou.",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "Compondo um WebSite",
+  "website_intro": "<code>WebSite</code> compõe <code>Bucket</code> e <code>S3File</code>. O bucket cria e configura a si mesmo; em seguida, o <code>S3File</code> faz upload do conteúdo como filho.",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Implantando Múltiplos Sites",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "Implemente handlers de limpeza para recursos AWS. Sem limpeza, remover um componente da árvore não excluirá o recurso subjacente."
+}

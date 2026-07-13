@@ -1,0 +1,9 @@
+{
+  "title": "useContext",
+  "description": "อ่านค่าของ context Provider ที่ใกล้ที่สุดด้านบนใน tree",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<code>context</code>",
+  "param_context_type": "<code>Context&lt;T&gt;</code>",
+  "param_context_desc": "ออบเจ็กต์ context ที่สร้างโดย <code>createContext</code>",
+  "returns_desc": "ค่าจาก <code>Provider</code> ที่ใกล้ที่สุดด้านบน หากไม่มี Provider จะคืนค่าเริ่มต้นที่ส่งให้ <code>createContext</code>"
+}

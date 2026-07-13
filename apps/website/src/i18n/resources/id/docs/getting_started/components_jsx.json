@@ -1,0 +1,20 @@
+{
+  "title": "Komponen dan JSX",
+  "description": "Komponen CReact adalah fungsi yang mengembalikan JSX. JSX mendeskripsikan resource dan process, bukan elemen DOM.",
+  "heading_jsx": "JSX di CReact",
+  "jsx_intro": "CReact menggunakan JSX untuk mendeskripsikan <strong>resource dan process</strong>, bukan elemen DOM. <code>&lt;WebSite name=\"blog\" /&gt;</code> mendeklarasikan bahwa website bernama \"blog\" harus ada.",
+  "heading_component_functions": "Fungsi Komponen",
+  "component_functions_intro": "Komponen adalah fungsi biasa yang mengembalikan JSX. Mereka menerima props sebagai argumen pertama dan dijalankan sekali. Reaktivitas ditangani oleh signal, bukan re-render.",
+  "heading_fragments": "Fragment",
+  "fragments_intro": "Gunakan <code>&lt;&gt;...&lt;/&gt;</code> untuk mengembalikan beberapa elemen tanpa wrapper:",
+  "heading_reactive_props": "Props Reaktif",
+  "reactive_props_intro": "Props di CReact sering berupa <strong>accessor</strong> (fungsi getter) untuk menjaga reaktivitas. Komponen dijalankan sekali; effect dijalankan ulang saat dependensinya berubah.",
+  "tip_access": "Gunakan helper <code>access()</code> untuk unwrap nilai yang mungkin atau mungkin bukan accessor: <code>access(props.value)</code> berfungsi baik <code>value</code> berupa <code>5</code> maupun <code>() =&gt; 5</code>.",
+  "heading_children": "Children",
+  "children_intro": "Komponen dapat menerima children melalui nesting JSX. Gunakan helper <code>children()</code> untuk meresolvenya secara reaktif.",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

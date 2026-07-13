@@ -1,0 +1,13 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Persisted outputs वाला एक resource बनाता है। External systems से interact करने वाले CReact components के लिए प्राथमिक hook।",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<code>propsOrGetter</code>",
+  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
+  "param_props_or_getter_desc": "Reactive tracking के लिए static props या एक getter function। जब getter इस्तेमाल होता है, तो dependencies बदलने पर handler फिर से चलता है।",
+  "param_handler_name": "<code>handler</code>",
+  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
+  "param_handler_desc": "Setup function जो काम करती है और outputs set करती है। एक cleanup function (sync या async) return कर सकती है।",
+  "returns_desc": "प्रत्येक output key के लिए accessor functions वाला एक object। उदाहरण के लिए, यदि आप <code>setOutputs({ url: '...' })</code> call करते हैं, तो return में <code>result.url()</code> होता है।",
+  "callout_idempotent": "Handlers idempotent होने चाहिए। Restart पर, side effects (intervals, subscriptions, आदि) फिर से establish करने के लिए सभी nodes के handlers re-run होते हैं। Output values state से restore होते हैं, लेकिन handlers को कोई भी runtime artifacts फिर से create करने होंगे।"
+}

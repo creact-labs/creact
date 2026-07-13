@@ -1,0 +1,16 @@
+{
+  "title": "creact --watch",
+  "description": "Jalankan CReact dalam mode watch. Otomatis me-restart saat file sumber berubah.",
+  "heading_usage": "Penggunaan",
+  "code_usage": "creact --watch <entry-file>",
+  "filename_terminal": "Terminal",
+  "heading_behavior": "Perilaku",
+  "behavior_run": "Type check dan menjalankan file entry Anda",
+  "behavior_watch": "Memantau file <code>.ts</code>, <code>.tsx</code>, <code>.js</code>, dan <code>.jsx</code> untuk perubahan",
+  "behavior_restart": "Saat file berubah: menghentikan proses yang sedang berjalan (menjalankan cleanup), type check ulang, dan me-restart",
+  "behavior_state": "State tetap bertahan antar restart melalui interface Memory",
+  "behavior_stop": "Tekan <code>Ctrl+C</code> untuk berhenti",
+  "heading_output": "Output",
+  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
+  "tip_state_persists": "State tetap bertahan antar restart. Edit component tree Anda tanpa kehilangan state yang sudah di-deploy."
+}

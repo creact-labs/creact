@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "Membuat selection signal O(2). Hanya seleksi sebelumnya dan yang baru yang dievaluasi ulang.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "Signal yang menyimpan nilai yang saat ini dipilih.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "Comparator opsional. Default-nya <code>===</code>.",
+  "returns_body": "Fungsi <code>(key: U) =&gt; boolean</code> yang mengembalikan <code>true</code> jika <code>key</code> cocok dengan seleksi saat ini. Hanya item yang sebelumnya dipilih dan yang baru dipilih yang dievaluasi ulang. O(2) terlepas dari ukuran list."
+}

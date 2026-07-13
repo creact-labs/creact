@@ -1,0 +1,16 @@
+{
+  "title": "createRoot",
+  "description": "Crée une racine réactive qui possède toutes les computations qu’elle contient, avec une fonction dispose pour le démontage.",
+  "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(dispose: () =&gt; void) =&gt; T</code>",
+  "param_fn_desc": "Fonction exécutée au sein de la racine. Reçoit une fonction dispose permettant de démonter toutes les computations possédées.",
+  "param_detached_owner_name": "<code>detachedOwner</code>",
+  "param_detached_owner_type": "<code>Owner</code>",
+  "param_detached_owner_desc": "Optionnel. Owner parent de la racine. Lorsqu’il est fourni, la racine est rattachée à la chaîne de contexte de cet owner (pour lookupContext), tout en restant indépendamment destructible.",
+  "returns_body": "La valeur de retour de <code>fn</code>.",
+  "heading_usage": "Utilisation",
+  "heading_basic": "Racine basique",
+  "heading_testing": "Dans les tests",
+  "info_render_root": "<code>render()</code> crée une racine automatiquement. Vous n’avez besoin de <code>createRoot</code> que pour des scopes réactifs autonomes en dehors de <code>render()</code>, par exemple dans les tests."
+}

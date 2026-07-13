@@ -1,0 +1,19 @@
+{
+  "title": "Интеграция с AWS",
+  "description": "Создавайте компоненты для S3-бакета, загрузки файлов и развёртывания веб-сайтов с помощью AWS SDK.",
+  "heading_aws_provider": "Провайдер AWS",
+  "provider_intro": "Оберните клиенты AWS в провайдер контекста. Дочерние компоненты получают доступ к S3-клиенту, региону и account ID через хуки. Провайдер получает account ID с помощью <code>useAsyncOutput</code> и ожидает его с помощью <code>Show</code> перед рендерингом дочерних элементов.",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Компонент Bucket",
+  "bucket_intro": "Компонент <code>Bucket</code> создаёт S3-бакет с помощью <code>useAsyncOutput</code>. Он проверяет сохранённые outputs, чтобы пропустить создание при перезапуске. Обработчик cleanup очищает и удаляет бакет, когда компонент удаляется из дерева. Дочерние элементы рендерятся только после готовности бакета.",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "Загрузка файла в S3",
+  "s3_file_intro": "Компонент <code>S3File</code> загружает содержимое в S3. Он хеширует содержимое и сравнивает с сохранённым состоянием, чтобы пропустить загрузку, если ничего не изменилось.",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "Композиция WebSite",
+  "website_intro": "<code>WebSite</code> компонует <code>Bucket</code> и <code>S3File</code>. Бакет создаётся и настраивается самостоятельно, затем <code>S3File</code> загружает содержимое как дочерний элемент.",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Развёртывание нескольких сайтов",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "Реализуйте обработчики cleanup для ресурсов AWS. Без cleanup удаление компонента из дерева не удалит соответствующий ресурс."
+}

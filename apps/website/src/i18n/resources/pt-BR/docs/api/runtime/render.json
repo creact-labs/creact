@@ -1,0 +1,18 @@
+{
+  "title": "render",
+  "description": "Ponto de entrada para aplicações CReact. Renderiza a árvore de componentes, reconcilia o estado e executa handlers.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "Função que retorna a árvore de componentes raiz.",
+  "param_memory_name": "<code>memory</code>",
+  "param_memory_type": "<code>Memory</code>",
+  "param_memory_desc": "Obrigatório. Backend de persistência de estado.",
+  "param_stack_name_name": "<code>stackName</code>",
+  "param_stack_name_type": "<code>string</code>",
+  "param_stack_name_desc": "Obrigatório. Identificador do store de estado.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>RenderOptions</code>",
+  "param_options_desc": "Opcional. Configuração adicional de render.",
+  "returns_desc": "Um objeto <code>RenderResult</code> (síncrono). A propriedade <code>ready</code> é uma <code>Promise&lt;void&gt;</code> que resolve quando o deployment inicial é concluído."
+}

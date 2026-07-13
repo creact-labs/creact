@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "Erstellt einen reaktiven Store-Proxy zur Verwaltung von verschachteltem State.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Initialer Store-Wert. Muss ein Objekt sein.",
+  "returns_intro": "Ein Tupel aus <code>[store, setStore]</code>:",
+  "returns_store": "<code>store</code>: ein reaktiver Proxy. Property-Zugriffe werden getrackt.",
+  "returns_setstore": "<code>setStore</code>: Setter, der pfadbasierte Updates akzeptiert."
+}

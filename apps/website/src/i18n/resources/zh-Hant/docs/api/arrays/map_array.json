@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "鍵控迭代。每個項目只映射一次，並以識別作為鍵。僅新增或移除的項目會觸發重新計算。",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "響應式陣列來源。",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "映射函式。<code>v</code> 是項目的存取器。<code>i</code> 是響應式索引。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "可選。<code>keyFn</code> 為項目提供穩定的識別。"
+}

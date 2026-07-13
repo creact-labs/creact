@@ -1,0 +1,14 @@
+{
+  "title": "การควบคุม Flow",
+  "description": "Show, For, Switch และ ErrorBoundary ควบคุมว่าคอมโพเนนต์ใดจะทำงานตาม reactive conditions",
+  "heading_show": "Conditional Rendering ด้วย Show",
+  "show_intro": "<code>Show</code> เรนเดอร์ children เฉพาะเมื่อเงื่อนไข <code>when</code> เป็น truthy และยังสามารถระบุ fallback ได้",
+  "show_callback_intro": "คุณสามารถเข้าถึงค่าที่เป็น truthy ด้วย callback child:",
+  "heading_for": "การวนซ้ำด้วย For",
+  "for_intro": "<code>For</code> วนซ้ำบน reactive list แต่ละ item ถูก key ด้วย reference เมื่อ list เปลี่ยนแปลง จะอัปเดตเฉพาะ item ที่ได้รับผลกระทบ",
+  "heading_switch": "การแยกสาขาแบบหลายทางด้วย Switch",
+  "switch_intro": "<code>Switch</code> ร่วมกับ <code>Match</code> ให้ logic เงื่อนไขแบบหลายสาขา:",
+  "heading_error_boundary": "การจัดการ Error ด้วย ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> จับ error ที่ถูก throw ใน child components:",
+  "info_accessor_conditions": "Flow components รับ accessor functions (<code>() =&gt; value</code>) สำหรับเงื่อนไข เงื่อนไขจะถูก evaluate ใหม่โดยไม่ต้องรัน parent component ใหม่"
+}

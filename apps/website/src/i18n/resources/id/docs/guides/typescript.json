@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript",
+  "description": "CReact ditulis dalam TypeScript. Berikut cara memanfaatkan type system sebaik-baiknya untuk signals, props, dan components.",
+  "heading_tsconfig": "Konfigurasi TypeScript",
+  "tsconfig_intro": "Pengaturan utamanya adalah <code>jsxImportSource</code>. Ini memberitahu TypeScript untuk menggunakan tipe JSX CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_typed_signals": "Signal Bertipe",
+  "typed_signals_intro": "Signals menyimpulkan tipenya dari nilai awal, atau Anda dapat menentukannya secara eksplisit:",
+  "heading_typed_props": "Props Bertipe",
+  "heading_accessor_types": "Accessor dan MaybeAccessor",
+  "info_types": "CReact mengekspor ulang tipe-tipe utama: <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code>, dan semua tipe runtime."
+}

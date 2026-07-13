@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "建立一個具有 getter 與 setter 的響應式訊號。",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "訊號的初始值。可選；省略時為 <code>T | undefined</code>。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "可選。將 <code>equals</code> 設為 <code>false</code> 可停用相等性檢查，或提供自訂比較函式。",
+  "returns_intro": "一個 <code>[getter, setter]</code> 元組：",
+  "returns_getter": "<code>getter()</code>：讀取目前值，並在追蹤範圍內呼叫時註冊依賴",
+  "returns_setter": "<code>setter(value)</code>：更新值。接受直接值或函式 <code>(prev) =&gt; next</code>。",
+  "heading_usage": "使用方式",
+  "heading_basic": "基本用法",
+  "heading_functional_updates": "函式式更新",
+  "heading_custom_equality": "自訂相等性",
+  "tip_equality": "預設情況下，訊號使用 <code>===</code> 比較。再次設定相同的值不會觸發重新計算。"
+}

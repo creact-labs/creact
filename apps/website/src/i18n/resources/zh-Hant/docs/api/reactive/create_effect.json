@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "建立響應式副作用，會在其依賴變更時執行。用於副作用（記錄日誌、外部呼叫）。會在目前的 batch 之後執行。",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect 函式。接收前一次的回傳值。會自動追蹤。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "選用的初始值，會傳入第一次執行。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "選用。<code>name</code> 用於除錯。",
+  "heading_usage": "用法",
+  "heading_tracking": "追蹤依賴",
+  "heading_previous": "使用前一次的值",
+  "heading_cleanup": "使用 onCleanup 清理",
+  "info_batching": "Effect 會進行批次處理。多次同步的 signal 更新只會觸發一次重新執行。對於複雜的更新序列，請明確使用 <code>batch()</code>。"
+}

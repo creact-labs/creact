@@ -1,0 +1,9 @@
+{
+  "title": "batch",
+  "description": "将多个 signal 更新合并为单次计算过程。",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "包含 signal 更新的函数。所有更新会延迟到该函数执行完毕后再处理。",
+  "returns_body": "<code>fn</code> 的返回值。"
+}

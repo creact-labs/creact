@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "O(2) 선택 시그널을 생성합니다. 이전 선택과 새 선택만 재평가됩니다.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "현재 선택된 값을 보유하는 시그널입니다.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "선택적 비교 함수입니다. 기본값은 <code>===</code>입니다.",
+  "returns_body": "<code>key</code>가 현재 선택과 일치하면 <code>true</code>를 반환하는 함수 <code>(key: U) =&gt; boolean</code>입니다. 이전에 선택된 항목과 새로 선택된 항목만 재평가됩니다. 목록 크기와 관계없이 O(2)입니다."
+}

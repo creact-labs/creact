@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript",
+  "description": "CReact 以 TypeScript 撰寫。以下說明如何充分運用型別系統來處理 signals、props 與元件。",
+  "heading_tsconfig": "TypeScript 設定",
+  "tsconfig_intro": "關鍵設定是 <code>jsxImportSource</code>。這會告訴 TypeScript 使用 CReact 的 JSX 型別：",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_typed_signals": "型別化 Signals",
+  "typed_signals_intro": "Signals 會從初始值推斷其型別，你也可以明確指定：",
+  "heading_typed_props": "型別化 Props",
+  "heading_accessor_types": "Accessor 與 MaybeAccessor",
+  "info_types": "CReact 重新匯出關鍵型別：<code>Accessor</code>、<code>Setter</code>、<code>MaybeAccessor</code>、<code>SignalOptions</code>、<code>MemoOptions</code>、<code>Owner</code>、<code>Context</code>，以及所有執行時期型別。"
+}

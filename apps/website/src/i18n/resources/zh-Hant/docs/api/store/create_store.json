@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "建立用於管理巢狀狀態的響應式 store 代理。",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "初始 store 值。必須是物件。",
+  "returns_intro": "由 <code>[store, setStore]</code> 組成的元組：",
+  "returns_store": "<code>store</code>：響應式代理。屬性存取會被追蹤。",
+  "returns_setstore": "<code>setStore</code>：接受路徑式更新的 setter。"
+}

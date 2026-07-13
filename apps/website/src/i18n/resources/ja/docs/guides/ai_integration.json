@@ -1,0 +1,14 @@
+{
+  "title": "AI 連携",
+  "description": "Anthropic SDK をコンテキストプロバイダーでラップし、リアクティブエフェクトから Claude を呼び出します。",
+  "heading_provider": "Claude プロバイダー",
+  "provider_intro": "Anthropic SDK をコンテキストプロバイダーでラップし、任意の子コンポーネントから API を呼び出せるようにします。プロバイダーはクライアントを一度だけ作成します。子コンポーネントは <code>useComplete()</code> 経由でアクセスします。",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "生成コンポーネント",
+  "generate_intro": "<code>GenerateHtml</code> コンポーネントは <code>createEffect</code> 内で <code>useComplete()</code> を呼び出します。prompt シグナルが変化するとエフェクトが発火し、API を呼び出して結果をコールバックに渡します。<code>untrack</code> ガードにより重複生成を防ぎます。",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "リアクティブパイプライン",
+  "pipeline_intro": "アプリは <code>Show</code> で生成とデプロイを接続します。保留中の生成があるとき <code>GenerateHtml</code> が実行されます。コンテンツが生成されると <code>Write</code> がディスクに保存し、サイト一覧が更新されて下流の AWS デプロイがトリガーされます。",
+  "filename_app": "app.tsx",
+  "tip_persistence": "AI の出力は他の <code>useAsyncOutput</code> の結果と同様に永続化されます。入力 props が変更された場合にのみ、生成が再実行されます。"
+}

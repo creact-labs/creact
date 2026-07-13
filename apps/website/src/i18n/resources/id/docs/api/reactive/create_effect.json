@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Membuat side effect reaktif yang dijalankan ketika dependensinya berubah. Gunakan untuk side effect (logging, pemanggilan eksternal). Dijalankan setelah batch saat ini.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Fungsi effect. Menerima nilai return sebelumnya. Dilacak secara otomatis.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Nilai awal opsional yang diteruskan ke eksekusi pertama.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opsional. <code>name</code> untuk debugging.",
+  "heading_usage": "Penggunaan",
+  "heading_tracking": "Melacak Dependensi",
+  "heading_previous": "Menggunakan Nilai Sebelumnya",
+  "heading_cleanup": "Cleanup dengan onCleanup",
+  "info_batching": "Effect di-batch. Beberapa update signal sinkron hanya memicu satu re-run. Gunakan <code>batch()</code> secara eksplisit untuk urutan update yang kompleks."
+}

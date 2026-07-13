@@ -1,0 +1,16 @@
+{
+  "title": "การดำเนินการกับระบบไฟล์",
+  "description": "สร้างคอมโพเนนต์อ่านและเขียนไฟล์แบบ reactive โดยใช้ Node.js APIs",
+  "heading_read_component": "คอมโพเนนต์ Read",
+  "read_intro": "คอมโพเนนต์ <code>Read</code> โหลดไฟล์และส่งเนื้อหาเป็น accessor ไปยัง render callback Children จะได้รับเนื้อหาแบบ reactive",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "คอมโพเนนต์ Write",
+  "write_intro": "คอมโพเนนต์ <code>Write</code> เฝ้าดู content accessor ด้วย <code>createEffect</code> เมื่อเนื้อหาเปลี่ยนแปลง จะเขียนลงดิสก์ <code>untrack</code> guard ป้องกันการเขียนเนื้อหาเดิมซ้ำ",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "การใช้ Read และ Write ร่วมกัน",
+  "usage_intro": "ประกอบ <code>Read</code> และ <code>Write</code> เพื่อสร้างไปป์ไลน์ที่แปลงเนื้อหาไฟล์แบบ reactive:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "หน่วยความจำแบบไฟล์",
+  "file_memory_intro": "รูปแบบระบบไฟล์ที่พบบ่อยที่สุดใน CReact คือ implementation ของ <code>FileMemory</code> สำหรับ state persistence:",
+  "filename_memory": "src/memory.ts"
+}

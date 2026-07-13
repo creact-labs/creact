@@ -1,0 +1,9 @@
+{
+  "title": "createContext",
+  "description": "Crée un contexte pour transmettre des données à travers l’arbre de composants sans props.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<code>defaultValue</code>",
+  "param_default_value_type": "<code>T</code>",
+  "param_default_value_desc": "Optionnel. Valeur renvoyée par <code>useContext</code> lorsqu’aucun Provider n’existe au-dessus.",
+  "returns_desc": "Un objet <code>Context&lt;T&gt;</code> avec un composant <code>Provider</code>."
+}

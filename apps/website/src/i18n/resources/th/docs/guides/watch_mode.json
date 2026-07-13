@@ -1,0 +1,20 @@
+{
+  "title": "โหมด Watch",
+  "description": "โหมด watch ของ CReact จะรีสตาร์ทแอปของคุณโดยอัตโนมัติเมื่อไฟล์มีการเปลี่ยนแปลง",
+  "heading_usage": "การใช้งาน",
+  "code_usage": "creact --watch index.tsx",
+  "filename_terminal": "Terminal",
+  "usage_desc": "โหมด Watch ตรวจสอบไฟล์ซอร์สของคุณและรีสตาร์ทแอปเมื่อมีการเปลี่ยนแปลง State จะถูกเก็บรักษาไว้ระหว่างการรีสตาร์ทผ่าน Memory interface",
+  "heading_how_it_works": "วิธีการทำงาน",
+  "step_start": "CReact เริ่มแอปของคุณตามปกติ",
+  "step_watchers": "File system watchers ตรวจสอบไฟล์ <code>.ts</code>, <code>.tsx</code>, <code>.js</code> และ <code>.jsx</code>",
+  "step_stop": "เมื่อไฟล์มีการเปลี่ยนแปลง การรันปัจจุบันจะหยุดอย่างเรียบร้อย (cleanup functions ทำงาน)",
+  "step_restart": "การรันใหม่เริ่มต้น โดยอ่าน state ที่ถูกเก็บไว้จาก memory",
+  "step_reconcile": "Reconciliation ทำให้แน่ใจว่ามีเฉพาะ components ที่เปลี่ยนแปลงเท่านั้นที่รัน handlers ใหม่",
+  "heading_development_workflow": "เวิร์กโฟลว์การพัฒนา",
+  "workflow_intro": "เซสชันการพัฒนาโดยทั่วไป:",
+  "code_workflow": "# Start in watch mode\nnpm run dev\n\n# Edit your components, app restarts automatically\n# State persists across restarts\n# Press Ctrl+C to stop",
+  "heading_type_checking": "การตรวจสอบ Type",
+  "type_checking_desc": "โหมด Watch รันการตรวจสอบ type ของ TypeScript ก่อนรีสตาร์ทแต่ละครั้ง หากการตรวจสอบ type ล้มเหลว การรีสตาร์ทจะถูกยกเลิกและแสดงข้อผิดพลาด",
+  "tip_type_check": "ในโหมด Watch, CReact จะทำการ type check ก่อนรันโค้ดของคุณ หาก type check ล้มเหลว จะแสดงข้อความข้อผิดพลาดที่ชัดเจนพร้อมตำแหน่งไฟล์"
+}

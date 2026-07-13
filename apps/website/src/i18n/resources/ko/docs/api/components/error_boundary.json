@@ -1,0 +1,12 @@
+{
+  "title": "ErrorBoundary",
+  "description": "자식 컴포넌트에서 발생한 에러를 포착하고 폴백을 렌더링합니다.",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<code>fallback</code>",
+  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt; | ((err: any, reset: () =&gt; void) =&gt; CReactNode)</code>",
+  "prop_fallback_desc": "정적 폴백이거나, 포착된 에러와 reset 함수를 인자로 호출되는 렌더 함수입니다.",
+  "prop_children_name": "<code>children</code>",
+  "prop_children_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_children_desc": "렌더링할 콘텐츠입니다. 이 하위 트리의 에러가 포착됩니다."
+}

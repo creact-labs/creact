@@ -1,0 +1,11 @@
+{
+  "title": "indexArray",
+  "description": "索引迭代。每个位置都是一个响应式访问器。最适合原始类型数组。",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "响应式数组源。",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code>",
+  "param_map_fn_desc": "映射函数。<code>v</code> 是访问器（响应式）。<code>i</code> 是静态索引。"
+}

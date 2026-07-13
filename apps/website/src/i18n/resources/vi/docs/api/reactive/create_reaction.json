@@ -1,0 +1,12 @@
+{
+  "title": "createReaction",
+  "description": "Tách biệt tracking khỏi execution. Theo dõi một biểu thức, chạy một hàm khác khi nó thay đổi. Reaction kích hoạt một lần, sau đó phải được re-arm.",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<code>onInvalidate</code>",
+  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_desc": "Callback kích hoạt một lần khi các signal được theo dõi thay đổi.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Tùy chọn. <code>name</code> để debug.",
+  "returns_body": "Một hàm <code>(tracking: () =&gt; void) =&gt; void</code> dùng để arm reaction. Gọi nó với một biểu thức tracking. Các signal được đọc bên trong sẽ được theo dõi. Khi bất kỳ signal nào trong số đó thay đổi, <code>onInvalidate</code> kích hoạt một lần và tracking dừng lại cho đến khi bạn gọi lại hàm."
+}

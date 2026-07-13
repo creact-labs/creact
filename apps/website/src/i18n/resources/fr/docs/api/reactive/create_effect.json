@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Crée un effet de bord réactif qui s'exécute lorsque ses dépendances changent. À utiliser pour les effets de bord (journalisation, appels externes). S'exécute après le batch en cours.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Fonction d'effet. Reçoit la valeur de retour précédente. Suivie automatiquement.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Valeur initiale optionnelle passée à la première exécution.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Optionnel. <code>name</code> pour le débogage.",
+  "heading_usage": "Utilisation",
+  "heading_tracking": "Suivi des dépendances",
+  "heading_previous": "Utilisation de la valeur précédente",
+  "heading_cleanup": "Nettoyage avec onCleanup",
+  "info_batching": "Les effets sont batchés. Plusieurs mises à jour synchrones de signaux ne déclenchent qu'une seule réexécution. Utilisez <code>batch()</code> explicitement pour les séquences de mises à jour complexes."
+}

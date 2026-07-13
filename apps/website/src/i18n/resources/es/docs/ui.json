@@ -1,0 +1,23 @@
+{
+  "reference": "Referencia",
+  "usage": "Uso",
+  "parameters": "Parámetros",
+  "returns": "Devuelve",
+  "param_table": {
+    "parameter": "Parámetro",
+    "type": "Tipo",
+    "description": "Descripción"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Tipo",
+    "description": "Descripción"
+  },
+  "copy": "Copiar",
+  "copied": "Copiado",
+  "callout": {
+    "info": "Nota",
+    "warning": "Advertencia",
+    "tip": "Bueno saber"
+  }
+}

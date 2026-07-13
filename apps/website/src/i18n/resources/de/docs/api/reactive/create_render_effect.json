@@ -1,0 +1,15 @@
+{
+  "title": "createRenderEffect",
+  "description": "Führt eine Funktion synchron während des Renderings aus, anstatt sie in eine Warteschlange zu stellen. Wird intern von der Runtime verwendet; in Anwendungscode selten erforderlich.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect-Funktion. Wird sofort während des Renderings ausgeführt.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Optionaler Anfangswert.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Optional. <code>name</code> für Debugging.",
+  "info_ordering": "Render-Effects werden vor User-Effects (<code>createEffect</code>) ausgeführt. Verwenden Sie dies, wenn Sie synchrone Reaktionen während der Render-Phase benötigen, z. B. für das Tracking von Component-Renders."
+}

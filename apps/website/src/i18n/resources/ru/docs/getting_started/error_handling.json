@@ -1,0 +1,13 @@
+{
+  "title": "Обработка ошибок",
+  "description": "ErrorBoundary и catchError перехватывают ошибки в реактивных вычислениях и дочерних компонентах.",
+  "heading_error_boundary": "Компонент ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> перехватывает ошибки, выброшенные в дочерних элементах, и отображает fallback:",
+  "heading_catch_error": "Примитив catchError",
+  "catch_error_intro": "Для более низкоуровневого контроля <code>catchError</code> оборачивает функцию и перехватывает ошибки в дочерних вычислениях:",
+  "heading_error_propagation": "Распространение ошибок",
+  "error_propagation_body": "Ошибки распространяются вверх по цепочке owner. Если ни одна error boundary не перехватит ошибку, она всплывает к корню и выбрасывается. Вложенные error boundary перехватывают ошибки только из своего поддерева.",
+  "heading_handler_errors": "Ошибки в обработчиках",
+  "handler_errors_intro": "Обработчики <code>useAsyncOutput</code> выполняются в асинхронном цикле развёртывания runtime, а не внутри реактивных вычислений. Ошибки, выброшенные в обработчиках, приводят к сбою развёртывания. Они <strong>не</strong> перехватываются <code>ErrorBoundary</code>. Обрабатывайте ошибки внутри обработчика с помощью try/catch:",
+  "warning_cleanup": "Функции очистки, зарегистрированные через <code>onCleanup</code>, всё равно выполняются, когда error boundary перехватывает ошибку. Ресурсы освобождаются."
+}

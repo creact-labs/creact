@@ -1,0 +1,20 @@
+{
+  "title": "Komponenten und JSX",
+  "description": "CReact-Komponenten sind Funktionen, die JSX zurückgeben. JSX beschreibt Ressourcen und Prozesse, nicht DOM-Elemente.",
+  "heading_jsx": "JSX in CReact",
+  "jsx_intro": "CReact verwendet JSX, um <strong>Ressourcen und Prozesse</strong> zu beschreiben, nicht DOM-Elemente. <code>&lt;WebSite name=\"blog\" /&gt;</code> deklariert, dass eine Website namens \"blog\" existieren soll.",
+  "heading_component_functions": "Komponentenfunktionen",
+  "component_functions_intro": "Komponenten sind einfache Funktionen, die JSX zurückgeben. Sie erhalten Props als erstes Argument und werden einmal ausgeführt. Reaktivität wird über Signals gesteuert, nicht über Re-Renders.",
+  "heading_fragments": "Fragments",
+  "fragments_intro": "Verwende <code>&lt;&gt;...&lt;/&gt;</code>, um mehrere Elemente ohne Wrapper zurückzugeben:",
+  "heading_reactive_props": "Reaktive Props",
+  "reactive_props_intro": "Props in CReact sind oft <strong>Accessors</strong> (Getter-Funktionen), um die Reaktivität zu erhalten. Komponenten werden einmal ausgeführt; Effects laufen erneut, wenn sich ihre Abhängigkeiten ändern.",
+  "tip_access": "Verwende den <code>access()</code>-Helper, um Werte zu entpacken, die Accessors sein können oder nicht: <code>access(props.value)</code> funktioniert, egal ob <code>value</code> <code>5</code> oder <code>() =&gt; 5</code> ist.",
+  "heading_children": "Children",
+  "children_intro": "Komponenten können Children über JSX-Verschachtelung empfangen. Verwende den <code>children()</code>-Helper, um sie reaktiv aufzulösen.",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

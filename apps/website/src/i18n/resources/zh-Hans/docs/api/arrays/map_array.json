@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "键控迭代。每个项只映射一次，并按标识进行键控。只有新增或移除的项才会触发重新计算。",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "响应式数组源。",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "映射函数。<code>v</code> 是该项的访问器。<code>i</code> 是响应式索引。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "可选。<code>keyFn</code> 为各项提供稳定标识。"
+}

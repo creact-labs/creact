@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Делает зависимости вычислений явными. Отслеживает конкретные сигналы, читая остальные без отслеживания.",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "Сигнал(ы) для явного отслеживания.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "Колбэк. Выполняется без отслеживания; отслеживаются только <code>deps</code>.",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "Если <code>true</code>, пропускает первый запуск.",
+  "heading_usage": "Использование",
+  "heading_single_dep": "Одна зависимость",
+  "heading_multiple_deps": "Несколько зависимостей",
+  "heading_deferred": "Отложенное выполнение"
+}

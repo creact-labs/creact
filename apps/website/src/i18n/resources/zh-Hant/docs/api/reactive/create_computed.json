@@ -1,0 +1,15 @@
+{
+  "title": "createComputed",
+  "description": "在計算階段同步執行函式，早於 effects。當您需要在相依項更新時寫入其他 signals 時使用。",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "計算函式。同步執行。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "選用的初始值。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "選用。<code>name</code> 用於偵錯。",
+  "warning_prefer_memo": "衍生值請優先使用 <code>createMemo</code>。僅在您需要於計算階段同步寫入其他 signals 時，才使用 <code>createComputed</code>。"
+}

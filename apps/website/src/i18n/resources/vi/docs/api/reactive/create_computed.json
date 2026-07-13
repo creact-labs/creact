@@ -1,0 +1,15 @@
+{
+  "title": "createComputed",
+  "description": "Chạy một hàm đồng bộ trong giai đoạn computation, trước effects. Dùng khi bạn cần ghi vào các signal khác khi dependencies cập nhật.",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Hàm computation. Chạy đồng bộ.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Giá trị khởi tạo tùy chọn.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Tùy chọn. <code>name</code> để debug.",
+  "warning_prefer_memo": "Ưu tiên <code>createMemo</code> cho các giá trị derived. Chỉ dùng <code>createComputed</code> khi bạn cần ghi vào các signal khác đồng bộ trong giai đoạn computation."
+}

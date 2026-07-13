@@ -1,0 +1,14 @@
+{
+  "title": "AI 集成",
+  "description": "将 Anthropic SDK 封装在 context provider 中，并在响应式 effect 中调用 Claude。",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "将 Anthropic SDK 封装在 context provider 中，使任意子组件都能调用 API。Provider 只创建一次客户端。子组件通过 <code>useComplete()</code> 访问它。",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "生成组件",
+  "generate_intro": "<code>GenerateHtml</code> 组件在 <code>createEffect</code> 内调用 <code>useComplete()</code>。当 prompt signal 变化时，effect 会触发、调用 API，并将结果传给回调。<code>untrack</code> 守卫可防止重复生成。",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "响应式流水线",
+  "pipeline_intro": "应用通过 <code>Show</code> 将生成与部署串联起来。当存在待处理的生成时，会运行 <code>GenerateHtml</code>。当它产出内容后，<code>Write</code> 将其保存到磁盘，站点列表随之更新，从而触发下游的 AWS 部署。",
+  "filename_app": "app.tsx",
+  "tip_persistence": "AI 输出会像其他 <code>useAsyncOutput</code> 结果一样被持久化。仅当其输入 props 发生变化时，生成才会重新运行。"
+}

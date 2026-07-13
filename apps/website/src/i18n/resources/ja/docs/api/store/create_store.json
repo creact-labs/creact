@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "ネストされた状態を管理するためのリアクティブなストアプロキシを作成します。",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "初期ストア値。オブジェクトである必要があります。",
+  "returns_intro": "<code>[store, setStore]</code> のタプル:",
+  "returns_store": "<code>store</code>: リアクティブなプロキシ。プロパティへのアクセスが追跡されます。",
+  "returns_setstore": "<code>setStore</code>: パスベースの更新を受け付けるセッター。"
+}

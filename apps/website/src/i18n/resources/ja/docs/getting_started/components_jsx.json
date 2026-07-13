@@ -1,0 +1,20 @@
+{
+  "title": "コンポーネントと JSX",
+  "description": "CReact のコンポーネントは、JSX を返す関数です。JSX は DOM 要素ではなく、リソースとプロセスを記述します。",
+  "heading_jsx": "CReact における JSX",
+  "jsx_intro": "CReact は、DOM 要素ではなく<strong>リソースとプロセス</strong>を記述するために JSX を使用します。<code>&lt;WebSite name=\"blog\" /&gt;</code> は、\"blog\" という名前のウェブサイトが存在すべきであることを宣言します。",
+  "heading_component_functions": "コンポーネント関数",
+  "component_functions_intro": "コンポーネントは、JSX を返す通常の関数です。最初の引数として props を受け取り、一度だけ実行されます。リアクティビティは再レンダリングではなく、シグナルによって処理されます。",
+  "heading_fragments": "フラグメント",
+  "fragments_intro": "ラッパーなしで複数の要素を返すには、<code>&lt;&gt;...&lt;/&gt;</code> を使用します:",
+  "heading_reactive_props": "リアクティブな Props",
+  "reactive_props_intro": "CReact の props は、リアクティビティを維持するために<strong>アクセサ</strong>（ゲッター関数）であることがよくあります。コンポーネントは一度だけ実行され、依存関係が変化するとエフェクトが再実行されます。",
+  "tip_access": "アクセサであるかどうかに関わらず値をアンラップするには、<code>access()</code> ヘルパーを使用します。<code>access(props.value)</code> は、<code>value</code> が <code>5</code> でも <code>() =&gt; 5</code> でも動作します。",
+  "heading_children": "Children",
+  "children_intro": "コンポーネントは、JSX の入れ子を通じて children を受け取ることができます。リアクティブに解決するには <code>children()</code> ヘルパーを使用します。",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

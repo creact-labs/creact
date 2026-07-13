@@ -1,0 +1,12 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "nav_docs": "Docs",
+  "nav_github": "GitHub",
+  "nav_aria": "Navigasi utama",
+  "hero_subtitle": "Gunakan JSX untuk mengotomatiskan alur kerja yang tahan lama",
+  "get_started": "Mulai",
+  "view_demo": "Lihat Demo",
+  "footer_license": "Apache 2.0",
+  "code_filename": "app.tsx"
+}

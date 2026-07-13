@@ -1,0 +1,14 @@
+{
+  "title": "Điều khiển luồng",
+  "description": "Show, For, Switch và ErrorBoundary kiểm soát component nào chạy dựa trên các điều kiện reactive.",
+  "heading_show": "Render có điều kiện với Show",
+  "show_intro": "<code>Show</code> chỉ render children khi điều kiện <code>when</code> là truthy. Nó cũng có thể cung cấp một fallback.",
+  "show_callback_intro": "Bạn có thể truy cập giá trị truthy bằng một callback child:",
+  "heading_for": "Lặp với For",
+  "for_intro": "<code>For</code> lặp qua một danh sách reactive. Mỗi item được key theo reference. Khi danh sách thay đổi, chỉ các item bị ảnh hưởng được cập nhật.",
+  "heading_switch": "Phân nhánh đa hướng với Switch",
+  "switch_intro": "<code>Switch</code> với <code>Match</code> cung cấp logic điều kiện đa nhánh:",
+  "heading_error_boundary": "Xử lý lỗi với ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> bắt các lỗi được throw trong các child component:",
+  "info_accessor_conditions": "Các flow component nhận accessor function (<code>() =&gt; value</code>) cho các điều kiện. Điều kiện được đánh giá lại mà không chạy lại parent component."
+}

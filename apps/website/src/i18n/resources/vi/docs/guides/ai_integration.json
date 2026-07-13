@@ -1,0 +1,14 @@
+{
+  "title": "Tích hợp AI",
+  "description": "Bọc Anthropic SDK trong context provider và gọi Claude từ các reactive effect.",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "Bọc Anthropic SDK trong context provider để mọi child component đều có thể gọi API. Provider tạo client một lần. Các child component truy cập qua <code>useComplete()</code>.",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "Component Generation",
+  "generate_intro": "Component <code>GenerateHtml</code> gọi <code>useComplete()</code> bên trong <code>createEffect</code>. Khi signal prompt thay đổi, effect kích hoạt, gọi API và truyền kết quả cho callback. Guard <code>untrack</code> ngăn các generation trùng lặp.",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "Pipeline Reactive",
+  "pipeline_intro": "Ứng dụng nối generation và deployment với <code>Show</code>. Khi có generation đang chờ, <code>GenerateHtml</code> chạy. Khi tạo ra content, <code>Write</code> lưu vào disk, và danh sách site được cập nhật, kích hoạt deployment AWS ở downstream.",
+  "filename_app": "app.tsx",
+  "tip_persistence": "Output AI được persist giống như mọi kết quả <code>useAsyncOutput</code> khác. Generation chỉ chạy lại nếu input props thay đổi."
+}

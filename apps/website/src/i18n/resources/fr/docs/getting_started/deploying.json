@@ -1,0 +1,23 @@
+{
+  "title": "Déploiement",
+  "description": "Exécutez des applications CReact en production avec persistance d'état et une gestion appropriée des processus.",
+  "heading_production_run": "Exécution en production",
+  "production_run_intro": "Utilisez le script <code>start</code> (sans <code>--watch</code>) pour la production :",
+  "code_run_start": "npm run start",
+  "production_run_outro": "Cela exécute votre point d'entrée une seule fois. CReact réconcilie l'arbre de composants actuel avec l'état persisté, applique les modifications, enregistre le nouvel état et se termine.",
+  "heading_ci_cd": "Intégration CI/CD",
+  "ci_cd_intro": "Les applications CReact fonctionnent bien dans les pipelines CI/CD. L'application lit l'état précédent, réconcilie, déploie les modifications et écrit le nouvel état, le tout en une seule exécution.",
+  "code_ci_cd": "# Exemple GitHub Actions\n- name: Déployer l'infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "Stockage de l'état",
+  "state_storage_intro": "Pour la production, stockez l'état dans un backend distant plutôt que sur le système de fichiers local. Implémentez l'interface <code>Memory</code> pour votre stockage :",
+  "storage_s3": "<strong>S3 :</strong> stockez le JSON d'état dans un bucket S3",
+  "storage_dynamodb": "<strong>DynamoDB :</strong> utilisez une table pour un état sûr en accès concurrent",
+  "storage_database": "<strong>Base de données :</strong> PostgreSQL, Redis, etc.",
+  "heading_watch_mode": "Exécution longue durée avec le mode watch",
+  "watch_mode_intro": "Pour les applications qui doivent s'exécuter en continu (comme des serveurs ou des moniteurs), utilisez le mode watch :",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Le mode watch redémarre l'application lorsque les fichiers sources changent, en préservant l'état entre les redémarrages.",
+  "tip_process_manager": "Pour les processus de longue durée, utilisez PM2 ou systemd pour gérer les redémarrages et les logs.",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

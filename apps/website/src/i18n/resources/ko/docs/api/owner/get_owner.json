@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "현재 반응형 소유자(현재 스코프를 소유하는 계산 또는 루트)를 반환합니다.",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "현재 <code>Owner</code>. 반응형 스코프 밖에서 호출된 경우 <code>null</code>."
+}

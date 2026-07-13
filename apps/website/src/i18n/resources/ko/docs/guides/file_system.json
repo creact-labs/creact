@@ -1,0 +1,16 @@
+{
+  "title": "파일 시스템 작업",
+  "description": "Node.js API를 사용하여 반응형 파일 읽기 및 쓰기 컴포넌트를 구축하세요.",
+  "heading_read_component": "Read 컴포넌트",
+  "read_intro": "<code>Read</code> 컴포넌트는 파일을 로드하고 콘텐츠를 액세서로 렌더 콜백에 전달합니다. 자식 요소는 콘텐츠를 반응형으로 받습니다.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Write 컴포넌트",
+  "write_intro": "<code>Write</code> 컴포넌트는 <code>createEffect</code>로 콘텐츠 액세서를 감시합니다. 콘텐츠가 변경되면 디스크에 씁니다. <code>untrack</code> 가드는 동일한 콘텐츠를 다시 쓰지 않도록 방지합니다.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Read와 Write 함께 사용하기",
+  "usage_intro": "<code>Read</code>와 <code>Write</code>를 조합하여 파일 콘텐츠를 반응형으로 변환하는 파이프라인을 구축하세요:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "파일 기반 메모리",
+  "file_memory_intro": "CReact에서 가장 일반적인 파일 시스템 패턴은 상태 영속성을 위한 <code>FileMemory</code> 구현입니다:",
+  "filename_memory": "src/memory.ts"
+}

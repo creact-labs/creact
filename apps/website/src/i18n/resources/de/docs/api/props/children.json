@@ -1,0 +1,9 @@
+{
+  "title": "children",
+  "description": "Löst an eine Komponente übergebene Children in einen reaktiven Accessor auf. Behandelt lazy Children und Arrays.",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>Accessor&lt;JSXElement&gt;</code>",
+  "param_fn_desc": "Accessor, der die children-Prop zurückgibt.",
+  "returns_desc": "Ein <code>ChildrenReturn</code>, ein aufrufbarer Accessor, der die aufgelösten Children zurückgibt. Verfügt außerdem über eine <code>toArray()</code>-Methode, die die aufgelösten Children als flaches Array zurückgibt."
+}

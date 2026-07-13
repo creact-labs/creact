@@ -1,0 +1,12 @@
+{
+  "title": "ErrorBoundary",
+  "description": "चाइल्ड कंपोनेंट्स में थ्रो हुए एरर्स को कैच करता है और एक फॉलबैक रेंडर करता है।",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<code>fallback</code>",
+  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt; | ((err: any, reset: () =&gt; void) =&gt; CReactNode)</code>",
+  "prop_fallback_desc": "स्टैटिक फॉलबैक या रेंडर फ़ंक्शन जो कैच किए गए एरर और रीसेट फ़ंक्शन के साथ कॉल होता है।",
+  "prop_children_name": "<code>children</code>",
+  "prop_children_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_children_desc": "रेंडर करने के लिए कंटेंट। इस सबट्री में एरर्स कैच होते हैं।"
+}

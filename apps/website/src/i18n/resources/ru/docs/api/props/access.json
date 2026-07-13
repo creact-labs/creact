@@ -1,0 +1,9 @@
+{
+  "title": "access",
+  "description": "Разворачивает MaybeAccessor. Вызывает его, если это функция, иначе возвращает напрямую.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_desc": "Значение или функция-аксессор.",
+  "returns_desc": "Развёрнутое значение типа <code>T</code>."
+}

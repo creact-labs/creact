@@ -1,0 +1,13 @@
+{
+  "title": "त्रुटि प्रबंधन",
+  "description": "ErrorBoundary और catchError रिएक्टिव कंप्यूटेशन और चाइल्ड कंपोनेंट्स में त्रुटियों को पकड़ते हैं।",
+  "heading_error_boundary": "ErrorBoundary कंपोनेंट",
+  "error_boundary_intro": "<code>ErrorBoundary</code> अपने children में throw हुई त्रुटियों को पकड़ता है और एक fallback रेंडर करता है:",
+  "heading_catch_error": "catchError प्रिमिटिव",
+  "catch_error_intro": "निम्न-स्तरीय नियंत्रण के लिए, <code>catchError</code> एक function को wrap करता है और child computations में त्रुटियों को पकड़ता है:",
+  "heading_error_propagation": "त्रुटि प्रसार",
+  "error_propagation_body": "त्रुटियाँ owner chain में ऊपर की ओर propagate होती हैं। यदि कोई error boundary त्रुटि को नहीं पकड़ता, तो वह root तक bubble होकर throw हो जाती है। Nested error boundaries केवल अपने subtree की त्रुटियों को पकड़ते हैं।",
+  "heading_handler_errors": "Handlers में त्रुटियाँ",
+  "handler_errors_intro": "<code>useAsyncOutput</code> handlers runtime के async deployment loop में चलते हैं, reactive computations के अंदर नहीं। Handlers में throw की गई त्रुटियाँ deployment को fail कर देती हैं। वे <code>ErrorBoundary</code> द्वारा <strong>नहीं</strong> पकड़ी जातीं। अपने handler के अंदर try/catch से त्रुटियों को handle करें:",
+  "warning_cleanup": "<code>onCleanup</code> से registered cleanup functions तब भी चलते हैं जब कोई error boundary त्रुटि पकड़ता है। Resources release हो जाते हैं।"
+}

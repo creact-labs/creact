@@ -1,0 +1,16 @@
+{
+  "title": "Thao tác hệ thống file",
+  "description": "Xây dựng các component đọc và ghi file reactive bằng các API Node.js.",
+  "heading_read_component": "Component Read",
+  "read_intro": "Component <code>Read</code> tải một file và truyền nội dung của nó dưới dạng accessor cho một render callback. Children nhận nội dung một cách reactive.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Component Write",
+  "write_intro": "Component <code>Write</code> theo dõi một content accessor bằng <code>createEffect</code>. Khi nội dung thay đổi, nó ghi ra đĩa. Guard <code>untrack</code> ngăn việc ghi lại cùng một nội dung.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Sử dụng Read và Write cùng nhau",
+  "usage_intro": "Kết hợp <code>Read</code> và <code>Write</code> để xây dựng các pipeline biến đổi nội dung file một cách reactive:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "Memory dựa trên file",
+  "file_memory_intro": "Pattern hệ thống file phổ biến nhất trong CReact là implementation <code>FileMemory</code> cho state persistence:",
+  "filename_memory": "src/memory.ts"
+}

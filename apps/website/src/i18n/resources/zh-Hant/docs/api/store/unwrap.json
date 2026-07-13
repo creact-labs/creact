@@ -1,0 +1,8 @@
+{
+  "title": "unwrap",
+  "description": "回傳 store 代理中底層資料的深層複製，並移除所有反應性。",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<code>store</code>",
+  "param_store_type": "<code>T</code>",
+  "param_store_desc": "由 <code>createStore</code> 建立的 store 代理。"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "Cria um proxy de store reativo para gerenciar estado aninhado.",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Valor inicial do store. Deve ser um objeto.",
+  "returns_intro": "Uma tupla de <code>[store, setStore]</code>:",
+  "returns_store": "<code>store</code>: um proxy reativo. O acesso a propriedades é rastreado.",
+  "returns_setstore": "<code>setStore</code>: setter que aceita atualizações baseadas em caminho."
+}

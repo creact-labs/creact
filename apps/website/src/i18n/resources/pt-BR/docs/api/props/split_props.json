@@ -1,0 +1,6 @@
+{
+  "title": "splitProps",
+  "description": "Divide um objeto de props em múltiplos grupos por chave. Preserva a reatividade.",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "Recebe o objeto de props seguido de um ou mais arrays de chaves. Retorna uma tupla com um objeto por grupo de chaves mais um objeto restante contendo todas as chaves não correspondidas."
+}

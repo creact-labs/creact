@@ -1,0 +1,14 @@
+{
+  "title": "Umgebungsvariablen",
+  "description": "Konfigurieren Sie Ihre App für verschiedene Umgebungen mit process.env.",
+  "heading_reading": "Umgebungsvariablen lesen",
+  "reading_intro": "Greifen Sie wie in jeder Node.js-App über <code>process.env</code> auf Umgebungsvariablen zu:",
+  "filename_app": "app.tsx",
+  "heading_per_environment": "Umgebungsabhängige Konfiguration",
+  "filename_config": "config.ts",
+  "heading_secrets": "Umgang mit Secrets",
+  "secrets_intro": "Übergeben Sie Secrets über Umgebungsvariablen oder einen Secret Manager:",
+  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact verfügt nicht über eine integrierte Ladefunktion für <code>.env</code>-Dateien. Verwenden Sie ein Paket wie <code>dotenv</code> oder setzen Sie Variablen in Ihrer Shell- bzw. CI-Umgebung."
+}

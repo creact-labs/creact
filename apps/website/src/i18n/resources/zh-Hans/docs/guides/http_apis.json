@@ -1,0 +1,13 @@
+{
+  "title": "HTTP API 与通道",
+  "description": "构建一个通道组件，暴露 HTTP 端点并将输入馈入响应式系统。",
+  "heading_channels": "什么是通道？",
+  "channels_desc": "通道是一个在挂载时启动 HTTP 服务器、在清理时停止的组件。传入请求会调用回调 props，从而更新 signal 并触发下游组件。",
+  "heading_http_server": "Channel 组件",
+  "http_server_intro": "<code>Channel</code> 组件在 <code>onMount</code> 中启动 Hono 服务器。路由处理函数通过 props 传入。<code>onCleanup</code> 在组件移除时关闭服务器。",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "连接到响应式系统",
+  "reactive_flow_intro": "通道的回调 props 会调用 <code>setSites</code>、<code>setPendingGeneration</code> 以及其他 setter。这些 signal 更新会触发 effect 以及下游的 <code>Show</code>/<code>For</code> 组件。",
+  "filename_app": "app.tsx",
+  "info_cleanup": "<code>onCleanup</code> 回调会在组件移除或应用停止时释放端口。"
+}

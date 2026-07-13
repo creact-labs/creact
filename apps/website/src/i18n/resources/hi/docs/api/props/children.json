@@ -1,0 +1,9 @@
+{
+  "title": "children",
+  "description": "एक component को पास किए गए children को reactive accessor में resolve करता है। Lazy children और arrays को handle करता है।",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>Accessor&lt;JSXElement&gt;</code>",
+  "param_fn_desc": "Accessor जो children prop लौटाता है।",
+  "returns_desc": "एक <code>ChildrenReturn</code>, एक callable accessor जो resolved children लौटाता है। इसमें एक <code>toArray()</code> method भी है जो resolved children को flat array के रूप में लौटाता है।"
+}

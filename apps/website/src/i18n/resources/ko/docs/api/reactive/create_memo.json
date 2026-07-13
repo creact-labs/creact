@@ -1,0 +1,19 @@
+{
+  "title": "createMemo",
+  "description": "캐시된 파생 값을 생성합니다. 다른 시그널로부터 값을 계산할 때 사용합니다. 의존성이 변경될 때만 재계산합니다.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(prev: T | undefined) =&gt; T</code>",
+  "param_fn_desc": "계산 함수입니다. 이전 값을 받습니다.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "선택적 초기 시드 값입니다.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>MemoOptions&lt;T&gt;</code>",
+  "param_options_desc": "선택 사항입니다. 커스텀 비교를 위한 <code>equals</code>입니다.",
+  "returns_body": "메모이제이션된 값을 반환하는 <code>Accessor&lt;T&gt;</code>입니다. 시그널 리더(추적 가능)와 계산(자동 업데이트) 역할을 모두 수행합니다.",
+  "heading_usage": "사용법",
+  "heading_derived_values": "파생 값",
+  "heading_chaining": "메모 체이닝",
+  "heading_equality": "커스텀 동등성"
+}

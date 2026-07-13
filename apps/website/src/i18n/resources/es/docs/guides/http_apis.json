@@ -1,0 +1,13 @@
+{
+  "title": "APIs HTTP y canales",
+  "description": "Crea un componente de canal que expone endpoints HTTP e introduce entradas en el sistema reactivo.",
+  "heading_channels": "¿Qué son los canales?",
+  "channels_desc": "Un canal es un componente que inicia un servidor HTTP al montarse y lo detiene en la limpieza. Las solicitudes entrantes invocan props de callback, que actualizan signals y activan componentes posteriores.",
+  "heading_http_server": "Componente Channel",
+  "http_server_intro": "El componente <code>Channel</code> inicia un servidor Hono dentro de <code>onMount</code>. Los manejadores de rutas se pasan como props. <code>onCleanup</code> detiene el servidor cuando se elimina el componente.",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Conexión con el sistema reactivo",
+  "reactive_flow_intro": "Las props de callback del canal llaman a <code>setSites</code>, <code>setPendingGeneration</code> y otros setters. Esas actualizaciones de signals activan efectos y componentes <code>Show</code>/<code>For</code> posteriores.",
+  "filename_app": "app.tsx",
+  "info_cleanup": "El callback <code>onCleanup</code> libera el puerto cuando se elimina el componente o se detiene la app."
+}

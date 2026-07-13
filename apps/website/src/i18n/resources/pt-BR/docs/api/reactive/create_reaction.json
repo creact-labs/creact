@@ -1,0 +1,12 @@
+{
+  "title": "createReaction",
+  "description": "Separa o rastreamento da execução. Rastreie uma expressão e execute uma função diferente quando ela mudar. A reação dispara uma vez e depois precisa ser rearmada.",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<code>onInvalidate</code>",
+  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_desc": "Callback que dispara uma vez quando os signals rastreados mudam.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opcional. <code>name</code> para depuração.",
+  "returns_body": "Uma função <code>(tracking: () =&gt; void) =&gt; void</code> que arma a reação. Chame-a com uma expressão de rastreamento. Os signals lidos internamente são rastreados. Quando qualquer um deles muda, <code>onInvalidate</code> dispara uma vez e o rastreamento para até você chamar a função novamente."
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Context dan Provider",
+  "description": "Context membagikan data di seluruh pohon komponen tanpa meneruskan props melalui setiap level.",
+  "heading_creating_context": "Membuat Context",
+  "creating_context_intro": "<code>createContext</code> membuat context dengan nilai default opsional. <code>useContext</code> membaca nilai provider terdekat.",
+  "heading_providing_values": "Menyediakan Nilai",
+  "providing_values_intro": "Bungkus komponen dengan <code>Provider</code> dari context:",
+  "heading_nested_providers": "Provider Bersarang",
+  "nested_providers_intro": "Provider dalam menimpa yang luar untuk subtree-nya:",
+  "tip_cross_cutting": "Gunakan context untuk cross-cutting concern seperti region AWS, nama environment, atau kredensial bersama yang dibutuhkan banyak komponen.",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

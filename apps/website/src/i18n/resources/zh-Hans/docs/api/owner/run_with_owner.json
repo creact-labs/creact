@@ -1,0 +1,12 @@
+{
+  "title": "runWithOwner",
+  "description": "在指定的响应式 owner 下运行函数。在异步回调中创建 effect 时必需。",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<code>owner</code>",
+  "param_owner_type": "<code>Owner | null</code>",
+  "param_owner_desc": "要在其下运行的 owner 作用域。通过 <code>getOwner()</code> 获取。接受 <code>null</code>。",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "要运行的函数。在其内部创建的任何 effect/cleanup 均归 <code>owner</code> 所有。",
+  "info_async_owner": "在 <code>await</code> 之后或回调内部，响应式 owner 会丢失。请使用 <code>getOwner()</code> 同步捕获它，并用 <code>runWithOwner()</code> 恢复。"
+}

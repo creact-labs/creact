@@ -1,0 +1,9 @@
+{
+  "title": "access",
+  "description": "Desenvuelve un MaybeAccessor. Lo invoca si es una función; de lo contrario, lo devuelve directamente.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_desc": "Un valor o una función accesora.",
+  "returns_desc": "El valor desenvuelto de tipo <code>T</code>."
+}

@@ -1,0 +1,9 @@
+{
+  "title": "createContext",
+  "description": "Erstellt einen Context, um Daten durch den Komponentenbaum zu leiten, ohne Props.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<code>defaultValue</code>",
+  "param_default_value_type": "<code>T</code>",
+  "param_default_value_desc": "Optional. Wert, der von <code>useContext</code> zurückgegeben wird, wenn kein Provider darüber existiert.",
+  "returns_desc": "Ein <code>Context&lt;T&gt;</code>-Objekt mit einer <code>Provider</code>-Komponente."
+}

@@ -1,0 +1,15 @@
+{
+  "title": "createRenderEffect",
+  "description": "在渲染期间同步运行函数，而不是将其加入队列。由运行时内部使用；在应用代码中很少需要。",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "副作用函数。在渲染期间立即运行。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "可选的初始值。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "可选。<code>name</code> 用于调试。",
+  "info_ordering": "渲染副作用在用户副作用（<code>createEffect</code>）之前运行。当你需要在渲染阶段进行同步反应时使用此功能，例如组件渲染跟踪。"
+}

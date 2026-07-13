@@ -1,0 +1,13 @@
+{
+  "title": "Context e Providers",
+  "description": "Contexts compartilham dados pela árvore de componentes sem passar props por todos os níveis.",
+  "heading_creating_context": "Criando um Context",
+  "creating_context_intro": "<code>createContext</code> cria um context com um valor padrão opcional. <code>useContext</code> lê o valor do provider mais próximo.",
+  "heading_providing_values": "Fornecendo Valores",
+  "providing_values_intro": "Envolva os componentes com o <code>Provider</code> do context:",
+  "heading_nested_providers": "Providers Aninhados",
+  "nested_providers_intro": "Providers internos sobrescrevem os externos na sua subárvore:",
+  "tip_cross_cutting": "Use contexts para preocupações transversais como região AWS, nome do ambiente ou credenciais compartilhadas de que muitos componentes precisam.",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

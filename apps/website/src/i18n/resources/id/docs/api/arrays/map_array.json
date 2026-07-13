@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "Iterasi ber-key. Setiap item di-map sekali dan di-key berdasarkan identitas. Hanya item baru atau yang dihapus yang menyebabkan re-computation.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Sumber array reaktif.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "Fungsi map. <code>v</code> adalah accessor ke item. <code>i</code> adalah indeks reaktif.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "Opsional. <code>keyFn</code> menyediakan identitas stabil untuk item."
+}

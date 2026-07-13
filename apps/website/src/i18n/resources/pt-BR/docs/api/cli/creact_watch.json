@@ -1,0 +1,16 @@
+{
+  "title": "creact --watch",
+  "description": "Executa o CReact no modo watch. Reinicia automaticamente quando os arquivos-fonte mudam.",
+  "heading_usage": "Uso",
+  "code_usage": "creact --watch <entry-file>",
+  "filename_terminal": "Terminal",
+  "heading_behavior": "Comportamento",
+  "behavior_run": "Verifica os tipos e executa o arquivo de entrada",
+  "behavior_watch": "Monitora arquivos <code>.ts</code>, <code>.tsx</code>, <code>.js</code> e <code>.jsx</code> em busca de alterações",
+  "behavior_restart": "Ao alterar um arquivo: interrompe a execução atual (executa as limpezas), verifica os tipos novamente e reinicia",
+  "behavior_state": "O estado persiste entre reinícios via a interface Memory",
+  "behavior_stop": "Pressione <code>Ctrl+C</code> para parar",
+  "heading_output": "Saída",
+  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Verificação de tipos concluída (3 arquivos, 120ms)\n ▶ App iniciado\n ◎ Monitorando alterações...\n\n ⟳ Arquivo alterado: src/app.tsx\n ⟳ Reiniciando...\n ✓ Verificação de tipos concluída (3 arquivos, 95ms)\n ▶ App iniciado",
+  "tip_state_persists": "O estado persiste entre reinícios. Edite sua árvore de componentes sem perder o estado implantado."
+}

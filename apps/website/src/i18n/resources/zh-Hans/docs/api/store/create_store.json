@@ -1,0 +1,11 @@
+{
+  "title": "createStore",
+  "description": "创建一个用于管理嵌套状态的响应式 store 代理。",
+  "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "初始 store 值。必须是一个对象。",
+  "returns_intro": "一个元组 <code>[store, setStore]</code>：",
+  "returns_store": "<code>store</code>：响应式代理。属性访问会被追踪。",
+  "returns_setstore": "<code>setStore</code>：接受基于路径更新的 setter。"
+}

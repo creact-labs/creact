@@ -1,0 +1,13 @@
+{
+  "title": "Context और Providers",
+  "description": "Contexts component tree में data share करते हैं, बिना हर level पर props pass किए।",
+  "heading_creating_context": "Context बनाना",
+  "creating_context_intro": "<code>createContext</code> optional default value के साथ एक context बनाता है। <code>useContext</code> nearest provider का value पढ़ता है।",
+  "heading_providing_values": "Values प्रदान करना",
+  "providing_values_intro": "Components को context के <code>Provider</code> से wrap करें:",
+  "heading_nested_providers": "Nested Providers",
+  "nested_providers_intro": "Inner providers अपने subtree के लिए outer ones को override करते हैं:",
+  "tip_cross_cutting": "Cross-cutting concerns जैसे AWS region, environment name, या shared credentials—जिन्हें कई components को चाहिए—के लिए contexts का उपयोग करें।",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

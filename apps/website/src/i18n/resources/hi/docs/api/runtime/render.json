@@ -1,0 +1,18 @@
+{
+  "title": "render",
+  "description": "CReact applications के लिए entry point। Component tree को render करता है, state reconcile करता है, handlers run करता है।",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "Function जो root component tree return करता है।",
+  "param_memory_name": "<code>memory</code>",
+  "param_memory_type": "<code>Memory</code>",
+  "param_memory_desc": "आवश्यक। State persistence backend।",
+  "param_stack_name_name": "<code>stackName</code>",
+  "param_stack_name_type": "<code>string</code>",
+  "param_stack_name_desc": "आवश्यक। State store के लिए identifier।",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>RenderOptions</code>",
+  "param_options_desc": "वैकल्पिक। अतिरिक्त render configuration।",
+  "returns_desc": "एक <code>RenderResult</code> object (synchronous)। <code>ready</code> property एक <code>Promise&lt;void&gt;</code> है जो initial deployment complete होने पर resolve होती है।"
+}

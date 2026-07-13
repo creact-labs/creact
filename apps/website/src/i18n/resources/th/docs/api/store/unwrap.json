@@ -1,0 +1,8 @@
+{
+  "title": "unwrap",
+  "description": "คืนค่า deep clone ของข้อมูลต้นฉบับจาก store proxy โดยลบ reactivity ทั้งหมดออก",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<code>store</code>",
+  "param_store_type": "<code>T</code>",
+  "param_store_desc": "store proxy ที่สร้างโดย <code>createStore</code>"
+}

@@ -1,0 +1,8 @@
+{
+  "title": "unwrap",
+  "description": "Renvoie un clone profond des données sous-jacentes d’un proxy de store, en supprimant toute réactivité.",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<code>store</code>",
+  "param_store_type": "<code>T</code>",
+  "param_store_desc": "Un proxy de store créé par <code>createStore</code>."
+}

@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Hace explícitas las dependencias de la computación. Rastrea señales específicas mientras lee otras sin seguimiento.",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "Señal(es) a rastrear de forma explícita.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "Callback. Se ejecuta sin seguimiento; solo se rastrean las <code>deps</code>.",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "Si es <code>true</code>, omite la primera ejecución.",
+  "heading_usage": "Uso",
+  "heading_single_dep": "Dependencia única",
+  "heading_multiple_deps": "Múltiples dependencias",
+  "heading_deferred": "Ejecución diferida"
+}

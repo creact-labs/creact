@@ -1,0 +1,9 @@
+{
+  "title": "batch",
+  "description": "Agrupa múltiples actualizaciones de signals en un único pase de cómputo.",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Función que contiene actualizaciones de signals. Todas las actualizaciones se difieren hasta que la función finaliza.",
+  "returns_body": "El valor de retorno de <code>fn</code>."
+}

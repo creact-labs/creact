@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "Tạo một reactive signal với getter và setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Giá trị ban đầu của signal. Tùy chọn; bỏ qua để dùng <code>T | undefined</code>.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "Tùy chọn. Đặt <code>equals</code> thành <code>false</code> để tắt kiểm tra equality, hoặc cung cấp một comparator tùy chỉnh.",
+  "returns_intro": "Một tuple gồm <code>[getter, setter]</code>:",
+  "returns_getter": "<code>getter()</code>: đọc giá trị hiện tại và đăng ký dependency khi được gọi bên trong tracking scope",
+  "returns_setter": "<code>setter(value)</code>: cập nhật giá trị. Chấp nhận giá trị trực tiếp hoặc một hàm <code>(prev) =&gt; next</code>.",
+  "heading_usage": "Sử dụng",
+  "heading_basic": "Sử dụng cơ bản",
+  "heading_functional_updates": "Cập nhật functional",
+  "heading_custom_equality": "Equality tùy chỉnh",
+  "tip_equality": "Mặc định, signals sử dụng so sánh <code>===</code>. Gán lại cùng một giá trị sẽ không kích hoạt re-computation."
+}

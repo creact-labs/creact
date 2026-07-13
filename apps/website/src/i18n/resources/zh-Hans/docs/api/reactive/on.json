@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "使计算依赖显式化。显式跟踪特定 signal，同时以 untracked 方式读取其他 signal。",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "要显式跟踪的 signal。",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "回调函数。以 untracked 方式运行；仅跟踪 <code>deps</code>。",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "若为 <code>true</code>，则跳过首次运行。",
+  "heading_usage": "用法",
+  "heading_single_dep": "单个依赖",
+  "heading_multiple_deps": "多个依赖",
+  "heading_deferred": "延迟执行"
+}

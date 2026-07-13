@@ -1,0 +1,5 @@
+{
+  "title": "mergeProps",
+  "description": "여러 props 객체를 반응적으로 병합하며, 이후 소스가 이전 소스를 재정의합니다. 기본 props에 사용하세요.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
+}

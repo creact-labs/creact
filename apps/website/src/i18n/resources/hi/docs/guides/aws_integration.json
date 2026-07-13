@@ -1,0 +1,19 @@
+{
+  "title": "AWS इंटीग्रेशन",
+  "description": "AWS SDK का उपयोग करके S3 bucket, file upload और website deployment components बनाएँ।",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "AWS clients को एक context provider में wrap करें। Child components hooks के ज़रिए S3 client, region और account ID एक्सेस करते हैं। Provider account ID को <code>useAsyncOutput</code> से fetch करता है और children render करने से पहले <code>Show</code> के साथ उसका wait करता है।",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Bucket Component",
+  "bucket_intro": "<code>Bucket</code> component <code>useAsyncOutput</code> से एक S3 bucket बनाता है। Restart पर creation skip करने के लिए यह saved outputs चेक करता है। Cleanup handler component को tree से हटाए जाने पर bucket को empty करके delete कर देता है। Children केवल bucket ready होने के बाद ही render होते हैं।",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "S3 File Upload",
+  "s3_file_intro": "<code>S3File</code> component content को S3 पर upload करता है। यह content को hash करके saved state से compare करता है, ताकि कुछ न बदला हो तो uploads skip हो सकें।",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "WebSite Compose करना",
+  "website_intro": "<code>WebSite</code> <code>Bucket</code> और <code>S3File</code> को compose करता है। Bucket खुद को create और configure करता है, फिर <code>S3File</code> child के रूप में content upload करता है।",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Multiple Sites Deploy करना",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "AWS resources के लिए cleanup handlers implement करें। Cleanup के बिना, tree से component हटाने पर underlying resource delete नहीं होगा।"
+}

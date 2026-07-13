@@ -1,0 +1,12 @@
+{
+  "title": "createReaction",
+  "description": "Tracking को execution से अलग करता है। एक expression को track करें, जब वह बदलता है तो एक अलग function चलाएँ। Reaction एक बार fire होता है, फिर re-arm करना आवश्यक है।",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<code>onInvalidate</code>",
+  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_desc": "Callback जो tracked signals बदलने पर एक बार fire होता है।",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "वैकल्पिक। Debugging के लिए <code>name</code>।",
+  "returns_body": "एक function <code>(tracking: () =&gt; void) =&gt; void</code> जो reaction को arm करता है। इसे एक tracking expression के साथ call करें। अंदर read किए गए signals track होते हैं। जब उनमें से कोई भी बदलता है, <code>onInvalidate</code> एक बार fire होता है और tracking तब तक रुक जाता है जब तक आप function को फिर से call न करें।"
+}

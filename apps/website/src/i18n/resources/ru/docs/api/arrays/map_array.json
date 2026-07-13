@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "Итерация с ключами. Каждый элемент маппится один раз и ключуется по идентичности. Пересчёт вызывают только новые или удалённые элементы.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Реактивный источник массива.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "Функция map. <code>v</code> — accessor к элементу. <code>i</code> — реактивный индекс.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "Необязательный. <code>keyFn</code> обеспечивает стабильную идентичность элементов."
+}

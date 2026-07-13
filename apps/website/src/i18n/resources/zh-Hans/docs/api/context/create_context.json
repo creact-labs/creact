@@ -1,0 +1,9 @@
+{
+  "title": "createContext",
+  "description": "创建一个 Context，用于在组件树中传递数据而无需通过 props。",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<code>defaultValue</code>",
+  "param_default_value_type": "<code>T</code>",
+  "param_default_value_desc": "可选。当上方不存在 Provider 时，<code>useContext</code> 返回的值。",
+  "returns_desc": "一个包含 <code>Provider</code> 组件的 <code>Context&lt;T&gt;</code> 对象。"
+}

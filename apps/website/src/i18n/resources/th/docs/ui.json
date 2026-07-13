@@ -1,0 +1,23 @@
+{
+  "reference": "อ้างอิง",
+  "usage": "การใช้งาน",
+  "parameters": "พารามิเตอร์",
+  "returns": "ค่าที่ส่งกลับ",
+  "param_table": {
+    "parameter": "พารามิเตอร์",
+    "type": "Type",
+    "description": "คำอธิบาย"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Type",
+    "description": "คำอธิบาย"
+  },
+  "copy": "คัดลอก",
+  "copied": "คัดลอกแล้ว",
+  "callout": {
+    "info": "หมายเหตุ",
+    "warning": "คำเตือน",
+    "tip": "ควรรู้"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Switch / Match",
+  "description": "다중 분기 조건부 렌더링. 첫 번째로 일치하는 분기를 렌더링합니다.",
+  "name_switch": "Switch",
+  "name_match": "Match",
+  "signature_switch": "Switch(props: { fallback?: MaybeAccessor<CReactNode>; children: MatchResult<any>[] | MatchResult<any> }): JSXElement",
+  "signature_match": "Match<T>(props: { when: MaybeAccessor<T | undefined | null | false>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): MatchResult<T>",
+  "code_hero": "<Switch fallback={<Default />}>\n  <Match when={() => mode() === 'a'}><A /></Match>\n  <Match when={() => mode() === 'b'}><B /></Match>\n</Switch>",
+  "heading_props": "Props",
+  "switch_prop_fallback_name": "<code>fallback</code>",
+  "switch_prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "switch_prop_fallback_desc": "어떤 Match도 truthy가 아닐 때 렌더링됩니다.",
+  "switch_prop_children_name": "<code>children</code>",
+  "switch_prop_children_type": "<code>MatchResult[]</code>",
+  "switch_prop_children_desc": "Match 컴포넌트.",
+  "match_prop_when_name": "<code>when</code>",
+  "match_prop_when_type": "<code>MaybeAccessor&lt;T | undefined | null | false&gt;</code>",
+  "match_prop_when_desc": "이 분기의 조건. 값 또는 accessor를 받습니다.",
+  "match_prop_children_name": "<code>children</code>",
+  "match_prop_children_type": "<code>CReactNode | ((item: Accessor&lt;NonNullable&lt;T&gt;&gt;) =&gt; CReactNode)</code>",
+  "match_prop_children_desc": "truthy 값을 받는 콘텐츠 또는 콜백.",
+  "code_usage": "<Switch>\n  <Match when={() => env() === 'production'}>\n    <ProductionStack replicas={3} />\n  </Match>\n  <Match when={() => env() === 'staging'}>\n    <StagingStack replicas={1} />\n  </Match>\n  <Match when={() => env() === 'dev'}>\n    <DevStack />\n  </Match>\n</Switch>"
+}

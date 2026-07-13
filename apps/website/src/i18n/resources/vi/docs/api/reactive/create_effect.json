@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Tạo một side effect reactive chạy khi dependencies thay đổi. Dùng cho side effect (logging, gọi bên ngoài). Chạy sau batch hiện tại.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Hàm effect. Nhận giá trị trả về trước đó. Được theo dõi tự động.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Giá trị ban đầu tùy chọn được truyền vào lần chạy đầu tiên.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Tùy chọn. <code>name</code> để debugging.",
+  "heading_usage": "Cách dùng",
+  "heading_tracking": "Theo dõi Dependencies",
+  "heading_previous": "Sử dụng giá trị trước đó",
+  "heading_cleanup": "Cleanup với onCleanup",
+  "info_batching": "Effects được batch. Nhiều cập nhật signal đồng bộ chỉ kích hoạt một lần chạy lại. Dùng <code>batch()</code> rõ ràng cho các chuỗi cập nhật phức tạp."
+}

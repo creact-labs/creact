@@ -1,0 +1,13 @@
+{
+  "title": "Context và Providers",
+  "description": "Context chia sẻ dữ liệu xuyên suốt cây component mà không cần truyền props qua từng cấp.",
+  "heading_creating_context": "Tạo Context",
+  "creating_context_intro": "<code>createContext</code> tạo một context với giá trị mặc định tùy chọn. <code>useContext</code> đọc giá trị từ provider gần nhất.",
+  "heading_providing_values": "Cung cấp giá trị",
+  "providing_values_intro": "Bọc các component bằng <code>Provider</code> của context:",
+  "heading_nested_providers": "Providers lồng nhau",
+  "nested_providers_intro": "Provider bên trong ghi đè provider bên ngoài cho subtree của chúng:",
+  "tip_cross_cutting": "Dùng context cho các concern xuyên suốt như AWS region, tên môi trường, hoặc credential dùng chung mà nhiều component cần.",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

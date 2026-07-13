@@ -1,0 +1,8 @@
+{
+  "title": "onMount",
+  "description": "รันฟังก์ชันหนึ่งครั้งเมื่อคอมโพเนนต์เริ่มต้น โดยไม่ติดตาม dependencies",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_desc": "ฟังก์ชันที่รันหนึ่งครั้งตอน mount รันแบบ untracked; การอ่าน signal จะไม่สร้าง dependencies"
+}

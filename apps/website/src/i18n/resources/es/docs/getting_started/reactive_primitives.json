@@ -1,0 +1,15 @@
+{
+  "title": "Primitivas reactivas",
+  "description": "Las señales, los efectos y los memos hacen que los componentes respondan a los cambios.",
+  "heading_signals": "Señales",
+  "signals_intro": "Una señal es un valor reactivo. Devuelve un par getter y setter. Leer el getter dentro de un efecto registra una dependencia. El efecto se vuelve a ejecutar cuando cambia la señal.",
+  "heading_effects": "Efectos",
+  "effects_intro": "Los efectos ejecutan efectos secundarios cuando cambian sus dependencias. CReact rastrea qué señales se leen dentro de la función del efecto.",
+  "info_batched_effects": "Los efectos se encolan y se agrupan. Varias actualizaciones de señales en un solo bloque síncrono solo desencadenan una reejecución del efecto.",
+  "heading_memos": "Memos",
+  "memos_intro": "Un memo es un valor reactivo derivado. Almacena el resultado en caché y solo se recalcula cuando cambian sus dependencias.",
+  "heading_batching": "Batching",
+  "batching_intro": "<code>batch()</code> agrupa varias actualizaciones de señales en un único paso de reevaluación:",
+  "heading_untrack": "Untrack",
+  "untrack_intro": "<code>untrack()</code> lee una señal sin crear una dependencia:"
+}

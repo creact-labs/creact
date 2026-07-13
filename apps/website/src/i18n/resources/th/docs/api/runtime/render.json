@@ -1,0 +1,18 @@
+{
+  "title": "render",
+  "description": "Entry point สำหรับแอปพลิเคชัน CReact เรนเดอร์ component tree, reconcile state และรัน handlers",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "ฟังก์ชันที่คืนค่า root component tree",
+  "param_memory_name": "<code>memory</code>",
+  "param_memory_type": "<code>Memory</code>",
+  "param_memory_desc": "จำเป็น Backend สำหรับ state persistence",
+  "param_stack_name_name": "<code>stackName</code>",
+  "param_stack_name_type": "<code>string</code>",
+  "param_stack_name_desc": "จำเป็น ตัวระบุสำหรับ state store",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>RenderOptions</code>",
+  "param_options_desc": "ไม่บังคับ การกำหนดค่า render เพิ่มเติม",
+  "returns_desc": "อ็อบเจ็กต์ <code>RenderResult</code> (synchronous) โดย property <code>ready</code> เป็น <code>Promise&lt;void&gt;</code> ที่ resolve เมื่อ initial deployment เสร็จสมบูรณ์"
+}

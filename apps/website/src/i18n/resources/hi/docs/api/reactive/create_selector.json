@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "एक O(2) selection signal बनाता है। केवल previous और new selection re-evaluate होती हैं।",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "वह Signal जो currently selected value रखता है।",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "वैकल्पिक comparator। डिफ़ॉल्ट रूप से <code>===</code>।",
+  "returns_body": "एक function <code>(key: U) =&gt; boolean</code> जो <code>true</code> return करता है यदि <code>key</code> current selection से match करता है। केवल previously selected और newly selected items re-evaluate होते हैं। list size की परवाह किए बिना O(2)।"
+}

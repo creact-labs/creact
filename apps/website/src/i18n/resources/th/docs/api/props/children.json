@@ -1,0 +1,9 @@
+{
+  "title": "children",
+  "description": "แปลง children ที่ส่งเข้า component ให้เป็น reactive accessor รองรับ lazy children และ arrays",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>Accessor&lt;JSXElement&gt;</code>",
+  "param_fn_desc": "Accessor ที่คืนค่า children prop",
+  "returns_desc": "<code>ChildrenReturn</code> ซึ่งเป็น callable accessor ที่คืนค่า children ที่ resolve แล้ว และมีเมธอด <code>toArray()</code> ที่คืนค่า children ที่ resolve แล้วในรูปแบบ flat array"
+}

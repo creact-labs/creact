@@ -1,0 +1,14 @@
+{
+  "title": "Contrôle de flux",
+  "description": "Show, For, Switch et ErrorBoundary contrôlent quels composants s’exécutent en fonction de conditions réactives.",
+  "heading_show": "Rendu conditionnel avec Show",
+  "show_intro": "<code>Show</code> n’affiche ses enfants que lorsque la condition <code>when</code> est truthy. Il peut également fournir un fallback.",
+  "show_callback_intro": "Vous pouvez accéder à la valeur truthy avec un enfant callback :",
+  "heading_for": "Itération avec For",
+  "for_intro": "<code>For</code> itère sur une liste réactive. Chaque élément est identifié par référence. Lorsque la liste change, seuls les éléments affectés sont mis à jour.",
+  "heading_switch": "Branchement multiple avec Switch",
+  "switch_intro": "<code>Switch</code> avec <code>Match</code> fournit une logique conditionnelle multi-branches :",
+  "heading_error_boundary": "Gestion des erreurs avec ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> intercepte les erreurs levées dans les composants enfants :",
+  "info_accessor_conditions": "Les composants de flux prennent des fonctions accesseurs (<code>() =&gt; value</code>) pour les conditions. La condition est réévaluée sans réexécuter le composant parent."
+}

@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "Erstellt ein reaktives Signal mit Getter und Setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Initialer Wert des Signals. Optional; weglassen für <code>T | undefined</code>.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "Optional. Setzen Sie <code>equals</code> auf <code>false</code>, um Gleichheitsprüfungen zu deaktivieren, oder geben Sie eine benutzerdefinierte Vergleichsfunktion an.",
+  "returns_intro": "Ein Tupel aus <code>[getter, setter]</code>:",
+  "returns_getter": "<code>getter()</code>: liest den aktuellen Wert und registriert eine Abhängigkeit, wenn er innerhalb eines Tracking-Scopes aufgerufen wird",
+  "returns_setter": "<code>setter(value)</code>: aktualisiert den Wert. Akzeptiert einen direkten Wert oder eine Funktion <code>(prev) =&gt; next</code>.",
+  "heading_usage": "Verwendung",
+  "heading_basic": "Grundlegende Verwendung",
+  "heading_functional_updates": "Funktionale Updates",
+  "heading_custom_equality": "Benutzerdefinierte Gleichheit",
+  "tip_equality": "Standardmäßig verwenden Signale den Vergleich mit <code>===</code>. Das erneute Setzen desselben Werts löst keine Neuberechnung aus."
+}

@@ -1,0 +1,5 @@
+{
+  "title": "mergeProps",
+  "description": "以響應式方式合併多個 props 物件，後面的來源會覆寫前面的來源。用於預設 props。",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "एक getter और setter के साथ एक reactive signal बनाता है।",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Signal का initial value। Optional; <code>T | undefined</code> के लिए छोड़ दें।",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "Optional। Equality checks अक्षम करने के लिए <code>equals</code> को <code>false</code> पर सेट करें, या एक custom comparator प्रदान करें।",
+  "returns_intro": "<code>[getter, setter]</code> का एक tuple:",
+  "returns_getter": "<code>getter()</code>: वर्तमान value पढ़ता है और tracking scope के अंदर कॉल होने पर dependency register करता है",
+  "returns_setter": "<code>setter(value)</code>: value अपडेट करता है। Direct value या function <code>(prev) =&gt; next</code> स्वीकार करता है।",
+  "heading_usage": "उपयोग",
+  "heading_basic": "मूल उपयोग",
+  "heading_functional_updates": "Functional Updates",
+  "heading_custom_equality": "Custom Equality",
+  "tip_equality": "Default रूप से, signals <code>===</code> comparison का उपयोग करते हैं। समान value दोबारा सेट करने से re-computation trigger नहीं होगा।"
+}

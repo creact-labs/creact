@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "创建 O(2) 选择信号。仅先前与新的选择会重新求值。",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "保存当前选中值的信号。",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "可选比较函数。默认为 <code>===</code>。",
+  "returns_body": "函数 <code>(key: U) =&gt; boolean</code>：当 <code>key</code> 与当前选择匹配时返回 <code>true</code>。仅先前选中与新选中的项会重新求值。无论列表大小如何，复杂度均为 O(2)。"
+}

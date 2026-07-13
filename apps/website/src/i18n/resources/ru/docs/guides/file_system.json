@@ -1,0 +1,16 @@
+{
+  "title": "Операции с файловой системой",
+  "description": "Создавайте реактивные компоненты чтения и записи файлов с помощью API Node.js.",
+  "heading_read_component": "Компонент Read",
+  "read_intro": "Компонент <code>Read</code> загружает файл и передаёт его содержимое как accessor в render callback. Дочерние элементы получают содержимое реактивно.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Компонент Write",
+  "write_intro": "Компонент <code>Write</code> отслеживает content accessor с помощью <code>createEffect</code>. При изменении содержимого выполняется запись на диск. Защита через <code>untrack</code> предотвращает повторную запись того же содержимого.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Совместное использование Read и Write",
+  "usage_intro": "Комбинируйте <code>Read</code> и <code>Write</code>, чтобы создавать пайплайны, реактивно преобразующие содержимое файлов:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "Файловая память",
+  "file_memory_intro": "Самый распространённый паттерн работы с файловой системой в CReact — реализация <code>FileMemory</code> для персистентности состояния:",
+  "filename_memory": "src/memory.ts"
+}

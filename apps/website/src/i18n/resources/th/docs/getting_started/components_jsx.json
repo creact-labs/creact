@@ -1,0 +1,20 @@
+{
+  "title": "Components และ JSX",
+  "description": "คอมโพเนนต์ของ CReact เป็นฟังก์ชันที่คืนค่า JSX JSX ใช้อธิบาย resources และ processes ไม่ใช่ DOM elements",
+  "heading_jsx": "JSX ใน CReact",
+  "jsx_intro": "CReact ใช้ JSX เพื่ออธิบาย <strong>resources และ processes</strong> ไม่ใช่ DOM elements <code>&lt;WebSite name=\"blog\" /&gt;</code> ประกาศว่า website ชื่อ \"blog\" ควรมีอยู่",
+  "heading_component_functions": "ฟังก์ชัน Component",
+  "component_functions_intro": "Components เป็นฟังก์ชันธรรมดาที่คืนค่า JSX โดยรับ props เป็นอาร์กิวเมนต์แรกและทำงานเพียงครั้งเดียว Reactivity จัดการโดย signals ไม่ใช่ re-renders",
+  "heading_fragments": "Fragments",
+  "fragments_intro": "ใช้ <code>&lt;&gt;...&lt;/&gt;</code> เพื่อคืนค่า elements หลายตัวโดยไม่ต้องมี wrapper:",
+  "heading_reactive_props": "Reactive Props",
+  "reactive_props_intro": "Props ใน CReact มักเป็น <strong>accessors</strong> (getter functions) เพื่อรักษา reactivity Components ทำงานเพียงครั้งเดียว effects จะทำงานซ้ำเมื่อ dependencies เปลี่ยนแปลง",
+  "tip_access": "ใช้ helper <code>access()</code> เพื่อ unwrap ค่าที่อาจเป็นหรือไม่เป็น accessors: <code>access(props.value)</code> ใช้ได้ทั้งกรณีที่ <code>value</code> เป็น <code>5</code> หรือ <code>() =&gt; 5</code>",
+  "heading_children": "Children",
+  "children_intro": "Components สามารถรับ children ผ่านการซ้อน JSX ใช้ helper <code>children()</code> เพื่อ resolve แบบ reactive",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

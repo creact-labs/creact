@@ -1,0 +1,17 @@
+{
+  "title": "การทดสอบ",
+  "description": "ทดสอบ components และ reactive logic ของ CReact ด้วย Vitest และ createRoot.",
+  "heading_setup": "การตั้งค่า",
+  "setup_intro": "ติดตั้ง Vitest:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Terminal",
+  "heading_testing_signals": "การทดสอบ Signals",
+  "testing_signals_intro": "ทดสอบ reactive primitives โดยห่อด้วย <code>createRoot</code>:",
+  "filename_signals_spec": "signals.spec.ts",
+  "heading_testing_components": "การทดสอบ Components",
+  "testing_components_intro": "ทดสอบ components โดยเรียกใช้โดยตรงแล้วตรวจสอบ handler outputs:",
+  "filename_counter_spec": "counter.spec.ts",
+  "heading_testing_flow": "การทดสอบ Flow Components",
+  "filename_flow_spec": "flow.spec.tsx",
+  "tip_create_root": "ห่อ tests ใน <code>createRoot</code> เพื่อให้ effects, cleanups และการติดตาม ownership ทำงานได้"
+}

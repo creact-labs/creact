@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Membuat dependensi komputasi menjadi eksplisit. Lacak signal tertentu sambil membaca yang lain secara untracked.",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "Signal yang dilacak secara eksplisit.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "Callback. Dijalankan secara untracked; hanya <code>deps</code> yang dilacak.",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "Jika <code>true</code>, melewati eksekusi pertama.",
+  "heading_usage": "Penggunaan",
+  "heading_single_dep": "Dependensi Tunggal",
+  "heading_multiple_deps": "Beberapa Dependensi",
+  "heading_deferred": "Eksekusi Tertunda"
+}

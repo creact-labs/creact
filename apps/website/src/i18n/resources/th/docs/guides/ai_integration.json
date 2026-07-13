@@ -1,0 +1,14 @@
+{
+  "title": "การผสานรวม AI",
+  "description": "ห่อ Anthropic SDK ไว้ใน context provider แล้วเรียก Claude จาก reactive effects",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "ห่อ Anthropic SDK ไว้ใน context provider เพื่อให้ child component ใดก็ได้เรียก API ได้ Provider สร้าง client เพียงครั้งเดียว Child component เข้าถึงผ่าน <code>useComplete()</code>",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "Generation Component",
+  "generate_intro": "คอมโพเนนต์ <code>GenerateHtml</code> เรียก <code>useComplete()</code> ภายใน <code>createEffect</code> เมื่อ prompt signal เปลี่ยน effect จะทำงาน เรียก API แล้วส่งผลลัพธ์ไปยัง callback การป้องกันด้วย <code>untrack</code> ช่วยไม่ให้เกิดการ generate ซ้ำ",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "Reactive Pipeline",
+  "pipeline_intro": "แอปเชื่อมการ generate กับการ deploy เข้าด้วยกันด้วย <code>Show</code> เมื่อมีการ generate ที่รอดำเนินการ <code>GenerateHtml</code> จะทำงาน เมื่อสร้าง content แล้ว <code>Write</code> จะบันทึกลงดิสก์ และรายการ site จะอัปเดต ซึ่งจะทริกเกอร์การ deploy ไปยัง AWS ต่อไป",
+  "filename_app": "app.tsx",
+  "tip_persistence": "ผลลัพธ์จาก AI จะถูก persist เหมือนกับผลลัพธ์ <code>useAsyncOutput</code> อื่นๆ การ generate จะรันอีกครั้งก็ต่อเมื่อ input props เปลี่ยนเท่านั้น"
+}

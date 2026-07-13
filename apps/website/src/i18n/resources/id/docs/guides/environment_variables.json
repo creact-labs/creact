@@ -1,0 +1,14 @@
+{
+  "title": "Variabel Lingkungan",
+  "description": "Konfigurasikan aplikasi Anda untuk lingkungan yang berbeda menggunakan process.env.",
+  "heading_reading": "Membaca Variabel Lingkungan",
+  "reading_intro": "Akses variabel lingkungan melalui <code>process.env</code> seperti di aplikasi Node.js mana pun:",
+  "filename_app": "app.tsx",
+  "heading_per_environment": "Konfigurasi per Lingkungan",
+  "filename_config": "config.ts",
+  "heading_secrets": "Menangani Secrets",
+  "secrets_intro": "Teruskan secrets melalui variabel lingkungan atau secret manager:",
+  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact tidak memiliki pemuatan file <code>.env</code> bawaan. Gunakan paket seperti <code>dotenv</code> atau atur variabel di shell / lingkungan CI Anda."
+}

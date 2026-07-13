@@ -1,0 +1,14 @@
+{
+  "title": "KI-Integration",
+  "description": "Binden Sie das Anthropic SDK in einen Context-Provider ein und rufen Sie Claude aus reaktiven Effects auf.",
+  "heading_provider": "Claude Provider",
+  "provider_intro": "Binden Sie das Anthropic SDK in einen Context-Provider ein, damit jede Child-Komponente die API aufrufen kann. Der Provider erstellt den Client einmalig. Child-Komponenten greifen über <code>useComplete()</code> darauf zu.",
+  "filename_provider": "providers/claude-provider.tsx",
+  "heading_generate_component": "Generierungs-Komponente",
+  "generate_intro": "Die Komponente <code>GenerateHtml</code> ruft <code>useComplete()</code> innerhalb eines <code>createEffect</code> auf. Wenn sich das Prompt-Signal ändert, wird der Effect ausgelöst, die API aufgerufen und das Ergebnis an einen Callback übergeben. Der <code>untrack</code>-Guard verhindert doppelte Generierungen.",
+  "filename_generate": "components/generate-html.tsx",
+  "heading_reactive_pipeline": "Reaktive Pipeline",
+  "pipeline_intro": "Die App verknüpft Generierung und Deployment mit <code>Show</code>. Wenn eine ausstehende Generierung vorhanden ist, wird <code>GenerateHtml</code> ausgeführt. Sobald Inhalte erzeugt werden, speichert <code>Write</code> diese auf dem Datenträger, und die Site-Liste wird aktualisiert, was nachgelagert das AWS-Deployment auslöst.",
+  "filename_app": "app.tsx",
+  "tip_persistence": "KI-Ausgaben werden wie jedes andere <code>useAsyncOutput</code>-Ergebnis persistiert. Die Generierung wird nur erneut ausgeführt, wenn sich die Input-Props ändern."
+}

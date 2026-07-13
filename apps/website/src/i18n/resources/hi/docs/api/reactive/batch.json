@@ -1,0 +1,9 @@
+{
+  "title": "batch",
+  "description": "कई signal updates को एक single computation pass में समूहित करता है।",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Signal updates वाली function। Function complete होने तक सभी updates deferred रहते हैं।",
+  "returns_body": "<code>fn</code> का return value।"
+}

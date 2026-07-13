@@ -1,0 +1,13 @@
+{
+  "title": "HTTP API và Channel",
+  "description": "Xây dựng channel component expose HTTP endpoint và đưa input vào hệ thống reactive.",
+  "heading_channels": "Channel là gì?",
+  "channels_desc": "Channel là component khởi động HTTP server khi mount và dừng khi cleanup. Request đến gọi callback props, cập nhật signal và kích hoạt các component phía sau.",
+  "heading_http_server": "Channel Component",
+  "http_server_intro": "Component <code>Channel</code> khởi động Hono server bên trong <code>onMount</code>. Route handler được truyền vào dưới dạng props. <code>onCleanup</code> tắt server khi component bị gỡ bỏ.",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Kết nối với Hệ thống Reactive",
+  "reactive_flow_intro": "Các callback props của channel gọi <code>setSites</code>, <code>setPendingGeneration</code> và các setter khác. Những cập nhật signal đó kích hoạt effect và các component <code>Show</code>/<code>For</code> phía sau.",
+  "filename_app": "app.tsx",
+  "info_cleanup": "Callback <code>onCleanup</code> giải phóng port khi component bị gỡ bỏ hoặc app dừng."
+}

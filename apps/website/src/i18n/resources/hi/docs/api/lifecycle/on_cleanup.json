@@ -1,0 +1,10 @@
+{
+  "title": "onCleanup",
+  "description": "वर्तमान reactive owner पर एक cleanup function रजिस्टर करता है। Owner dispose होने पर या effect re-run होने से पहले चलता है।",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "Cleanup function। Owner dispose होने पर कॉल होती है।",
+  "returns_desc": "सुविधा के लिए वही function जो पास की गई थी।",
+  "warning_no_owner": "<code>onCleanup</code> को <code>createRoot</code> या <code>render</code> के बाहर कॉल करने पर warn होगा और cleanup कभी नहीं चलेगा।"
+}

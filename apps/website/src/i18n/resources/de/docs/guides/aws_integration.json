@@ -1,0 +1,19 @@
+{
+  "title": "AWS-Integration",
+  "description": "Erstellen Sie S3-Bucket-, Datei-Upload- und Website-Deployment-Komponenten mit dem AWS SDK.",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "Kapseln Sie AWS-Clients in einem Context Provider. Kindkomponenten greifen über Hooks auf den S3-Client, die Region und die Account-ID zu. Der Provider holt die Account-ID mit <code>useAsyncOutput</code> und wartet mit <code>Show</code> darauf, bevor die Kinder gerendert werden.",
+  "filename_provider": "providers/aws-provider.tsx",
+  "heading_bucket_component": "Bucket-Komponente",
+  "bucket_intro": "Die <code>Bucket</code>-Komponente erstellt einen S3-Bucket mit <code>useAsyncOutput</code>. Sie prüft gespeicherte Outputs, um die Erstellung beim Neustart zu überspringen. Der Cleanup-Handler leert und löscht den Bucket, wenn die Komponente aus dem Tree entfernt wird. Kinder werden erst gerendert, wenn der Bucket bereit ist.",
+  "filename_bucket": "components/bucket.tsx",
+  "heading_s3_file": "S3-Datei-Upload",
+  "s3_file_intro": "Die <code>S3File</code>-Komponente lädt Inhalte nach S3 hoch. Sie hasht den Inhalt und vergleicht ihn mit dem gespeicherten State, um Uploads zu überspringen, wenn sich nichts geändert hat.",
+  "filename_s3_file": "shared/s3-file.tsx",
+  "heading_website_component": "Eine WebSite zusammensetzen",
+  "website_intro": "<code>WebSite</code> setzt <code>Bucket</code> und <code>S3File</code> zusammen. Der Bucket erstellt und konfiguriert sich selbst; anschließend lädt <code>S3File</code> Inhalte als Kind hoch.",
+  "filename_website": "components/website.tsx",
+  "heading_multiple_resources": "Mehrere Sites deployen",
+  "filename_app": "app.tsx",
+  "warning_cleanup": "Implementieren Sie Cleanup-Handler für AWS-Ressourcen. Ohne Cleanup wird die zugrunde liegende Ressource beim Entfernen einer Komponente aus dem Tree nicht gelöscht."
+}

@@ -1,0 +1,9 @@
+{
+  "title": "useContext",
+  "description": "ट्री में ऊपर के निकटतम context Provider का value पढ़ता है।",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<code>context</code>",
+  "param_context_type": "<code>Context&lt;T&gt;</code>",
+  "param_context_desc": "<code>createContext</code> द्वारा बनाया गया context object।",
+  "returns_desc": "ऊपर के निकटतम <code>Provider</code> से value। यदि कोई Provider मौजूद नहीं है, तो <code>createContext</code> को पास किया गया default value लौटाता है।"
+}

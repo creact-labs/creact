@@ -1,0 +1,15 @@
+{
+  "title": "Các Primitive Reactive",
+  "description": "Signals, effects và memos giúp component phản hồi khi có thay đổi.",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal là một giá trị reactive. Nó trả về một cặp getter và setter. Việc đọc getter bên trong một effect sẽ đăng ký dependency. Effect sẽ chạy lại khi signal thay đổi.",
+  "heading_effects": "Effects",
+  "effects_intro": "Effects chạy các side effect khi dependency của chúng thay đổi. CReact theo dõi những signal nào được đọc bên trong hàm effect.",
+  "info_batched_effects": "Effects được xếp hàng đợi và batch. Nhiều lần cập nhật signal trong một khối đồng bộ chỉ kích hoạt một lần chạy lại effect.",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo là một giá trị reactive được suy ra. Nó cache kết quả và chỉ tính toán lại khi dependency thay đổi.",
+  "heading_batching": "Batching",
+  "batching_intro": "<code>batch()</code> nhóm nhiều lần cập nhật signal thành một lần đánh giá lại:",
+  "heading_untrack": "Untrack",
+  "untrack_intro": "<code>untrack()</code> đọc một signal mà không tạo dependency:"
+}

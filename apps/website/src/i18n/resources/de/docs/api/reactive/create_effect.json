@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "Erstellt einen reaktiven Side Effect, der ausgeführt wird, wenn sich seine Abhängigkeiten ändern. Für Side Effects (Logging, externe Aufrufe) verwenden. Wird nach dem aktuellen Batch ausgeführt.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect-Funktion. Erhält den vorherigen Rückgabewert. Wird automatisch getrackt.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Optionaler Anfangswert, der beim ersten Durchlauf übergeben wird.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Optional. <code>name</code> für Debugging.",
+  "heading_usage": "Verwendung",
+  "heading_tracking": "Abhängigkeiten tracken",
+  "heading_previous": "Vorherigen Wert verwenden",
+  "heading_cleanup": "Cleanup mit onCleanup",
+  "info_batching": "Effects werden gebatcht. Mehrere synchrone Signal-Updates lösen nur einen erneuten Durchlauf aus. Verwenden Sie <code>batch()</code> explizit für komplexe Update-Sequenzen."
+}

@@ -1,0 +1,13 @@
+{
+  "title": "API HTTP dan Channel",
+  "description": "Bangun komponen channel yang mengekspos endpoint HTTP dan memasukkan input ke dalam sistem reaktif.",
+  "heading_channels": "Apa Itu Channel?",
+  "channels_desc": "Channel adalah komponen yang memulai server HTTP saat mount dan menghentikannya saat cleanup. Request yang masuk memanggil callback props, yang memperbarui signal dan memicu komponen di downstream.",
+  "heading_http_server": "Komponen Channel",
+  "http_server_intro": "Komponen <code>Channel</code> memulai server Hono di dalam <code>onMount</code>. Route handler diteruskan sebagai props. <code>onCleanup</code> mematikan server saat komponen dihapus.",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Menghubungkan ke Sistem Reaktif",
+  "reactive_flow_intro": "Callback props channel memanggil <code>setSites</code>, <code>setPendingGeneration</code>, dan setter lainnya. Pembaruan signal tersebut memicu effect dan komponen <code>Show</code>/<code>For</code> di downstream.",
+  "filename_app": "app.tsx",
+  "info_cleanup": "Callback <code>onCleanup</code> melepaskan port saat komponen dihapus atau aplikasi berhenti."
+}

@@ -1,0 +1,12 @@
+{
+  "title": "createSelector",
+  "description": "Erstellt ein O(2)-Selection-Signal. Nur die vorherige und die neue Selection werden neu ausgewertet.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<code>source</code>",
+  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_desc": "Signal, das den aktuell ausgewählten Wert hält.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
+  "param_fn_desc": "Optionaler Comparator. Standardmäßig <code>===</code>.",
+  "returns_body": "Eine Funktion <code>(key: U) =&gt; boolean</code>, die <code>true</code> zurückgibt, wenn <code>key</code> mit der aktuellen Selection übereinstimmt. Nur die zuvor ausgewählten und die neu ausgewählten Elemente werden neu ausgewertet. O(2) unabhängig von der Listengröße."
+}

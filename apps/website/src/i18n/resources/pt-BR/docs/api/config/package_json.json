@@ -1,0 +1,22 @@
+{
+  "title": "package.json",
+  "description": "Configuração de pacote para projetos CReact.",
+  "heading_minimal": "Configuração Mínima",
+  "code_minimal": "{\n  \"name\": \"my-creact-app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\"\n  },\n  \"dependencies\": {\n    \"@creact-labs/creact\": \"^0.3.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\"\n  }\n}",
+  "filename_package_json": "package.json",
+  "heading_key_fields": "Campos Principais",
+  "table_header_field": "Campo",
+  "table_header_value": "Valor",
+  "table_header_why": "Por quê",
+  "row_type_name": "<code>\"type\"</code>",
+  "row_type_value": "<code>\"module\"</code>",
+  "row_type_why": "CReact é somente ESM. Necessário para a resolução correta de módulos.",
+  "row_start_name": "<code>\"scripts.start\"</code>",
+  "row_start_value": "<code>\"creact index.tsx\"</code>",
+  "row_start_why": "Execução única: reconcilia e encerra.",
+  "row_dev_name": "<code>\"scripts.dev\"</code>",
+  "row_dev_value": "<code>\"creact --watch index.tsx\"</code>",
+  "row_dev_why": "Modo watch: reinicia ao alterar arquivos.",
+  "heading_with_testing": "Com Testes",
+  "code_with_testing": "{\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\",\n    \"test\": \"vitest --run\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\",\n    \"vitest\": \"^3.0.0\"\n  }\n}"
+}

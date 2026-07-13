@@ -1,0 +1,16 @@
+{
+  "title": "Dateisystem-Operationen",
+  "description": "Erstelle reaktive Komponenten zum Lesen und Schreiben von Dateien mit Node.js-APIs.",
+  "heading_read_component": "Read-Komponente",
+  "read_intro": "Die <code>Read</code>-Komponente lädt eine Datei und übergibt ihren Inhalt als Accessor an einen Render-Callback. Children erhalten den Inhalt reaktiv.",
+  "filename_read": "shared/read.tsx",
+  "heading_write_component": "Write-Komponente",
+  "write_intro": "Die <code>Write</code>-Komponente überwacht einen Content-Accessor mit <code>createEffect</code>. Wenn sich der Inhalt ändert, schreibt sie ihn auf die Festplatte. Der <code>untrack</code>-Guard verhindert, dass derselbe Inhalt erneut geschrieben wird.",
+  "filename_write": "shared/write.tsx",
+  "heading_usage": "Read und Write gemeinsam verwenden",
+  "usage_intro": "Kombiniere <code>Read</code> und <code>Write</code>, um Pipelines zu bauen, die Dateiinhalte reaktiv transformieren:",
+  "filename_app": "app.tsx",
+  "heading_file_memory": "Dateibasiertes Memory",
+  "file_memory_intro": "Das häufigste Dateisystem-Pattern in CReact ist die <code>FileMemory</code>-Implementierung zur State-Persistenz:",
+  "filename_memory": "src/memory.ts"
+}

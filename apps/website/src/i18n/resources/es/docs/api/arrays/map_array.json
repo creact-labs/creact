@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "Iteración con claves. Cada elemento se mapea una vez y se clavea por identidad. Solo los elementos nuevos o eliminados provocan una recomputación.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "Fuente de array reactivo.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "Función de mapeo. <code>v</code> es un accessor al elemento. <code>i</code> es un índice reactivo.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "Opcional. <code>keyFn</code> proporciona una identidad estable para los elementos."
+}

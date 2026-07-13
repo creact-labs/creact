@@ -1,0 +1,13 @@
+{
+  "title": "Xử lý lỗi",
+  "description": "ErrorBoundary và catchError bắt lỗi trong các reactive computation và component con.",
+  "heading_error_boundary": "Component ErrorBoundary",
+  "error_boundary_intro": "<code>ErrorBoundary</code> bắt các lỗi được throw trong children và render một fallback:",
+  "heading_catch_error": "Primitive catchError",
+  "catch_error_intro": "Để kiểm soát ở mức thấp hơn, <code>catchError</code> bọc một hàm và bắt lỗi trong các child computation:",
+  "heading_error_propagation": "Lan truyền lỗi",
+  "error_propagation_body": "Lỗi lan truyền lên chuỗi owner. Nếu không có error boundary nào bắt lỗi, lỗi sẽ bubble lên root và throw. Các error boundary lồng nhau chỉ bắt lỗi từ subtree của chúng.",
+  "heading_handler_errors": "Lỗi trong Handlers",
+  "handler_errors_intro": "Các handler của <code>useAsyncOutput</code> chạy trong vòng lặp async deployment của runtime, không nằm trong reactive computation. Lỗi được throw trong handlers khiến deployment thất bại. Chúng <strong>không</strong> được bắt bởi <code>ErrorBoundary</code>. Hãy xử lý lỗi bên trong handler bằng try/catch:",
+  "warning_cleanup": "Các hàm cleanup đăng ký với <code>onCleanup</code> vẫn chạy khi error boundary bắt được lỗi. Resources được giải phóng."
+}

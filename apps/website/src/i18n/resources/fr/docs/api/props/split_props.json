@@ -1,0 +1,6 @@
+{
+  "title": "splitProps",
+  "description": "Divise un objet props en plusieurs groupes par clé. Préserve la réactivité.",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "Prend l'objet props suivi d'un ou plusieurs tableaux de clés. Retourne un tuple avec un objet par groupe de clés plus un objet restant contenant toutes les clés non correspondantes."
+}

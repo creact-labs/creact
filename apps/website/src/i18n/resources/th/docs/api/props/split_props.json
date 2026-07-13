@@ -1,0 +1,6 @@
+{
+  "title": "splitProps",
+  "description": "แยก props object ออกเป็นหลายกลุ่มตาม key รักษา reactivity ไว้",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "รับ props object ตามด้วย arrays ของ keys หนึ่งหรือหลายตัว คืนค่าเป็น tuple ที่มี object หนึ่งตัวต่อ key group พร้อม remainder object ที่มี keys ที่ไม่ตรงทั้งหมด"
+}

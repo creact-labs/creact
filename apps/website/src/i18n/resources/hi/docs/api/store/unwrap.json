@@ -1,0 +1,8 @@
+{
+  "title": "unwrap",
+  "description": "store proxy से underlying data का deep clone लौटाता है, सभी reactivity हटाकर।",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<code>store</code>",
+  "param_store_type": "<code>T</code>",
+  "param_store_desc": "<code>createStore</code> द्वारा बनाया गया एक store proxy।"
+}

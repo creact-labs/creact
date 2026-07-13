@@ -1,0 +1,18 @@
+{
+  "title": "render",
+  "description": "Point d'entrée des applications CReact. Effectue le rendu de l'arbre de composants, réconcilie l'état et exécute les handlers.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "Fonction qui renvoie l'arbre de composants racine.",
+  "param_memory_name": "<code>memory</code>",
+  "param_memory_type": "<code>Memory</code>",
+  "param_memory_desc": "Obligatoire. Backend de persistance d'état.",
+  "param_stack_name_name": "<code>stackName</code>",
+  "param_stack_name_type": "<code>string</code>",
+  "param_stack_name_desc": "Obligatoire. Identifiant du store d'état.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>RenderOptions</code>",
+  "param_options_desc": "Optionnel. Configuration de rendu supplémentaire.",
+  "returns_desc": "Un objet <code>RenderResult</code> (synchrone). La propriété <code>ready</code> est une <code>Promise&lt;void&gt;</code> qui se résout lorsque le déploiement initial est terminé."
+}

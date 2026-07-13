@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript",
+  "description": "CReact est écrit en TypeScript. Voici comment tirer le meilleur parti du système de types pour les signals, les props et les composants.",
+  "heading_tsconfig": "Configuration TypeScript",
+  "tsconfig_intro": "Le paramètre clé est <code>jsxImportSource</code>. Il indique à TypeScript d'utiliser les types JSX de CReact :",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_typed_signals": "Signals typés",
+  "typed_signals_intro": "Les signals infèrent leur type à partir de la valeur initiale, ou vous pouvez le spécifier explicitement :",
+  "heading_typed_props": "Props typées",
+  "heading_accessor_types": "Accessor et MaybeAccessor",
+  "info_types": "CReact réexporte les types clés : <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code>, et tous les types runtime."
+}

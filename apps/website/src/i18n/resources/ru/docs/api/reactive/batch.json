@@ -1,0 +1,9 @@
+{
+  "title": "batch",
+  "description": "Группирует несколько обновлений сигналов в один проход вычислений.",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_desc": "Функция, содержащая обновления сигналов. Все обновления откладываются до завершения функции.",
+  "returns_body": "Возвращаемое значение <code>fn</code>."
+}

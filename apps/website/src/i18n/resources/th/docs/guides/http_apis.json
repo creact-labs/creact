@@ -1,0 +1,13 @@
+{
+  "title": "HTTP API และ Channel",
+  "description": "สร้าง channel component ที่เปิด HTTP endpoint และส่ง input เข้าสู่ระบบ reactive",
+  "heading_channels": "Channel คืออะไร?",
+  "channels_desc": "Channel คือ component ที่เริ่ม HTTP server เมื่อ mount และหยุดเมื่อ cleanup คำขอที่เข้ามาจะเรียก callback props ซึ่งอัปเดต signal และ trigger component ปลายน้ำ",
+  "heading_http_server": "Channel Component",
+  "http_server_intro": "คอมโพเนนต์ <code>Channel</code> เริ่ม Hono server ภายใน <code>onMount</code> Route handler ถูกส่งเข้ามาเป็น props <code>onCleanup</code> จะปิดเซิร์ฟเวอร์เมื่อ component ถูกลบออก",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "เชื่อมต่อกับระบบ Reactive",
+  "reactive_flow_intro": "callback props ของ channel เรียก <code>setSites</code>, <code>setPendingGeneration</code> และ setter อื่นๆ การอัปเดต signal เหล่านี้จะ trigger effect และคอมโพเนนต์ <code>Show</code>/<code>For</code> ปลายน้ำ",
+  "filename_app": "app.tsx",
+  "info_cleanup": "callback <code>onCleanup</code> จะปล่อยพอร์ตเมื่อ component ถูกลบหรือแอปหยุดทำงาน"
+}

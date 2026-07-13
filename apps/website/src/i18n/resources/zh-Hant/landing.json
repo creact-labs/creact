@@ -1,0 +1,12 @@
+{
+  "brand": "CReact",
+  "logo_alt": "CReact",
+  "nav_docs": "文件",
+  "nav_github": "GitHub",
+  "nav_aria": "主要導覽",
+  "hero_subtitle": "使用 JSX 自動化持久工作流程",
+  "get_started": "開始使用",
+  "view_demo": "查看 Demo",
+  "footer_license": "Apache 2.0",
+  "code_filename": "app.tsx"
+}

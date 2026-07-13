@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript",
+  "description": "CReact được viết bằng TypeScript. Đây là cách tận dụng tối đa hệ thống kiểu cho signals, props và components.",
+  "heading_tsconfig": "Cấu hình TypeScript",
+  "tsconfig_intro": "Thiết lập quan trọng là <code>jsxImportSource</code>. Thiết lập này bảo TypeScript sử dụng các kiểu JSX của CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_typed_signals": "Signals có kiểu",
+  "typed_signals_intro": "Signals suy luận kiểu từ giá trị ban đầu, hoặc bạn có thể chỉ định rõ ràng:",
+  "heading_typed_props": "Props có kiểu",
+  "heading_accessor_types": "Accessor và MaybeAccessor",
+  "info_types": "CReact re-export các kiểu quan trọng: <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code>, và tất cả các kiểu runtime."
+}

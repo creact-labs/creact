@@ -1,0 +1,19 @@
+{
+  "title": "createSignal",
+  "description": "Crée un signal réactif avec un getter et un setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>T</code>",
+  "param_value_desc": "Valeur initiale du signal. Optionnelle ; omettez pour <code>T | undefined</code>.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>SignalOptions&lt;T&gt;</code>",
+  "param_options_desc": "Optionnel. Définissez <code>equals</code> sur <code>false</code> pour désactiver les vérifications d'égalité, ou fournissez un comparateur personnalisé.",
+  "returns_intro": "Un tuple de <code>[getter, setter]</code> :",
+  "returns_getter": "<code>getter()</code> : lit la valeur actuelle et enregistre une dépendance lorsqu'il est appelé dans un tracking scope",
+  "returns_setter": "<code>setter(value)</code> : met à jour la valeur. Accepte une valeur directe ou une fonction <code>(prev) =&gt; next</code>.",
+  "heading_usage": "Utilisation",
+  "heading_basic": "Utilisation de base",
+  "heading_functional_updates": "Mises à jour fonctionnelles",
+  "heading_custom_equality": "Égalité personnalisée",
+  "tip_equality": "Par défaut, les signaux utilisent la comparaison <code>===</code>. Définir à nouveau la même valeur ne déclenchera pas de recalcul."
+}

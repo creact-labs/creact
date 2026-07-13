@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "Gibt den aktuellen reaktiven Owner zurück (die Computation oder Root, die den aktuellen Scope besitzt).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "Der aktuelle <code>Owner</code> oder <code>null</code>, wenn der Aufruf außerhalb eines reaktiven Scopes erfolgt."
+}

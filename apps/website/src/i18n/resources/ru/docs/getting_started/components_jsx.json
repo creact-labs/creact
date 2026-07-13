@@ -1,0 +1,20 @@
+{
+  "title": "Компоненты и JSX",
+  "description": "Компоненты CReact — это функции, которые возвращают JSX. JSX описывает ресурсы и процессы, а не DOM-элементы.",
+  "heading_jsx": "JSX в CReact",
+  "jsx_intro": "CReact использует JSX для описания <strong>ресурсов и процессов</strong>, а не DOM-элементов. <code>&lt;WebSite name=\"blog\" /&gt;</code> объявляет, что должен существовать веб-сайт с именем «blog».",
+  "heading_component_functions": "Функции компонентов",
+  "component_functions_intro": "Компоненты — это обычные функции, которые возвращают JSX. Они принимают props в качестве первого аргумента и выполняются один раз. Реактивность обеспечивается signals, а не повторными рендерами.",
+  "heading_fragments": "Фрагменты",
+  "fragments_intro": "Используйте <code>&lt;&gt;...&lt;/&gt;</code>, чтобы вернуть несколько элементов без обёртки:",
+  "heading_reactive_props": "Реактивные props",
+  "reactive_props_intro": "Props в CReact часто являются <strong>accessors</strong> (функциями-геттерами) для сохранения реактивности. Компоненты выполняются один раз; effects перезапускаются при изменении своих зависимостей.",
+  "tip_access": "Используйте хелпер <code>access()</code>, чтобы развернуть значения, которые могут быть или не быть accessors: <code>access(props.value)</code> работает независимо от того, является ли <code>value</code> значением <code>5</code> или <code>() =&gt; 5</code>.",
+  "heading_children": "Children",
+  "children_intro": "Компоненты могут получать children через вложенность JSX. Используйте хелпер <code>children()</code>, чтобы реактивно их разрешать.",
+  "filename_app": "app.tsx",
+  "filename_counter": "counter.tsx",
+  "filename_infra": "infra.tsx",
+  "filename_reactive_props": "reactive-props.tsx",
+  "filename_children": "children.tsx"
+}

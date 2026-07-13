@@ -1,0 +1,8 @@
+{
+  "title": "onMount",
+  "description": "コンポーネントの初期化時に、依存関係を追跡せずに関数を1回実行します。",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_desc": "マウント時に1回実行する関数。追跡なしで実行され、シグナルの読み取りは依存関係を作成しません。"
+}

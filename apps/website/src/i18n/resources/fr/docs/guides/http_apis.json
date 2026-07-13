@@ -1,0 +1,13 @@
+{
+  "title": "APIs HTTP et Channels",
+  "description": "Créez un composant channel qui expose des endpoints HTTP et injecte des entrées dans le système réactif.",
+  "heading_channels": "Qu'est-ce que les Channels ?",
+  "channels_desc": "Un channel est un composant qui démarre un serveur HTTP au montage et l'arrête au nettoyage. Les requêtes entrantes appellent des props de callback, qui mettent à jour les signaux et déclenchent les composants en aval.",
+  "heading_http_server": "Composant Channel",
+  "http_server_intro": "Le composant <code>Channel</code> démarre un serveur Hono à l'intérieur de <code>onMount</code>. Les gestionnaires de routes sont passés en tant que props. <code>onCleanup</code> arrête le serveur lorsque le composant est retiré.",
+  "filename_channel": "components/channel.tsx",
+  "heading_reactive_flow": "Connexion au système réactif",
+  "reactive_flow_intro": "Les props de callback du channel appellent <code>setSites</code>, <code>setPendingGeneration</code> et d'autres setters. Ces mises à jour de signaux déclenchent des effets et les composants <code>Show</code>/<code>For</code> en aval.",
+  "filename_app": "app.tsx",
+  "info_cleanup": "Le callback <code>onCleanup</code> libère le port lorsque le composant est retiré ou que l'application s'arrête."
+}

@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript",
+  "description": "CReact написан на TypeScript. Вот как максимально использовать систему типов для signals, props и компонентов.",
+  "heading_tsconfig": "Конфигурация TypeScript",
+  "tsconfig_intro": "Ключевой параметр — <code>jsxImportSource</code>. Он указывает TypeScript использовать JSX-типы CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_typed_signals": "Типизированные Signals",
+  "typed_signals_intro": "Signals выводят свой тип из начального значения, либо вы можете указать его явно:",
+  "heading_typed_props": "Типизированные Props",
+  "heading_accessor_types": "Accessor и MaybeAccessor",
+  "info_types": "CReact реэкспортирует ключевые типы: <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code> и все runtime-типы."
+}

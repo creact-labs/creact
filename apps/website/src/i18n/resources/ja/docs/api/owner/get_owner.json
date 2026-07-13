@@ -1,0 +1,6 @@
+{
+  "title": "getOwner",
+  "description": "現在のリアクティブオーナー（現在のスコープを所有するコンピュテーションまたはルート）を返します。",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "現在の <code>Owner</code>。リアクティブスコープの外で呼び出された場合は <code>null</code> です。"
+}

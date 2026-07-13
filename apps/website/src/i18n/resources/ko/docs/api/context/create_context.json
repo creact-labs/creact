@@ -1,0 +1,9 @@
+{
+  "title": "createContext",
+  "description": "props 없이 컴포넌트 트리를 통해 데이터를 전달하기 위한 컨텍스트를 생성합니다.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<code>defaultValue</code>",
+  "param_default_value_type": "<code>T</code>",
+  "param_default_value_desc": "선택 사항. 상위 Provider가 없을 때 <code>useContext</code>가 반환하는 값입니다.",
+  "returns_desc": "<code>Provider</code> 컴포넌트를 포함한 <code>Context&lt;T&gt;</code> 객체입니다."
+}

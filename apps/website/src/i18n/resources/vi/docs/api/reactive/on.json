@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "Làm cho các dependency của computation trở nên tường minh. Theo dõi các signal cụ thể trong khi đọc các signal khác ở chế độ untracked.",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<code>deps</code>",
+  "param_deps_type": "<code>Accessor&lt;S&gt; | Accessor&lt;unknown&gt;[]</code>",
+  "param_deps_desc": "Các signal cần theo dõi tường minh.",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(input, prevInput, prevValue) =&gt; T</code>",
+  "param_fn_desc": "Callback. Chạy untracked; chỉ <code>deps</code> được theo dõi.",
+  "param_defer_name": "<code>options.defer</code>",
+  "param_defer_type": "<code>boolean</code>",
+  "param_defer_desc": "Nếu <code>true</code>, bỏ qua lần chạy đầu tiên.",
+  "heading_usage": "Cách sử dụng",
+  "heading_single_dep": "Dependency đơn",
+  "heading_multiple_deps": "Nhiều dependency",
+  "heading_deferred": "Thực thi trì hoãn"
+}

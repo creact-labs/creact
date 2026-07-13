@@ -1,0 +1,15 @@
+{
+  "title": "createComputed",
+  "description": "Executa uma função de forma síncrona durante a fase de computação, antes dos effects. Use quando precisar escrever em outros signals conforme as dependências são atualizadas.",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Função de computação. Executa de forma síncrona.",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "Valor inicial opcional.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "Opcional. <code>name</code> para debugging.",
+  "warning_prefer_memo": "Prefira <code>createMemo</code> para valores derivados. Use <code>createComputed</code> apenas quando precisar escrever em outros signals de forma síncrona durante a fase de computação."
+}

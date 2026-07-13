@@ -1,0 +1,13 @@
+{
+  "title": "Context และ Providers",
+  "description": "Context ใช้แชร์ข้อมูลข้าม component tree โดยไม่ต้องส่ง props ผ่านทุกระดับ",
+  "heading_creating_context": "การสร้าง Context",
+  "creating_context_intro": "<code>createContext</code> สร้าง context พร้อมค่า default ที่เป็น optional <code>useContext</code> อ่านค่าจาก Provider ที่ใกล้ที่สุด",
+  "heading_providing_values": "การให้ค่า",
+  "providing_values_intro": "ห่อ components ด้วย <code>Provider</code> ของ context:",
+  "heading_nested_providers": "Nested Providers",
+  "nested_providers_intro": "Provider ชั้นในจะ override Provider ชั้นนอกสำหรับ subtree ของมัน:",
+  "tip_cross_cutting": "ใช้ context สำหรับ cross-cutting concerns เช่น AWS region, ชื่อ environment หรือ shared credentials ที่ components หลายตัวต้องการ",
+  "filename_config_context": "config-context.ts",
+  "filename_app": "app.tsx"
+}

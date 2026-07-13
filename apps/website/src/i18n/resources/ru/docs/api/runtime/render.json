@@ -1,0 +1,18 @@
+{
+  "title": "render",
+  "description": "Точка входа для приложений CReact. Рендерит дерево компонентов, согласовывает состояние, запускает обработчики.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_desc": "Функция, возвращающая корневое дерево компонентов.",
+  "param_memory_name": "<code>memory</code>",
+  "param_memory_type": "<code>Memory</code>",
+  "param_memory_desc": "Обязательный. Backend для персистентности состояния.",
+  "param_stack_name_name": "<code>stackName</code>",
+  "param_stack_name_type": "<code>string</code>",
+  "param_stack_name_desc": "Обязательный. Идентификатор хранилища состояния.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>RenderOptions</code>",
+  "param_options_desc": "Необязательный. Дополнительная конфигурация render.",
+  "returns_desc": "Объект <code>RenderResult</code> (синхронный). Свойство <code>ready</code> — это <code>Promise&lt;void&gt;</code>, которое резолвится после завершения начального развёртывания."
+}

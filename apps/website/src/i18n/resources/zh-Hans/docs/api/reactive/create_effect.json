@@ -1,0 +1,19 @@
+{
+  "title": "createEffect",
+  "description": "创建一个响应式副作用，在其依赖变化时运行。用于副作用（日志记录、外部调用）。在当前 batch 之后运行。",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<code>fn</code>",
+  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_desc": "Effect 函数。接收上一次的返回值。自动追踪。",
+  "param_value_name": "<code>value</code>",
+  "param_value_type": "<code>Init</code>",
+  "param_value_desc": "可选的初始值，会在首次运行时传入。",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>EffectOptions</code>",
+  "param_options_desc": "可选。<code>name</code> 用于调试。",
+  "heading_usage": "用法",
+  "heading_tracking": "追踪依赖",
+  "heading_previous": "使用上一次的值",
+  "heading_cleanup": "使用 onCleanup 清理",
+  "info_batching": "Effect 会进行批处理。多次同步的 signal 更新只会触发一次重新运行。对于复杂的更新序列，请显式使用 <code>batch()</code>。"
+}

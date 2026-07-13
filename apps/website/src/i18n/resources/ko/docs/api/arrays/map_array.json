@@ -1,0 +1,14 @@
+{
+  "title": "mapArray",
+  "description": "키 기반 반복. 각 항목은 한 번 매핑되며 identity로 키가 지정됩니다. 새로 추가되거나 제거된 항목만 재계산을 유발합니다.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<code>list</code>",
+  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_desc": "반응형 배열 소스.",
+  "param_map_fn_name": "<code>mapFn</code>",
+  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
+  "param_map_fn_desc": "맵 함수. <code>v</code>는 항목에 대한 accessor입니다. <code>i</code>는 반응형 인덱스입니다.",
+  "param_options_name": "<code>options</code>",
+  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
+  "param_options_desc": "선택 사항. <code>keyFn</code>은 항목에 대한 안정적인 identity를 제공합니다."
+}
