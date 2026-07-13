@@ -1,10 +1,11 @@
 import type { Component } from "solid-js";
 import { useLocation } from "@solidjs/router";
+import { type TranslationKey, t } from "@/i18n";
 import { useSidebar } from "@/pages/docs/layout/context/sidebar";
 
 const SidebarLink: Component<{
   href: string;
-  title: string;
+  title: TranslationKey;
   nested?: boolean;
 }> = (props) => {
   const location = useLocation();
@@ -25,7 +26,7 @@ const SidebarLink: Component<{
       classList={{ active: isActive(), nested: props.nested }}
       onClick={close}
     >
-      {props.title}
+      {t(props.title)}
     </a>
   );
 };

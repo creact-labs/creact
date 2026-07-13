@@ -33,7 +33,7 @@ const PrevNext: Component = () => {
           {(p) => (
             <a href={`#${p().href}`} class="prev-next-link">
               <span class="prev-next-label">&larr; {t("docs.layout.prev")}</span>
-              <span class="prev-next-title">{p().title}</span>
+              <span class="prev-next-title">{t(p().title)}</span>
             </a>
           )}
         </Show>
@@ -41,7 +41,7 @@ const PrevNext: Component = () => {
           {(n) => (
             <a href={`#${n().href}`} class="prev-next-link next">
               <span class="prev-next-label">{t("docs.layout.next")} &rarr;</span>
-              <span class="prev-next-title">{n().title}</span>
+              <span class="prev-next-title">{t(n().title)}</span>
             </a>
           )}
         </Show>

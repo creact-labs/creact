@@ -9,7 +9,9 @@
  * src/testing/mocks.ts — tests assert on keys, never on copy.
  */
 import { createSignal } from "solid-js";
+import api_reactive_create_signal from "./resources/en/docs/api/reactive/create_signal.json";
 import docs_layout from "./resources/en/docs/layout.json";
+import docs_nav from "./resources/en/docs/nav.json";
 import docs_ui from "./resources/en/docs/ui.json";
 import landing from "./resources/en/landing.json";
 
@@ -17,7 +19,13 @@ const en = {
   landing,
   docs: {
     layout: docs_layout,
+    nav: docs_nav,
     ui: docs_ui,
+    api: {
+      reactive: {
+        create_signal: api_reactive_create_signal,
+      },
+    },
   },
 };
 

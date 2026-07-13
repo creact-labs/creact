@@ -1,4 +1,5 @@
 import { createSignal, For, Show, type Component } from "solid-js";
+import { t } from "@/i18n";
 import type { NavSection } from "@/pages/docs/layout/sidebar-nav";
 import SidebarLink from "./sidebar-link";
 
@@ -11,7 +12,7 @@ const SidebarSection: Component<{ section: NavSection }> = (props) => {
         class="sidebar-section-header"
         onClick={() => setIsOpen((v) => !v)}
       >
-        {props.section.title}
+        {t(props.section.title)}
         <svg
           class="sidebar-section-chevron"
           classList={{ collapsed: !isOpen() }}
@@ -36,7 +37,7 @@ const SidebarSection: Component<{ section: NavSection }> = (props) => {
             <For each={props.section.subsections}>
               {(sub) => (
                 <>
-                  <div class="sidebar-subsection-label">{sub.label}</div>
+                  <div class="sidebar-subsection-label">{t(sub.label)}</div>
                   <For each={sub.links}>
                     {(link) => (
                       <SidebarLink href={link.href} title={link.title} nested />

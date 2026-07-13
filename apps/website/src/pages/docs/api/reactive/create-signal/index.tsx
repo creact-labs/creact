@@ -1,95 +1,78 @@
 import type { Component } from "solid-js";
-import DocHeading from "@/shared/components/doc-heading";
+import { t } from "@/i18n";
+import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
-import DocCodeBlock from "@/shared/components/doc-code-block";
-import ApiSignature from "@/shared/components/api-signature";
 import Callout from "@/shared/components/callout";
+import DocCodeBlock from "@/shared/components/doc-code-block";
+import DocHeading from "@/shared/components/doc-heading";
+import RichText from "@/shared/components/rich-text";
+
+const samples = "api-tour/src/reactive/create-signal.ts";
 
 const CreateSignal: Component = () => {
   return (
     <>
-      <h1>createSignal</h1>
+      <h1>{t("docs.api.reactive.create_signal.title")}</h1>
       <p class="docs-description">
-        Creates a reactive signal with a getter and setter.
+        {t("docs.api.reactive.create_signal.description")}
       </p>
 
-      <DocCodeBlock code={`const [count, setCount] = createSignal(0);`} />
+      <DocCodeBlock code={codeSample(samples, "hero")} />
 
       <ApiReference
-        name="createSignal"
-        signature={`createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]
-createSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]`}
+        name={t("docs.api.reactive.create_signal.title")}
+        signature={t("docs.api.reactive.create_signal.signature")}
         parameters={[
-          [<><code>value</code></>, <><code>T</code></>, <>Initial value of the signal. Optional; omit for{" "}
-              <code>T | undefined</code>.</>],
-          [<><code>options</code></>, <><code>SignalOptions&lt;T&gt;</code></>, <>Optional. Set <code>equals</code> to <code>false</code> to disable
-              equality checks, or provide a custom comparator.</>],
+          [
+            <RichText k="docs.api.reactive.create_signal.param_value_name" />,
+            <RichText k="docs.api.reactive.create_signal.param_value_type" />,
+            <RichText k="docs.api.reactive.create_signal.param_value_desc" />,
+          ],
+          [
+            <RichText k="docs.api.reactive.create_signal.param_options_name" />,
+            <RichText k="docs.api.reactive.create_signal.param_options_type" />,
+            <RichText k="docs.api.reactive.create_signal.param_options_desc" />,
+          ],
         ]}
         returns={
           <>
-      <p>
-        A tuple of <code>[getter, setter]</code>:
-      </p>
-      <ul>
-        <li>
-          <code>getter()</code>: reads the current value and registers a
-          dependency when called inside a tracking scope
-        </li>
-        <li>
-          <code>setter(value)</code>: updates the value. Accepts a direct value
-          or a function <code>(prev) =&gt; next</code>.
-        </li>
-      </ul>
+            <p>
+              <RichText k="docs.api.reactive.create_signal.returns_intro" />
+            </p>
+            <ul>
+              <li>
+                <RichText k="docs.api.reactive.create_signal.returns_getter" />
+              </li>
+              <li>
+                <RichText k="docs.api.reactive.create_signal.returns_setter" />
+              </li>
+            </ul>
           </>
         }
       />
 
       <DocHeading level={2} id="usage">
-        Usage
+        {t("docs.api.reactive.create_signal.heading_usage")}
       </DocHeading>
 
       <DocHeading level={3} id="basic">
-        Basic Usage
+        {t("docs.api.reactive.create_signal.heading_basic")}
       </DocHeading>
-      <DocCodeBlock
-        code={`import { createSignal, createEffect } from '@creact-labs/creact';
-
-const [name, setName] = createSignal('world');
-
-createEffect(() => {
-  console.log(\`Hello, \${name()}!\`);
-});
-
-setName('CReact'); // Logs: Hello, CReact!`}
-      />
+      <DocCodeBlock code={codeSample(samples, "basic")} />
 
       <DocHeading level={3} id="functional-updates">
-        Functional Updates
+        {t("docs.api.reactive.create_signal.heading_functional_updates")}
       </DocHeading>
-      <DocCodeBlock
-        code={`const [count, setCount] = createSignal(0);
-
-setCount(c => c + 1); // 1
-setCount(c => c + 1); // 2`}
-      />
+      <DocCodeBlock code={codeSample(samples, "functional-updates")} />
 
       <DocHeading level={3} id="custom-equality">
-        Custom Equality
+        {t("docs.api.reactive.create_signal.heading_custom_equality")}
       </DocHeading>
-      <DocCodeBlock
-        code={`// Never skip updates
-const [data, setData] = createSignal(initialData, { equals: false });
-
-// Custom comparator
-const [pos, setPos] = createSignal({ x: 0, y: 0 }, {
-  equals: (a, b) => a.x === b.x && a.y === b.y,
-});`}
-      />
+      <DocCodeBlock code={codeSample(samples, "custom-equality")} />
 
       <Callout type="tip">
         <p>
-          By default, signals use <code>===</code> comparison. Setting the same
-          value again won't trigger re-computation.
+          <RichText k="docs.api.reactive.create_signal.tip_equality" />
         </p>
       </Callout>
     </>

@@ -1,7 +1,9 @@
+import type { TranslationKey } from "@/i18n";
 import { sidebarNav } from "@/pages/docs/layout/sidebar-nav";
 
 export interface DocPage {
-  title: string;
+  /** Translation key of the page title — rendered through t() */
+  title: TranslationKey;
   href: string;
 }
 
