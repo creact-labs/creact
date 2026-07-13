@@ -2,7 +2,7 @@
   "title": "Instalação",
   "description": "CReact roda no Node.js e usa JSX com TypeScript. A forma mais rápida de começar é o comando create; o restante desta página configura um projeto manualmente.",
   "heading_quickstart": "Início rápido",
-  "quickstart_intro": "Faça o scaffold de um novo projeto já configurado para CReact. Ele solicita um backend de memória — um ledger em arquivo, SQLite ou em memória — e configura TypeScript JSX, um script de dev e um app starter:",
+  "quickstart_intro": "Faça o scaffold de um novo projeto já configurado para CReact. Ele solicita um backend de memória — um ledger em arquivo, SQLite, em memória ou um skeleton para o seu próprio — e configura TypeScript JSX, um script de dev e um app inicial:",
   "code_quickstart": "npm create creact-app@latest my-app",
   "quickstart_next_intro": "Em seguida, instale as dependências e inicie o app em modo watch:",
   "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",

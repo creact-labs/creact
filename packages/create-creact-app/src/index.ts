@@ -70,7 +70,7 @@ async function promptMemory(): Promise<MemoryKind> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     const answer = await rl.question(
-      "Memory backend — file (default), sqlite, or memory? ",
+      "Memory backend — file (default), sqlite, memory, or custom? ",
     );
     const choice = answer.trim();
     return (MEMORY_KINDS as string[]).includes(choice)

@@ -2,7 +2,7 @@
   "title": "การติดตั้ง",
   "description": "CReact ทำงานบน Node.js และใช้ JSX กับ TypeScript วิธีที่เร็วที่สุดในการเริ่มต้นคือคำสั่ง create ส่วนที่เหลือของหน้านี้จะอธิบายวิธีตั้งค่าโปรเจกต์ด้วยตนเอง",
   "heading_quickstart": "เริ่มต้นอย่างรวดเร็ว",
-  "quickstart_intro": "Scaffold โปรเจกต์ใหม่ที่ตั้งค่าสำหรับ CReact ไว้แล้ว โดยจะถามเลือก memory backend — file ledger, SQLite หรือ in-memory — และตั้งค่า TypeScript JSX, dev script และแอปเริ่มต้น:",
+  "quickstart_intro": "Scaffold โปรเจกต์ใหม่ที่ตั้งค่าสำหรับ CReact ไว้เรียบร้อยแล้ว โดยจะถามเลือก memory backend — file ledger, SQLite, in-memory หรือ skeleton สำหรับสร้างเอง — และตั้งค่า TypeScript JSX, dev script และ starter app:",
   "code_quickstart": "npm create creact-app@latest my-app",
   "quickstart_next_intro": "จากนั้นติดตั้ง dependencies และเริ่มแอปในโหมด watch:",
   "code_quickstart_next": "cd my-app\nnpm install\nnpm run dev",

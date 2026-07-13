@@ -12,13 +12,15 @@ This generates a ready-to-run CReact project in `my-app/`. If you omit the direc
 name, it defaults to `creact-app`. The scaffolder refuses to overwrite a directory that
 already exists and is not empty.
 
-You are prompted for a memory backend, or pass `--memory=<file|sqlite|memory>`:
+You are prompted for a memory backend, or pass
+`--memory=<file|sqlite|memory|custom>`:
 
-| Backend  | Persistence                          |
-| -------- | ------------------------------------ |
-| `file`   | JSON files under `./.state` (default) |
-| `sqlite` | a single `creact.db` (better-sqlite3) |
-| `memory` | in-process only, nothing survives     |
+| Backend  | Persistence                              |
+| -------- | ---------------------------------------- |
+| `file`   | JSON files under `./.state` (default)    |
+| `sqlite` | a single `creact.db` (better-sqlite3)    |
+| `memory` | in-process only, nothing survives        |
+| `custom` | a Memory skeleton for you to implement   |
 
 Then:
 

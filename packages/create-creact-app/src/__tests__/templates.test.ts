@@ -49,7 +49,7 @@ describe("projectFiles", () => {
 
 describe("projectFiles memory backends", () => {
   it("covers every declared memory kind", () => {
-    expect(MEMORY_KINDS).toEqual(["file", "sqlite", "memory"]);
+    expect(MEMORY_KINDS).toEqual(["file", "sqlite", "memory", "custom"]);
   });
 
   it("file backend writes a JSON ledger with no extra deps", () => {
@@ -74,6 +74,14 @@ describe("projectFiles memory backends", () => {
     const files = projectFiles("app", "memory");
     expect(files["memory.ts"]).toContain("InMemoryMemory");
     expect(files["memory.ts"]).toContain("new Map");
+    const pkg = JSON.parse(files["package.json"]!);
+    expect(pkg.dependencies["better-sqlite3"]).toBeUndefined();
+  });
+
+  it("custom backend scaffolds an unimplemented Memory skeleton", () => {
+    const files = projectFiles("app", "custom");
+    expect(files["memory.ts"]).toContain("class CustomMemory implements Memory");
+    expect(files["memory.ts"]).toContain("not implemented");
     const pkg = JSON.parse(files["package.json"]!);
     expect(pkg.dependencies["better-sqlite3"]).toBeUndefined();
   });

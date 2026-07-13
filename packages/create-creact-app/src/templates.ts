@@ -1,6 +1,11 @@
-export type MemoryKind = "file" | "sqlite" | "memory";
+export type MemoryKind = "file" | "sqlite" | "memory" | "custom";
 
-export const MEMORY_KINDS: MemoryKind[] = ["file", "sqlite", "memory"];
+export const MEMORY_KINDS: MemoryKind[] = [
+  "file",
+  "sqlite",
+  "memory",
+  "custom",
+];
 
 const indexTsx = `import { createEffect, render, useAsyncOutput } from "@creact-labs/creact";
 import { memory } from "./memory.js";
@@ -90,10 +95,28 @@ class InMemoryMemory implements Memory {
 export const memory: Memory = new InMemoryMemory();
 `;
 
+const customMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
+
+// Write your own backend: implement getState/saveState against whatever you
+// like — Redis, Postgres, S3, a REST API. getState returns the persisted
+// state for a stack, or null on the first run; saveState persists it.
+class CustomMemory implements Memory {
+  async getState(stack: string): Promise<DeploymentState | null> {
+    throw new Error(\`getState(\${stack}) not implemented\`);
+  }
+  async saveState(stack: string, state: DeploymentState): Promise<void> {
+    throw new Error(\`saveState(\${stack}) not implemented\`);
+  }
+}
+
+export const memory: Memory = new CustomMemory();
+`;
+
 const memoryModules: Record<MemoryKind, string> = {
   file: fileMemory,
   sqlite: sqliteMemory,
   memory: inMemory,
+  custom: customMemory,
 };
 
 function packageJson(name: string, kind: MemoryKind): string {
