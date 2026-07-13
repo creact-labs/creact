@@ -263,21 +263,24 @@ describe("shutdown", () => {
 });
 
 describe("runCli", () => {
-  it("formats a watcher failure through the CLI logger and exits 1", { timeout: 15000 }, async () => {
+  it("formats a watcher failure through the CLI logger and exits 1", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // Injected through the fs mock: real fs.watch ENOENT rejection timing
+    // varies by platform and load, so the failure is simulated instead
+    watchControl.throwValue = new Error("watch target vanished");
     try {
-      // Entry point in a directory that doesn't exist: the type check
-      // skips, and the watcher throws ENOENT — runCli must swallow it
-      const ghostDir = join(appDir, "nope");
       const code = await runCli(
-        ["--watch", "missing.ts"],
-        ghostDir,
+        ["--watch", "app.ts"],
+        appDir,
         new AppRunner(),
       );
 
       expect(code).toBe(1);
-      expect(logSpy.mock.calls.flat().join("\n")).toContain("Error:");
+      const output = logSpy.mock.calls.flat().join("\n");
+      expect(output).toContain("Error:");
+      expect(output).toContain("watch target vanished");
     } finally {
+      watchControl.throwValue = undefined;
       logSpy.mockRestore();
     }
   });
@@ -452,17 +455,15 @@ describe("watchLoop", () => {
     }
   }, 30000);
 
-  it("rethrows real watcher failures (only aborts end the loop quietly)", { timeout: 15000 }, async () => {
+  it("rethrows watcher failures (only aborts end the loop quietly)", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    watchControl.throwValue = new Error("watch target vanished");
     try {
       await expect(
-        watchLoop(
-          new AppRunner(),
-          "/nonexistent-dir-for-watch/app.ts",
-          tmpdir(),
-        ),
-      ).rejects.toThrow();
+        watchLoop(new AppRunner(), join(appDir, "app.ts"), appDir),
+      ).rejects.toThrow("watch target vanished");
     } finally {
+      watchControl.throwValue = undefined;
       logSpy.mockRestore();
     }
   });
