@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const Deploying: Component = () => {
   return (
@@ -17,7 +16,7 @@ const Deploying: Component = () => {
         {t("docs.getting_started.deploying.heading_production_run")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.deploying.production_run_intro" />
+        <Trans k="docs.getting_started.deploying.production_run_intro" />
       </p>
       <DocCodeBlock
         lang="bash"
@@ -40,17 +39,17 @@ const Deploying: Component = () => {
         {t("docs.getting_started.deploying.heading_state_storage")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.deploying.state_storage_intro" />
+        <Trans k="docs.getting_started.deploying.state_storage_intro" />
       </p>
       <ul>
         <li>
-          <RichText k="docs.getting_started.deploying.storage_s3" />
+          <Trans k="docs.getting_started.deploying.storage_s3" />
         </li>
         <li>
-          <RichText k="docs.getting_started.deploying.storage_dynamodb" />
+          <Trans k="docs.getting_started.deploying.storage_dynamodb" />
         </li>
         <li>
-          <RichText k="docs.getting_started.deploying.storage_database" />
+          <Trans k="docs.getting_started.deploying.storage_database" />
         </li>
       </ul>
 

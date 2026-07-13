@@ -11,6 +11,8 @@ vi.mock("@/i18n", async (importOriginal) => {
   return {
     ...actual,
     t: (key: string) => key,
+    // Trans renders its key too — rich values assert on keys like plain ones
+    Trans: (props: { k: string }) => props.k,
   };
 });
 

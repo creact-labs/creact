@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/props/children.tsx";
@@ -21,14 +20,14 @@ const Children: Component = () => {
         signature={t("docs.api.props.children.signature")}
         parameters={[
           [
-            <RichText k="docs.api.props.children.param_fn_name" />,
-            <RichText k="docs.api.props.children.param_fn_type" />,
-            <RichText k="docs.api.props.children.param_fn_desc" />,
+            <Trans k="docs.api.props.children.param_fn_name" />,
+            <Trans k="docs.api.props.children.param_fn_type" />,
+            <Trans k="docs.api.props.children.param_fn_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.props.children.returns_desc" />
+            <Trans k="docs.api.props.children.returns_desc" />
           </p>
         }
       />

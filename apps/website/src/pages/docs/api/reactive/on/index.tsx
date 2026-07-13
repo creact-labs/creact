@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "api-cookbook/src/reactive/on.ts";
 
@@ -21,19 +20,19 @@ const On: Component = () => {
         signature={t("docs.api.reactive.on.signature")}
         parameters={[
           [
-            <RichText k="docs.api.reactive.on.param_deps_name" />,
-            <RichText k="docs.api.reactive.on.param_deps_type" />,
-            <RichText k="docs.api.reactive.on.param_deps_desc" />,
+            <Trans k="docs.api.reactive.on.param_deps_name" />,
+            <Trans k="docs.api.reactive.on.param_deps_type" />,
+            <Trans k="docs.api.reactive.on.param_deps_desc" />,
           ],
           [
-            <RichText k="docs.api.reactive.on.param_fn_name" />,
-            <RichText k="docs.api.reactive.on.param_fn_type" />,
-            <RichText k="docs.api.reactive.on.param_fn_desc" />,
+            <Trans k="docs.api.reactive.on.param_fn_name" />,
+            <Trans k="docs.api.reactive.on.param_fn_type" />,
+            <Trans k="docs.api.reactive.on.param_fn_desc" />,
           ],
           [
-            <RichText k="docs.api.reactive.on.param_defer_name" />,
-            <RichText k="docs.api.reactive.on.param_defer_type" />,
-            <RichText k="docs.api.reactive.on.param_defer_desc" />,
+            <Trans k="docs.api.reactive.on.param_defer_name" />,
+            <Trans k="docs.api.reactive.on.param_defer_type" />,
+            <Trans k="docs.api.reactive.on.param_defer_desc" />,
           ],
         ]}
       />

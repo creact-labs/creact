@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/file-system.tsx";
 
@@ -17,7 +16,7 @@ const FileSystem: Component = () => {
         {t("docs.guides.file_system.heading_read_component")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.file_system.read_intro" />
+        <Trans k="docs.guides.file_system.read_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "read-component")}
@@ -28,7 +27,7 @@ const FileSystem: Component = () => {
         {t("docs.guides.file_system.heading_write_component")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.file_system.write_intro" />
+        <Trans k="docs.guides.file_system.write_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "write-component")}
@@ -39,7 +38,7 @@ const FileSystem: Component = () => {
         {t("docs.guides.file_system.heading_usage")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.file_system.usage_intro" />
+        <Trans k="docs.guides.file_system.usage_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "usage")}
@@ -50,7 +49,7 @@ const FileSystem: Component = () => {
         {t("docs.guides.file_system.heading_file_memory")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.file_system.file_memory_intro" />
+        <Trans k="docs.guides.file_system.file_memory_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "file-memory")}

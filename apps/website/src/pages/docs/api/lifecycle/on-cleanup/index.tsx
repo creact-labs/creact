@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/lifecycle/on-cleanup.ts";
@@ -24,14 +23,14 @@ const OnCleanup: Component = () => {
         signature={t("docs.api.lifecycle.on_cleanup.signature")}
         parameters={[
           [
-            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_name" />,
-            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_type" />,
-            <RichText k="docs.api.lifecycle.on_cleanup.param_fn_desc" />,
+            <Trans k="docs.api.lifecycle.on_cleanup.param_fn_name" />,
+            <Trans k="docs.api.lifecycle.on_cleanup.param_fn_type" />,
+            <Trans k="docs.api.lifecycle.on_cleanup.param_fn_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.lifecycle.on_cleanup.returns_desc" />
+            <Trans k="docs.api.lifecycle.on_cleanup.returns_desc" />
           </p>
         }
       />
@@ -40,7 +39,7 @@ const OnCleanup: Component = () => {
 
       <Callout type="warning">
         <p>
-          <RichText k="docs.api.lifecycle.on_cleanup.warning_no_owner" />
+          <Trans k="docs.api.lifecycle.on_cleanup.warning_no_owner" />
         </p>
       </Callout>
     </>

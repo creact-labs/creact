@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/owner/run-with-owner.ts";
@@ -21,14 +20,14 @@ const RunWithOwner: Component = () => {
         signature={t("docs.api.owner.run_with_owner.signature")}
         parameters={[
           [
-            <RichText k="docs.api.owner.run_with_owner.param_owner_name" />,
-            <RichText k="docs.api.owner.run_with_owner.param_owner_type" />,
-            <RichText k="docs.api.owner.run_with_owner.param_owner_desc" />,
+            <Trans k="docs.api.owner.run_with_owner.param_owner_name" />,
+            <Trans k="docs.api.owner.run_with_owner.param_owner_type" />,
+            <Trans k="docs.api.owner.run_with_owner.param_owner_desc" />,
           ],
           [
-            <RichText k="docs.api.owner.run_with_owner.param_fn_name" />,
-            <RichText k="docs.api.owner.run_with_owner.param_fn_type" />,
-            <RichText k="docs.api.owner.run_with_owner.param_fn_desc" />,
+            <Trans k="docs.api.owner.run_with_owner.param_fn_name" />,
+            <Trans k="docs.api.owner.run_with_owner.param_fn_type" />,
+            <Trans k="docs.api.owner.run_with_owner.param_fn_desc" />,
           ],
         ]}
       />
@@ -37,7 +36,7 @@ const RunWithOwner: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.api.owner.run_with_owner.info_async_owner" />
+          <Trans k="docs.api.owner.run_with_owner.info_async_owner" />
         </p>
       </Callout>
     </>

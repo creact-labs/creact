@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const CreactWatch: Component = () => {
   return (
@@ -27,19 +26,19 @@ const CreactWatch: Component = () => {
       </DocHeading>
       <ol>
         <li>
-          <RichText k="docs.api.cli.creact_watch.behavior_run" />
+          <Trans k="docs.api.cli.creact_watch.behavior_run" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_watch.behavior_watch" />
+          <Trans k="docs.api.cli.creact_watch.behavior_watch" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_watch.behavior_restart" />
+          <Trans k="docs.api.cli.creact_watch.behavior_restart" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_watch.behavior_state" />
+          <Trans k="docs.api.cli.creact_watch.behavior_state" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_watch.behavior_stop" />
+          <Trans k="docs.api.cli.creact_watch.behavior_stop" />
         </li>
       </ol>
 
@@ -54,7 +53,7 @@ const CreactWatch: Component = () => {
 
       <Callout type="tip">
         <p>
-          <RichText k="docs.api.cli.creact_watch.tip_state_persists" />
+          <Trans k="docs.api.cli.creact_watch.tip_state_persists" />
         </p>
       </Callout>
     </>

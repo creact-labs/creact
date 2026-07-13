@@ -1,11 +1,10 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import ApiReference from "@/shared/components/api-reference";
 import ApiSignature from "@/shared/components/api-signature";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const SwitchMatch: Component = () => {
@@ -41,14 +40,14 @@ const SwitchMatch: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.components.switch_match.switch_prop_fallback_name" />,
-            <RichText k="docs.api.components.switch_match.switch_prop_fallback_type" />,
-            <RichText k="docs.api.components.switch_match.switch_prop_fallback_desc" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_fallback_name" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_fallback_type" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_fallback_desc" />,
           ],
           [
-            <RichText k="docs.api.components.switch_match.switch_prop_children_name" />,
-            <RichText k="docs.api.components.switch_match.switch_prop_children_type" />,
-            <RichText k="docs.api.components.switch_match.switch_prop_children_desc" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_children_name" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_children_type" />,
+            <Trans k="docs.api.components.switch_match.switch_prop_children_desc" />,
           ],
         ]}
       />
@@ -63,14 +62,14 @@ const SwitchMatch: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.components.switch_match.match_prop_when_name" />,
-            <RichText k="docs.api.components.switch_match.match_prop_when_type" />,
-            <RichText k="docs.api.components.switch_match.match_prop_when_desc" />,
+            <Trans k="docs.api.components.switch_match.match_prop_when_name" />,
+            <Trans k="docs.api.components.switch_match.match_prop_when_type" />,
+            <Trans k="docs.api.components.switch_match.match_prop_when_desc" />,
           ],
           [
-            <RichText k="docs.api.components.switch_match.match_prop_children_name" />,
-            <RichText k="docs.api.components.switch_match.match_prop_children_type" />,
-            <RichText k="docs.api.components.switch_match.match_prop_children_desc" />,
+            <Trans k="docs.api.components.switch_match.match_prop_children_name" />,
+            <Trans k="docs.api.components.switch_match.match_prop_children_type" />,
+            <Trans k="docs.api.components.switch_match.match_prop_children_desc" />,
           ],
         ]}
       />

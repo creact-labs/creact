@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "durable-counter/src/flow-control.tsx";
 
@@ -20,7 +19,7 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_show")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.flow_control.show_intro" />
+        <Trans k="docs.getting_started.flow_control.show_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "show")} />
 
@@ -31,7 +30,7 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_for")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.flow_control.for_intro" />
+        <Trans k="docs.getting_started.flow_control.for_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "for")} />
 
@@ -39,7 +38,7 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_switch")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.flow_control.switch_intro" />
+        <Trans k="docs.getting_started.flow_control.switch_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "switch")} />
 
@@ -47,13 +46,13 @@ const FlowControl: Component = () => {
         {t("docs.getting_started.flow_control.heading_error_boundary")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.flow_control.error_boundary_intro" />
+        <Trans k="docs.getting_started.flow_control.error_boundary_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "error-boundary")} />
 
       <Callout type="info">
         <p>
-          <RichText k="docs.getting_started.flow_control.info_accessor_conditions" />
+          <Trans k="docs.getting_started.flow_control.info_accessor_conditions" />
         </p>
       </Callout>
     </>

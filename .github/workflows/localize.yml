@@ -52,8 +52,13 @@ jobs:
         run: echo "::notice::XAI_API_KEY secret not set — skipping localization."
       # persist-credentials stays on (unlike the read-only quality jobs):
       # this workflow pushes the regenerated locale files.
+      # ref: develop (not the trigger SHA) — queued runs must see the
+      # previous run's bot commit and lockfile, or they'd re-translate
+      # everything and fail the push.
       - uses: actions/checkout@v4
         if: env.OPENAI_API_KEY != ''
+        with:
+          ref: develop
       - uses: actions/setup-node@v4
         if: env.OPENAI_API_KEY != ''
         with:
@@ -74,4 +79,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add apps/website/src/i18n/resources apps/website/i18n.lock
           git commit -m "i18n: regenerate translations from en source"
+          # a human push may have landed while translation ran; generated
+          # locales never overlap hand-edited files, so a rebase is safe
+          git pull --rebase origin develop
           git push

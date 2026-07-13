@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const PackageJson: Component = () => {
   return (
@@ -33,19 +32,19 @@ const PackageJson: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.config.package_json.row_type_name" />,
-            <RichText k="docs.api.config.package_json.row_type_value" />,
-            <RichText k="docs.api.config.package_json.row_type_why" />,
+            <Trans k="docs.api.config.package_json.row_type_name" />,
+            <Trans k="docs.api.config.package_json.row_type_value" />,
+            <Trans k="docs.api.config.package_json.row_type_why" />,
           ],
           [
-            <RichText k="docs.api.config.package_json.row_start_name" />,
-            <RichText k="docs.api.config.package_json.row_start_value" />,
-            <RichText k="docs.api.config.package_json.row_start_why" />,
+            <Trans k="docs.api.config.package_json.row_start_name" />,
+            <Trans k="docs.api.config.package_json.row_start_value" />,
+            <Trans k="docs.api.config.package_json.row_start_why" />,
           ],
           [
-            <RichText k="docs.api.config.package_json.row_dev_name" />,
-            <RichText k="docs.api.config.package_json.row_dev_value" />,
-            <RichText k="docs.api.config.package_json.row_dev_why" />,
+            <Trans k="docs.api.config.package_json.row_dev_name" />,
+            <Trans k="docs.api.config.package_json.row_dev_value" />,
+            <Trans k="docs.api.config.package_json.row_dev_why" />,
           ],
         ]}
       />

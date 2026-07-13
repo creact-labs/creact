@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const StateMachine: Component = () => {
   return (
@@ -17,7 +16,7 @@ const StateMachine: Component = () => {
         {t("docs.architecture.state_machine.heading_resource_states")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.resource_states_intro" />
+        <Trans k="docs.architecture.state_machine.resource_states_intro" />
       </p>
       <DocTable
         headers={[
@@ -26,20 +25,20 @@ const StateMachine: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.architecture.state_machine.state_pending_name" />,
-            <RichText k="docs.architecture.state_machine.state_pending_desc" />,
+            <Trans k="docs.architecture.state_machine.state_pending_name" />,
+            <Trans k="docs.architecture.state_machine.state_pending_desc" />,
           ],
           [
-            <RichText k="docs.architecture.state_machine.state_applying_name" />,
-            <RichText k="docs.architecture.state_machine.state_applying_desc" />,
+            <Trans k="docs.architecture.state_machine.state_applying_name" />,
+            <Trans k="docs.architecture.state_machine.state_applying_desc" />,
           ],
           [
-            <RichText k="docs.architecture.state_machine.state_deployed_name" />,
-            <RichText k="docs.architecture.state_machine.state_deployed_desc" />,
+            <Trans k="docs.architecture.state_machine.state_deployed_name" />,
+            <Trans k="docs.architecture.state_machine.state_deployed_desc" />,
           ],
           [
-            <RichText k="docs.architecture.state_machine.state_failed_name" />,
-            <RichText k="docs.architecture.state_machine.state_failed_desc" />,
+            <Trans k="docs.architecture.state_machine.state_failed_name" />,
+            <Trans k="docs.architecture.state_machine.state_failed_desc" />,
           ],
         ]}
       />
@@ -48,7 +47,7 @@ const StateMachine: Component = () => {
         {t("docs.architecture.state_machine.heading_deployment_status")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.deployment_status_body" />
+        <Trans k="docs.architecture.state_machine.deployment_status_body" />
       </p>
 
       <DocHeading level={2} id="transitions">
@@ -66,28 +65,28 @@ const StateMachine: Component = () => {
         {t("docs.architecture.state_machine.heading_persistence")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.persistence_body" />
+        <Trans k="docs.architecture.state_machine.persistence_body" />
       </p>
 
       <DocHeading level={2} id="crash-recovery">
         {t("docs.architecture.state_machine.heading_crash_recovery")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.crash_recovery_body" />
+        <Trans k="docs.architecture.state_machine.crash_recovery_body" />
       </p>
 
       <DocHeading level={2} id="audit-log">
         {t("docs.architecture.state_machine.heading_audit_log")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.audit_log_body" />
+        <Trans k="docs.architecture.state_machine.audit_log_body" />
       </p>
 
       <DocHeading level={2} id="source">
         {t("docs.architecture.state_machine.heading_source")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.state_machine.source_body" />
+        <Trans k="docs.architecture.state_machine.source_body" />
       </p>
     </>
   );

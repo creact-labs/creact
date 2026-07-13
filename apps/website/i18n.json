@@ -3,7 +3,21 @@
   "version": "1.10",
   "locale": {
     "source": "en",
-    "targets": ["de", "es", "fr", "ja", "ko", "pt-BR", "zh-Hans"]
+    "targets": [
+      "de",
+      "es",
+      "fr",
+      "hi",
+      "id",
+      "ja",
+      "ko",
+      "pt-BR",
+      "ru",
+      "th",
+      "vi",
+      "zh-Hans",
+      "zh-Hant"
+    ]
   },
   "buckets": {
     "json": {

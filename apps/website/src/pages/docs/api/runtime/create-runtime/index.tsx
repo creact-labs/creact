@@ -1,11 +1,10 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/runtime/create-runtime.tsx";
@@ -25,14 +24,14 @@ const CreateRuntime: Component = () => {
         signature={t("docs.api.runtime.create_runtime.signature")}
         parameters={[
           [
-            <RichText k="docs.api.runtime.create_runtime.param_root_name" />,
-            <RichText k="docs.api.runtime.create_runtime.param_root_type" />,
-            <RichText k="docs.api.runtime.create_runtime.param_root_desc" />,
+            <Trans k="docs.api.runtime.create_runtime.param_root_name" />,
+            <Trans k="docs.api.runtime.create_runtime.param_root_type" />,
+            <Trans k="docs.api.runtime.create_runtime.param_root_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.runtime.create_runtime.returns_desc" />
+            <Trans k="docs.api.runtime.create_runtime.returns_desc" />
           </p>
         }
       />
@@ -42,7 +41,7 @@ const CreateRuntime: Component = () => {
         filename={t("docs.api.runtime.create_runtime.usage_filename")}
       >
         <p>
-          <RichText k="docs.api.runtime.create_runtime.outputs_intro" />
+          <Trans k="docs.api.runtime.create_runtime.outputs_intro" />
         </p>
         <DocTable
           headers={[
@@ -52,25 +51,25 @@ const CreateRuntime: Component = () => {
           ]}
           rows={[
             [
-              <RichText k="docs.api.runtime.create_runtime.output_status_name" />,
-              <RichText k="docs.api.runtime.create_runtime.output_status_type" />,
-              <RichText k="docs.api.runtime.create_runtime.output_status_desc" />,
+              <Trans k="docs.api.runtime.create_runtime.output_status_name" />,
+              <Trans k="docs.api.runtime.create_runtime.output_status_type" />,
+              <Trans k="docs.api.runtime.create_runtime.output_status_desc" />,
             ],
             [
-              <RichText k="docs.api.runtime.create_runtime.output_ready_name" />,
-              <RichText k="docs.api.runtime.create_runtime.output_ready_type" />,
-              <RichText k="docs.api.runtime.create_runtime.output_ready_desc" />,
+              <Trans k="docs.api.runtime.create_runtime.output_ready_name" />,
+              <Trans k="docs.api.runtime.create_runtime.output_ready_type" />,
+              <Trans k="docs.api.runtime.create_runtime.output_ready_desc" />,
             ],
             [
-              <RichText k="docs.api.runtime.create_runtime.output_error_name" />,
-              <RichText k="docs.api.runtime.create_runtime.output_error_type" />,
-              <RichText k="docs.api.runtime.create_runtime.output_error_desc" />,
+              <Trans k="docs.api.runtime.create_runtime.output_error_name" />,
+              <Trans k="docs.api.runtime.create_runtime.output_error_type" />,
+              <Trans k="docs.api.runtime.create_runtime.output_error_desc" />,
             ],
           ]}
         />
         <Callout type="info">
           <p>
-            <RichText k="docs.api.runtime.create_runtime.callout_detach" />
+            <Trans k="docs.api.runtime.create_runtime.callout_detach" />
           </p>
         </Callout>
       </UsageSection>

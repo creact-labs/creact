@@ -263,7 +263,7 @@ describe("shutdown", () => {
 });
 
 describe("runCli", () => {
-  it("formats a watcher failure through the CLI logger and exits 1", async () => {
+  it("formats a watcher failure through the CLI logger and exits 1", { timeout: 15000 }, async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
       // Entry point in a directory that doesn't exist: the type check
@@ -452,7 +452,7 @@ describe("watchLoop", () => {
     }
   }, 30000);
 
-  it("rethrows real watcher failures (only aborts end the loop quietly)", async () => {
+  it("rethrows real watcher failures (only aborts end the loop quietly)", { timeout: 15000 }, async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
       await expect(

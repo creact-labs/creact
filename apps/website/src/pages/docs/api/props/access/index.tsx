@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/props/access.ts";
@@ -21,14 +20,14 @@ const Access: Component = () => {
         signature={t("docs.api.props.access.signature")}
         parameters={[
           [
-            <RichText k="docs.api.props.access.param_value_name" />,
-            <RichText k="docs.api.props.access.param_value_type" />,
-            <RichText k="docs.api.props.access.param_value_desc" />,
+            <Trans k="docs.api.props.access.param_value_name" />,
+            <Trans k="docs.api.props.access.param_value_type" />,
+            <Trans k="docs.api.props.access.param_value_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.props.access.returns_desc" />
+            <Trans k="docs.api.props.access.returns_desc" />
           </p>
         }
       />

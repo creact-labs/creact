@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/reactive/create-render-effect.ts";
@@ -21,19 +20,19 @@ const CreateRenderEffect: Component = () => {
         signature={t("docs.api.reactive.create_render_effect.signature")}
         parameters={[
           [
-            <RichText k="docs.api.reactive.create_render_effect.param_fn_name" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_fn_type" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_fn_desc" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_fn_name" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_fn_type" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_fn_desc" />,
           ],
           [
-            <RichText k="docs.api.reactive.create_render_effect.param_value_name" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_value_type" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_value_desc" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_value_name" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_value_type" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_value_desc" />,
           ],
           [
-            <RichText k="docs.api.reactive.create_render_effect.param_options_name" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_options_type" />,
-            <RichText k="docs.api.reactive.create_render_effect.param_options_desc" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_options_name" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_options_type" />,
+            <Trans k="docs.api.reactive.create_render_effect.param_options_desc" />,
           ],
         ]}
       />
@@ -42,7 +41,7 @@ const CreateRenderEffect: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.api.reactive.create_render_effect.info_ordering" />
+          <Trans k="docs.api.reactive.create_render_effect.info_ordering" />
         </p>
       </Callout>
     </>

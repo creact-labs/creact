@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "durable-counter/src/components-jsx.tsx";
 
@@ -20,7 +19,7 @@ const ComponentsJsx: Component = () => {
         {t("docs.getting_started.components_jsx.heading_jsx")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.components_jsx.jsx_intro" />
+        <Trans k="docs.getting_started.components_jsx.jsx_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "resources")}
@@ -42,7 +41,7 @@ const ComponentsJsx: Component = () => {
         {t("docs.getting_started.components_jsx.heading_fragments")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.components_jsx.fragments_intro" />
+        <Trans k="docs.getting_started.components_jsx.fragments_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "fragments")}
@@ -53,7 +52,7 @@ const ComponentsJsx: Component = () => {
         {t("docs.getting_started.components_jsx.heading_reactive_props")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.components_jsx.reactive_props_intro" />
+        <Trans k="docs.getting_started.components_jsx.reactive_props_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "reactive-props")}
@@ -64,7 +63,7 @@ const ComponentsJsx: Component = () => {
 
       <Callout type="tip">
         <p>
-          <RichText k="docs.getting_started.components_jsx.tip_access" />
+          <Trans k="docs.getting_started.components_jsx.tip_access" />
         </p>
       </Callout>
 
@@ -72,7 +71,7 @@ const ComponentsJsx: Component = () => {
         {t("docs.getting_started.components_jsx.heading_children")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.components_jsx.children_intro" />
+        <Trans k="docs.getting_started.components_jsx.children_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "children")}

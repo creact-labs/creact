@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "durable-counter/src/reactive-primitives.ts";
 
@@ -44,7 +43,7 @@ const ReactivePrimitives: Component = () => {
         {t("docs.getting_started.reactive_primitives.heading_batching")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.reactive_primitives.batching_intro" />
+        <Trans k="docs.getting_started.reactive_primitives.batching_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "batching")} />
 
@@ -52,7 +51,7 @@ const ReactivePrimitives: Component = () => {
         {t("docs.getting_started.reactive_primitives.heading_untrack")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.reactive_primitives.untrack_intro" />
+        <Trans k="docs.getting_started.reactive_primitives.untrack_intro" />
       </p>
       <DocCodeBlock code={codeSample(samples, "untrack")} />
     </>

@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const CreactCli: Component = () => {
   return (
@@ -30,8 +29,8 @@ const CreactCli: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.cli.creact_cli.row_entry_file_name" />,
-            <RichText k="docs.api.cli.creact_cli.row_entry_file_desc" />,
+            <Trans k="docs.api.cli.creact_cli.row_entry_file_name" />,
+            <Trans k="docs.api.cli.creact_cli.row_entry_file_desc" />,
           ],
         ]}
       />
@@ -46,12 +45,12 @@ const CreactCli: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.cli.creact_cli.row_watch_name" />,
-            <RichText k="docs.api.cli.creact_cli.row_watch_desc" />,
+            <Trans k="docs.api.cli.creact_cli.row_watch_name" />,
+            <Trans k="docs.api.cli.creact_cli.row_watch_desc" />,
           ],
           [
-            <RichText k="docs.api.cli.creact_cli.row_help_name" />,
-            <RichText k="docs.api.cli.creact_cli.row_help_desc" />,
+            <Trans k="docs.api.cli.creact_cli.row_help_name" />,
+            <Trans k="docs.api.cli.creact_cli.row_help_desc" />,
           ],
         ]}
       />
@@ -70,19 +69,19 @@ const CreactCli: Component = () => {
       </DocHeading>
       <ol>
         <li>
-          <RichText k="docs.api.cli.creact_cli.behavior_typecheck" />
+          <Trans k="docs.api.cli.creact_cli.behavior_typecheck" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_cli.behavior_execute" />
+          <Trans k="docs.api.cli.creact_cli.behavior_execute" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_cli.behavior_default_export" />
+          <Trans k="docs.api.cli.creact_cli.behavior_default_export" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_cli.behavior_render_cycle" />
+          <Trans k="docs.api.cli.creact_cli.behavior_render_cycle" />
         </li>
         <li>
-          <RichText k="docs.api.cli.creact_cli.behavior_exit" />
+          <Trans k="docs.api.cli.creact_cli.behavior_exit" />
         </li>
       </ol>
     </>

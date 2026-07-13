@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/testing.tsx";
 
@@ -28,7 +27,7 @@ const Testing: Component = () => {
         {t("docs.guides.testing.heading_testing_signals")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.testing.testing_signals_intro" />
+        <Trans k="docs.guides.testing.testing_signals_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "testing-signals")}
@@ -54,7 +53,7 @@ const Testing: Component = () => {
 
       <Callout type="tip">
         <p>
-          <RichText k="docs.guides.testing.tip_create_root" />
+          <Trans k="docs.guides.testing.tip_create_root" />
         </p>
       </Callout>
     </>

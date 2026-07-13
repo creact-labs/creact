@@ -1,11 +1,10 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "api-cookbook/src/reactive/create-root.ts";
 
@@ -22,19 +21,19 @@ const CreateRoot: Component = () => {
         signature={t("docs.api.reactive.create_root.signature")}
         parameters={[
           [
-            <RichText k="docs.api.reactive.create_root.param_fn_name" />,
-            <RichText k="docs.api.reactive.create_root.param_fn_type" />,
-            <RichText k="docs.api.reactive.create_root.param_fn_desc" />,
+            <Trans k="docs.api.reactive.create_root.param_fn_name" />,
+            <Trans k="docs.api.reactive.create_root.param_fn_type" />,
+            <Trans k="docs.api.reactive.create_root.param_fn_desc" />,
           ],
           [
-            <RichText k="docs.api.reactive.create_root.param_detached_owner_name" />,
-            <RichText k="docs.api.reactive.create_root.param_detached_owner_type" />,
-            <RichText k="docs.api.reactive.create_root.param_detached_owner_desc" />,
+            <Trans k="docs.api.reactive.create_root.param_detached_owner_name" />,
+            <Trans k="docs.api.reactive.create_root.param_detached_owner_type" />,
+            <Trans k="docs.api.reactive.create_root.param_detached_owner_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.reactive.create_root.returns_body" />
+            <Trans k="docs.api.reactive.create_root.returns_body" />
           </p>
         }
       />
@@ -55,7 +54,7 @@ const CreateRoot: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.api.reactive.create_root.info_render_root" />
+          <Trans k="docs.api.reactive.create_root.info_render_root" />
         </p>
       </Callout>
     </>

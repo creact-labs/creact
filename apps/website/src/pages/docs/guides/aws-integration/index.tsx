@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/aws-integration.tsx";
 
@@ -20,7 +19,7 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_aws_provider")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.aws_integration.provider_intro" />
+        <Trans k="docs.guides.aws_integration.provider_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "provider")}
@@ -31,7 +30,7 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_bucket_component")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.aws_integration.bucket_intro" />
+        <Trans k="docs.guides.aws_integration.bucket_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "bucket")}
@@ -42,7 +41,7 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_s3_file")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.aws_integration.s3_file_intro" />
+        <Trans k="docs.guides.aws_integration.s3_file_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "s3-file")}
@@ -53,7 +52,7 @@ const AwsIntegration: Component = () => {
         {t("docs.guides.aws_integration.heading_website_component")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.aws_integration.website_intro" />
+        <Trans k="docs.guides.aws_integration.website_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "website")}
@@ -70,7 +69,7 @@ const AwsIntegration: Component = () => {
 
       <Callout type="warning">
         <p>
-          <RichText k="docs.guides.aws_integration.warning_cleanup" />
+          <Trans k="docs.guides.aws_integration.warning_cleanup" />
         </p>
       </Callout>
     </>

@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/runtime/render.tsx";
@@ -23,29 +22,29 @@ const Render: Component = () => {
         signature={t("docs.api.runtime.render.signature")}
         parameters={[
           [
-            <RichText k="docs.api.runtime.render.param_fn_name" />,
-            <RichText k="docs.api.runtime.render.param_fn_type" />,
-            <RichText k="docs.api.runtime.render.param_fn_desc" />,
+            <Trans k="docs.api.runtime.render.param_fn_name" />,
+            <Trans k="docs.api.runtime.render.param_fn_type" />,
+            <Trans k="docs.api.runtime.render.param_fn_desc" />,
           ],
           [
-            <RichText k="docs.api.runtime.render.param_memory_name" />,
-            <RichText k="docs.api.runtime.render.param_memory_type" />,
-            <RichText k="docs.api.runtime.render.param_memory_desc" />,
+            <Trans k="docs.api.runtime.render.param_memory_name" />,
+            <Trans k="docs.api.runtime.render.param_memory_type" />,
+            <Trans k="docs.api.runtime.render.param_memory_desc" />,
           ],
           [
-            <RichText k="docs.api.runtime.render.param_stack_name_name" />,
-            <RichText k="docs.api.runtime.render.param_stack_name_type" />,
-            <RichText k="docs.api.runtime.render.param_stack_name_desc" />,
+            <Trans k="docs.api.runtime.render.param_stack_name_name" />,
+            <Trans k="docs.api.runtime.render.param_stack_name_type" />,
+            <Trans k="docs.api.runtime.render.param_stack_name_desc" />,
           ],
           [
-            <RichText k="docs.api.runtime.render.param_options_name" />,
-            <RichText k="docs.api.runtime.render.param_options_type" />,
-            <RichText k="docs.api.runtime.render.param_options_desc" />,
+            <Trans k="docs.api.runtime.render.param_options_name" />,
+            <Trans k="docs.api.runtime.render.param_options_type" />,
+            <Trans k="docs.api.runtime.render.param_options_desc" />,
           ],
         ]}
         returns={
           <p>
-            <RichText k="docs.api.runtime.render.returns_desc" />
+            <Trans k="docs.api.runtime.render.returns_desc" />
           </p>
         }
       />

@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/environment-variables.tsx";
 
@@ -20,7 +19,7 @@ const EnvironmentVariables: Component = () => {
         {t("docs.guides.environment_variables.heading_reading")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.environment_variables.reading_intro" />
+        <Trans k="docs.guides.environment_variables.reading_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "reading")}
@@ -47,7 +46,7 @@ const EnvironmentVariables: Component = () => {
 
       <Callout type="warning">
         <p>
-          <RichText k="docs.guides.environment_variables.warning_dotenv" />
+          <Trans k="docs.guides.environment_variables.warning_dotenv" />
         </p>
       </Callout>
     </>

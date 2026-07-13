@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "durable-counter/src/state-and-memory.tsx";
 
@@ -20,14 +19,14 @@ const StateAndMemory: Component = () => {
         {t("docs.getting_started.state_and_memory.heading_why_persistence")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.state_and_memory.why_persistence_body" />
+        <Trans k="docs.getting_started.state_and_memory.why_persistence_body" />
       </p>
 
       <DocHeading level={2} id="memory-interface">
         {t("docs.getting_started.state_and_memory.heading_memory_interface")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.state_and_memory.memory_interface_intro" />
+        <Trans k="docs.getting_started.state_and_memory.memory_interface_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "memory-interface")}
@@ -55,7 +54,7 @@ const StateAndMemory: Component = () => {
 
       <Callout type="tip">
         <p>
-          <RichText k="docs.getting_started.state_and_memory.tip_stack_name" />
+          <Trans k="docs.getting_started.state_and_memory.tip_stack_name" />
         </p>
       </Callout>
 
@@ -63,7 +62,7 @@ const StateAndMemory: Component = () => {
         {t("docs.getting_started.state_and_memory.heading_use_async_output")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.state_and_memory.use_async_output_intro" />
+        <Trans k="docs.getting_started.state_and_memory.use_async_output_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "use-async-output")}
@@ -76,7 +75,7 @@ const StateAndMemory: Component = () => {
         )}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.state_and_memory.what_gets_persisted_body" />
+        <Trans k="docs.getting_started.state_and_memory.what_gets_persisted_body" />
       </p>
 
       <DocHeading level={2} id="reconciliation">
@@ -86,12 +85,12 @@ const StateAndMemory: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.getting_started.state_and_memory.info_gitignore" />
+          <Trans k="docs.getting_started.state_and_memory.info_gitignore" />
         </p>
       </Callout>
 
       <p>
-        <RichText k="docs.getting_started.state_and_memory.memory_system_link" />
+        <Trans k="docs.getting_started.state_and_memory.memory_system_link" />
       </p>
     </>
   );

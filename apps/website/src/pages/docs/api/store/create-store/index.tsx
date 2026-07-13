@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/store/create-store.ts";
@@ -23,22 +22,22 @@ const CreateStore: Component = () => {
         signature={t("docs.api.store.create_store.signature")}
         parameters={[
           [
-            <RichText k="docs.api.store.create_store.param_value_name" />,
-            <RichText k="docs.api.store.create_store.param_value_type" />,
-            <RichText k="docs.api.store.create_store.param_value_desc" />,
+            <Trans k="docs.api.store.create_store.param_value_name" />,
+            <Trans k="docs.api.store.create_store.param_value_type" />,
+            <Trans k="docs.api.store.create_store.param_value_desc" />,
           ],
         ]}
         returns={
           <>
             <p>
-              <RichText k="docs.api.store.create_store.returns_intro" />
+              <Trans k="docs.api.store.create_store.returns_intro" />
             </p>
             <ul>
               <li>
-                <RichText k="docs.api.store.create_store.returns_store" />
+                <Trans k="docs.api.store.create_store.returns_store" />
               </li>
               <li>
-                <RichText k="docs.api.store.create_store.returns_setstore" />
+                <Trans k="docs.api.store.create_store.returns_setstore" />
               </li>
             </ul>
           </>

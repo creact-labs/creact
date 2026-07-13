@@ -1,9 +1,8 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
-import RichText from "@/shared/components/rich-text";
 
 const FiberModel: Component = () => {
   return (
@@ -33,23 +32,23 @@ const FiberModel: Component = () => {
         steps={[
           {
             label: t("docs.architecture.fiber_model.step_creation_label"),
-            body: <RichText k="docs.architecture.fiber_model.step_creation_body" />,
+            body: <Trans k="docs.architecture.fiber_model.step_creation_body" />,
           },
           {
             label: t("docs.architecture.fiber_model.step_reconciliation_label"),
-            body: <RichText k="docs.architecture.fiber_model.step_reconciliation_body" />,
+            body: <Trans k="docs.architecture.fiber_model.step_reconciliation_body" />,
           },
           {
             label: t("docs.architecture.fiber_model.step_execution_label"),
-            body: <RichText k="docs.architecture.fiber_model.step_execution_body" />,
+            body: <Trans k="docs.architecture.fiber_model.step_execution_body" />,
           },
           {
             label: t("docs.architecture.fiber_model.step_serialization_label"),
-            body: <RichText k="docs.architecture.fiber_model.step_serialization_body" />,
+            body: <Trans k="docs.architecture.fiber_model.step_serialization_body" />,
           },
           {
             label: t("docs.architecture.fiber_model.step_cleanup_label"),
-            body: <RichText k="docs.architecture.fiber_model.step_cleanup_body" />,
+            body: <Trans k="docs.architecture.fiber_model.step_cleanup_body" />,
           },
         ]}
       />
@@ -58,7 +57,7 @@ const FiberModel: Component = () => {
         {t("docs.architecture.fiber_model.heading_paths")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.fiber_model.paths_body" />
+        <Trans k="docs.architecture.fiber_model.paths_body" />
       </p>
       <DocCodeBlock code={t("docs.architecture.fiber_model.code_paths")} />
 
@@ -66,14 +65,14 @@ const FiberModel: Component = () => {
         {t("docs.architecture.fiber_model.heading_instance_nodes")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.fiber_model.instance_nodes_body" />
+        <Trans k="docs.architecture.fiber_model.instance_nodes_body" />
       </p>
 
       <DocHeading level={2} id="source">
         {t("docs.architecture.fiber_model.heading_source")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.fiber_model.source_body" />
+        <Trans k="docs.architecture.fiber_model.source_body" />
       </p>
     </>
   );

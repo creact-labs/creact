@@ -1,11 +1,10 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "api-cookbook/src/architecture/runtime-boundaries.tsx";
 
@@ -14,7 +13,7 @@ const RuntimeBoundaries: Component = () => {
     <>
       <h1>{t("docs.architecture.runtime_boundaries.title")}</h1>
       <p class="docs-description">
-        <RichText k="docs.architecture.runtime_boundaries.description" />
+        <Trans k="docs.architecture.runtime_boundaries.description" />
       </p>
 
       <DocHeading level={2} id="the-sovereignty-model">
@@ -28,24 +27,24 @@ const RuntimeBoundaries: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.architecture.runtime_boundaries.aspect_ledger_name" />,
-            <RichText k="docs.architecture.runtime_boundaries.aspect_ledger_desc" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_ledger_name" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_ledger_desc" />,
           ],
           [
-            <RichText k="docs.architecture.runtime_boundaries.aspect_lock_name" />,
-            <RichText k="docs.architecture.runtime_boundaries.aspect_lock_desc" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_lock_name" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_lock_desc" />,
           ],
           [
-            <RichText k="docs.architecture.runtime_boundaries.aspect_failure_name" />,
-            <RichText k="docs.architecture.runtime_boundaries.aspect_failure_desc" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_failure_name" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_failure_desc" />,
           ],
           [
-            <RichText k="docs.architecture.runtime_boundaries.aspect_sealed_context_name" />,
-            <RichText k="docs.architecture.runtime_boundaries.aspect_sealed_context_desc" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_sealed_context_name" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_sealed_context_desc" />,
           ],
           [
-            <RichText k="docs.architecture.runtime_boundaries.aspect_crosses_props_name" />,
-            <RichText k="docs.architecture.runtime_boundaries.aspect_crosses_props_desc" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_crosses_props_name" />,
+            <Trans k="docs.architecture.runtime_boundaries.aspect_crosses_props_desc" />,
           ],
         ]}
       />
@@ -59,7 +58,7 @@ const RuntimeBoundaries: Component = () => {
         {t("docs.architecture.runtime_boundaries.heading_recursion")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.runtime_boundaries.recursion_body" />
+        <Trans k="docs.architecture.runtime_boundaries.recursion_body" />
       </p>
       <DocCodeBlock code={codeSample(samples, "recursion")} />
 
@@ -67,12 +66,12 @@ const RuntimeBoundaries: Component = () => {
         {t("docs.architecture.runtime_boundaries.heading_detach_vs_destroy")}
       </DocHeading>
       <p>
-        <RichText k="docs.architecture.runtime_boundaries.detach_vs_destroy_body" />
+        <Trans k="docs.architecture.runtime_boundaries.detach_vs_destroy_body" />
       </p>
       <DocCodeBlock code={codeSample(samples, "detach-vs-destroy")} />
       <Callout type="warning">
         <p>
-          <RichText k="docs.architecture.runtime_boundaries.warning_teardown" />
+          <Trans k="docs.architecture.runtime_boundaries.warning_teardown" />
         </p>
       </Callout>
 

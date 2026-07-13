@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const Installation: Component = () => {
   return (
@@ -52,7 +51,7 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_configure_typescript")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.installation.configure_typescript_intro" />
+        <Trans k="docs.getting_started.installation.configure_typescript_intro" />
       </p>
       <DocCodeBlock
         lang="json"
@@ -62,7 +61,7 @@ const Installation: Component = () => {
 
       <Callout type="tip">
         <p>
-          <RichText k="docs.getting_started.installation.tip_jsx_import_source" />
+          <Trans k="docs.getting_started.installation.tip_jsx_import_source" />
         </p>
       </Callout>
 
@@ -70,7 +69,7 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_add_scripts")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.installation.add_scripts_intro" />
+        <Trans k="docs.getting_started.installation.add_scripts_intro" />
       </p>
       <DocCodeBlock
         lang="json"
@@ -82,7 +81,7 @@ const Installation: Component = () => {
         {t("docs.getting_started.installation.heading_create_entry")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.installation.create_entry_intro" />
+        <Trans k="docs.getting_started.installation.create_entry_intro" />
       </p>
       <DocCodeBlock
         code={codeSample("durable-counter/first-entry.tsx", "entry-point")}
@@ -99,7 +98,7 @@ const Installation: Component = () => {
       />
 
       <p>
-        <RichText k="docs.getting_started.installation.run_outro" />
+        <Trans k="docs.getting_started.installation.run_outro" />
       </p>
 
       <DocHeading level={2} id="project-files">
@@ -112,7 +111,7 @@ const Installation: Component = () => {
       />
 
       <p>
-        <RichText k="docs.getting_started.installation.project_files_outro" />
+        <Trans k="docs.getting_started.installation.project_files_outro" />
       </p>
     </>
   );

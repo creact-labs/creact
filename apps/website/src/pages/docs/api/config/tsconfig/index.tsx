@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const Tsconfig: Component = () => {
   return (
@@ -32,36 +31,36 @@ const Tsconfig: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.config.tsconfig.row_jsx_name" />,
-            <RichText k="docs.api.config.tsconfig.row_jsx_value" />,
-            <RichText k="docs.api.config.tsconfig.row_jsx_why" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_name" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_value" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_why" />,
           ],
           [
-            <RichText k="docs.api.config.tsconfig.row_jsx_import_source_name" />,
-            <RichText k="docs.api.config.tsconfig.row_jsx_import_source_value" />,
-            <RichText k="docs.api.config.tsconfig.row_jsx_import_source_why" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_import_source_name" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_import_source_value" />,
+            <Trans k="docs.api.config.tsconfig.row_jsx_import_source_why" />,
           ],
           [
-            <RichText k="docs.api.config.tsconfig.row_target_name" />,
-            <RichText k="docs.api.config.tsconfig.row_target_value" />,
-            <RichText k="docs.api.config.tsconfig.row_target_why" />,
+            <Trans k="docs.api.config.tsconfig.row_target_name" />,
+            <Trans k="docs.api.config.tsconfig.row_target_value" />,
+            <Trans k="docs.api.config.tsconfig.row_target_why" />,
           ],
           [
-            <RichText k="docs.api.config.tsconfig.row_module_name" />,
-            <RichText k="docs.api.config.tsconfig.row_module_value" />,
-            <RichText k="docs.api.config.tsconfig.row_module_why" />,
+            <Trans k="docs.api.config.tsconfig.row_module_name" />,
+            <Trans k="docs.api.config.tsconfig.row_module_value" />,
+            <Trans k="docs.api.config.tsconfig.row_module_why" />,
           ],
           [
-            <RichText k="docs.api.config.tsconfig.row_module_resolution_name" />,
-            <RichText k="docs.api.config.tsconfig.row_module_resolution_value" />,
-            <RichText k="docs.api.config.tsconfig.row_module_resolution_why" />,
+            <Trans k="docs.api.config.tsconfig.row_module_resolution_name" />,
+            <Trans k="docs.api.config.tsconfig.row_module_resolution_value" />,
+            <Trans k="docs.api.config.tsconfig.row_module_resolution_why" />,
           ],
         ]}
       />
 
       <Callout type="info">
         <p>
-          <RichText k="docs.api.config.tsconfig.info_tsx" />
+          <Trans k="docs.api.config.tsconfig.info_tsx" />
         </p>
       </Callout>
     </>

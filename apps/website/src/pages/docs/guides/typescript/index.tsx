@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/typescript.tsx";
 
@@ -18,7 +17,7 @@ const Typescript: Component = () => {
         {t("docs.guides.typescript.heading_tsconfig")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.typescript.tsconfig_intro" />
+        <Trans k="docs.guides.typescript.tsconfig_intro" />
       </p>
       <DocCodeBlock
         lang="json"
@@ -44,7 +43,7 @@ const Typescript: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.guides.typescript.info_types" />
+          <Trans k="docs.guides.typescript.info_types" />
         </p>
       </Callout>
     </>

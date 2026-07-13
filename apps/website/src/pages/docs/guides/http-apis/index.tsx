@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "integrations/src/http-apis.tsx";
 
@@ -23,7 +22,7 @@ const HttpApis: Component = () => {
         {t("docs.guides.http_apis.heading_http_server")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.http_apis.http_server_intro" />
+        <Trans k="docs.guides.http_apis.http_server_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "channel")}
@@ -34,7 +33,7 @@ const HttpApis: Component = () => {
         {t("docs.guides.http_apis.heading_reactive_flow")}
       </DocHeading>
       <p>
-        <RichText k="docs.guides.http_apis.reactive_flow_intro" />
+        <Trans k="docs.guides.http_apis.reactive_flow_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "reactive-flow")}
@@ -43,7 +42,7 @@ const HttpApis: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.guides.http_apis.info_cleanup" />
+          <Trans k="docs.guides.http_apis.info_cleanup" />
         </p>
       </Callout>
     </>

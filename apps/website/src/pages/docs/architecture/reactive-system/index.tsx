@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import Callout from "@/shared/components/callout";
 import DocHeading from "@/shared/components/doc-heading";
 import DocSteps from "@/shared/components/doc-steps";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 
 const ReactiveSystem: Component = () => {
   return (
@@ -40,27 +39,27 @@ const ReactiveSystem: Component = () => {
         steps={[
           {
             label: t("docs.architecture.reactive_system.step_signal_write_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_signal_write_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_signal_write_body" />,
           },
           {
             label: t("docs.architecture.reactive_system.step_schedule_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_schedule_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_schedule_body" />,
           },
           {
             label: t("docs.architecture.reactive_system.step_batch_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_batch_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_batch_body" />,
           },
           {
             label: t("docs.architecture.reactive_system.step_run_queue_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_run_queue_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_run_queue_body" />,
           },
           {
             label: t("docs.architecture.reactive_system.step_clean_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_clean_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_clean_body" />,
           },
           {
             label: t("docs.architecture.reactive_system.step_retrack_label"),
-            body: <RichText k="docs.architecture.reactive_system.step_retrack_body" />,
+            body: <Trans k="docs.architecture.reactive_system.step_retrack_body" />,
           },
         ]}
       />
@@ -75,24 +74,24 @@ const ReactiveSystem: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.architecture.reactive_system.module_tracking_name" />,
-            <RichText k="docs.architecture.reactive_system.module_tracking_desc" />,
+            <Trans k="docs.architecture.reactive_system.module_tracking_name" />,
+            <Trans k="docs.architecture.reactive_system.module_tracking_desc" />,
           ],
           [
-            <RichText k="docs.architecture.reactive_system.module_signal_name" />,
-            <RichText k="docs.architecture.reactive_system.module_signal_desc" />,
+            <Trans k="docs.architecture.reactive_system.module_signal_name" />,
+            <Trans k="docs.architecture.reactive_system.module_signal_desc" />,
           ],
           [
-            <RichText k="docs.architecture.reactive_system.module_effect_name" />,
-            <RichText k="docs.architecture.reactive_system.module_effect_desc" />,
+            <Trans k="docs.architecture.reactive_system.module_effect_name" />,
+            <Trans k="docs.architecture.reactive_system.module_effect_desc" />,
           ],
           [
-            <RichText k="docs.architecture.reactive_system.module_owner_name" />,
-            <RichText k="docs.architecture.reactive_system.module_owner_desc" />,
+            <Trans k="docs.architecture.reactive_system.module_owner_name" />,
+            <Trans k="docs.architecture.reactive_system.module_owner_desc" />,
           ],
           [
-            <RichText k="docs.architecture.reactive_system.module_selector_name" />,
-            <RichText k="docs.architecture.reactive_system.module_selector_desc" />,
+            <Trans k="docs.architecture.reactive_system.module_selector_name" />,
+            <Trans k="docs.architecture.reactive_system.module_selector_desc" />,
           ],
         ]}
       />
@@ -104,7 +103,7 @@ const ReactiveSystem: Component = () => {
 
       <Callout type="info">
         <p>
-          <RichText k="docs.architecture.reactive_system.callout_synchronous" />
+          <Trans k="docs.architecture.reactive_system.callout_synchronous" />
         </p>
       </Callout>
     </>

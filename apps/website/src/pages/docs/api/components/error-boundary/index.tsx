@@ -1,11 +1,10 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
-import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
 const samples = "api-cookbook/src/components/error-boundary.tsx";
@@ -36,14 +35,14 @@ const ErrorBoundaryApi: Component = () => {
         ]}
         rows={[
           [
-            <RichText k="docs.api.components.error_boundary.prop_fallback_name" />,
-            <RichText k="docs.api.components.error_boundary.prop_fallback_type" />,
-            <RichText k="docs.api.components.error_boundary.prop_fallback_desc" />,
+            <Trans k="docs.api.components.error_boundary.prop_fallback_name" />,
+            <Trans k="docs.api.components.error_boundary.prop_fallback_type" />,
+            <Trans k="docs.api.components.error_boundary.prop_fallback_desc" />,
           ],
           [
-            <RichText k="docs.api.components.error_boundary.prop_children_name" />,
-            <RichText k="docs.api.components.error_boundary.prop_children_type" />,
-            <RichText k="docs.api.components.error_boundary.prop_children_desc" />,
+            <Trans k="docs.api.components.error_boundary.prop_children_name" />,
+            <Trans k="docs.api.components.error_boundary.prop_children_type" />,
+            <Trans k="docs.api.components.error_boundary.prop_children_desc" />,
           ],
         ]}
       />

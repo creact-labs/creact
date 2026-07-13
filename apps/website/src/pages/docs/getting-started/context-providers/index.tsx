@@ -1,10 +1,9 @@
 import type { Component } from "solid-js";
-import { t } from "@/i18n";
+import { Trans, t } from "@/i18n";
 import { codeSample } from "@/shared/code-sample";
 import Callout from "@/shared/components/callout";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
-import RichText from "@/shared/components/rich-text";
 
 const samples = "durable-counter/src/context-providers.tsx";
 
@@ -20,7 +19,7 @@ const ContextProviders: Component = () => {
         {t("docs.getting_started.context_providers.heading_creating_context")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.context_providers.creating_context_intro" />
+        <Trans k="docs.getting_started.context_providers.creating_context_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "create-context")}
@@ -33,7 +32,7 @@ const ContextProviders: Component = () => {
         {t("docs.getting_started.context_providers.heading_providing_values")}
       </DocHeading>
       <p>
-        <RichText k="docs.getting_started.context_providers.providing_values_intro" />
+        <Trans k="docs.getting_started.context_providers.providing_values_intro" />
       </p>
       <DocCodeBlock
         code={codeSample(samples, "provide")}
