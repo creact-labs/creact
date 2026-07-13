@@ -18,6 +18,6 @@ export default async function () {
   return render(
     () => <Tour key="tour" />,
     new FileMemory("./.state"),
-    "guides-tour",
+    "integrations",
   );
 }

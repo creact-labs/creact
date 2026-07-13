@@ -1,5 +1,5 @@
 import { useAsyncOutput } from "@creact-labs/creact";
-import type { SiteConfig } from "../web-site";
+import type { SiteConfig } from "@creact-labs/example-demo-site";
 
 interface ChannelProps {
   port: number;

@@ -5,7 +5,7 @@ import ApiReference from "@/shared/components/api-reference";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/props/split-props.tsx";
+const samples = "api-cookbook/src/props/split-props.tsx";
 
 const SplitProps: Component = () => {
   return (

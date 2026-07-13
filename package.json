@@ -6,6 +6,7 @@
     "packages/*",
     "apps/*",
     "libs/*",
+    "libs/examples/packages/*",
     "libs/examples/apps/*"
   ],
   "scripts": {
@@ -24,7 +25,7 @@
     "url": "https://github.com/creact-labs/creact.git"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=24.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

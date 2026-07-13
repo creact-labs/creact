@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "api-tour/src/reactive/create-memo.ts";
+const samples = "api-cookbook/src/reactive/create-memo.ts";
 
 const CreateMemo: Component = () => {
   return (

@@ -1,9 +1,8 @@
 import type { DeploymentState, Memory } from "@creact-labs/creact";
 
 /**
- * In-memory backend shared by the example apps' entries and helpers.
- * Displayed samples that teach the Memory interface keep their own
- * inline implementations on purpose.
+ * In-memory backend so every example runs without external services.
+ * Swap for a persistent Memory implementation in a real deployment.
  */
 export function createMemory(): Memory {
   const states = new Map<string, DeploymentState>();

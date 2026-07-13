@@ -3,7 +3,7 @@ import { AWS } from "../components/aws";
 import { Channel } from "../components/channel";
 import { Claude } from "../components/claude";
 import { GenerateHtml } from "../components/generate-html";
-import { type SiteConfig, WebSite } from "../components/web-site";
+import { type SiteConfig, WebSite } from "@creact-labs/example-demo-site";
 
 interface Generation {
   prompt: string;

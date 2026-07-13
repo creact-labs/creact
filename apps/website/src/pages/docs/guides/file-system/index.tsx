@@ -5,7 +5,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "guides-tour/src/file-system.tsx";
+const samples = "integrations/src/file-system.tsx";
 
 const FileSystem: Component = () => {
   return (

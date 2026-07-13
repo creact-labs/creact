@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "getting-started-tour/src/components-jsx.tsx";
+const samples = "durable-counter/src/components-jsx.tsx";
 
 const ComponentsJsx: Component = () => {
   return (

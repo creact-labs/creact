@@ -15,7 +15,7 @@ function Item(_props: { data: ItemData }) {
 }
 
 // One deployed static site; shared demo resource across example apps
-import { WebSite } from "../../../../shared/web-site";
+import { WebSite } from "@creact-labs/example-demo-site";
 
 export function hero() {
   return (

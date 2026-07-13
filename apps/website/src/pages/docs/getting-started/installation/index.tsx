@@ -85,7 +85,7 @@ const Installation: Component = () => {
         <RichText k="docs.getting_started.installation.create_entry_intro" />
       </p>
       <DocCodeBlock
-        code={codeSample("getting-started-tour/first-entry.tsx", "entry-point")}
+        code={codeSample("durable-counter/first-entry.tsx", "entry-point")}
         filename={t("docs.getting_started.installation.filename_index_tsx")}
       />
 

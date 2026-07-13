@@ -1,9 +1,9 @@
 {
-  "name": "@creact-labs/example-guides-tour",
+  "name": "@creact-labs/example-integrations",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Tour of the CReact guides — every guides-page code sample is a region of this app, so samples always typecheck against the library",
+  "description": "Real-world integration recipes: HTTP channels, AI generation, file system, and S3 publishing",
   "scripts": {
     "start": "creact index.tsx",
     "typecheck": "tsc --noEmit"

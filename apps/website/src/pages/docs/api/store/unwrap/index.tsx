@@ -5,7 +5,7 @@ import ApiReference from "@/shared/components/api-reference";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/store/unwrap.ts";
+const samples = "api-cookbook/src/store/unwrap.ts";
 
 const Unwrap: Component = () => {
   return (

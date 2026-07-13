@@ -15,7 +15,12 @@
     // Workspace self-dependency: packages/testing imports @creact-labs/creact
     // (render, Memory types), but the dep points at the unbuilt dist/ so the
     // analyzer can't attribute the imports to it.
-    "@creact-labs/creact"
+    "@creact-labs/creact",
+    // Same limitation for the example-app workspaces: their imports resolve
+    // through libs/examples tsconfig paths to unbuilt package source, so the
+    // analyzer can't attribute them to each app's package.json dependency.
+    "@creact-labs/example-memory",
+    "@creact-labs/example-demo-site"
   ],
 
   // Memory backends implement the creact `Memory` interface — their methods

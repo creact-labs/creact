@@ -8,7 +8,7 @@ import DocTable from "@/shared/components/doc-table";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/components/error-boundary.tsx";
+const samples = "api-cookbook/src/components/error-boundary.tsx";
 
 const ErrorBoundaryApi: Component = () => {
   return (

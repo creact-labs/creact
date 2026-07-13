@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "getting-started-tour/src/reactive-primitives.ts";
+const samples = "durable-counter/src/reactive-primitives.ts";
 
 const ReactivePrimitives: Component = () => {
   return (

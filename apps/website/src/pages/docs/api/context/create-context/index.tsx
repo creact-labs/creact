@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/context/create-context.tsx";
+const samples = "api-cookbook/src/context/create-context.tsx";
 
 const CreateContext: Component = () => {
   return (

@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "guides-tour/src/environment-variables.tsx";
+const samples = "integrations/src/environment-variables.tsx";
 
 const EnvironmentVariables: Component = () => {
   return (

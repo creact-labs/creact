@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "guides-tour/src/aws-integration.tsx";
+const samples = "integrations/src/aws-integration.tsx";
 
 const AwsIntegration: Component = () => {
   return (

@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "api-tour/src/reactive/on.ts";
+const samples = "api-cookbook/src/reactive/on.ts";
 
 const On: Component = () => {
   return (

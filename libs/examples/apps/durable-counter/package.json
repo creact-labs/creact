@@ -1,9 +1,9 @@
 {
-  "name": "@creact-labs/example-getting-started-tour",
+  "name": "@creact-labs/example-durable-counter",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Tour of the getting-started docs — every code sample on those pages is a region of this app, so samples always typecheck against the library",
+  "description": "A counter that survives restarts — the canonical durable-state first app",
   "scripts": {
     "start": "creact index.tsx",
     "typecheck": "tsc --noEmit"

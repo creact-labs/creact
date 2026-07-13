@@ -30,5 +30,5 @@ function Tour() {
 }
 
 export default async function () {
-  return render(() => <Tour key="tour" />, createMemory(), "api-tour");
+  return render(() => <Tour key="tour" />, createMemory(), "api-cookbook");
 }

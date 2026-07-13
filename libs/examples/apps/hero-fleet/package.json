@@ -3,13 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "AI-driven site generator fleet — the CReact app shown on the landing page",
+  "description": "AI-driven site generator fleet \u2014 the CReact app shown on the landing page",
   "scripts": {
     "start": "creact index.tsx",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@creact-labs/creact": "*"
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-memory": "*",
+    "@creact-labs/example-demo-site": "*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

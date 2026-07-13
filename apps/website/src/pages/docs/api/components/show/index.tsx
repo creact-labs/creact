@@ -7,7 +7,7 @@ import DocHeading from "@/shared/components/doc-heading";
 import DocTable from "@/shared/components/doc-table";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "api-tour/src/components/show.tsx";
+const samples = "api-cookbook/src/components/show.tsx";
 
 const ShowApi: Component = () => {
   return (

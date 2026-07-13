@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "guides-tour/src/typescript.tsx";
+const samples = "integrations/src/typescript.tsx";
 
 const Typescript: Component = () => {
   return (

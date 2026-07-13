@@ -6,7 +6,7 @@ import Callout from "@/shared/components/callout";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/reactive/create-render-effect.ts";
+const samples = "api-cookbook/src/reactive/create-render-effect.ts";
 
 const CreateRenderEffect: Component = () => {
   return (

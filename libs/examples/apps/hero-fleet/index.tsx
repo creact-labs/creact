@@ -5,7 +5,7 @@
  */
 import { render } from "@creact-labs/creact";
 import { App } from "./src/app";
-import { createMemory } from "./src/shared/memory";
+import { createMemory } from "@creact-labs/example-memory";
 
 export default async function () {
   return render(() => <App />, createMemory(), "hero-fleet");

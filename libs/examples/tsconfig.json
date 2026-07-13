@@ -13,8 +13,10 @@
       "@creact-labs/creact": ["../../packages/creact/src/index.ts"],
       "@creact-labs/creact/jsx-runtime": [
         "../../packages/creact/src/jsx/jsx-runtime.ts"
-      ]
+      ],
+      "@creact-labs/example-memory": ["packages/memory/src/index.ts"],
+      "@creact-labs/example-demo-site": ["packages/demo-site/src/index.tsx"]
     }
   },
-  "include": ["apps/**/*", "shared/**/*"]
+  "include": ["apps/**/*", "packages/**/*"]
 }

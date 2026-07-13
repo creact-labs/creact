@@ -8,7 +8,7 @@ import DocTable from "@/shared/components/doc-table";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/runtime/create-runtime.tsx";
+const samples = "api-cookbook/src/runtime/create-runtime.tsx";
 
 const CreateRuntime: Component = () => {
   return (

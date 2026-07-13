@@ -7,7 +7,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/lifecycle/on-cleanup.ts";
+const samples = "api-cookbook/src/lifecycle/on-cleanup.ts";
 
 const OnCleanup: Component = () => {
   return (

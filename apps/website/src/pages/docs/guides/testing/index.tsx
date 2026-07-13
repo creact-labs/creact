@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "guides-tour/src/testing.tsx";
+const samples = "integrations/src/testing.tsx";
 
 const Testing: Component = () => {
   return (

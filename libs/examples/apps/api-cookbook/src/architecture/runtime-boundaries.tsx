@@ -18,7 +18,7 @@ function App(_props: { region?: string }) {
 }
 
 // Minimal in-memory ledger used by the fleet and detach samples
-import { createMemory } from "../../../../shared/memory";
+import { createMemory } from "@creact-labs/example-memory";
 
 const tenantBMemory = createMemory();
 

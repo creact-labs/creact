@@ -6,7 +6,7 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import RichText from "@/shared/components/rich-text";
 
-const samples = "getting-started-tour/src/state-and-memory.tsx";
+const samples = "durable-counter/src/state-and-memory.tsx";
 
 const StateAndMemory: Component = () => {
   return (
@@ -39,7 +39,7 @@ const StateAndMemory: Component = () => {
       </DocHeading>
       <p>{t("docs.getting_started.state_and_memory.file_memory_intro")}</p>
       <DocCodeBlock
-        code={codeSample("getting-started-tour/src/memory.ts", "file-memory")}
+        code={codeSample("durable-counter/src/memory.ts", "file-memory")}
         filename={t(
           "docs.getting_started.state_and_memory.filename_src_memory",
         )}
@@ -49,7 +49,7 @@ const StateAndMemory: Component = () => {
         {t("docs.getting_started.state_and_memory.heading_using_memory")}
       </DocHeading>
       <DocCodeBlock
-        code={codeSample("getting-started-tour/index.tsx", "using-memory")}
+        code={codeSample("durable-counter/index.tsx", "using-memory")}
         filename={t("docs.getting_started.state_and_memory.filename_index_tsx")}
       />
 

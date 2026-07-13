@@ -5,7 +5,7 @@ import ApiReference from "@/shared/components/api-reference";
 import RichText from "@/shared/components/rich-text";
 import UsageSection from "@/shared/components/usage-section";
 
-const samples = "api-tour/src/reactive/create-reaction.ts";
+const samples = "api-cookbook/src/reactive/create-reaction.ts";
 
 const CreateReaction: Component = () => {
   return (

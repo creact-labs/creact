@@ -1,15 +1,17 @@
 {
-  "name": "@creact-labs/example-api-tour",
+  "name": "@creact-labs/example-api-cookbook",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Tour of the CReact API — every docs code sample is a region of this app, so samples always typecheck against the library",
+  "description": "Cookbook of every CReact core API \u2014 each docs API page displays regions of these modules",
   "scripts": {
     "start": "creact index.tsx",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@creact-labs/creact": "*"
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-memory": "*",
+    "@creact-labs/example-demo-site": "*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
