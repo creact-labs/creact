@@ -12,7 +12,7 @@ const httpCheckFile = "uptime-monitor/src/components/http-check/index.tsx";
 const statusPageFile = "uptime-monitor/src/components/status-page/index.tsx";
 const alertFile = "uptime-monitor/src/components/alert/index.tsx";
 
-const UptimeMonitor: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.examples.uptime_monitor.title")}</h1>
@@ -22,7 +22,13 @@ const UptimeMonitor: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function RunItRun() {
+  return (
+    <>
       <DocHeading level={2} id="run-it">
         {t("docs.examples.uptime_monitor.heading_run")}
       </DocHeading>
@@ -50,6 +56,13 @@ const UptimeMonitor: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
+
+function RunItEntry() {
+  return (
+    <>
       <p>
         <Trans
           k="docs.examples.uptime_monitor.entry_intro"
@@ -66,7 +79,13 @@ const UptimeMonitor: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function TheTargets() {
+  return (
+    <>
       <DocHeading level={2} id="the-targets">
         {t("docs.examples.uptime_monitor.heading_targets")}
       </DocHeading>
@@ -92,7 +111,13 @@ const UptimeMonitor: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Probing() {
+  return (
+    <>
       <DocHeading level={2} id="probing">
         {t("docs.examples.uptime_monitor.heading_probing")}
       </DocHeading>
@@ -139,7 +164,13 @@ const UptimeMonitor: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function DurableTallies() {
+  return (
+    <>
       <DocHeading level={2} id="durable-tallies">
         {t("docs.examples.uptime_monitor.heading_tallies")}
       </DocHeading>
@@ -184,7 +215,13 @@ const UptimeMonitor: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function DerivingStatus() {
+  return (
+    <>
       <DocHeading level={2} id="deriving-status">
         {t("docs.examples.uptime_monitor.heading_deriving")}
       </DocHeading>
@@ -210,7 +247,13 @@ const UptimeMonitor: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function RenderingTheTree() {
+  return (
+    <>
       <DocHeading level={2} id="rendering-the-tree">
         {t("docs.examples.uptime_monitor.heading_tree")}
       </DocHeading>
@@ -236,7 +279,13 @@ const UptimeMonitor: Component = () => {
         filename={t("docs.examples.uptime_monitor.filename_app")}
       />
       <p>{t("docs.examples.uptime_monitor.fault_note")}</p>
+    </>
+  );
+}
 
+function TheStatusPage() {
+  return (
+    <>
       <DocHeading level={2} id="the-status-page">
         {t("docs.examples.uptime_monitor.heading_status_page")}
       </DocHeading>
@@ -273,7 +322,13 @@ const UptimeMonitor: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function AlertingOnce() {
+  return (
+    <>
       <DocHeading level={2} id="alerting-once">
         {t("docs.examples.uptime_monitor.heading_alerting")}
       </DocHeading>
@@ -304,7 +359,13 @@ const UptimeMonitor: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Recap() {
+  return (
+    <>
       <DocHeading level={2} id="recap">
         {t("docs.examples.uptime_monitor.heading_recap")}
       </DocHeading>
@@ -354,7 +415,13 @@ const UptimeMonitor: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function ApisUsed() {
+  return (
+    <>
       <DocHeading level={2} id="apis-used">
         {t("docs.examples.uptime_monitor.heading_apis")}
       </DocHeading>
@@ -394,42 +461,69 @@ const UptimeMonitor: Component = () => {
             {t("docs.examples.uptime_monitor.api_on")}
           </TextLink>
         </li>
-        <li>
-          <TextLink href="#/docs/api/lifecycle/on-mount">
-            {t("docs.examples.uptime_monitor.api_on_mount")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/lifecycle/on-cleanup">
-            {t("docs.examples.uptime_monitor.api_on_cleanup")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/reactive/create-reaction">
-            {t("docs.examples.uptime_monitor.api_create_reaction")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/components/show">
-            {t("docs.examples.uptime_monitor.api_show")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/components/for">
-            {t("docs.examples.uptime_monitor.api_for")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/components/switch-match">
-            {t("docs.examples.uptime_monitor.api_switch_match")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/components/error-boundary">
-            {t("docs.examples.uptime_monitor.api_error_boundary")}
-          </TextLink>
-        </li>
+        <ApisUsedRest />
       </ul>
+    </>
+  );
+}
+
+function ApisUsedRest() {
+  return (
+    <>
+      <li>
+        <TextLink href="#/docs/api/lifecycle/on-mount">
+          {t("docs.examples.uptime_monitor.api_on_mount")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/lifecycle/on-cleanup">
+          {t("docs.examples.uptime_monitor.api_on_cleanup")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/reactive/create-reaction">
+          {t("docs.examples.uptime_monitor.api_create_reaction")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/components/show">
+          {t("docs.examples.uptime_monitor.api_show")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/components/for">
+          {t("docs.examples.uptime_monitor.api_for")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/components/switch-match">
+          {t("docs.examples.uptime_monitor.api_switch_match")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/components/error-boundary">
+          {t("docs.examples.uptime_monitor.api_error_boundary")}
+        </TextLink>
+      </li>
+    </>
+  );
+}
+
+const UptimeMonitor: Component = () => {
+  return (
+    <>
+      <Intro />
+      <RunItRun />
+      <RunItEntry />
+      <TheTargets />
+      <Probing />
+      <DurableTallies />
+      <DerivingStatus />
+      <RenderingTheTree />
+      <TheStatusPage />
+      <AlertingOnce />
+      <Recap />
+      <ApisUsed />
     </>
   );
 };

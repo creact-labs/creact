@@ -12,7 +12,7 @@ const fileMemory = "packages/file-memory/src/index.ts";
 const entry = "durable-counter/index.tsx";
 const app = "durable-counter/src/app.tsx";
 
-const StateAndMemory: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.state_and_memory.title")}</h1>
@@ -29,7 +29,13 @@ const StateAndMemory: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function MemoryInterface() {
+  return (
+    <>
       <DocHeading level={2} id="memory-interface">
         {t("docs.getting_started.state_and_memory.heading_memory_interface")}
       </DocHeading>
@@ -43,7 +49,13 @@ const StateAndMemory: Component = () => {
         code={codeSample(fileMemory, "file-memory")}
         filename={t("docs.getting_started.state_and_memory.filename_memory")}
       />
+    </>
+  );
+}
 
+function UsingMemory() {
+  return (
+    <>
       <DocHeading level={2} id="using-memory">
         {t("docs.getting_started.state_and_memory.heading_using_memory")}
       </DocHeading>
@@ -66,7 +78,13 @@ const StateAndMemory: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function UseAsyncOutput() {
+  return (
+    <>
       <DocHeading level={2} id="useAsyncOutput">
         {t("docs.getting_started.state_and_memory.heading_use_async_output")}
       </DocHeading>
@@ -80,7 +98,13 @@ const StateAndMemory: Component = () => {
         code={codeSample(app, "counter-handler")}
         filename={t("docs.getting_started.state_and_memory.filename_app")}
       />
+    </>
+  );
+}
 
+function WhatGetsPersisted() {
+  return (
+    <>
       <DocHeading level={2} id="what-gets-persisted">
         {t(
           "docs.getting_started.state_and_memory.heading_what_gets_persisted",
@@ -116,6 +140,16 @@ const StateAndMemory: Component = () => {
       </p>
     </>
   );
-};
+}
+
+const StateAndMemory: Component = () => (
+  <>
+    <Intro />
+    <MemoryInterface />
+    <UsingMemory />
+    <UseAsyncOutput />
+    <WhatGetsPersisted />
+  </>
+);
 
 export default StateAndMemory;

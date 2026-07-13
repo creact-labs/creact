@@ -12,14 +12,20 @@ const httpChannel = "page-writer/src/components/http-channel/index.tsx";
 const page = "page-writer/src/components/page/index.tsx";
 const htmlWriter = "page-writer/src/claude/html-writer/index.ts";
 
-const PageWriter: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.examples.page_writer.title")}</h1>
       <p class="docs-description">
         {t("docs.examples.page_writer.description")}
       </p>
+    </>
+  );
+}
 
+function Setup() {
+  return (
+    <>
       <DocHeading level={2} id="setup">
         {t("docs.examples.page_writer.heading_setup")}
       </DocHeading>
@@ -34,7 +40,13 @@ const PageWriter: Component = () => {
         code={t("docs.examples.page_writer.code_setup")}
         filename={t("docs.examples.page_writer.filename_terminal")}
       />
+    </>
+  );
+}
 
+function RunItInvoke() {
+  return (
+    <>
       <DocHeading level={2} id="run-it">
         {t("docs.examples.page_writer.heading_run")}
       </DocHeading>
@@ -61,6 +73,13 @@ const PageWriter: Component = () => {
         code={t("docs.examples.page_writer.code_curl_create_response")}
         filename={t("docs.examples.page_writer.filename_response")}
       />
+    </>
+  );
+}
+
+function RunItList() {
+  return (
+    <>
       <p>{t("docs.examples.page_writer.run_list_intro")}</p>
       <DocCodeBlock
         lang="bash"
@@ -73,7 +92,13 @@ const PageWriter: Component = () => {
           components={[Code, Code, Code, Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function TreeAtAGlance() {
+  return (
+    <>
       <DocHeading level={2} id="tree-at-a-glance">
         {t("docs.examples.page_writer.heading_tree")}
       </DocHeading>
@@ -93,7 +118,13 @@ const PageWriter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function FailFast() {
+  return (
+    <>
       <DocHeading level={2} id="fail-fast">
         {t("docs.examples.page_writer.heading_fail_fast")}
       </DocHeading>
@@ -108,7 +139,13 @@ const PageWriter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function RequestLedger() {
+  return (
+    <>
       <DocHeading level={2} id="request-ledger">
         {t("docs.examples.page_writer.heading_ledger")}
       </DocHeading>
@@ -123,7 +160,13 @@ const PageWriter: Component = () => {
           components={[Code, Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function WiringTheFleet() {
+  return (
+    <>
       <DocHeading level={2} id="wiring-the-fleet">
         {t("docs.examples.page_writer.heading_wiring")}
       </DocHeading>
@@ -138,7 +181,13 @@ const PageWriter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function HttpChannel() {
+  return (
+    <>
       <DocHeading level={2} id="http-channel">
         {t("docs.examples.page_writer.heading_http")}
       </DocHeading>
@@ -175,7 +224,13 @@ const PageWriter: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function PageLifecycle() {
+  return (
+    <>
       <DocHeading level={2} id="page-lifecycle">
         {t("docs.examples.page_writer.heading_lifecycle")}
       </DocHeading>
@@ -217,7 +272,13 @@ const PageWriter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function TalkingToClaude() {
+  return (
+    <>
       <DocHeading level={2} id="talking-to-claude">
         {t("docs.examples.page_writer.heading_claude")}
       </DocHeading>
@@ -257,7 +318,13 @@ const PageWriter: Component = () => {
           components={[Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function WatchingItSettle() {
+  return (
+    <>
       <DocHeading level={2} id="watching-it-settle">
         {t("docs.examples.page_writer.heading_settle")}
       </DocHeading>
@@ -272,7 +339,13 @@ const PageWriter: Component = () => {
           components={[Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Checkpoint() {
+  return (
+    <>
       <DocHeading level={2} id="checkpoint">
         {t("docs.examples.page_writer.heading_checkpoint")}
       </DocHeading>
@@ -288,7 +361,13 @@ const PageWriter: Component = () => {
           components={[Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Recap() {
+  return (
+    <>
       <DocHeading level={2} id="recap">
         {t("docs.examples.page_writer.heading_recap")}
       </DocHeading>
@@ -315,7 +394,13 @@ const PageWriter: Component = () => {
           />
         </li>
       </ul>
+    </>
+  );
+}
 
+function Challenge() {
+  return (
+    <>
       <DocHeading level={2} id="challenge">
         {t("docs.examples.page_writer.heading_challenge")}
       </DocHeading>
@@ -325,7 +410,13 @@ const PageWriter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ApisUsed() {
+  return (
+    <>
       <DocHeading level={2} id="apis-used">
         {t("docs.examples.page_writer.heading_apis")}
       </DocHeading>
@@ -376,6 +467,29 @@ const PageWriter: Component = () => {
           </TextLink>
         </li>
       </ul>
+    </>
+  );
+}
+
+const PageWriter: Component = () => {
+  return (
+    <>
+      <Intro />
+      <Setup />
+      <RunItInvoke />
+      <RunItList />
+      <TreeAtAGlance />
+      <FailFast />
+      <RequestLedger />
+      <WiringTheFleet />
+      <HttpChannel />
+      <PageLifecycle />
+      <TalkingToClaude />
+      <WatchingItSettle />
+      <Checkpoint />
+      <Recap />
+      <Challenge />
+      <ApisUsed />
     </>
   );
 };

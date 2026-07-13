@@ -8,14 +8,20 @@ import TextLink from "@/shared/components/text-link";
 
 const app = "durable-counter/src/app.tsx";
 
-const DurableCounter: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.examples.durable_counter.title")}</h1>
       <p class="docs-description">
         {t("docs.examples.durable_counter.description")}
       </p>
+    </>
+  );
+}
 
+function RunIt() {
+  return (
+    <>
       <DocHeading level={2} id="run-it">
         {t("docs.examples.durable_counter.heading_run")}
       </DocHeading>
@@ -50,7 +56,13 @@ const DurableCounter: Component = () => {
       <p>
         <Trans k="docs.examples.durable_counter.run_note" components={[Code]} />
       </p>
+    </>
+  );
+}
 
+function EntryPoint() {
+  return (
+    <>
       <DocHeading level={2} id="entry-point">
         {t("docs.examples.durable_counter.heading_entry")}
       </DocHeading>
@@ -70,7 +82,13 @@ const DurableCounter: Component = () => {
           components={[Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function FileMemory() {
+  return (
+    <>
       <DocHeading level={2} id="file-memory">
         {t("docs.examples.durable_counter.heading_file_memory")}
       </DocHeading>
@@ -90,7 +108,13 @@ const DurableCounter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function CounterHandler() {
+  return (
+    <>
       <DocHeading level={2} id="counter-handler">
         {t("docs.examples.durable_counter.heading_handler")}
       </DocHeading>
@@ -106,7 +130,13 @@ const DurableCounter: Component = () => {
         />
       </p>
       <p>{t("docs.examples.durable_counter.handler_rerun_notice")}</p>
+    </>
+  );
+}
 
+function CounterComponent() {
+  return (
+    <>
       <DocHeading level={2} id="counter-component">
         {t("docs.examples.durable_counter.heading_counter")}
       </DocHeading>
@@ -126,7 +156,13 @@ const DurableCounter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function AppSection() {
+  return (
+    <>
       <DocHeading level={2} id="app">
         {t("docs.examples.durable_counter.heading_app")}
       </DocHeading>
@@ -141,7 +177,13 @@ const DurableCounter: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Recap() {
+  return (
+    <>
       <DocHeading level={2} id="recap">
         {t("docs.examples.durable_counter.heading_recap")}
       </DocHeading>
@@ -161,7 +203,13 @@ const DurableCounter: Component = () => {
         <li>{t("docs.examples.durable_counter.recap_rerun")}</li>
         <li>{t("docs.examples.durable_counter.recap_cleanup")}</li>
       </ul>
+    </>
+  );
+}
 
+function ApisUsed() {
+  return (
+    <>
       <DocHeading level={2} id="apis-used">
         {t("docs.examples.durable_counter.heading_apis")}
       </DocHeading>
@@ -187,13 +235,36 @@ const DurableCounter: Component = () => {
           </TextLink>
         </li>
       </ul>
+    </>
+  );
+}
 
+function TryIt() {
+  return (
+    <>
       <DocHeading level={2} id="try-it">
         {t("docs.examples.durable_counter.heading_try")}
       </DocHeading>
       <p>
         <Trans k="docs.examples.durable_counter.try_it" components={[Code]} />
       </p>
+    </>
+  );
+}
+
+const DurableCounter: Component = () => {
+  return (
+    <>
+      <Intro />
+      <RunIt />
+      <EntryPoint />
+      <FileMemory />
+      <CounterHandler />
+      <CounterComponent />
+      <AppSection />
+      <Recap />
+      <ApisUsed />
+      <TryIt />
     </>
   );
 };

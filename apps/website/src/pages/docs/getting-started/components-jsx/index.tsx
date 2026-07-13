@@ -10,14 +10,20 @@ import Strong from "@/shared/components/strong";
 const counterApp = "durable-counter/src/app.tsx";
 const monitorApp = "uptime-monitor/src/app.tsx";
 
-const ComponentsJsx: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.components_jsx.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.components_jsx.description")}
       </p>
+    </>
+  );
+}
 
+function WhatIsJsx() {
+  return (
+    <>
       <DocHeading level={2} id="what-is-jsx">
         {t("docs.getting_started.components_jsx.heading_jsx")}
       </DocHeading>
@@ -31,7 +37,13 @@ const ComponentsJsx: Component = () => {
         code={codeSample(counterApp, "app")}
         filename={t("docs.getting_started.components_jsx.filename_app")}
       />
+    </>
+  );
+}
 
+function ComponentFunctions() {
+  return (
+    <>
       <DocHeading level={2} id="component-functions">
         {t("docs.getting_started.components_jsx.heading_component_functions")}
       </DocHeading>
@@ -45,7 +57,13 @@ const ComponentsJsx: Component = () => {
         code={codeSample(counterApp, "counter")}
         filename={t("docs.getting_started.components_jsx.filename_app")}
       />
+    </>
+  );
+}
 
+function ComposingResources() {
+  return (
+    <>
       <DocHeading level={2} id="composing-resources">
         {t("docs.getting_started.components_jsx.heading_composing")}
       </DocHeading>
@@ -70,6 +88,15 @@ const ComponentsJsx: Component = () => {
       </Callout>
     </>
   );
-};
+}
+
+const ComponentsJsx: Component = () => (
+  <>
+    <Intro />
+    <WhatIsJsx />
+    <ComponentFunctions />
+    <ComposingResources />
+  </>
+);
 
 export default ComponentsJsx;

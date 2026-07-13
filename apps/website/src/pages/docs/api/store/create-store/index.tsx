@@ -9,100 +9,121 @@ import TextLink from "@/shared/components/text-link";
 
 const manifest = "site-publisher/src/shared/manifest/index.ts";
 
+const Intro = () => (
+  <>
+    <h1>{t("docs.api.store.create_store.title")}</h1>
+    <p class="docs-description">
+      {t("docs.api.store.create_store.description")}
+    </p>
+  </>
+);
+
+const Reference = () => (
+  <ApiReference
+    name={t("docs.api.store.create_store.title")}
+    signature={t("docs.api.store.create_store.signature")}
+    parameters={[
+      [
+        <Trans
+          k="docs.api.store.create_store.param_value_name"
+          components={[Code]}
+        />,
+        <Trans
+          k="docs.api.store.create_store.param_value_type"
+          components={[Code]}
+        />,
+        <Trans k="docs.api.store.create_store.param_value_desc" />,
+      ],
+    ]}
+    returns={
+      <>
+        <p>
+          <Trans
+            k="docs.api.store.create_store.returns_intro"
+            components={[Code]}
+          />
+        </p>
+        <ul>
+          <li>
+            <Trans
+              k="docs.api.store.create_store.returns_store"
+              components={[Code]}
+            />
+          </li>
+          <li>
+            <Trans
+              k="docs.api.store.create_store.returns_setstore"
+              components={[Code]}
+            />
+          </li>
+        </ul>
+      </>
+    }
+  />
+);
+
+const ManifestShape = () => (
+  <>
+    <DocHeading level={3} id="the-manifest-shape">
+      {t("docs.api.store.create_store.heading_the_manifest_shape")}
+    </DocHeading>
+    <p>
+      <Trans
+        k="docs.api.store.create_store.usage_the_manifest_shape"
+        components={[Code, Code]}
+      />
+    </p>
+    <DocCodeBlock
+      code={codeSample(manifest, "manifest-shape")}
+      filename={t("docs.api.store.create_store.filename_manifest")}
+    />
+  </>
+);
+
+const ReactiveManifest = () => (
+  <>
+    <DocHeading level={3} id="a-reactive-manifest">
+      {t("docs.api.store.create_store.heading_a_reactive_manifest")}
+    </DocHeading>
+    <p>
+      <Trans
+        k="docs.api.store.create_store.usage_a_reactive_manifest"
+        components={[Code, Code]}
+      />
+    </p>
+    <DocCodeBlock
+      code={codeSample(manifest, "manifest-store")}
+      filename={t("docs.api.store.create_store.filename_manifest")}
+    />
+  </>
+);
+
+const InTheWild = () => (
+  <p>
+    <Trans
+      k="docs.api.store.create_store.in_the_wild"
+      components={[
+        (props) => (
+          <TextLink href="#/docs/examples/site-publisher">
+            {props.children}
+          </TextLink>
+        ),
+      ]}
+    />
+  </p>
+);
+
 const CreateStore: Component = () => {
   return (
     <>
-      <h1>{t("docs.api.store.create_store.title")}</h1>
-      <p class="docs-description">
-        {t("docs.api.store.create_store.description")}
-      </p>
-
-      <ApiReference
-        name={t("docs.api.store.create_store.title")}
-        signature={t("docs.api.store.create_store.signature")}
-        parameters={[
-          [
-            <Trans
-              k="docs.api.store.create_store.param_value_name"
-              components={[Code]}
-            />,
-            <Trans
-              k="docs.api.store.create_store.param_value_type"
-              components={[Code]}
-            />,
-            <Trans k="docs.api.store.create_store.param_value_desc" />,
-          ],
-        ]}
-        returns={
-          <>
-            <p>
-              <Trans
-                k="docs.api.store.create_store.returns_intro"
-                components={[Code]}
-              />
-            </p>
-            <ul>
-              <li>
-                <Trans
-                  k="docs.api.store.create_store.returns_store"
-                  components={[Code]}
-                />
-              </li>
-              <li>
-                <Trans
-                  k="docs.api.store.create_store.returns_setstore"
-                  components={[Code]}
-                />
-              </li>
-            </ul>
-          </>
-        }
-      />
-
+      <Intro />
+      <Reference />
       <DocHeading level={2} id="usage">
         {t("docs.ui.usage")}
       </DocHeading>
-
-      <DocHeading level={3} id="the-manifest-shape">
-        {t("docs.api.store.create_store.heading_the_manifest_shape")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.api.store.create_store.usage_the_manifest_shape"
-          components={[Code, Code]}
-        />
-      </p>
-      <DocCodeBlock
-        code={codeSample(manifest, "manifest-shape")}
-        filename={t("docs.api.store.create_store.filename_manifest")}
-      />
-
-      <DocHeading level={3} id="a-reactive-manifest">
-        {t("docs.api.store.create_store.heading_a_reactive_manifest")}
-      </DocHeading>
-      <p>
-        <Trans
-          k="docs.api.store.create_store.usage_a_reactive_manifest"
-          components={[Code, Code]}
-        />
-      </p>
-      <DocCodeBlock
-        code={codeSample(manifest, "manifest-store")}
-        filename={t("docs.api.store.create_store.filename_manifest")}
-      />
-
-      <p>
-        <Trans
-          k="docs.api.store.create_store.in_the_wild"
-          components={[
-            (props) => (
-              <TextLink href="#/docs/examples/site-publisher">
-                {props.children}
-              </TextLink>
-            ),
-          ]}
-        />
-      </p>
+      <ManifestShape />
+      <ReactiveManifest />
+      <InTheWild />
     </>
   );
 };

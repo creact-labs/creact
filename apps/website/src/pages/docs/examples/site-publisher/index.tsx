@@ -14,14 +14,20 @@ const bucketFile = "site-publisher/src/aws/site-bucket/index.tsx";
 const objectFile = "site-publisher/src/aws/site-object/index.tsx";
 const entryFile = "site-publisher/index.tsx";
 
-const SitePublisher: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.examples.site_publisher.title")}</h1>
       <p class="docs-description">
         {t("docs.examples.site_publisher.description")}
       </p>
+    </>
+  );
+}
 
+function Setup() {
+  return (
+    <>
       <DocHeading level={2} id="setup">
         {t("docs.examples.site_publisher.heading_setup")}
       </DocHeading>
@@ -57,7 +63,6 @@ const SitePublisher: Component = () => {
           />
         </li>
       </ul>
-
       <Callout type="warning">
         <p>{t("docs.examples.site_publisher.warning_real_aws")}</p>
         <p>
@@ -67,7 +72,13 @@ const SitePublisher: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function RunIt() {
+  return (
+    <>
       <DocHeading level={2} id="run-it">
         {t("docs.examples.site_publisher.heading_run")}
       </DocHeading>
@@ -84,7 +95,13 @@ const SitePublisher: Component = () => {
         filename={t("docs.examples.site_publisher.filename_terminal")}
       />
       <p>{t("docs.examples.site_publisher.run_outro")}</p>
+    </>
+  );
+}
 
+function FailingFast() {
+  return (
+    <>
       <DocHeading level={2} id="failing-fast">
         {t("docs.examples.site_publisher.heading_failing_fast")}
       </DocHeading>
@@ -94,7 +111,13 @@ const SitePublisher: Component = () => {
         filename={t("docs.examples.site_publisher.filename_app")}
       />
       <p>{t("docs.examples.site_publisher.failing_fast_outro")}</p>
+    </>
+  );
+}
 
+function TheManifest() {
+  return (
+    <>
       <DocHeading level={2} id="the-manifest">
         {t("docs.examples.site_publisher.heading_manifest")}
       </DocHeading>
@@ -104,21 +127,25 @@ const SitePublisher: Component = () => {
         filename={t("docs.examples.site_publisher.filename_manifest")}
       />
       <p>{t("docs.examples.site_publisher.manifest_shape_outro")}</p>
-
       <p>{t("docs.examples.site_publisher.walk_intro")}</p>
       <DocCodeBlock
         code={codeSample(manifestFile, "walk")}
         filename={t("docs.examples.site_publisher.filename_manifest")}
       />
       <p>{t("docs.examples.site_publisher.walk_outro")}</p>
-
       <p>{t("docs.examples.site_publisher.hashing_intro")}</p>
       <DocCodeBlock
         code={codeSample(manifestFile, "hashing")}
         filename={t("docs.examples.site_publisher.filename_manifest")}
       />
       <p>{t("docs.examples.site_publisher.hashing_outro")}</p>
+    </>
+  );
+}
 
+function ManifestStore() {
+  return (
+    <>
       <p>
         <Trans
           k="docs.examples.site_publisher.manifest_store_intro"
@@ -135,7 +162,6 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>{t("docs.examples.site_publisher.app_store_intro")}</p>
       <DocCodeBlock
         code={codeSample(appFile, "manifest-store")}
@@ -147,7 +173,13 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ProviderBoundary() {
+  return (
+    <>
       <DocHeading level={2} id="provider-boundary">
         {t("docs.examples.site_publisher.heading_provider")}
       </DocHeading>
@@ -162,7 +194,6 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>
         <Trans
           k="docs.examples.site_publisher.provider_intro"
@@ -179,7 +210,6 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
-
       <p>{t("docs.examples.site_publisher.use_aws_intro")}</p>
       <DocCodeBlock
         code={codeSample(providerFile, "use-aws")}
@@ -191,7 +221,13 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function BucketDefaults() {
+  return (
+    <>
       <DocHeading level={2} id="bucket-resource">
         {t("docs.examples.site_publisher.heading_bucket")}
       </DocHeading>
@@ -211,7 +247,6 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
-
       <p>
         <Trans
           k="docs.examples.site_publisher.ensure_bucket_intro"
@@ -228,14 +263,12 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>{t("docs.examples.site_publisher.public_access_intro")}</p>
       <DocCodeBlock
         code={codeSample(bucketFile, "public-access")}
         filename={t("docs.examples.site_publisher.filename_bucket")}
       />
       <p>{t("docs.examples.site_publisher.public_access_outro")}</p>
-
       <p>{t("docs.examples.site_publisher.policy_intro")}</p>
       <DocCodeBlock
         code={codeSample(bucketFile, "public-read-policy")}
@@ -247,7 +280,13 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function BucketWebsite() {
+  return (
+    <>
       <p>{t("docs.examples.site_publisher.website_config_intro")}</p>
       <DocCodeBlock
         code={codeSample(bucketFile, "website-config")}
@@ -259,7 +298,6 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
-
       <p>
         <Trans
           k="docs.examples.site_publisher.bucket_location_intro"
@@ -271,7 +309,6 @@ const SitePublisher: Component = () => {
         filename={t("docs.examples.site_publisher.filename_bucket")}
       />
       <p>{t("docs.examples.site_publisher.bucket_location_outro")}</p>
-
       <p>{t("docs.examples.site_publisher.site_url_intro")}</p>
       <DocCodeBlock
         code={codeSample(bucketFile, "site-url")}
@@ -283,7 +320,13 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function UploadingObjects() {
+  return (
+    <>
       <DocHeading level={2} id="uploading-objects">
         {t("docs.examples.site_publisher.heading_objects")}
       </DocHeading>
@@ -298,7 +341,14 @@ const SitePublisher: Component = () => {
         filename={t("docs.examples.site_publisher.filename_object")}
       />
       <p>{t("docs.examples.site_publisher.object_props_outro")}</p>
+      <UploadingObjectsUpload />
+    </>
+  );
+}
 
+function UploadingObjectsUpload() {
+  return (
+    <>
       <p>
         <Trans
           k="docs.examples.site_publisher.changed_check_intro"
@@ -315,7 +365,6 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>{t("docs.examples.site_publisher.upload_intro")}</p>
       <DocCodeBlock
         code={codeSample(objectFile, "upload")}
@@ -327,7 +376,6 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>
         <Trans
           k="docs.examples.site_publisher.content_type_intro"
@@ -344,7 +392,13 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function TheTree() {
+  return (
+    <>
       <DocHeading level={2} id="the-tree">
         {t("docs.examples.site_publisher.heading_tree")}
       </DocHeading>
@@ -359,7 +413,6 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
-
       <p>{t("docs.examples.site_publisher.entry_intro")}</p>
       <DocCodeBlock
         code={codeSample(entryFile, "entry-point")}
@@ -371,7 +424,13 @@ const SitePublisher: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Checkpoint() {
+  return (
+    <>
       <DocHeading level={2} id="checkpoint">
         {t("docs.examples.site_publisher.heading_checkpoint")}
       </DocHeading>
@@ -387,7 +446,13 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Recap() {
+  return (
+    <>
       <DocHeading level={2} id="recap">
         {t("docs.examples.site_publisher.heading_recap")}
       </DocHeading>
@@ -403,7 +468,13 @@ const SitePublisher: Component = () => {
         </li>
         <li>{t("docs.examples.site_publisher.recap_ordering")}</li>
       </ul>
+    </>
+  );
+}
 
+function Challenge() {
+  return (
+    <>
       <DocHeading level={2} id="challenge">
         {t("docs.examples.site_publisher.heading_challenge")}
       </DocHeading>
@@ -413,7 +484,13 @@ const SitePublisher: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ApisUsed() {
+  return (
+    <>
       <DocHeading level={2} id="apis-used">
         {t("docs.examples.site_publisher.heading_apis")}
       </DocHeading>
@@ -438,37 +515,67 @@ const SitePublisher: Component = () => {
             {t("docs.examples.site_publisher.api_unwrap")}
           </TextLink>
         </li>
-        <li>
-          <TextLink href="#/docs/api/components/for">
-            {t("docs.examples.site_publisher.api_for")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/props/merge-props">
-            {t("docs.examples.site_publisher.api_merge_props")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/props/split-props">
-            {t("docs.examples.site_publisher.api_split_props")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/props/children">
-            {t("docs.examples.site_publisher.api_children")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/props/access">
-            {t("docs.examples.site_publisher.api_access")}
-          </TextLink>
-        </li>
-        <li>
-          <TextLink href="#/docs/api/runtime/use-async-output">
-            {t("docs.examples.site_publisher.api_use_async_output")}
-          </TextLink>
-        </li>
+        <ApisUsedRest />
       </ul>
+    </>
+  );
+}
+
+function ApisUsedRest() {
+  return (
+    <>
+      <li>
+        <TextLink href="#/docs/api/components/for">
+          {t("docs.examples.site_publisher.api_for")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/props/merge-props">
+          {t("docs.examples.site_publisher.api_merge_props")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/props/split-props">
+          {t("docs.examples.site_publisher.api_split_props")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/props/children">
+          {t("docs.examples.site_publisher.api_children")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/props/access">
+          {t("docs.examples.site_publisher.api_access")}
+        </TextLink>
+      </li>
+      <li>
+        <TextLink href="#/docs/api/runtime/use-async-output">
+          {t("docs.examples.site_publisher.api_use_async_output")}
+        </TextLink>
+      </li>
+    </>
+  );
+}
+
+const SitePublisher: Component = () => {
+  return (
+    <>
+      <Intro />
+      <Setup />
+      <RunIt />
+      <FailingFast />
+      <TheManifest />
+      <ManifestStore />
+      <ProviderBoundary />
+      <BucketDefaults />
+      <BucketWebsite />
+      <UploadingObjects />
+      <TheTree />
+      <Checkpoint />
+      <Recap />
+      <Challenge />
+      <ApisUsed />
     </>
   );
 };

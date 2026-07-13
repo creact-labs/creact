@@ -11,12 +11,18 @@ const counterTest = "durable-counter/src/__tests__/app.test.tsx";
 const httpCheckTest =
   "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx";
 
-const Testing: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.testing.title")}</h1>
       <p class="docs-description">{t("docs.guides.testing.description")}</p>
+    </>
+  );
+}
 
+function SetupSection() {
+  return (
+    <>
       <DocHeading level={2} id="setup">
         {t("docs.guides.testing.heading_setup")}
       </DocHeading>
@@ -26,7 +32,13 @@ const Testing: Component = () => {
         code={t("docs.guides.testing.code_install")}
         filename={t("docs.guides.testing.filename_terminal")}
       />
+    </>
+  );
+}
 
+function RenderingSection() {
+  return (
+    <>
       <DocHeading level={2} id="rendering">
         {t("docs.guides.testing.heading_rendering")}
       </DocHeading>
@@ -46,7 +58,6 @@ const Testing: Component = () => {
         code={codeSample(counterTest, "render-test")}
         filename={t("docs.guides.testing.filename_counter_test")}
       />
-
       <Callout type="tip">
         <p>
           <Trans
@@ -55,7 +66,13 @@ const Testing: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function MockingSection() {
+  return (
+    <>
       <DocHeading level={2} id="mocking">
         {t("docs.guides.testing.heading_mocking")}
       </DocHeading>
@@ -75,19 +92,35 @@ const Testing: Component = () => {
         code={codeSample(httpCheckTest, "mock-fetch-test")}
         filename={t("docs.guides.testing.filename_http_check_test")}
       />
+    </>
+  );
+}
 
-      <p>
-        <Trans
-          k="docs.guides.testing.in_the_wild"
-          components={[
-            (props) => (
-              <TextLink href="#/docs/examples/uptime-monitor">
-                {props.children}
-              </TextLink>
-            ),
-          ]}
-        />
-      </p>
+function ClosingSection() {
+  return (
+    <p>
+      <Trans
+        k="docs.guides.testing.in_the_wild"
+        components={[
+          (props) => (
+            <TextLink href="#/docs/examples/uptime-monitor">
+              {props.children}
+            </TextLink>
+          ),
+        ]}
+      />
+    </p>
+  );
+}
+
+const Testing: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <SetupSection />
+      <RenderingSection />
+      <MockingSection />
+      <ClosingSection />
     </>
   );
 };

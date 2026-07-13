@@ -13,119 +13,145 @@ import UsageSection from "@/shared/components/usage-section";
 const tenantApp = "tenant-fleet/src/components/tenant-app/index.tsx";
 const fleet = "tenant-fleet/src/app.tsx";
 
+const Intro: Component = () => (
+  <>
+    <h1>{t("docs.api.runtime.create_runtime.title")}</h1>
+    <p class="docs-description">
+      {t("docs.api.runtime.create_runtime.description")}
+    </p>
+
+    <DocCodeBlock
+      code={codeSample(tenantApp, "runtime-wrap")}
+      filename={t("docs.api.runtime.create_runtime.hero_filename")}
+    />
+  </>
+);
+
+const Reference: Component = () => (
+  <ApiReference
+    name={t("docs.api.runtime.create_runtime.title")}
+    signature={t("docs.api.runtime.create_runtime.signature")}
+    parameters={[
+      [
+        <Trans
+          k="docs.api.runtime.create_runtime.param_root_name"
+          components={[Code]}
+        />,
+        <Trans
+          k="docs.api.runtime.create_runtime.param_root_type"
+          components={[Code]}
+        />,
+        <Trans k="docs.api.runtime.create_runtime.param_root_desc" />,
+      ],
+    ]}
+    returns={
+      <p>
+        <Trans
+          k="docs.api.runtime.create_runtime.returns_desc"
+          components={[Code, Code, Code]}
+        />
+      </p>
+    }
+  />
+);
+
+const OutputsIntro: Component = () => (
+  <>
+    <p>
+      <Trans
+        k="docs.api.runtime.create_runtime.usage_fleet"
+        components={[Code, Code, Code]}
+      />
+    </p>
+    <p>
+      <Trans
+        k="docs.api.runtime.create_runtime.outputs_intro"
+        components={[Code, Code, Code, Code, Code]}
+      />
+    </p>
+  </>
+);
+
+const OutputsTable: Component = () => (
+  <DocTable
+    headers={[
+      t("docs.api.runtime.create_runtime.outputs_table_output"),
+      t("docs.api.runtime.create_runtime.outputs_table_type"),
+      t("docs.api.runtime.create_runtime.outputs_table_meaning"),
+    ]}
+    rows={[
+      [
+        <Trans
+          k="docs.api.runtime.create_runtime.output_status_name"
+          components={[Code]}
+        />,
+        <Trans
+          k="docs.api.runtime.create_runtime.output_status_type"
+          components={[Code]}
+        />,
+        <Trans k="docs.api.runtime.create_runtime.output_status_desc" />,
+      ],
+      [
+        <Trans
+          k="docs.api.runtime.create_runtime.output_ready_name"
+          components={[Code]}
+        />,
+        <Trans
+          k="docs.api.runtime.create_runtime.output_ready_type"
+          components={[Code]}
+        />,
+        <Trans k="docs.api.runtime.create_runtime.output_ready_desc" />,
+      ],
+      [
+        <Trans
+          k="docs.api.runtime.create_runtime.output_error_name"
+          components={[Code]}
+        />,
+        <Trans
+          k="docs.api.runtime.create_runtime.output_error_type"
+          components={[Code]}
+        />,
+        <Trans k="docs.api.runtime.create_runtime.output_error_desc" />,
+      ],
+    ]}
+  />
+);
+
+const DetachCallout: Component = () => (
+  <Callout type="info">
+    <p>
+      <Trans
+        k="docs.api.runtime.create_runtime.callout_detach"
+        components={[
+          Em,
+          (props) => (
+            <TextLink href="#/docs/examples/tenant-fleet">
+              {props.children}
+            </TextLink>
+          ),
+        ]}
+      />
+    </p>
+  </Callout>
+);
+
+const Usage: Component = () => (
+  <UsageSection
+    code={codeSample(fleet, "fleet")}
+    filename={t("docs.api.runtime.create_runtime.usage_filename")}
+  >
+    <OutputsIntro />
+    <OutputsTable />
+    <DetachCallout />
+  </UsageSection>
+);
+
 const CreateRuntime: Component = () => {
   return (
     <>
-      <h1>{t("docs.api.runtime.create_runtime.title")}</h1>
-      <p class="docs-description">
-        {t("docs.api.runtime.create_runtime.description")}
-      </p>
-
-      <DocCodeBlock
-        code={codeSample(tenantApp, "runtime-wrap")}
-        filename={t("docs.api.runtime.create_runtime.hero_filename")}
-      />
-
-      <ApiReference
-        name={t("docs.api.runtime.create_runtime.title")}
-        signature={t("docs.api.runtime.create_runtime.signature")}
-        parameters={[
-          [
-            <Trans
-              k="docs.api.runtime.create_runtime.param_root_name"
-              components={[Code]}
-            />,
-            <Trans
-              k="docs.api.runtime.create_runtime.param_root_type"
-              components={[Code]}
-            />,
-            <Trans k="docs.api.runtime.create_runtime.param_root_desc" />,
-          ],
-        ]}
-        returns={
-          <p>
-            <Trans
-              k="docs.api.runtime.create_runtime.returns_desc"
-              components={[Code, Code, Code]}
-            />
-          </p>
-        }
-      />
-
-      <UsageSection
-        code={codeSample(fleet, "fleet")}
-        filename={t("docs.api.runtime.create_runtime.usage_filename")}
-      >
-        <p>
-          <Trans
-            k="docs.api.runtime.create_runtime.usage_fleet"
-            components={[Code, Code, Code]}
-          />
-        </p>
-        <p>
-          <Trans
-            k="docs.api.runtime.create_runtime.outputs_intro"
-            components={[Code, Code, Code, Code, Code]}
-          />
-        </p>
-        <DocTable
-          headers={[
-            t("docs.api.runtime.create_runtime.outputs_table_output"),
-            t("docs.api.runtime.create_runtime.outputs_table_type"),
-            t("docs.api.runtime.create_runtime.outputs_table_meaning"),
-          ]}
-          rows={[
-            [
-              <Trans
-                k="docs.api.runtime.create_runtime.output_status_name"
-                components={[Code]}
-              />,
-              <Trans
-                k="docs.api.runtime.create_runtime.output_status_type"
-                components={[Code]}
-              />,
-              <Trans k="docs.api.runtime.create_runtime.output_status_desc" />,
-            ],
-            [
-              <Trans
-                k="docs.api.runtime.create_runtime.output_ready_name"
-                components={[Code]}
-              />,
-              <Trans
-                k="docs.api.runtime.create_runtime.output_ready_type"
-                components={[Code]}
-              />,
-              <Trans k="docs.api.runtime.create_runtime.output_ready_desc" />,
-            ],
-            [
-              <Trans
-                k="docs.api.runtime.create_runtime.output_error_name"
-                components={[Code]}
-              />,
-              <Trans
-                k="docs.api.runtime.create_runtime.output_error_type"
-                components={[Code]}
-              />,
-              <Trans k="docs.api.runtime.create_runtime.output_error_desc" />,
-            ],
-          ]}
-        />
-        <Callout type="info">
-          <p>
-            <Trans
-              k="docs.api.runtime.create_runtime.callout_detach"
-              components={[
-                Em,
-                (props) => (
-                  <TextLink href="#/docs/examples/tenant-fleet">
-                    {props.children}
-                  </TextLink>
-                ),
-              ]}
-            />
-          </p>
-        </Callout>
-      </UsageSection>
+      <Intro />
+      <Reference />
+      <Usage />
     </>
   );
 };

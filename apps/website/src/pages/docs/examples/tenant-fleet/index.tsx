@@ -12,14 +12,20 @@ const app = "tenant-fleet/src/app.tsx";
 const tenantApp = "tenant-fleet/src/components/tenant-app/index.tsx";
 const fleetStatus = "tenant-fleet/src/components/fleet-status/index.tsx";
 
-const TenantFleet: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.examples.tenant_fleet.title")}</h1>
       <p class="docs-description">
         {t("docs.examples.tenant_fleet.description")}
       </p>
+    </>
+  );
+}
 
+function RunIt() {
+  return (
+    <>
       <DocHeading level={2} id="run-it">
         {t("docs.examples.tenant_fleet.heading_run")}
       </DocHeading>
@@ -62,7 +68,13 @@ const TenantFleet: Component = () => {
           components={[Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function FleetSpec() {
+  return (
+    <>
       <DocHeading level={2} id="fleet-spec">
         {t("docs.examples.tenant_fleet.heading_spec")}
       </DocHeading>
@@ -99,7 +111,13 @@ const TenantFleet: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function MountingTenants() {
+  return (
+    <>
       <DocHeading level={2} id="mounting-sovereign-tenants">
         {t("docs.examples.tenant_fleet.heading_mount")}
       </DocHeading>
@@ -120,7 +138,13 @@ const TenantFleet: Component = () => {
           components={[Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function TenantsWorld() {
+  return (
+    <>
       <DocHeading level={2} id="a-tenants-world">
         {t("docs.examples.tenant_fleet.heading_tenant")}
       </DocHeading>
@@ -157,7 +181,13 @@ const TenantFleet: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function MakingItRuntime() {
+  return (
+    <>
       <DocHeading level={2} id="making-it-a-runtime">
         {t("docs.examples.tenant_fleet.heading_runtime")}
       </DocHeading>
@@ -172,7 +202,13 @@ const TenantFleet: Component = () => {
           components={[Code, Code, Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function WatchingTheFleet() {
+  return (
+    <>
       <DocHeading level={2} id="watching-the-fleet">
         {t("docs.examples.tenant_fleet.heading_watch")}
       </DocHeading>
@@ -198,7 +234,13 @@ const TenantFleet: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function Checkpoint() {
+  return (
+    <>
       <DocHeading level={2} id="checkpoint">
         {t("docs.examples.tenant_fleet.heading_checkpoint")}
       </DocHeading>
@@ -233,7 +275,13 @@ const TenantFleet: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function Recap() {
+  return (
+    <>
       <DocHeading level={2} id="recap">
         {t("docs.examples.tenant_fleet.heading_recap")}
       </DocHeading>
@@ -264,7 +312,13 @@ const TenantFleet: Component = () => {
           />
         </li>
       </ul>
+    </>
+  );
+}
 
+function Challenge() {
+  return (
+    <>
       <DocHeading level={2} id="challenge">
         {t("docs.examples.tenant_fleet.heading_challenge")}
       </DocHeading>
@@ -274,7 +328,13 @@ const TenantFleet: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ApisUsed() {
+  return (
+    <>
       <DocHeading level={2} id="apis-used">
         {t("docs.examples.tenant_fleet.heading_apis")}
       </DocHeading>
@@ -315,6 +375,24 @@ const TenantFleet: Component = () => {
           </TextLink>
         </li>
       </ul>
+    </>
+  );
+}
+
+const TenantFleet: Component = () => {
+  return (
+    <>
+      <Intro />
+      <RunIt />
+      <FleetSpec />
+      <MountingTenants />
+      <TenantsWorld />
+      <MakingItRuntime />
+      <WatchingTheFleet />
+      <Checkpoint />
+      <Recap />
+      <Challenge />
+      <ApisUsed />
     </>
   );
 };

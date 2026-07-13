@@ -10,14 +10,20 @@ import TextLink from "@/shared/components/text-link";
 const writer = "page-writer/src/claude/html-writer/index.ts";
 const page = "page-writer/src/components/page/index.tsx";
 
-const AiIntegration: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.ai_integration.title")}</h1>
       <p class="docs-description">
         {t("docs.guides.ai_integration.description")}
       </p>
+    </>
+  );
+}
 
+function ClientSection() {
+  return (
+    <>
       <DocHeading level={2} id="client">
         {t("docs.guides.ai_integration.heading_client")}
       </DocHeading>
@@ -37,7 +43,13 @@ const AiIntegration: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function RequestSection() {
+  return (
+    <>
       <DocHeading level={2} id="request">
         {t("docs.guides.ai_integration.heading_request")}
       </DocHeading>
@@ -52,7 +64,13 @@ const AiIntegration: Component = () => {
         filename={t("docs.guides.ai_integration.filename_writer")}
       />
       <p>{t("docs.guides.ai_integration.request_notice")}</p>
+    </>
+  );
+}
 
+function ExtractSection() {
+  return (
+    <>
       <DocHeading level={2} id="extract">
         {t("docs.guides.ai_integration.heading_extract")}
       </DocHeading>
@@ -66,7 +84,13 @@ const AiIntegration: Component = () => {
         code={codeSample(writer, "extract")}
         filename={t("docs.guides.ai_integration.filename_writer")}
       />
+    </>
+  );
+}
 
+function GenerateHandlerSection() {
+  return (
+    <>
       <DocHeading level={2} id="generate-handler">
         {t("docs.guides.ai_integration.heading_generate_handler")}
       </DocHeading>
@@ -86,7 +110,13 @@ const AiIntegration: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ClosingSection() {
+  return (
+    <>
       <Callout type="tip">
         <p>
           <Trans
@@ -107,6 +137,19 @@ const AiIntegration: Component = () => {
           ]}
         />
       </p>
+    </>
+  );
+}
+
+const AiIntegration: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <ClientSection />
+      <RequestSection />
+      <ExtractSection />
+      <GenerateHandlerSection />
+      <ClosingSection />
     </>
   );
 };

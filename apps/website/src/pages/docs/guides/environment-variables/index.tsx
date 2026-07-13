@@ -10,14 +10,20 @@ import TextLink from "@/shared/components/text-link";
 const app = "site-publisher/src/app.tsx";
 const pageWriter = "page-writer/index.tsx";
 
-const EnvironmentVariables: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.environment_variables.title")}</h1>
       <p class="docs-description">
         {t("docs.guides.environment_variables.description")}
       </p>
+    </>
+  );
+}
 
+function ReadingSection() {
+  return (
+    <>
       <DocHeading level={2} id="reading">
         {t("docs.guides.environment_variables.heading_reading")}
       </DocHeading>
@@ -31,7 +37,13 @@ const EnvironmentVariables: Component = () => {
         code={codeSample(app, "require-env")}
         filename={t("docs.guides.environment_variables.filename_app")}
       />
+    </>
+  );
+}
 
+function FailFastSection() {
+  return (
+    <>
       <DocHeading level={2} id="fail-fast">
         {t("docs.guides.environment_variables.heading_fail_fast")}
       </DocHeading>
@@ -45,7 +57,13 @@ const EnvironmentVariables: Component = () => {
         code={codeSample(pageWriter, "entry-point")}
         filename={t("docs.guides.environment_variables.filename_entry")}
       />
+    </>
+  );
+}
 
+function SecretsSection() {
+  return (
+    <>
       <DocHeading level={2} id="secrets">
         {t("docs.guides.environment_variables.heading_secrets")}
       </DocHeading>
@@ -55,7 +73,13 @@ const EnvironmentVariables: Component = () => {
         code={t("docs.guides.environment_variables.code_env")}
         filename={t("docs.guides.environment_variables.filename_env")}
       />
+    </>
+  );
+}
 
+function ClosingSection() {
+  return (
+    <>
       <Callout type="warning">
         <p>
           <Trans
@@ -64,7 +88,6 @@ const EnvironmentVariables: Component = () => {
           />
         </p>
       </Callout>
-
       <p>
         <Trans
           k="docs.guides.environment_variables.in_the_wild"
@@ -77,6 +100,18 @@ const EnvironmentVariables: Component = () => {
           ]}
         />
       </p>
+    </>
+  );
+}
+
+const EnvironmentVariables: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <ReadingSection />
+      <FailFastSection />
+      <SecretsSection />
+      <ClosingSection />
     </>
   );
 };

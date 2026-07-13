@@ -6,14 +6,20 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import Strong from "@/shared/components/strong";
 
-const Deploying: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.deploying.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.deploying.description")}
       </p>
+    </>
+  );
+}
 
+function ProductionRun() {
+  return (
+    <>
       <DocHeading level={2} id="production-run">
         {t("docs.getting_started.deploying.heading_production_run")}
       </DocHeading>
@@ -29,7 +35,13 @@ const Deploying: Component = () => {
         filename={t("docs.getting_started.deploying.filename_terminal")}
       />
       <p>{t("docs.getting_started.deploying.production_run_outro")}</p>
+    </>
+  );
+}
 
+function CiCd() {
+  return (
+    <>
       <DocHeading level={2} id="ci-cd">
         {t("docs.getting_started.deploying.heading_ci_cd")}
       </DocHeading>
@@ -39,7 +51,13 @@ const Deploying: Component = () => {
         code={t("docs.getting_started.deploying.code_ci_cd")}
         filename={t("docs.getting_started.deploying.filename_workflow")}
       />
+    </>
+  );
+}
 
+function StateStorage() {
+  return (
+    <>
       <DocHeading level={2} id="state-storage">
         {t("docs.getting_started.deploying.heading_state_storage")}
       </DocHeading>
@@ -69,7 +87,13 @@ const Deploying: Component = () => {
           />
         </li>
       </ul>
+    </>
+  );
+}
 
+function WatchMode() {
+  return (
+    <>
       <DocHeading level={2} id="watch-mode">
         {t("docs.getting_started.deploying.heading_watch_mode")}
       </DocHeading>
@@ -86,6 +110,16 @@ const Deploying: Component = () => {
       </Callout>
     </>
   );
-};
+}
+
+const Deploying: Component = () => (
+  <>
+    <Intro />
+    <ProductionRun />
+    <CiCd />
+    <StateStorage />
+    <WatchMode />
+  </>
+);
 
 export default Deploying;

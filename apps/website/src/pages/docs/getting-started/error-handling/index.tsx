@@ -11,14 +11,20 @@ const monitorApp = "uptime-monitor/src/app.tsx";
 const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
 const page = "page-writer/src/components/page/index.tsx";
 
-const ErrorHandling: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.error_handling.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.error_handling.description")}
       </p>
+    </>
+  );
+}
 
+function ErrorBoundarySection() {
+  return (
+    <>
       <DocHeading level={2} id="error-boundary">
         {t("docs.getting_started.error_handling.heading_error_boundary")}
       </DocHeading>
@@ -32,7 +38,13 @@ const ErrorHandling: Component = () => {
         code={codeSample(monitorApp, "monitor-fault")}
         filename={t("docs.getting_started.error_handling.filename_monitor")}
       />
+    </>
+  );
+}
 
+function CatchError() {
+  return (
+    <>
       <DocHeading level={2} id="catch-error">
         {t("docs.getting_started.error_handling.heading_catch_error")}
       </DocHeading>
@@ -46,7 +58,13 @@ const ErrorHandling: Component = () => {
         code={codeSample(statusPage, "write-effect")}
         filename={t("docs.getting_started.error_handling.filename_status_page")}
       />
+    </>
+  );
+}
 
+function HandlerErrors() {
+  return (
+    <>
       <DocHeading level={2} id="handler-errors">
         {t("docs.getting_started.error_handling.heading_handler_errors")}
       </DocHeading>
@@ -71,6 +89,15 @@ const ErrorHandling: Component = () => {
       </Callout>
     </>
   );
-};
+}
+
+const ErrorHandling: Component = () => (
+  <>
+    <Intro />
+    <ErrorBoundarySection />
+    <CatchError />
+    <HandlerErrors />
+  </>
+);
 
 export default ErrorHandling;

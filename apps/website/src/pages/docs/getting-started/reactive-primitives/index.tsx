@@ -9,14 +9,20 @@ import DocHeading from "@/shared/components/doc-heading";
 const app = "uptime-monitor/src/app.tsx";
 const httpCheck = "uptime-monitor/src/components/http-check/index.tsx";
 
-const ReactivePrimitives: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.reactive_primitives.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.reactive_primitives.description")}
       </p>
+    </>
+  );
+}
 
+function Signals() {
+  return (
+    <>
       <DocHeading level={2} id="signals">
         {t("docs.getting_started.reactive_primitives.heading_signals")}
       </DocHeading>
@@ -39,7 +45,13 @@ const ReactivePrimitives: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function Memos() {
+  return (
+    <>
       <DocHeading level={2} id="memos">
         {t("docs.getting_started.reactive_primitives.heading_memos")}
       </DocHeading>
@@ -53,7 +65,13 @@ const ReactivePrimitives: Component = () => {
         code={codeSample(app, "derived-status")}
         filename={t("docs.getting_started.reactive_primitives.filename_app")}
       />
+    </>
+  );
+}
 
+function Computed() {
+  return (
+    <>
       <DocHeading level={2} id="computed">
         {t("docs.getting_started.reactive_primitives.heading_computed")}
       </DocHeading>
@@ -67,7 +85,13 @@ const ReactivePrimitives: Component = () => {
         code={codeSample(app, "incidents")}
         filename={t("docs.getting_started.reactive_primitives.filename_app")}
       />
+    </>
+  );
+}
 
+function OnUntrack() {
+  return (
+    <>
       <DocHeading level={2} id="on-untrack">
         {t("docs.getting_started.reactive_primitives.heading_on_untrack")}
       </DocHeading>
@@ -85,6 +109,16 @@ const ReactivePrimitives: Component = () => {
       />
     </>
   );
-};
+}
+
+const ReactivePrimitives: Component = () => (
+  <>
+    <Intro />
+    <Signals />
+    <Memos />
+    <Computed />
+    <OnUntrack />
+  </>
+);
 
 export default ReactivePrimitives;

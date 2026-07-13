@@ -32,7 +32,9 @@ const StateAndMemory = lazy(
 const Deploying = lazy(() => import("@/pages/docs/getting-started/deploying"));
 
 // Guides
-const AwsIntegration = lazy(() => import("@/pages/docs/guides/aws-integration"));
+const AwsIntegration = lazy(
+  () => import("@/pages/docs/guides/aws-integration"),
+);
 const AiIntegration = lazy(() => import("@/pages/docs/guides/ai-integration"));
 const HttpApis = lazy(() => import("@/pages/docs/guides/http-apis"));
 const FileSystem = lazy(() => import("@/pages/docs/guides/file-system"));
@@ -113,7 +115,9 @@ const IndexArray = lazy(() => import("@/pages/docs/api/arrays/index-array"));
 
 // API Reference - Owner
 const GetOwner = lazy(() => import("@/pages/docs/api/owner/get-owner"));
-const RunWithOwner = lazy(() => import("@/pages/docs/api/owner/run-with-owner"));
+const RunWithOwner = lazy(
+  () => import("@/pages/docs/api/owner/run-with-owner"),
+);
 
 // API Reference - Config
 const Tsconfig = lazy(() => import("@/pages/docs/api/config/tsconfig"));
@@ -140,6 +144,165 @@ const TenantFleetExample = lazy(
   () => import("@/pages/docs/examples/tenant-fleet"),
 );
 
+function GettingStartedRoutes() {
+  return (
+    <>
+      <Route path="/" component={Installation} />
+      {/* Getting Started */}
+      <Route path="/getting-started/installation" component={Installation} />
+      <Route path="/getting-started/components-jsx" component={ComponentsJsx} />
+      <Route
+        path="/getting-started/reactive-primitives"
+        component={ReactivePrimitives}
+      />
+      <Route path="/getting-started/flow-control" component={FlowControl} />
+      <Route
+        path="/getting-started/context-providers"
+        component={ContextProviders}
+      />
+      <Route path="/getting-started/error-handling" component={ErrorHandling} />
+      <Route
+        path="/getting-started/state-and-memory"
+        component={StateAndMemory}
+      />
+      <Route path="/getting-started/deploying" component={Deploying} />
+    </>
+  );
+}
+
+function GuidesRoutes() {
+  return (
+    <>
+      {/* Guides */}
+      <Route path="/guides/aws-integration" component={AwsIntegration} />
+      <Route path="/guides/ai-integration" component={AiIntegration} />
+      <Route path="/guides/http-apis" component={HttpApis} />
+      <Route path="/guides/file-system" component={FileSystem} />
+      <Route path="/guides/testing" component={Testing} />
+      <Route path="/guides/typescript" component={TypescriptGuide} />
+      <Route
+        path="/guides/environment-variables"
+        component={EnvironmentVariables}
+      />
+      <Route path="/guides/watch-mode" component={WatchMode} />
+    </>
+  );
+}
+
+function ApiReactiveRoutes() {
+  return (
+    <>
+      {/* API - Reactive */}
+      <Route path="/api/reactive/create-signal" component={CreateSignal} />
+      <Route path="/api/reactive/create-effect" component={CreateEffect} />
+      <Route path="/api/reactive/create-memo" component={CreateMemo} />
+      <Route path="/api/reactive/create-computed" component={CreateComputed} />
+      <Route
+        path="/api/reactive/create-render-effect"
+        component={CreateRenderEffect}
+      />
+      <Route path="/api/reactive/create-reaction" component={CreateReaction} />
+      <Route path="/api/reactive/create-root" component={CreateRoot} />
+      <Route path="/api/reactive/create-selector" component={CreateSelector} />
+      <Route path="/api/reactive/batch" component={Batch} />
+      <Route path="/api/reactive/untrack" component={Untrack} />
+      <Route path="/api/reactive/on" component={On} />
+    </>
+  );
+}
+
+function ApiComponentsStoreRuntimeRoutes() {
+  return (
+    <>
+      {/* API - Components */}
+      <Route path="/api/components/show" component={ShowApi} />
+      <Route path="/api/components/for" component={ForApi} />
+      <Route path="/api/components/switch-match" component={SwitchMatch} />
+      <Route
+        path="/api/components/error-boundary"
+        component={ErrorBoundaryApi}
+      />
+      {/* API - Store */}
+      <Route path="/api/store/create-store" component={CreateStore} />
+      <Route path="/api/store/unwrap" component={Unwrap} />
+      {/* API - Runtime */}
+      <Route path="/api/runtime/render" component={Render} />
+      <Route path="/api/runtime/create-runtime" component={CreateRuntime} />
+      <Route path="/api/runtime/use-async-output" component={UseAsyncOutput} />
+    </>
+  );
+}
+
+function ApiContextLifecyclePropsRoutes() {
+  return (
+    <>
+      {/* API - Context */}
+      <Route path="/api/context/create-context" component={CreateContext} />
+      <Route path="/api/context/use-context" component={UseContext} />
+      {/* API - Lifecycle */}
+      <Route path="/api/lifecycle/on-mount" component={OnMount} />
+      <Route path="/api/lifecycle/on-cleanup" component={OnCleanup} />
+      {/* API - Props */}
+      <Route path="/api/props/merge-props" component={MergeProps} />
+      <Route path="/api/props/split-props" component={SplitProps} />
+      <Route path="/api/props/children" component={Children} />
+      <Route path="/api/props/access" component={Access} />
+    </>
+  );
+}
+
+function ApiArraysOwnerConfigCliRoutes() {
+  return (
+    <>
+      {/* API - Arrays */}
+      <Route path="/api/arrays/map-array" component={MapArray} />
+      <Route path="/api/arrays/index-array" component={IndexArray} />
+      {/* API - Owner */}
+      <Route path="/api/owner/get-owner" component={GetOwner} />
+      <Route path="/api/owner/run-with-owner" component={RunWithOwner} />
+      {/* API - Config */}
+      <Route path="/api/config/tsconfig" component={Tsconfig} />
+      <Route path="/api/config/package-json" component={PackageJson} />
+      {/* API - CLI */}
+      <Route path="/api/cli/creact" component={CreactCli} />
+      <Route path="/api/cli/creact-watch" component={CreactWatch} />
+    </>
+  );
+}
+
+function ExampleRoutes() {
+  return (
+    <>
+      {/* Example Apps */}
+      <Route
+        path="/examples/durable-counter"
+        component={DurableCounterExample}
+      />
+      <Route path="/examples/uptime-monitor" component={UptimeMonitorExample} />
+      <Route path="/examples/site-publisher" component={SitePublisherExample} />
+      <Route path="/examples/page-writer" component={PageWriterExample} />
+      <Route path="/examples/tenant-fleet" component={TenantFleetExample} />
+    </>
+  );
+}
+
+function AppRoutes() {
+  return (
+    <HashRouter>
+      <Route path="/" component={() => <Navigate href="/docs" />} />
+      <Route path="/docs" component={DocsLayout}>
+        <GettingStartedRoutes />
+        <GuidesRoutes />
+        <ApiReactiveRoutes />
+        <ApiComponentsStoreRuntimeRoutes />
+        <ApiContextLifecyclePropsRoutes />
+        <ApiArraysOwnerConfigCliRoutes />
+        <ExampleRoutes />
+      </Route>
+    </HashRouter>
+  );
+}
+
 const root = document.getElementById("root");
 
 if (!root) {
@@ -149,133 +312,4 @@ if (!root) {
 // Clear static SEO shell before SPA mounts
 root.innerHTML = "";
 
-render(
-  () => (
-    <HashRouter>
-      <Route path="/" component={() => <Navigate href="/docs" />} />
-      <Route path="/docs" component={DocsLayout}>
-        <Route path="/" component={Installation} />
-        {/* Getting Started */}
-        <Route path="/getting-started/installation" component={Installation} />
-        <Route
-          path="/getting-started/components-jsx"
-          component={ComponentsJsx}
-        />
-        <Route
-          path="/getting-started/reactive-primitives"
-          component={ReactivePrimitives}
-        />
-        <Route path="/getting-started/flow-control" component={FlowControl} />
-        <Route
-          path="/getting-started/context-providers"
-          component={ContextProviders}
-        />
-        <Route
-          path="/getting-started/error-handling"
-          component={ErrorHandling}
-        />
-        <Route
-          path="/getting-started/state-and-memory"
-          component={StateAndMemory}
-        />
-        <Route path="/getting-started/deploying" component={Deploying} />
-        {/* Guides */}
-        <Route path="/guides/aws-integration" component={AwsIntegration} />
-        <Route path="/guides/ai-integration" component={AiIntegration} />
-        <Route path="/guides/http-apis" component={HttpApis} />
-        <Route path="/guides/file-system" component={FileSystem} />
-        <Route path="/guides/testing" component={Testing} />
-        <Route path="/guides/typescript" component={TypescriptGuide} />
-        <Route
-          path="/guides/environment-variables"
-          component={EnvironmentVariables}
-        />
-        <Route path="/guides/watch-mode" component={WatchMode} />
-        {/* API - Reactive */}
-        <Route path="/api/reactive/create-signal" component={CreateSignal} />
-        <Route path="/api/reactive/create-effect" component={CreateEffect} />
-        <Route path="/api/reactive/create-memo" component={CreateMemo} />
-        <Route
-          path="/api/reactive/create-computed"
-          component={CreateComputed}
-        />
-        <Route
-          path="/api/reactive/create-render-effect"
-          component={CreateRenderEffect}
-        />
-        <Route
-          path="/api/reactive/create-reaction"
-          component={CreateReaction}
-        />
-        <Route path="/api/reactive/create-root" component={CreateRoot} />
-        <Route
-          path="/api/reactive/create-selector"
-          component={CreateSelector}
-        />
-        <Route path="/api/reactive/batch" component={Batch} />
-        <Route path="/api/reactive/untrack" component={Untrack} />
-        <Route path="/api/reactive/on" component={On} />
-        {/* API - Components */}
-        <Route path="/api/components/show" component={ShowApi} />
-        <Route path="/api/components/for" component={ForApi} />
-        <Route path="/api/components/switch-match" component={SwitchMatch} />
-        <Route
-          path="/api/components/error-boundary"
-          component={ErrorBoundaryApi}
-        />
-        {/* API - Store */}
-        <Route path="/api/store/create-store" component={CreateStore} />
-        <Route path="/api/store/unwrap" component={Unwrap} />
-        {/* API - Runtime */}
-        <Route path="/api/runtime/render" component={Render} />
-        <Route
-          path="/api/runtime/create-runtime"
-          component={CreateRuntime}
-        />
-        <Route
-          path="/api/runtime/use-async-output"
-          component={UseAsyncOutput}
-        />
-        {/* API - Context */}
-        <Route path="/api/context/create-context" component={CreateContext} />
-        <Route path="/api/context/use-context" component={UseContext} />
-        {/* API - Lifecycle */}
-        <Route path="/api/lifecycle/on-mount" component={OnMount} />
-        <Route path="/api/lifecycle/on-cleanup" component={OnCleanup} />
-        {/* API - Props */}
-        <Route path="/api/props/merge-props" component={MergeProps} />
-        <Route path="/api/props/split-props" component={SplitProps} />
-        <Route path="/api/props/children" component={Children} />
-        <Route path="/api/props/access" component={Access} />
-        {/* API - Arrays */}
-        <Route path="/api/arrays/map-array" component={MapArray} />
-        <Route path="/api/arrays/index-array" component={IndexArray} />
-        {/* API - Owner */}
-        <Route path="/api/owner/get-owner" component={GetOwner} />
-        <Route path="/api/owner/run-with-owner" component={RunWithOwner} />
-        {/* API - Config */}
-        <Route path="/api/config/tsconfig" component={Tsconfig} />
-        <Route path="/api/config/package-json" component={PackageJson} />
-        {/* API - CLI */}
-        <Route path="/api/cli/creact" component={CreactCli} />
-        <Route path="/api/cli/creact-watch" component={CreactWatch} />
-        {/* Example Apps */}
-        <Route
-          path="/examples/durable-counter"
-          component={DurableCounterExample}
-        />
-        <Route
-          path="/examples/uptime-monitor"
-          component={UptimeMonitorExample}
-        />
-        <Route
-          path="/examples/site-publisher"
-          component={SitePublisherExample}
-        />
-        <Route path="/examples/page-writer" component={PageWriterExample} />
-        <Route path="/examples/tenant-fleet" component={TenantFleetExample} />
-      </Route>
-    </HashRouter>
-  ),
-  root,
-);
+render(() => <AppRoutes />, root);

@@ -7,14 +7,20 @@ import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
 
-const Installation: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.installation.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.installation.description")}
       </p>
+    </>
+  );
+}
 
+function QuickStart() {
+  return (
+    <>
       <DocHeading level={2} id="quick-start">
         {t("docs.getting_started.installation.heading_quickstart")}
       </DocHeading>
@@ -31,7 +37,13 @@ const Installation: Component = () => {
         filename={t("docs.getting_started.installation.filename_terminal")}
       />
       <p>{t("docs.getting_started.installation.quickstart_outro")}</p>
+    </>
+  );
+}
 
+function Requirements() {
+  return (
+    <>
       <DocHeading level={2} id="requirements">
         {t("docs.getting_started.installation.heading_requirements")}
       </DocHeading>
@@ -41,7 +53,13 @@ const Installation: Component = () => {
           {t("docs.getting_started.installation.requirement_package_manager")}
         </li>
       </ul>
+    </>
+  );
+}
 
+function CreateProject() {
+  return (
+    <>
       <DocHeading level={2} id="create-project">
         {t("docs.getting_started.installation.heading_create_project")}
       </DocHeading>
@@ -65,7 +83,13 @@ const Installation: Component = () => {
         code={t("docs.getting_started.installation.code_install_typescript")}
         filename={t("docs.getting_started.installation.filename_terminal")}
       />
+    </>
+  );
+}
 
+function ConfigureTypescript() {
+  return (
+    <>
       <DocHeading level={2} id="configure-typescript">
         {t("docs.getting_started.installation.heading_configure_typescript")}
       </DocHeading>
@@ -89,7 +113,13 @@ const Installation: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function AddScripts() {
+  return (
+    <>
       <DocHeading level={2} id="add-scripts">
         {t("docs.getting_started.installation.heading_add_scripts")}
       </DocHeading>
@@ -104,7 +134,13 @@ const Installation: Component = () => {
         code={t("docs.getting_started.installation.code_package_scripts")}
         filename={t("docs.getting_started.installation.filename_package_json")}
       />
+    </>
+  );
+}
 
+function CreateEntry() {
+  return (
+    <>
       <DocHeading level={2} id="create-entry">
         {t("docs.getting_started.installation.heading_create_entry")}
       </DocHeading>
@@ -126,7 +162,13 @@ const Installation: Component = () => {
         code={codeSample("durable-counter/index.tsx", "entry-point")}
         filename={t("docs.getting_started.installation.filename_index_tsx")}
       />
+    </>
+  );
+}
 
+function Run() {
+  return (
+    <>
       <DocHeading level={2} id="run">
         {t("docs.getting_started.installation.heading_run")}
       </DocHeading>
@@ -142,7 +184,13 @@ const Installation: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ProjectFiles() {
+  return (
+    <>
       <DocHeading level={2} id="project-files">
         {t("docs.getting_started.installation.heading_project_files")}
       </DocHeading>
@@ -169,6 +217,20 @@ const Installation: Component = () => {
       </p>
     </>
   );
-};
+}
+
+const Installation: Component = () => (
+  <>
+    <Intro />
+    <QuickStart />
+    <Requirements />
+    <CreateProject />
+    <ConfigureTypescript />
+    <AddScripts />
+    <CreateEntry />
+    <Run />
+    <ProjectFiles />
+  </>
+);
 
 export default Installation;

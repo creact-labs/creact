@@ -11,14 +11,20 @@ const provider = "site-publisher/src/aws/provider/index.tsx";
 const bucket = "site-publisher/src/aws/site-bucket/index.tsx";
 const object = "site-publisher/src/aws/site-object/index.tsx";
 
-const AwsIntegration: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.aws_integration.title")}</h1>
       <p class="docs-description">
         {t("docs.guides.aws_integration.description")}
       </p>
+    </>
+  );
+}
 
+function ProviderSection() {
+  return (
+    <>
       <DocHeading level={2} id="aws-provider">
         {t("docs.guides.aws_integration.heading_aws_provider")}
       </DocHeading>
@@ -38,7 +44,13 @@ const AwsIntegration: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function EnsureBucketSection() {
+  return (
+    <>
       <DocHeading level={2} id="ensure-bucket">
         {t("docs.guides.aws_integration.heading_ensure_bucket")}
       </DocHeading>
@@ -58,7 +70,13 @@ const AwsIntegration: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function WebsiteConfigSection() {
+  return (
+    <>
       <DocHeading level={2} id="website-config">
         {t("docs.guides.aws_integration.heading_website_config")}
       </DocHeading>
@@ -78,7 +96,13 @@ const AwsIntegration: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function ChangedCheckSection() {
+  return (
+    <>
       <DocHeading level={2} id="changed-check">
         {t("docs.guides.aws_integration.heading_changed_check")}
       </DocHeading>
@@ -98,7 +122,13 @@ const AwsIntegration: Component = () => {
           components={[Code]}
         />
       </p>
+    </>
+  );
+}
 
+function UploadSection() {
+  return (
+    <>
       <DocHeading level={2} id="upload">
         {t("docs.guides.aws_integration.heading_upload")}
       </DocHeading>
@@ -112,7 +142,13 @@ const AwsIntegration: Component = () => {
         code={codeSample(object, "upload")}
         filename={t("docs.guides.aws_integration.filename_object")}
       />
+    </>
+  );
+}
 
+function ClosingSection() {
+  return (
+    <>
       <Callout type="warning">
         <p>
           <Trans k="docs.guides.aws_integration.warning_idempotent" />
@@ -130,6 +166,20 @@ const AwsIntegration: Component = () => {
           ]}
         />
       </p>
+    </>
+  );
+}
+
+const AwsIntegration: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <ProviderSection />
+      <EnsureBucketSection />
+      <WebsiteConfigSection />
+      <ChangedCheckSection />
+      <UploadSection />
+      <ClosingSection />
     </>
   );
 };

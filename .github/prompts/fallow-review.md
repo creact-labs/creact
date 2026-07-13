@@ -18,11 +18,14 @@ Rules:
   function above threshold (`✗ N above threshold`, N > 0); a non-zero value
   on the AUDIT `Metrics` line; or any AUDIT advisory attributed to this
   change.
-- The HEALTH section also reports the score, large functions, hotspots, and
-  coupling. Surface every item this change introduces or worsens, and block
-  when this change is responsible for it. Decide "introduced or worsened"
-  only from what the report shows (new entries, changed files, accelerating
-  trends) — not from assumptions about the code.
+- HEALTH also lists large functions — that is a finding, like the ones
+  above: block on any large function this change introduces.
+- The HEALTH score, churn hotspots, and coupling are activity and structure
+  signals, not defects — hotspots measure how much a file has changed, which
+  is history you cannot fix in this diff. Name notable movement in
+  `concerns`, but these do not gate on their own. Decide "introduced" only
+  from what the report shows (new entries, changed files), not from
+  assumptions about the code.
 - If the report is empty, truncated, or unreadable, block. You cannot vouch
   for what you cannot read.
 

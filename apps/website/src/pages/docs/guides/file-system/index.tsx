@@ -8,12 +8,18 @@ import TextLink from "@/shared/components/text-link";
 
 const statusPage = "uptime-monitor/src/components/status-page/index.tsx";
 
-const FileSystem: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.file_system.title")}</h1>
       <p class="docs-description">{t("docs.guides.file_system.description")}</p>
+    </>
+  );
+}
 
+function WriteEffectSection() {
+  return (
+    <>
       <DocHeading level={2} id="write-effect">
         {t("docs.guides.file_system.heading_write_effect")}
       </DocHeading>
@@ -33,7 +39,13 @@ const FileSystem: Component = () => {
           components={[Code, Code]}
         />
       </p>
+    </>
+  );
+}
 
+function PublishSection() {
+  return (
+    <>
       <DocHeading level={2} id="publish">
         {t("docs.guides.file_system.heading_publish")}
       </DocHeading>
@@ -48,7 +60,13 @@ const FileSystem: Component = () => {
         filename={t("docs.guides.file_system.filename_status_page")}
       />
       <p>{t("docs.guides.file_system.publish_notice")}</p>
+    </>
+  );
+}
 
+function FileMemorySection() {
+  return (
+    <>
       <DocHeading level={2} id="file-memory">
         {t("docs.guides.file_system.heading_file_memory")}
       </DocHeading>
@@ -68,18 +86,35 @@ const FileSystem: Component = () => {
           components={[Code, Code]}
         />
       </p>
-      <p>
-        <Trans
-          k="docs.guides.file_system.see_walkthrough"
-          components={[
-            (props) => (
-              <TextLink href="#/docs/examples/uptime-monitor">
-                {props.children}
-              </TextLink>
-            ),
-          ]}
-        />
-      </p>
+    </>
+  );
+}
+
+function ClosingSection() {
+  return (
+    <p>
+      <Trans
+        k="docs.guides.file_system.see_walkthrough"
+        components={[
+          (props) => (
+            <TextLink href="#/docs/examples/uptime-monitor">
+              {props.children}
+            </TextLink>
+          ),
+        ]}
+      />
+    </p>
+  );
+}
+
+const FileSystem: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <WriteEffectSection />
+      <PublishSection />
+      <FileMemorySection />
+      <ClosingSection />
     </>
   );
 };

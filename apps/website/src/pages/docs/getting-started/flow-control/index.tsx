@@ -9,14 +9,20 @@ import DocHeading from "@/shared/components/doc-heading";
 const monitorApp = "uptime-monitor/src/app.tsx";
 const page = "page-writer/src/components/page/index.tsx";
 
-const FlowControl: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.flow_control.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.flow_control.description")}
       </p>
+    </>
+  );
+}
 
+function OneTree() {
+  return (
+    <>
       <DocHeading level={2} id="one-tree">
         {t("docs.getting_started.flow_control.heading_one_tree")}
       </DocHeading>
@@ -39,7 +45,13 @@ const FlowControl: Component = () => {
           />
         </p>
       </Callout>
+    </>
+  );
+}
 
+function SwitchStates() {
+  return (
+    <>
       <DocHeading level={2} id="switch-states">
         {t("docs.getting_started.flow_control.heading_switch_states")}
       </DocHeading>
@@ -55,6 +67,14 @@ const FlowControl: Component = () => {
       />
     </>
   );
-};
+}
+
+const FlowControl: Component = () => (
+  <>
+    <Intro />
+    <OneTree />
+    <SwitchStates />
+  </>
+);
 
 export default FlowControl;

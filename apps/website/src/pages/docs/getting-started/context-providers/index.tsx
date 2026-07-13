@@ -8,14 +8,20 @@ import DocHeading from "@/shared/components/doc-heading";
 
 const provider = "site-publisher/src/aws/provider/index.tsx";
 
-const ContextProviders: Component = () => {
+function Intro() {
   return (
     <>
       <h1>{t("docs.getting_started.context_providers.title")}</h1>
       <p class="docs-description">
         {t("docs.getting_started.context_providers.description")}
       </p>
+    </>
+  );
+}
 
+function CreatingContext() {
+  return (
+    <>
       <DocHeading level={2} id="creating-context">
         {t("docs.getting_started.context_providers.heading_creating_context")}
       </DocHeading>
@@ -29,7 +35,13 @@ const ContextProviders: Component = () => {
         code={codeSample(provider, "context")}
         filename={t("docs.getting_started.context_providers.filename_provider")}
       />
+    </>
+  );
+}
 
+function ProvidingValues() {
+  return (
+    <>
       <DocHeading level={2} id="providing-values">
         {t("docs.getting_started.context_providers.heading_providing_values")}
       </DocHeading>
@@ -43,7 +55,13 @@ const ContextProviders: Component = () => {
         code={codeSample(provider, "provider")}
         filename={t("docs.getting_started.context_providers.filename_provider")}
       />
+    </>
+  );
+}
 
+function ConsumingContext() {
+  return (
+    <>
       <DocHeading level={2} id="consuming-context">
         {t("docs.getting_started.context_providers.heading_consuming")}
       </DocHeading>
@@ -63,6 +81,15 @@ const ContextProviders: Component = () => {
       </Callout>
     </>
   );
-};
+}
+
+const ContextProviders: Component = () => (
+  <>
+    <Intro />
+    <CreatingContext />
+    <ProvidingValues />
+    <ConsumingContext />
+  </>
+);
 
 export default ContextProviders;

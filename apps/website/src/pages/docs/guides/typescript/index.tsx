@@ -10,12 +10,18 @@ import TextLink from "@/shared/components/text-link";
 const siteObject = "site-publisher/src/aws/site-object/index.tsx";
 const tenantApp = "tenant-fleet/src/components/tenant-app/index.tsx";
 
-const Typescript: Component = () => {
+function IntroSection() {
   return (
     <>
       <h1>{t("docs.guides.typescript.title")}</h1>
       <p class="docs-description">{t("docs.guides.typescript.description")}</p>
+    </>
+  );
+}
 
+function TsconfigSection() {
+  return (
+    <>
       <DocHeading level={2} id="tsconfig">
         {t("docs.guides.typescript.heading_tsconfig")}
       </DocHeading>
@@ -30,7 +36,13 @@ const Typescript: Component = () => {
         code={t("docs.guides.typescript.code_tsconfig")}
         filename={t("docs.guides.typescript.filename_tsconfig")}
       />
+    </>
+  );
+}
 
+function ValueOrAccessorSection() {
+  return (
+    <>
       <DocHeading level={2} id="value-or-accessor-props">
         {t("docs.guides.typescript.heading_value_or_accessor")}
       </DocHeading>
@@ -44,7 +56,13 @@ const Typescript: Component = () => {
         code={codeSample(siteObject, "object-props")}
         filename={t("docs.guides.typescript.filename_site_object")}
       />
+    </>
+  );
+}
 
+function TypedDefaultsSection() {
+  return (
+    <>
       <DocHeading level={2} id="typed-defaults">
         {t("docs.guides.typescript.heading_typed_defaults")}
       </DocHeading>
@@ -58,7 +76,13 @@ const Typescript: Component = () => {
         code={codeSample(tenantApp, "tree")}
         filename={t("docs.guides.typescript.filename_tenant_app")}
       />
+    </>
+  );
+}
 
+function ClosingSection() {
+  return (
+    <>
       <Callout type="info">
         <p>
           <Trans
@@ -67,7 +91,6 @@ const Typescript: Component = () => {
           />
         </p>
       </Callout>
-
       <p>
         <Trans
           k="docs.guides.typescript.in_the_wild"
@@ -80,6 +103,18 @@ const Typescript: Component = () => {
           ]}
         />
       </p>
+    </>
+  );
+}
+
+const Typescript: Component = () => {
+  return (
+    <>
+      <IntroSection />
+      <TsconfigSection />
+      <ValueOrAccessorSection />
+      <TypedDefaultsSection />
+      <ClosingSection />
     </>
   );
 };
