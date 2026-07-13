@@ -1,9 +1,9 @@
 {
   "title": "batch",
-  "description": "Gruppiert mehrere Signal-Updates in einem einzigen Computation-Durchlauf.",
+  "description": "Gruppiert mehrere Signal-Updates zu einem einzigen Berechnungsdurchlauf.",
   "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "Funktion mit Signal-Updates. Alle Updates werden verzögert, bis die Funktion abgeschlossen ist.",
-  "returns_body": "Der Rückgabewert von <code>fn</code>."
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Funktion, die Signal-Updates enthält. Alle Updates werden verzögert, bis die Funktion abgeschlossen ist.",
+  "returns_body": "Der Rückgabewert von <0>fn</0>."
 }

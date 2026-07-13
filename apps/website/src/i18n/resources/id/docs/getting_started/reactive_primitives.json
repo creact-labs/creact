@@ -2,14 +2,14 @@
   "title": "Primitif Reaktif",
   "description": "Signal, effect, dan memo membuat komponen merespons perubahan.",
   "heading_signals": "Signal",
-  "signals_intro": "Signal adalah nilai reaktif. Signal mengembalikan pasangan getter dan setter. Membaca getter di dalam effect mendaftarkan dependency. Effect dijalankan ulang saat signal berubah.",
+  "signals_intro": "Signal adalah nilai reaktif. Signal mengembalikan pasangan getter dan setter. Membaca getter di dalam effect mendaftarkan dependensi. Effect dijalankan ulang saat signal berubah.",
   "heading_effects": "Effect",
-  "effects_intro": "Effect menjalankan side effect saat dependency-nya berubah. CReact melacak signal mana yang dibaca di dalam fungsi effect.",
+  "effects_intro": "Effect menjalankan side effect saat dependensinya berubah. CReact melacak signal mana yang dibaca di dalam fungsi effect.",
   "info_batched_effects": "Effect diantrekan dan di-batch. Beberapa pembaruan signal dalam satu blok sinkron hanya memicu satu kali effect dijalankan ulang.",
   "heading_memos": "Memo",
-  "memos_intro": "Memo adalah nilai reaktif turunan. Memo menyimpan hasil di cache dan hanya menghitung ulang saat dependency-nya berubah.",
+  "memos_intro": "Memo adalah nilai reaktif turunan. Memo meng-cache hasilnya dan hanya menghitung ulang saat dependensinya berubah.",
   "heading_batching": "Batching",
-  "batching_intro": "<code>batch()</code> mengelompokkan beberapa pembaruan signal menjadi satu pass evaluasi ulang:",
+  "batching_intro": "<0>batch()</0> mengelompokkan beberapa pembaruan signal ke dalam satu pass evaluasi ulang:",
   "heading_untrack": "Untrack",
-  "untrack_intro": "<code>untrack()</code> membaca signal tanpa membuat dependency:"
+  "untrack_intro": "<0>untrack()</0> membaca signal tanpa membuat dependensi:"
 }

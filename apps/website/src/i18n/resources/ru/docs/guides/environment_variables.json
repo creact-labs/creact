@@ -1,14 +1,14 @@
 {
   "title": "Переменные окружения",
-  "description": "Настраивайте приложение для разных окружений с помощью process.env.",
+  "description": "Настройте приложение для разных окружений с помощью process.env.",
   "heading_reading": "Чтение переменных окружения",
-  "reading_intro": "Получайте доступ к переменным окружения через <code>process.env</code>, как в любом приложении Node.js:",
+  "reading_intro": "Получайте доступ к переменным окружения через <0>process.env</0>, как в любом приложении Node.js:",
   "filename_app": "app.tsx",
-  "heading_per_environment": "Конфигурация для каждого окружения",
+  "heading_per_environment": "Конфигурация для разных окружений",
   "filename_config": "config.ts",
   "heading_secrets": "Работа с секретами",
   "secrets_intro": "Передавайте секреты через переменные окружения или менеджер секретов:",
-  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "code_env": "# .env (добавьте в .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact не имеет встроенной загрузки файлов <code>.env</code>. Используйте пакет вроде <code>dotenv</code> или задавайте переменные в shell / CI-окружении."
+  "warning_dotenv": "CReact не имеет встроенной загрузки файлов <0>.env</0>. Используйте пакет вроде <1>dotenv</1> или задавайте переменные в shell / CI-окружении."
 }

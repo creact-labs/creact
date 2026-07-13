@@ -2,7 +2,7 @@
   "sections": {
     "getting_started": "入门",
     "architecture": "架构",
-    "build_your_own": "自己动手构建",
+    "build_your_own": "自行构建",
     "api_reference": "API 参考"
   },
   "groups": {
@@ -10,7 +10,7 @@
     "flow_components": "流程组件",
     "store": "Store",
     "runtime": "运行时",
-    "context": "Context",
+    "context": "上下文",
     "lifecycle": "生命周期",
     "props_children": "Props 与 Children",
     "arrays": "数组",
@@ -23,10 +23,10 @@
     "components_jsx": "组件与 JSX",
     "reactive_primitives": "响应式原语",
     "flow_control": "流程控制",
-    "context_providers": "Context 与 Provider",
+    "context_providers": "上下文与 Providers",
     "error_handling": "错误处理",
     "state_and_memory": "状态与内存",
-    "watch_mode": "Watch 模式",
+    "watch_mode": "监视模式",
     "typescript": "TypeScript",
     "environment_variables": "环境变量",
     "testing": "测试",

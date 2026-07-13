@@ -2,5 +2,5 @@
   "title": "getOwner",
   "description": "คืนค่า reactive owner ปัจจุบัน (computation หรือ root ที่เป็นเจ้าของ scope ปัจจุบัน)",
   "signature": "getOwner(): Owner | null",
-  "returns_desc": "<code>Owner</code> ปัจจุบัน หรือ <code>null</code> หากเรียกนอก reactive scope"
+  "returns_desc": "<0>Owner</0> ปัจจุบัน หรือ <1>null</1> หากเรียกใช้ภายนอก reactive scope"
 }

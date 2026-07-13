@@ -1,17 +1,17 @@
 {
   "title": "Pengujian",
   "description": "Uji komponen CReact dan logika reaktif dengan Vitest dan createRoot.",
-  "heading_setup": "Persiapan",
+  "heading_setup": "Setup",
   "setup_intro": "Instal Vitest:",
   "code_install": "npm install -D vitest",
   "filename_terminal": "Terminal",
   "heading_testing_signals": "Menguji Signals",
-  "testing_signals_intro": "Uji primitif reaktif dengan membungkusnya dalam <code>createRoot</code>:",
+  "testing_signals_intro": "Uji primitif reaktif dengan membungkusnya dalam <0>createRoot</0>:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "Menguji Komponen",
-  "testing_components_intro": "Uji komponen dengan memanggilnya secara langsung dan memeriksa output handlernya:",
+  "testing_components_intro": "Uji komponen dengan memanggilnya secara langsung dan memeriksa output handler-nya:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Menguji Komponen Flow",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "Bungkus pengujian dalam <code>createRoot</code> agar effects, cleanups, dan pelacakan ownership berfungsi."
+  "tip_create_root": "Bungkus pengujian dalam <0>createRoot</0> agar effects, cleanups, dan pelacakan ownership berfungsi."
 }

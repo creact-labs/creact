@@ -2,12 +2,12 @@
   "title": "Gestion des erreurs",
   "description": "ErrorBoundary et catchError interceptent les erreurs dans les calculs réactifs et les composants enfants.",
   "heading_error_boundary": "Composant ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> intercepte les erreurs levées dans ses enfants et rend un fallback :",
+  "error_boundary_intro": "<0>ErrorBoundary</0> intercepte les erreurs levées dans ses enfants et affiche un fallback :",
   "heading_catch_error": "Primitive catchError",
-  "catch_error_intro": "Pour un contrôle de plus bas niveau, <code>catchError</code> enveloppe une fonction et intercepte les erreurs dans les calculs enfants :",
+  "catch_error_intro": "Pour un contrôle de bas niveau, <0>catchError</0> enveloppe une fonction et intercepte les erreurs dans les calculs enfants :",
   "heading_error_propagation": "Propagation des erreurs",
-  "error_propagation_body": "Les erreurs se propagent le long de la chaîne d'owners. Si aucune error boundary n'intercepte une erreur, elle remonte jusqu'à la racine et est levée. Les error boundaries imbriqués n'interceptent que les erreurs de leur sous-arbre.",
+  "error_propagation_body": "Les erreurs se propagent le long de la chaîne des owners. Si aucune error boundary ne capture une erreur, elle remonte jusqu'à la racine et est levée. Les error boundaries imbriquées ne capturent que les erreurs de leur sous-arbre.",
   "heading_handler_errors": "Erreurs dans les handlers",
-  "handler_errors_intro": "Les handlers de <code>useAsyncOutput</code> s'exécutent dans la boucle de déploiement asynchrone du runtime, et non à l'intérieur des calculs réactifs. Les erreurs levées dans les handlers font échouer le déploiement. Elles ne sont <strong>pas</strong> interceptées par <code>ErrorBoundary</code>. Gérez les erreurs à l'intérieur de votre handler avec try/catch :",
-  "warning_cleanup": "Les fonctions de nettoyage enregistrées avec <code>onCleanup</code> s'exécutent toujours lorsqu'une error boundary intercepte une erreur. Les ressources sont libérées."
+  "handler_errors_intro": "Les handlers de <0>useAsyncOutput</0> s'exécutent dans la boucle de déploiement asynchrone du runtime, et non dans des calculs réactifs. Les erreurs levées dans les handlers font échouer le déploiement. Elles ne sont <1>pas</1> interceptées par <2>ErrorBoundary</2>. Gérez les erreurs à l'intérieur de votre handler avec try/catch :",
+  "warning_cleanup": "Les fonctions de nettoyage enregistrées avec <0>onCleanup</0> s'exécutent toujours lorsqu'une error boundary intercepte une erreur. Les ressources sont libérées."
 }

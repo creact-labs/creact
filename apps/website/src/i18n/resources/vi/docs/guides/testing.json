@@ -1,17 +1,17 @@
 {
   "title": "Kiểm thử",
-  "description": "Kiểm thử các component và logic reactive của CReact với Vitest và createRoot.",
+  "description": "Kiểm thử các component CReact và logic reactive với Vitest và createRoot.",
   "heading_setup": "Thiết lập",
   "setup_intro": "Cài đặt Vitest:",
   "code_install": "npm install -D vitest",
   "filename_terminal": "Terminal",
   "heading_testing_signals": "Kiểm thử Signals",
-  "testing_signals_intro": "Kiểm thử các primitive reactive bằng cách bọc chúng trong <code>createRoot</code>:",
+  "testing_signals_intro": "Kiểm thử các primitive reactive bằng cách bọc chúng trong <0>createRoot</0>:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "Kiểm thử Components",
-  "testing_components_intro": "Kiểm thử các component bằng cách gọi trực tiếp và kiểm tra output của handler:",
+  "testing_components_intro": "Kiểm thử components bằng cách gọi chúng trực tiếp và kiểm tra output của các handler:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Kiểm thử Flow Components",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "Bọc các test trong <code>createRoot</code> để effects, cleanups và ownership tracking hoạt động."
+  "tip_create_root": "Bọc các test trong <0>createRoot</0> để effects, cleanups và ownership tracking hoạt động."
 }

@@ -1,14 +1,14 @@
 {
   "title": "Intégration IA",
-  "description": "Enveloppez le SDK Anthropic dans un fournisseur de contexte et appelez Claude depuis des effets réactifs.",
+  "description": "Encapsulez le SDK Anthropic dans un provider de contexte et appelez Claude depuis des effets réactifs.",
   "heading_provider": "Provider Claude",
-  "provider_intro": "Enveloppez le SDK Anthropic dans un fournisseur de contexte pour que tout composant enfant puisse appeler l’API. Le provider crée le client une seule fois. Les composants enfants y accèdent via <code>useComplete()</code>.",
+  "provider_intro": "Encapsulez le SDK Anthropic dans un provider de contexte afin que tout composant enfant puisse appeler l’API. Le provider crée le client une seule fois. Les composants enfants y accèdent via <0>useComplete()</0>.",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Composant de génération",
-  "generate_intro": "Le composant <code>GenerateHtml</code> appelle <code>useComplete()</code> à l’intérieur d’un <code>createEffect</code>. Lorsque le signal du prompt change, l’effet se déclenche, appelle l’API et passe le résultat à un callback. La garde <code>untrack</code> empêche les générations en double.",
+  "generate_intro": "Le composant <0>GenerateHtml</0> appelle <1>useComplete()</1> à l’intérieur d’un <2>createEffect</2>. Lorsque le signal du prompt change, l’effet se déclenche, appelle l’API et passe le résultat à un callback. La garde <3>untrack</3> empêche les générations en double.",
   "filename_generate": "components/generate-html.tsx",
   "heading_reactive_pipeline": "Pipeline réactif",
-  "pipeline_intro": "L’application relie la génération et le déploiement avec <code>Show</code>. Lorsqu’une génération est en attente, <code>GenerateHtml</code> s’exécute. Lorsqu’il produit du contenu, <code>Write</code> l’enregistre sur le disque, et la liste des sites se met à jour, ce qui déclenche le déploiement AWS en aval.",
+  "pipeline_intro": "L’application relie la génération et le déploiement à l’aide de <0>Show</0>. Lorsqu’une génération est en attente, <1>GenerateHtml</1> s’exécute. Lorsqu’il produit du contenu, <2>Write</2> l’enregistre sur le disque, et la liste des sites se met à jour, ce qui déclenche le déploiement AWS en aval.",
   "filename_app": "app.tsx",
-  "tip_persistence": "Les sorties de l’IA sont persistées comme tout autre résultat de <code>useAsyncOutput</code>. La génération ne se relance que si ses props d’entrée changent."
+  "tip_persistence": "Les sorties IA sont persistées comme tout autre résultat de <0>useAsyncOutput</0>. La génération ne s’exécute à nouveau que si ses props d’entrée changent."
 }

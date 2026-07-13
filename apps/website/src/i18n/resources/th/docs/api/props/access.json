@@ -1,9 +1,9 @@
 {
   "title": "access",
-  "description": "คลายค่า MaybeAccessor เรียกใช้หากเป็นฟังก์ชัน หรือคืนค่าโดยตรงหากไม่ใช่",
+  "description": "คลายค่า MaybeAccessor เรียกใช้ถ้าเป็นฟังก์ชัน ไม่เช่นนั้นคืนค่าโดยตรง",
   "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
   "param_value_desc": "ค่าหรือฟังก์ชัน accessor",
-  "returns_desc": "ค่าที่คลายแล้วของชนิด <code>T</code>"
+  "returns_desc": "ค่าที่คลายแล้วชนิด <0>T</0>"
 }

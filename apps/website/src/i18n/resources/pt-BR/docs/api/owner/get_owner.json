@@ -1,6 +1,6 @@
 {
   "title": "getOwner",
-  "description": "Retorna o owner reativo atual (a computation ou o root que possui o escopo atual).",
+  "description": "Retorna o owner reativo atual (a computation ou root que possui o escopo atual).",
   "signature": "getOwner(): Owner | null",
-  "returns_desc": "O <code>Owner</code> atual, ou <code>null</code> se chamado fora de um escopo reativo."
+  "returns_desc": "O <0>Owner</0> atual, ou <1>null</1> se chamado fora de um escopo reativo."
 }

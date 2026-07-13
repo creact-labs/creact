@@ -1,19 +1,19 @@
 {
   "title": "Integrasi AWS",
-  "description": "Bangun komponen bucket S3, unggah file, dan deployment website menggunakan AWS SDK.",
+  "description": "Bangun komponen S3 bucket, file upload, dan website deployment menggunakan AWS SDK.",
   "heading_aws_provider": "AWS Provider",
-  "provider_intro": "Bungkus client AWS dalam context provider. Komponen anak mengakses client S3, region, dan account ID melalui hooks. Provider mengambil account ID dengan <code>useAsyncOutput</code> dan menunggunya dengan <code>Show</code> sebelum merender children.",
+  "provider_intro": "Bungkus client AWS dalam context provider. Komponen child mengakses S3 client, region, dan account ID melalui hooks. Provider mengambil account ID dengan <0>useAsyncOutput</0> dan menunggunya dengan <1>Show</1> sebelum merender children.",
   "filename_provider": "providers/aws-provider.tsx",
   "heading_bucket_component": "Komponen Bucket",
-  "bucket_intro": "Komponen <code>Bucket</code> membuat bucket S3 dengan <code>useAsyncOutput</code>. Komponen ini memeriksa output tersimpan untuk melewati pembuatan saat restart. Handler cleanup mengosongkan dan menghapus bucket ketika komponen dihapus dari tree. Children hanya dirender setelah bucket siap.",
+  "bucket_intro": "Komponen <0>Bucket</0> membuat S3 bucket dengan <1>useAsyncOutput</1>. Komponen ini memeriksa output yang disimpan untuk melewati pembuatan saat restart. Cleanup handler mengosongkan dan menghapus bucket ketika komponen dihapus dari tree. Children dirender hanya setelah bucket siap.",
   "filename_bucket": "components/bucket.tsx",
   "heading_s3_file": "Unggah File S3",
-  "s3_file_intro": "Komponen <code>S3File</code> mengunggah konten ke S3. Komponen ini meng-hash konten dan membandingkannya dengan state tersimpan untuk melewati unggahan ketika tidak ada yang berubah.",
+  "s3_file_intro": "Komponen <0>S3File</0> mengunggah konten ke S3. Komponen ini meng-hash konten dan membandingkannya dengan state yang disimpan untuk melewati unggahan ketika tidak ada yang berubah.",
   "filename_s3_file": "shared/s3-file.tsx",
   "heading_website_component": "Menyusun WebSite",
-  "website_intro": "<code>WebSite</code> menyusun <code>Bucket</code> dan <code>S3File</code>. Bucket membuat dan mengonfigurasi dirinya sendiri, lalu <code>S3File</code> mengunggah konten sebagai child.",
+  "website_intro": "<0>WebSite</0> menyusun <1>Bucket</1> dan <2>S3File</2>. Bucket membuat dan mengonfigurasi dirinya sendiri, lalu <3>S3File</3> mengunggah konten sebagai child.",
   "filename_website": "components/website.tsx",
   "heading_multiple_resources": "Mendeploy Beberapa Site",
   "filename_app": "app.tsx",
-  "warning_cleanup": "Implementasikan handler cleanup untuk resource AWS. Tanpa cleanup, menghapus komponen dari tree tidak akan menghapus resource yang mendasarinya."
+  "warning_cleanup": "Implementasikan cleanup handler untuk resource AWS. Tanpa cleanup, menghapus komponen dari tree tidak akan menghapus resource yang mendasarinya."
 }

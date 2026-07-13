@@ -1,6 +1,6 @@
 {
   "title": "splitProps",
-  "description": "एक props object को key के अनुसार कई groups में विभाजित करता है। Reactivity को सुरक्षित रखता है।",
+  "description": "एक props object को key के अनुसार multiple groups में विभाजित करता है। Reactivity को preserve करता है।",
   "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "props object के बाद keys के एक या अधिक arrays लेता है। एक tuple लौटाता है जिसमें प्रत्येक key group के लिए एक object होता है, साथ ही सभी unmatched keys वाला एक remainder object।"
+  "behavior": "props object लेता है जिसके बाद keys के एक या अधिक arrays होते हैं। प्रत्येक key group के लिए एक object और सभी unmatched keys वाले remainder object सहित एक tuple return करता है।"
 }

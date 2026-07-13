@@ -1,10 +1,10 @@
 {
   "title": "onCleanup",
   "description": "Registriert eine Cleanup-Funktion am aktuellen reaktiven Owner. Wird ausgeführt, wenn der Owner disposed wird oder bevor ein Effect erneut läuft.",
-  "signature": "onCleanup<T extends () =&gt; any>(fn: T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; any</code>",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
   "param_fn_desc": "Cleanup-Funktion. Wird aufgerufen, wenn der Owner disposed wird.",
-  "returns_desc": "Dieselbe übergebene Funktion, der Einfachheit halber.",
-  "warning_no_owner": "<code>onCleanup</code> außerhalb eines <code>createRoot</code> oder <code>render</code> aufgerufen, warnt und der Cleanup wird nie ausgeführt."
+  "returns_desc": "Dieselbe übergebene Funktion, der Einfachheit basierend.",
+  "warning_no_owner": "<0>onCleanup</0> außerhalb eines <1>createRoot</1> oder <2>render</2> aufgerufen, warnt und die Cleanup-Funktion wird nie ausgeführt."
 }

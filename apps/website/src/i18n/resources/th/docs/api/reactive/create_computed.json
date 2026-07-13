@@ -1,15 +1,15 @@
 {
   "title": "createComputed",
-  "description": "รันฟังก์ชันแบบซิงโครนัสในระหว่าง computation phase ก่อน effects ใช้เมื่อคุณต้องการเขียนไปยัง signals อื่น ๆ เมื่อ dependencies อัปเดต",
+  "description": "รันฟังก์ชันแบบ synchronous ในระหว่าง computation phase ก่อน effects ใช้เมื่อต้องการเขียนไปยัง signals อื่นเมื่อ dependencies อัปเดต",
   "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
-  "param_fn_desc": "ฟังก์ชัน computation รันแบบซิงโครนัส",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
-  "param_value_desc": "ค่าเริ่มต้น (ไม่บังคับ)",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "ไม่บังคับ <code>name</code> สำหรับ debugging",
-  "warning_prefer_memo": "ควรใช้ <code>createMemo</code> สำหรับ derived values ใช้ <code>createComputed</code> เฉพาะเมื่อคุณต้องการเขียนไปยัง signals อื่น ๆ แบบซิงโครนัสในระหว่าง computation phase"
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "ฟังก์ชัน computation รันแบบ synchronous",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "ค่าเริ่มต้น (optional)",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Optional มี <0>name</0> สำหรับ debugging",
+  "warning_prefer_memo": "ควรใช้ <0>createMemo</0> สำหรับ derived values ใช้ <1>createComputed</1> เฉพาะเมื่อต้องการเขียนไปยัง signals อื่นแบบ synchronous ในระหว่าง computation phase"
 }

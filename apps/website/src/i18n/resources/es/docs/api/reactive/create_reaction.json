@@ -1,12 +1,12 @@
 {
   "title": "createReaction",
-  "description": "Separa el tracking de la ejecución. Rastrea una expresión y ejecuta una función diferente cuando cambie. La reaction se dispara una vez y luego debe rearmarse.",
+  "description": "Separa el seguimiento de la ejecución. Rastrea una expresión, ejecuta una función diferente cuando cambia. La reacción se dispara una vez y luego debe rearmarse.",
   "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
-  "param_on_invalidate_name": "<code>onInvalidate</code>",
-  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
   "param_on_invalidate_desc": "Callback que se dispara una vez cuando cambian los signals rastreados.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Opcional. <code>name</code> para depuración.",
-  "returns_body": "Una función <code>(tracking: () =&gt; void) =&gt; void</code> que arma la reaction. Llámalo con una expresión de tracking. Los signals leídos en su interior se rastrean. Cuando alguno de ellos cambia, <code>onInvalidate</code> se dispara una vez y el tracking se detiene hasta que vuelvas a llamar a la función."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opcional. <0>name</0> para depuración.",
+  "returns_body": "Una función <0>(tracking: () => void) => void</0> que arma la reacción. Llámala con una expresión de seguimiento. Los signals leídos en su interior se rastrean. Cuando cualquiera de ellos cambia, <1>onInvalidate</1> se dispara una vez y el seguimiento se detiene hasta que vuelvas a llamar a la función."
 }

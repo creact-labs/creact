@@ -2,8 +2,8 @@
   "title": "useContext",
   "description": "Membaca nilai dari context Provider terdekat di atas dalam tree.",
   "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<code>context</code>",
-  "param_context_type": "<code>Context&lt;T&gt;</code>",
-  "param_context_desc": "Objek context yang dibuat oleh <code>createContext</code>.",
-  "returns_desc": "Nilai dari <code>Provider</code> terdekat di atas. Jika tidak ada Provider, mengembalikan nilai default yang diberikan ke <code>createContext</code>."
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "Objek context yang dibuat oleh <0>createContext</0>.",
+  "returns_desc": "Nilai dari <0>Provider</0> terdekat di atas. Jika tidak ada Provider, mengembalikan nilai default yang diteruskan ke <1>createContext</1>."
 }

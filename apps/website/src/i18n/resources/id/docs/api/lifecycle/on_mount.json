@@ -2,7 +2,7 @@
   "title": "onMount",
   "description": "Menjalankan fungsi sekali saat komponen diinisialisasi, tanpa melacak dependensi.",
   "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
   "param_fn_desc": "Fungsi yang dijalankan sekali saat mount. Berjalan untracked; pembacaan signal tidak membuat dependensi."
 }

@@ -2,12 +2,12 @@
   "title": "Penanganan Error",
   "description": "ErrorBoundary dan catchError menangkap error di komputasi reaktif dan komponen anak.",
   "heading_error_boundary": "Komponen ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> menangkap error yang dilempar di child-nya dan merender fallback:",
+  "error_boundary_intro": "<0>ErrorBoundary</0> menangkap error yang dilempar di children-nya dan merender fallback:",
   "heading_catch_error": "Primitive catchError",
-  "catch_error_intro": "Untuk kontrol level yang lebih rendah, <code>catchError</code> membungkus sebuah fungsi dan menangkap error di komputasi anak:",
+  "catch_error_intro": "Untuk kontrol tingkat lebih rendah, <0>catchError</0> membungkus fungsi dan menangkap error di komputasi anak:",
   "heading_error_propagation": "Propagasi Error",
-  "error_propagation_body": "Error berpropagasi naik di rantai owner. Jika tidak ada error boundary yang menangkap error, error tersebut naik ke root dan dilempar. Error boundary bersarang hanya menangkap error dari subtree-nya.",
+  "error_propagation_body": "Error berpropagasi naik rantai owner. Jika tidak ada error boundary yang menangkap error, error tersebut naik ke root dan dilempar. Error boundary bersarang hanya menangkap error dari subtree-nya.",
   "heading_handler_errors": "Error di Handler",
-  "handler_errors_intro": "Handler <code>useAsyncOutput</code> berjalan di loop deployment async runtime, bukan di dalam komputasi reaktif. Error yang dilempar di handler menyebabkan deployment gagal. Error tersebut <strong>tidak</strong> ditangkap oleh <code>ErrorBoundary</code>. Tangani error di dalam handler Anda dengan try/catch:",
-  "warning_cleanup": "Fungsi cleanup yang didaftarkan dengan <code>onCleanup</code> tetap dijalankan saat error boundary menangkap error. Resource dilepaskan."
+  "handler_errors_intro": "Handler <0>useAsyncOutput</0> dijalankan di loop deployment async runtime, bukan di dalam komputasi reaktif. Error yang dilempar di handler menyebabkan deployment gagal. Error tersebut <1>tidak</1> ditangkap oleh <2>ErrorBoundary</2>. Tangani error di dalam handler Anda dengan try/catch:",
+  "warning_cleanup": "Fungsi cleanup yang didaftarkan dengan <0>onCleanup</0> tetap dijalankan saat error boundary menangkap error. Resource dilepaskan."
 }

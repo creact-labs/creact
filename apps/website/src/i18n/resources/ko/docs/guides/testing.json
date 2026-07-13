@@ -1,17 +1,17 @@
 {
   "title": "테스트",
-  "description": "Vitest와 createRoot로 CReact 컴포넌트와 반응형 로직을 테스트합니다.",
+  "description": "Vitest와 createRoot로 CReact 컴포넌트와 리액티브 로직을 테스트합니다.",
   "heading_setup": "설정",
   "setup_intro": "Vitest 설치:",
   "code_install": "npm install -D vitest",
-  "filename_terminal": "Terminal",
+  "filename_terminal": "터미널",
   "heading_testing_signals": "시그널 테스트",
-  "testing_signals_intro": "반응형 프리미티브를 <code>createRoot</code>로 감싸 테스트합니다:",
+  "testing_signals_intro": "리액티브 프리미티브를 <0>createRoot</0>로 감싸서 테스트하세요:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "컴포넌트 테스트",
-  "testing_components_intro": "컴포넌트를 직접 호출하고 핸들러 출력을 검사하여 테스트합니다:",
+  "testing_components_intro": "컴포넌트를 직접 호출하고 핸들러 출력을 검사하여 테스트하세요:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Flow 컴포넌트 테스트",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "이펙트, 클린업, 소유권 추적이 동작하도록 테스트를 <code>createRoot</code>로 감싸세요."
+  "tip_create_root": "이펙트, 클린업, 소유권 추적이 동작하도록 테스트를 <0>createRoot</0>로 감싸세요."
 }

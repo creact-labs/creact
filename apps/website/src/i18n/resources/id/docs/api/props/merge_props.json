@@ -1,5 +1,5 @@
 {
   "title": "mergeProps",
-  "description": "Menggabungkan beberapa objek props secara reaktif, dengan sumber belakangan menimpa yang lebih awal. Gunakan untuk props default.",
+  "description": "Menggabungkan beberapa objek props secara reaktif, dengan sumber yang belakangan menimpa yang sebelumnya. Gunakan untuk props default.",
   "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
 }

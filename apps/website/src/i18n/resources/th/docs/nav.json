@@ -3,7 +3,7 @@
     "getting_started": "เริ่มต้นใช้งาน",
     "architecture": "สถาปัตยกรรม",
     "build_your_own": "สร้างของคุณเอง",
-    "api_reference": "เอกสารอ้างอิง API"
+    "api_reference": "อ้างอิง API"
   },
   "groups": {
     "reactive": "Reactive",
@@ -15,7 +15,7 @@
     "props_children": "Props & Children",
     "arrays": "Arrays",
     "owner": "Owner",
-    "configuration": "Configuration",
+    "configuration": "การกำหนดค่า",
     "cli": "CLI"
   },
   "pages": {

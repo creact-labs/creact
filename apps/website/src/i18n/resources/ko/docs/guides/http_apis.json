@@ -1,13 +1,13 @@
 {
   "title": "HTTP API와 채널",
-  "description": "HTTP 엔드포인트를 노출하고 리액티브 시스템에 입력을 공급하는 채널 컴포넌트를 만드세요.",
+  "description": "HTTP 엔드포인트를 노출하고 리액티브 시스템에 입력을 전달하는 채널 컴포넌트를 구축합니다.",
   "heading_channels": "채널이란?",
-  "channels_desc": "채널은 마운트 시 HTTP 서버를 시작하고 클린업 시 중지하는 컴포넌트입니다. 들어오는 요청은 콜백 props를 호출하여 시그널을 업데이트하고 하위 컴포넌트를 트리거합니다.",
+  "channels_desc": "채널은 마운트 시 HTTP 서버를 시작하고 클린업 시 중지하는 컴포넌트입니다. 들어오는 요청은 콜백 props를 호출하여 시그널을 업데이트하고 다운스트림 컴포넌트를 트리거합니다.",
   "heading_http_server": "Channel 컴포넌트",
-  "http_server_intro": "<code>Channel</code> 컴포넌트는 <code>onMount</code> 내부에서 Hono 서버를 시작합니다. 라우트 핸들러는 props로 전달됩니다. <code>onCleanup</code>은 컴포넌트가 제거될 때 서버를 종료합니다.",
+  "http_server_intro": "<0>Channel</0> 컴포넌트는 <1>onMount</1> 내부에서 Hono 서버를 시작합니다. 라우트 핸들러는 props로 전달됩니다. 컴포넌트가 제거되면 <2>onCleanup</2>이 서버를 종료합니다.",
   "filename_channel": "components/channel.tsx",
   "heading_reactive_flow": "리액티브 시스템에 연결하기",
-  "reactive_flow_intro": "채널의 콜백 props는 <code>setSites</code>, <code>setPendingGeneration</code> 및 기타 setter를 호출합니다. 이러한 시그널 업데이트는 effect와 하위의 <code>Show</code>/<code>For</code> 컴포넌트를 트리거합니다.",
+  "reactive_flow_intro": "채널의 콜백 props는 <0>setSites</0>, <1>setPendingGeneration</1> 및 기타 setter를 호출합니다. 이러한 시그널 업데이트는 이펙트와 다운스트림의 <2>Show</2>/<3>For</3> 컴포넌트를 트리거합니다.",
   "filename_app": "app.tsx",
-  "info_cleanup": "<code>onCleanup</code> 콜백은 컴포넌트가 제거되거나 앱이 중지될 때 포트를 해제합니다."
+  "info_cleanup": "컴포넌트가 제거되거나 앱이 중지되면 <0>onCleanup</0> 콜백이 포트를 해제합니다."
 }

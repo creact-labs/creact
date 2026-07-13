@@ -2,12 +2,12 @@
   "title": "Tratamento de Erros",
   "description": "ErrorBoundary e catchError capturam erros em computações reativas e componentes filhos.",
   "heading_error_boundary": "Componente ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> captura erros lançados em seus filhos e renderiza um fallback:",
+  "error_boundary_intro": "<0>ErrorBoundary</0> captura erros lançados em seus filhos e renderiza um fallback:",
   "heading_catch_error": "Primitiva catchError",
-  "catch_error_intro": "Para controle de nível mais baixo, <code>catchError</code> envolve uma função e captura erros em computações filhas:",
+  "catch_error_intro": "Para controle de nível mais baixo, <0>catchError</0> envolve uma função e captura erros em computações filhas:",
   "heading_error_propagation": "Propagação de Erros",
-  "error_propagation_body": "Os erros se propagam pela cadeia de owners. Se nenhum error boundary capturar um erro, ele sobe até a raiz e é lançado. Error boundaries aninhados capturam erros apenas da sua subárvore.",
+  "error_propagation_body": "Erros se propagam pela cadeia de owners. Se nenhum error boundary capturar um erro, ele sobe até a raiz e é lançado. Error boundaries aninhados capturam erros apenas de sua subárvore.",
   "heading_handler_errors": "Erros em Handlers",
-  "handler_errors_intro": "Handlers de <code>useAsyncOutput</code> são executados no loop de deployment assíncrono do runtime, não dentro de computações reativas. Erros lançados em handlers fazem o deployment falhar. Eles <strong>não</strong> são capturados por <code>ErrorBoundary</code>. Trate erros dentro do seu handler com try/catch:",
-  "warning_cleanup": "Funções de cleanup registradas com <code>onCleanup</code> ainda são executadas quando um error boundary captura um erro. Os recursos são liberados."
+  "handler_errors_intro": "Handlers de <0>useAsyncOutput</0> executam no loop de deployment assíncrono do runtime, não dentro de computações reativas. Erros lançados em handlers fazem o deployment falhar. Eles <1>não</1> são capturados por <2>ErrorBoundary</2>. Trate erros dentro do seu handler com try/catch:",
+  "warning_cleanup": "Funções de cleanup registradas com <0>onCleanup</0> ainda são executadas quando um error boundary captura um erro. Os recursos são liberados."
 }

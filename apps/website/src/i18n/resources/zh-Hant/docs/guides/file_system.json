@@ -1,16 +1,16 @@
 {
   "title": "檔案系統操作",
-  "description": "使用 Node.js API 建置響應式的檔案讀寫元件。",
+  "description": "使用 Node.js API 建置響應式檔案讀寫元件。",
   "heading_read_component": "Read 元件",
-  "read_intro": "<code>Read</code> 元件會載入檔案，並將其內容以 accessor 形式傳遞給 render 回呼。子元件會以響應式方式接收內容。",
+  "read_intro": "<0>Read</0> 元件會載入檔案，並將其內容以 accessor 形式傳遞給 render 回呼。子元件會以響應式方式接收內容。",
   "filename_read": "shared/read.tsx",
   "heading_write_component": "Write 元件",
-  "write_intro": "<code>Write</code> 元件會以 <code>createEffect</code> 監看內容 accessor。當內容變更時，便會寫入磁碟。<code>untrack</code> 防護可避免重複寫入相同內容。",
+  "write_intro": "<0>Write</0> 元件會以 <1>createEffect</1> 監聽 content accessor。當內容變更時，就會寫入磁碟。<2>untrack</2> 防護可避免重複寫入相同內容。",
   "filename_write": "shared/write.tsx",
-  "heading_usage": "同時使用 Read 與 Write",
-  "usage_intro": "組合 <code>Read</code> 與 <code>Write</code>，建置以響應式方式轉換檔案內容的管線：",
+  "heading_usage": "搭配使用 Read 與 Write",
+  "usage_intro": "組合 <0>Read</0> 與 <1>Write</1>，即可建置以響應式方式轉換檔案內容的管線：",
   "filename_app": "app.tsx",
   "heading_file_memory": "基於檔案的記憶體",
-  "file_memory_intro": "CReact 中最常見的檔案系統模式，是用於狀態持久化的 <code>FileMemory</code> 實作：",
+  "file_memory_intro": "CReact 中最常見的檔案系統模式，是用於狀態持久化的 <0>FileMemory</0> 實作：",
   "filename_memory": "src/memory.ts"
 }

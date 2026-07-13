@@ -1,15 +1,15 @@
 {
   "title": "createRenderEffect",
-  "description": "रेंडर के दौरान किसी फ़ंक्शन को कतार में लगाने के बजाय समकालिक रूप से चलाता है। रनटाइम द्वारा आंतरिक रूप से उपयोग किया जाता है; एप्लिकेशन कोड में शायद ही कभी आवश्यक होता है।",
+  "description": "रेंडर के दौरान फ़ंक्शन को क्यू करने के बजाय सिंक्रोनस रूप से चलाता है। रनटाइम द्वारा आंतरिक रूप से उपयोग किया जाता है; एप्लिकेशन कोड में शायद ही कभी आवश्यक होता है।",
   "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "इफ़ेक्ट फ़ंक्शन। रेंडर के दौरान तुरंत चलता है।",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "वैकल्पिक प्रारंभिक मान।",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "वैकल्पिक। डिबगिंग के लिए <code>name</code>।",
-  "info_ordering": "रेंडर इफ़ेक्ट्स यूज़र इफ़ेक्ट्स (<code>createEffect</code>) से पहले चलते हैं। इसका उपयोग तब करें जब आपको रेंडर चरण के दौरान समकालिक प्रतिक्रियाओं की आवश्यकता हो, जैसे कंपोनेंट रेंडर ट्रैकिंग।"
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "वैकल्पिक। डिबगिंग के लिए <0>name</0>।",
+  "info_ordering": "रेंडर इफ़ेक्ट उपयोगकर्ता इफ़ेक्ट (<0>createEffect</0>) से पहले चलते हैं। जब आपको रेंडर फ़ेज़ के दौरान सिंक्रोनस प्रतिक्रियाओं की आवश्यकता हो, जैसे कंपोनेंट रेंडर ट्रैकिंग, तो इसका उपयोग करें।"
 }

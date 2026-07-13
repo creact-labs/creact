@@ -1,13 +1,13 @@
 {
   "title": "useAsyncOutput",
-  "description": "สร้าง resource พร้อม outputs ที่ถูก persist ไว้ เป็นฮุกหลักสำหรับ CReact components ที่โต้ตอบกับระบบภายนอก",
+  "description": "สร้าง resource พร้อม outputs ที่ถูก persist ไว้ เป็น hook หลักสำหรับ CReact components ที่โต้ตอบกับระบบภายนอก",
   "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
-  "param_props_or_getter_name": "<code>propsOrGetter</code>",
-  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
-  "param_props_or_getter_desc": "props แบบ static หรือ getter function สำหรับ reactive tracking เมื่อใช้ getter แล้ว handler จะรันใหม่เมื่อ dependencies เปลี่ยนแปลง",
-  "param_handler_name": "<code>handler</code>",
-  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
-  "param_handler_desc": "Setup function ที่ทำงานและตั้งค่า outputs อาจคืนค่า cleanup function (sync หรือ async)",
-  "returns_desc": "ออบเจ็กต์ที่มี accessor functions สำหรับแต่ละ output key ตัวอย่างเช่น หากเรียก <code>setOutputs({ url: '...' })</code> ค่าที่คืนมาจะมี <code>result.url()</code>",
-  "callout_idempotent": "Handlers ต้องเป็น idempotent เมื่อ restart handlers จะรันใหม่สำหรับทุก nodes เพื่อสร้าง side effects ขึ้นใหม่ (intervals, subscriptions ฯลฯ) ค่า outputs จะถูก restore จาก state แต่ handlers ต้องสร้าง runtime artifacts ขึ้นมาใหม่"
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "props แบบ static หรือ getter function สำหรับ reactive tracking เมื่อใช้ getter แล้ว handler จะรันใหม่เมื่อ dependencies เปลี่ยน",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "ฟังก์ชัน setup ที่ทำงานและกำหนด outputs อาจคืนค่า cleanup function (sync หรือ async)",
+  "returns_desc": "อ็อบเจ็กต์ที่มี accessor functions สำหรับแต่ละ output key ตัวอย่างเช่น หากเรียก <0>setOutputs({ url: '...' })</0> ค่าที่คืนมาจะมี <1>result.url()</1>",
+  "callout_idempotent": "Handlers ต้องเป็น idempotent เมื่อ restart handlers จะรันใหม่สำหรับทุก nodes เพื่อสร้าง side effects ขึ้นมาใหม่ (intervals, subscriptions ฯลฯ) ค่า outputs จะถูก restore จาก state แต่ handlers ต้องสร้าง runtime artifacts ใดๆ ขึ้นมาใหม่"
 }

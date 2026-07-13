@@ -2,15 +2,15 @@
   "reference": "อ้างอิง",
   "usage": "การใช้งาน",
   "parameters": "พารามิเตอร์",
-  "returns": "ค่าที่ส่งกลับ",
+  "returns": "ค่าที่คืน",
   "param_table": {
     "parameter": "พารามิเตอร์",
-    "type": "Type",
+    "type": "ชนิด",
     "description": "คำอธิบาย"
   },
   "prop_table": {
     "prop": "Prop",
-    "type": "Type",
+    "type": "ชนิด",
     "description": "คำอธิบาย"
   },
   "copy": "คัดลอก",
@@ -18,6 +18,6 @@
   "callout": {
     "info": "หมายเหตุ",
     "warning": "คำเตือน",
-    "tip": "ควรรู้"
+    "tip": "ดีที่ควรรู้"
   }
 }

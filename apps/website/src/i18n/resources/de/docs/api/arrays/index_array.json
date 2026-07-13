@@ -1,11 +1,11 @@
 {
   "title": "indexArray",
-  "description": "Indizierte Iteration. Jede Position ist ein reaktiver Accessor. Am besten für primitive Arrays.",
+  "description": "Indizierte Iteration. Jede Position ist ein reaktiver Accessor. Am besten für primitive Arrays geeignet.",
   "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
-  "param_list_name": "<code>list</code>",
-  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
   "param_list_desc": "Reaktive Array-Quelle.",
-  "param_map_fn_name": "<code>mapFn</code>",
-  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: number) =&gt; U</code>",
-  "param_map_fn_desc": "Map-Funktion. <code>v</code> ist ein Accessor (reaktiv). <code>i</code> ist ein statischer Index."
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Map-Funktion. <0>v</0> ist ein Accessor (reaktiv). <1>i</1> ist ein statischer Index."
 }

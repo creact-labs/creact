@@ -1,19 +1,19 @@
 {
   "title": "createEffect",
-  "description": "Membuat side effect reaktif yang dijalankan ketika dependensinya berubah. Gunakan untuk side effect (logging, pemanggilan eksternal). Dijalankan setelah batch saat ini.",
+  "description": "Membuat side effect reaktif yang dijalankan saat dependensinya berubah. Gunakan untuk side effect (logging, pemanggilan eksternal). Dijalankan setelah batch saat ini.",
   "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "Fungsi effect. Menerima nilai return sebelumnya. Dilacak secara otomatis.",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "Nilai awal opsional yang diteruskan ke eksekusi pertama.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Opsional. <code>name</code> untuk debugging.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opsional. <0>name</0> untuk debugging.",
   "heading_usage": "Penggunaan",
   "heading_tracking": "Melacak Dependensi",
   "heading_previous": "Menggunakan Nilai Sebelumnya",
   "heading_cleanup": "Cleanup dengan onCleanup",
-  "info_batching": "Effect di-batch. Beberapa update signal sinkron hanya memicu satu re-run. Gunakan <code>batch()</code> secara eksplisit untuk urutan update yang kompleks."
+  "info_batching": "Effect di-batch. Beberapa pembaruan signal sinkron hanya memicu satu re-run. Gunakan <0>batch()</0> secara eksplisit untuk urutan update yang kompleks."
 }

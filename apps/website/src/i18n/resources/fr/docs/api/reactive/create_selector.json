@@ -1,12 +1,12 @@
 {
   "title": "createSelector",
-  "description": "Crée un signal de sélection en O(2). Seules la sélection précédente et la nouvelle se réévaluent.",
+  "description": "Crée un signal de sélection en O(2). Seules la sélection précédente et la nouvelle sélection sont réévaluées.",
   "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
-  "param_source_name": "<code>source</code>",
-  "param_source_type": "<code>Accessor&lt;T&gt;</code>",
+  "param_source_name": "<0>source</0>",
+  "param_source_type": "<0>Accessor<T></0>",
   "param_source_desc": "Signal qui contient la valeur actuellement sélectionnée.",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(a: U, b: T) =&gt; boolean</code>",
-  "param_fn_desc": "Comparateur optionnel. Valeur par défaut : <code>===</code>.",
-  "returns_body": "Une fonction <code>(key: U) =&gt; boolean</code> qui renvoie <code>true</code> si <code>key</code> correspond à la sélection actuelle. Seuls les éléments précédemment sélectionnés et nouvellement sélectionnés se réévaluent. O(2) quelle que soit la taille de la liste."
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(a: U, b: T) => boolean</0>",
+  "param_fn_desc": "Comparateur optionnel. Par défaut <0>===</0>.",
+  "returns_body": "Une fonction <0>(key: U) => boolean</0> qui renvoie <1>true</1> si <2>key</2> correspond à la sélection actuelle. Seuls les éléments précédemment sélectionnés et nouvellement sélectionnés sont réévalués. O(2) quelle que soit la taille de la liste."
 }

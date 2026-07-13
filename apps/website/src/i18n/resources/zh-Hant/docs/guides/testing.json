@@ -4,14 +4,14 @@
   "heading_setup": "設定",
   "setup_intro": "安裝 Vitest：",
   "code_install": "npm install -D vitest",
-  "filename_terminal": "終端機",
+  "filename_terminal": "Terminal",
   "heading_testing_signals": "測試 Signals",
-  "testing_signals_intro": "將響應式原語包在 <code>createRoot</code> 中進行測試：",
+  "testing_signals_intro": "將響應式原語包在 <0>createRoot</0> 中進行測試：",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "測試元件",
-  "testing_components_intro": "直接呼叫元件並檢查其 handler 輸出來測試：",
+  "testing_components_intro": "直接呼叫元件並檢查其 handler 輸出以進行測試：",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "測試 Flow 元件",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "將測試包在 <code>createRoot</code> 中，讓 effects、cleanups 與 ownership 追蹤正常運作。"
+  "tip_create_root": "將測試包在 <0>createRoot</0> 中，讓 effects、cleanups 與 ownership tracking 正常運作。"
 }

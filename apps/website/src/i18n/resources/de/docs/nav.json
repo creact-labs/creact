@@ -11,7 +11,7 @@
     "store": "Store",
     "runtime": "Runtime",
     "context": "Context",
-    "lifecycle": "Lebenszyklus",
+    "lifecycle": "Lifecycle",
     "props_children": "Props & Children",
     "arrays": "Arrays",
     "owner": "Owner",

@@ -1,8 +1,8 @@
 {
   "title": "unwrap",
-  "description": "Mengembalikan deep clone dari data yang mendasari store proxy, dengan menghapus semua reaktivitas.",
+  "description": "Mengembalikan deep clone dari data yang mendasari dari store proxy, menghapus semua reaktivitas.",
   "signature": "unwrap<T>(store: T): T",
-  "param_store_name": "<code>store</code>",
-  "param_store_type": "<code>T</code>",
-  "param_store_desc": "Store proxy yang dibuat oleh <code>createStore</code>."
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Store proxy yang dibuat oleh <0>createStore</0>."
 }

@@ -1,5 +1,5 @@
 {
   "title": "mergeProps",
-  "description": "कई props ऑब्जेक्ट्स को रिएक्टिवली मर्ज करता है, जहाँ बाद के sources पहले वाले को ओवरराइड करते हैं। डिफ़ॉल्ट props के लिए उपयोग करें।",
+  "description": "एकाधिक props objects को reactively merge करता है, जिसमें later sources earlier ones को override करते हैं। Default props के लिए उपयोग करें।",
   "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
 }

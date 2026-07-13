@@ -2,18 +2,18 @@
   "title": "AWS インテグレーション",
   "description": "AWS SDK を使用して、S3 バケット、ファイルアップロード、Web サイトデプロイのコンポーネントを構築します。",
   "heading_aws_provider": "AWS プロバイダー",
-  "provider_intro": "AWS クライアントをコンテキストプロバイダーでラップします。子コンポーネントはフック経由で S3 クライアント、リージョン、アカウント ID にアクセスします。プロバイダーは <code>useAsyncOutput</code> でアカウント ID を取得し、<code>Show</code> で待機してから子をレンダリングします。",
+  "provider_intro": "AWS クライアントをコンテキストプロバイダーでラップします。子コンポーネントはフック経由で S3 クライアント、リージョン、アカウント ID にアクセスします。プロバイダーは <0>useAsyncOutput</0> でアカウント ID を取得し、<1>Show</1> で待機してから子をレンダリングします。",
   "filename_provider": "providers/aws-provider.tsx",
   "heading_bucket_component": "Bucket コンポーネント",
-  "bucket_intro": "<code>Bucket</code> コンポーネントは <code>useAsyncOutput</code> で S3 バケットを作成します。保存済みの出力を確認し、再起動時は作成をスキップします。クリーンアップハンドラーは、コンポーネントがツリーから削除されたときにバケットを空にして削除します。子はバケットの準備が整ってからレンダリングされます。",
+  "bucket_intro": "<0>Bucket</0> コンポーネントは <1>useAsyncOutput</1> で S3 バケットを作成します。保存済みの出力を確認し、再起動時は作成をスキップします。クリーンアップハンドラーは、コンポーネントがツリーから削除されたときにバケットを空にして削除します。子はバケットの準備が完了してからレンダリングされます。",
   "filename_bucket": "components/bucket.tsx",
   "heading_s3_file": "S3 ファイルアップロード",
-  "s3_file_intro": "<code>S3File</code> コンポーネントはコンテンツを S3 にアップロードします。コンテンツをハッシュし、保存済みの状態と比較して、変更がない場合はアップロードをスキップします。",
+  "s3_file_intro": "<0>S3File</0> コンポーネントはコンテンツを S3 にアップロードします。コンテンツをハッシュ化し、保存済みの状態と比較して、変更がない場合はアップロードをスキップします。",
   "filename_s3_file": "shared/s3-file.tsx",
   "heading_website_component": "WebSite の構成",
-  "website_intro": "<code>WebSite</code> は <code>Bucket</code> と <code>S3File</code> を組み合わせます。バケットは自身を作成・設定し、その後 <code>S3File</code> が子としてコンテンツをアップロードします。",
+  "website_intro": "<0>WebSite</0> は <1>Bucket</1> と <2>S3File</2> を組み合わせます。バケットは自身の作成と設定を行い、その後 <3>S3File</3> が子としてコンテンツをアップロードします。",
   "filename_website": "components/website.tsx",
   "heading_multiple_resources": "複数サイトのデプロイ",
   "filename_app": "app.tsx",
-  "warning_cleanup": "AWS リソースにはクリーンアップハンドラーを実装してください。クリーンアップがないと、コンポーネントをツリーから削除しても基盤となるリソースは削除されません。"
+  "warning_cleanup": "AWS リソースのクリーンアップハンドラーを実装してください。クリーンアップがないと、コンポーネントをツリーから削除しても基盤のリソースは削除されません。"
 }

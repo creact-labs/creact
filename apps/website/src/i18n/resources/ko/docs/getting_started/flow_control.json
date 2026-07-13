@@ -2,13 +2,13 @@
   "title": "흐름 제어",
   "description": "Show, For, Switch, ErrorBoundary는 반응형 조건에 따라 어떤 컴포넌트가 실행될지 제어합니다.",
   "heading_show": "Show를 사용한 조건부 렌더링",
-  "show_intro": "<code>Show</code>는 <code>when</code> 조건이 truthy일 때만 children을 렌더링합니다. fallback도 제공할 수 있습니다.",
-  "show_callback_intro": "콜백 자식으로 truthy 값에 접근할 수 있습니다:",
-  "heading_for": "For를 사용한 순회",
-  "for_intro": "<code>For</code>는 반응형 리스트를 순회합니다. 각 항목은 참조로 키가 지정됩니다. 리스트가 변경되면 영향을 받는 항목만 업데이트됩니다.",
+  "show_intro": "<0>Show</0>는 <1>when</1> 조건이 truthy일 때만 자식을 렌더링합니다. fallback도 제공할 수 있습니다.",
+  "show_callback_intro": "콜백 자식을 사용해 truthy 값에 접근할 수 있습니다:",
+  "heading_for": "For로 반복하기",
+  "for_intro": "<0>For</0>는 반응형 리스트를 순회합니다. 각 항목은 참조로 키가 지정됩니다. 리스트가 변경되면 영향을 받는 항목만 업데이트됩니다.",
   "heading_switch": "Switch를 사용한 다중 분기",
-  "switch_intro": "<code>Switch</code>와 <code>Match</code>는 다중 분기 조건부 로직을 제공합니다:",
-  "heading_error_boundary": "ErrorBoundary를 사용한 오류 처리",
-  "error_boundary_intro": "<code>ErrorBoundary</code>는 자식 컴포넌트에서 throw된 오류를 포착합니다:",
-  "info_accessor_conditions": "흐름 컴포넌트는 조건에 접근자 함수(<code>() =&gt; value</code>)를 받습니다. 조건은 부모 컴포넌트를 다시 실행하지 않고 재평가됩니다."
+  "switch_intro": "<0>Switch</0>와 <1>Match</1>는 다중 분기 조건부 로직을 제공합니다:",
+  "heading_error_boundary": "ErrorBoundary를 사용한 에러 처리",
+  "error_boundary_intro": "<0>ErrorBoundary</0>는 자식 컴포넌트에서 throw된 에러를 잡습니다:",
+  "info_accessor_conditions": "흐름 컴포넌트는 조건에 접근자 함수(<0>() => value</0>)를 사용합니다. 조건은 부모 컴포넌트를 재실행하지 않고 재평가됩니다."
 }

@@ -1,8 +1,8 @@
 {
   "title": "Модель Fiber",
-  "description": "Fiber — внутреннее представление дерева компонентов в CReact. Каждому экземпляру компонента соответствует узел fiber.",
+  "description": "Fiber — внутреннее представление дерева компонентов в CReact. Каждый экземпляр компонента соответствует узлу fiber.",
   "heading_what_is_fiber": "Что такое Fiber?",
-  "what_is_fiber_body": "Fiber — единица работы в дереве рендера. Каждому экземпляру компонента в JSX соответствует узел fiber. Fiber образуют дерево, которое отражает иерархию ваших компонентов.",
+  "what_is_fiber_body": "Fiber — единица работы в дереве рендера. Каждый экземпляр компонента в JSX соответствует узлу fiber. Fiber образуют дерево, которое отражает иерархию ваших компонентов.",
   "heading_fiber_structure": "Структура Fiber",
   "code_fiber_structure": "// Component function, intrinsic tag, Fragment symbol, or nothing\ntype FiberType =\n  | ((props: Record<string, unknown>) => unknown)\n  | string\n  | symbol\n  | null;\n\ninterface Fiber {\n  type: FiberType;\n  props: Record<string, unknown>;\n  children: Fiber[];\n  path: string[];               // Path segments from root to this fiber\n  key?: string | number;        // User-provided key for stable identity\n\n  // Instance bindings (from useAsyncOutput)\n  instanceNodes: InstanceNode[];\n\n  // Store (from createStore, JSON-serializable)\n  store?: object;\n\n  // Owner for reactive scope (effects, cleanups)\n  owner?: Owner | null;\n}",
   "code_fiber_structure_filename": "fiber.ts (упрощённо)",
@@ -12,16 +12,16 @@
   "step_reconciliation_label": "Согласование",
   "step_reconciliation_body": "fiber сравниваются с предыдущим состоянием",
   "step_execution_label": "Выполнение",
-  "step_execution_body": "для новых или изменённых fiber вызываются обработчики",
+  "step_execution_body": "для новых или изменённых fiber запускаются обработчики",
   "step_serialization_label": "Сериализация",
-  "step_serialization_body": "выходы fiber сохраняются в Memory",
+  "step_serialization_body": "outputs fiber сохраняются в Memory",
   "step_cleanup_label": "Очистка",
-  "step_cleanup_body": "для удалённых fiber вызываются обработчики cleanup",
+  "step_cleanup_body": "для удалённых fiber вызываются cleanup-обработчики",
   "heading_paths": "Пути Fiber",
-  "paths_body": "У каждого fiber есть <code>path</code> — массив строковых сегментов от корня до этого fiber. Instance node получают ID, объединяя path через <code>\".\"</code> (например, <code>app.aws.web-site-blog</code>). Пути используются для сопоставления узлов между запусками при согласовании.",
+  "paths_body": "У каждого fiber есть <0>path</0> — массив строковых сегментов от корня до этого fiber. Instance node получают свой ID, объединяя path через <1>\".\"</1> (например, <2>app.aws.web-site-blog</2>). Пути используются для сопоставления узлов между запусками при согласовании.",
   "code_paths": "// <App>\n//   <AWS region=\"us-east-1\">\n//     <WebSite key=\"blog\" name=\"blog\" />\n//     <WebSite key=\"docs\" name=\"docs\" />\n//   </AWS>\n// </App>\n\n// Fiber paths (string[]):\n// [\"App\"]\n// [\"App\", \"AWS\"]\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"blog\")\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"docs\")\n\n// Instance node IDs (path.join(\".\")):\n// \"app.aws.web-site-blog\"\n// \"app.aws.web-site-docs\"",
   "heading_instance_nodes": "Fiber и Instance Node",
-  "instance_nodes_body": "Fiber представляют структуру дерева компонентов. Когда компонент вызывает <code>useAsyncOutput</code>, создаётся <code>InstanceNode</code>, который привязывается к fiber через <code>instanceNodes</code>. Именно instance node сравнивает reconciler и развёртывает runtime. Они содержат handler, outputs и функцию cleanup.",
+  "instance_nodes_body": "Fiber представляют структуру дерева компонентов. Когда компонент вызывает <0>useAsyncOutput</0>, создаётся <1>InstanceNode</1>, который прикрепляется к fiber через <2>instanceNodes</2>. Instance node — то, что reconciler сравнивает (diff), а runtime развёртывает. Они содержат handler, outputs и cleanup-функцию.",
   "heading_source": "Исходный код",
-  "source_body": "Интерфейс fiber и <code>createFiber</code> находятся в <code>runtime/src/fiber.ts</code>. Instance node определены в <code>runtime/src/instance.ts</code>. Логика рендеринга — в <code>runtime/src/render.ts</code>."
+  "source_body": "Интерфейс fiber и <0>createFiber</0> находятся в <1>runtime/src/fiber.ts</1>. Instance node определены в <2>runtime/src/instance.ts</2>. Логика рендеринга — в <3>runtime/src/render.ts</3>."
 }

@@ -2,8 +2,8 @@
   "title": "createContext",
   "description": "Membuat context untuk meneruskan data melalui pohon komponen tanpa props.",
   "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<code>defaultValue</code>",
-  "param_default_value_type": "<code>T</code>",
-  "param_default_value_desc": "Opsional. Nilai yang dikembalikan oleh <code>useContext</code> ketika tidak ada Provider di atasnya.",
-  "returns_desc": "Objek <code>Context&lt;T&gt;</code> dengan komponen <code>Provider</code>."
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "Opsional. Nilai yang dikembalikan oleh <0>useContext</0> ketika tidak ada Provider di atasnya.",
+  "returns_desc": "Objek <0>Context<T></0> dengan komponen <1>Provider</1>."
 }

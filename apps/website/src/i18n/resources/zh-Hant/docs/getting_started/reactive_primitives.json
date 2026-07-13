@@ -1,15 +1,15 @@
 {
-  "title": "響應式原語",
+  "title": "反應式原語",
   "description": "Signals、effects 與 memos 讓元件能回應變化。",
   "heading_signals": "Signals",
-  "signals_intro": "Signal 是一個響應式值。它會回傳一對 getter 與 setter。在 effect 內讀取 getter 會註冊依賴。當 signal 變更時，effect 會重新執行。",
+  "signals_intro": "Signal 是反應式值，會回傳一對 getter 與 setter。在 effect 內讀取 getter 會註冊依賴；當 signal 變更時，effect 會重新執行。",
   "heading_effects": "Effects",
-  "effects_intro": "Effects 會在其依賴變更時執行副作用。CReact 會追蹤 effect 函式內讀取了哪些 signals。",
+  "effects_intro": "Effects 會在依賴變更時執行副作用。CReact 會追蹤在 effect 函式內讀取了哪些 signals。",
   "info_batched_effects": "Effects 會被排入佇列並批次處理。在單一同步區塊中多次更新 signal，只會觸發一次 effect 重新執行。",
   "heading_memos": "Memos",
-  "memos_intro": "Memo 是衍生的響應式值。它會快取結果，只有在依賴變更時才重新計算。",
-  "heading_batching": "批次處理",
-  "batching_intro": "<code>batch()</code> 會將多次 signal 更新合併為單一重新評估流程：",
+  "memos_intro": "Memo 是衍生的反應式值。它會快取結果，且僅在依賴變更時重新計算。",
+  "heading_batching": "Batching",
+  "batching_intro": "<0>batch()</0> 會將多次 signal 更新合併為單一重新評估過程：",
   "heading_untrack": "Untrack",
-  "untrack_intro": "<code>untrack()</code> 會讀取 signal 但不建立依賴："
+  "untrack_intro": "<0>untrack()</0> 會讀取 signal 而不建立依賴："
 }

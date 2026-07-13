@@ -2,11 +2,11 @@
   "title": "runWithOwner",
   "description": "Executa uma função sob um owner reativo específico. Necessário para criar effects em callbacks assíncronos.",
   "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
-  "param_owner_name": "<code>owner</code>",
-  "param_owner_type": "<code>Owner | null</code>",
-  "param_owner_desc": "O escopo do owner sob o qual executar. Obtenha-o com <code>getOwner()</code>. Aceita <code>null</code>.",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "Função a executar. Quaisquer effects/cleanups criados internamente são owned pelo <code>owner</code>.",
-  "info_async_owner": "Após <code>await</code> ou dentro de callbacks, o owner reativo é perdido. Capture-o de forma síncrona com <code>getOwner()</code> e restaure-o com <code>runWithOwner()</code>."
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "O escopo owner sob o qual executar. Obtenha-o com <0>getOwner()</0>. Aceita <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Função a executar. Quaisquer effects/cleanups criados dentro são de propriedade de <0>owner</0>.",
+  "info_async_owner": "Após <0>await</0> ou dentro de callbacks, o owner reativo é perdido. Capture-o de forma síncrona com <1>getOwner()</1> e restaure-o com <2>runWithOwner()</2>."
 }

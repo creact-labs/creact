@@ -1,16 +1,16 @@
 {
   "title": "createRoot",
-  "description": "建立一個響應式根，擁有其中所有計算，並提供 dispose 函式以進行拆除。",
+  "description": "建立一個響應式根，擁有其內部的所有計算，並提供 dispose 函式以進行清理。",
   "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(dispose: () =&gt; void) =&gt; T</code>",
-  "param_fn_desc": "在 root 內執行的函式。接收一個 dispose 函式，用以拆除所有擁有的計算。",
-  "param_detached_owner_name": "<code>detachedOwner</code>",
-  "param_detached_owner_type": "<code>Owner</code>",
-  "param_detached_owner_desc": "選用。root 的父層 owner。提供時，root 會附加到此 owner 的 context 鏈（供 lookupContext 使用），但仍可獨立 dispose。",
-  "returns_body": "<code>fn</code> 的回傳值。",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(dispose: () => void) => T</0>",
+  "param_fn_desc": "在根內執行的函式。接收一個 dispose 函式，用以拆除所有擁有的計算。",
+  "param_detached_owner_name": "<0>detachedOwner</0>",
+  "param_detached_owner_type": "<0>Owner</0>",
+  "param_detached_owner_desc": "選用。根的父層 Owner。若提供，根會附加至此 Owner 的 context 鏈（用於 lookupContext），但仍可獨立 dispose。",
+  "returns_body": "<0>fn</0> 的回傳值。",
   "heading_usage": "用法",
   "heading_basic": "基本 Root",
   "heading_testing": "在測試中",
-  "info_render_root": "<code>render()</code> 會自動建立 root。你只需要在 <code>render()</code> 之外的獨立響應式範圍使用 <code>createRoot</code>，例如測試。"
+  "info_render_root": "<0>render()</0> 會自動建立 root。只有在 <2>render()</2> 之外的獨立響應式作用域（例如測試）才需要使用 <1>createRoot</1>。"
 }

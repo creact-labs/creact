@@ -1,10 +1,10 @@
 {
   "title": "onCleanup",
-  "description": "在当前响应式 owner 上注册清理函数。当 owner 被销毁时，或在 effect 重新运行之前执行。",
+  "description": "在当前响应式所有者上注册清理函数。在所有者被销毁时，或在 effect 重新运行之前执行。",
   "signature": "onCleanup<T extends () => any>(fn: T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; any</code>",
-  "param_fn_desc": "清理函数。在 owner 销毁时调用。",
-  "returns_desc": "为方便起见，返回传入的同一函数。",
-  "warning_no_owner": "在 <code>createRoot</code> 或 <code>render</code> 之外调用 <code>onCleanup</code> 会发出警告，且清理函数永远不会运行。"
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "清理函数。在所有者销毁时调用。",
+  "returns_desc": "返回传入的同一函数，便于使用。",
+  "warning_no_owner": "在 <1>createRoot</1> 或 <2>render</2> 之外调用 <0>onCleanup</0> 会发出警告，且清理函数永远不会运行。"
 }

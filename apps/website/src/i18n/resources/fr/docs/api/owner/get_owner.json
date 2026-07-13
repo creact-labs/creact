@@ -1,6 +1,6 @@
 {
   "title": "getOwner",
-  "description": "Retourne le propriétaire réactif actuel (le calcul ou la racine qui possède la portée courante).",
+  "description": "Renvoie le propriétaire réactif courant (la computation ou le root qui possède le scope actuel).",
   "signature": "getOwner(): Owner | null",
-  "returns_desc": "L’<code>Owner</code> actuel, ou <code>null</code> si appelé en dehors d’une portée réactive."
+  "returns_desc": "Le <0>Owner</0> courant, ou <1>null</1> s’il est appelé en dehors d’un scope réactif."
 }

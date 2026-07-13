@@ -2,8 +2,8 @@
   "title": "children",
   "description": "Resolve children passados a um componente em um accessor reativo. Lida com children lazy e arrays.",
   "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>Accessor&lt;JSXElement&gt;</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
   "param_fn_desc": "Accessor que retorna a prop children.",
-  "returns_desc": "Um <code>ChildrenReturn</code>, um accessor invocável que retorna os children resolvidos. Também possui um método <code>toArray()</code> que retorna os children resolvidos como um array plano."
+  "returns_desc": "Um <0>ChildrenReturn</0>, um accessor invocável que retorna os children resolvidos. Também possui um método <1>toArray()</1> que retorna os children resolvidos como um array plano."
 }

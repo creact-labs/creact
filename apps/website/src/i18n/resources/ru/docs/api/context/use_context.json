@@ -1,9 +1,9 @@
 {
   "title": "useContext",
-  "description": "Читает значение ближайшего context Provider выше в дереве.",
+  "description": "Читает значение ближайшего Provider контекста выше в дереве.",
   "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<code>context</code>",
-  "param_context_type": "<code>Context&lt;T&gt;</code>",
-  "param_context_desc": "Объект контекста, созданный с помощью <code>createContext</code>.",
-  "returns_desc": "Значение от ближайшего <code>Provider</code> выше. Если Provider отсутствует, возвращает значение по умолчанию, переданное в <code>createContext</code>."
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "Объект контекста, созданный с помощью <0>createContext</0>.",
+  "returns_desc": "Значение из ближайшего <0>Provider</0> выше. Если Provider отсутствует, возвращает значение по умолчанию, переданное в <1>createContext</1>."
 }

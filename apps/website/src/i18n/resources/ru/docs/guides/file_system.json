@@ -1,16 +1,16 @@
 {
   "title": "Операции с файловой системой",
-  "description": "Создавайте реактивные компоненты чтения и записи файлов с помощью API Node.js.",
+  "description": "Создавайте реактивные компоненты для чтения и записи файлов с использованием Node.js API.",
   "heading_read_component": "Компонент Read",
-  "read_intro": "Компонент <code>Read</code> загружает файл и передаёт его содержимое как accessor в render callback. Дочерние элементы получают содержимое реактивно.",
+  "read_intro": "Компонент <0>Read</0> загружает файл и передаёт его содержимое как accessor в render callback. Дочерние элементы получают содержимое реактивно.",
   "filename_read": "shared/read.tsx",
   "heading_write_component": "Компонент Write",
-  "write_intro": "Компонент <code>Write</code> отслеживает content accessor с помощью <code>createEffect</code>. При изменении содержимого выполняется запись на диск. Защита через <code>untrack</code> предотвращает повторную запись того же содержимого.",
+  "write_intro": "Компонент <0>Write</0> отслеживает accessor содержимого с помощью <1>createEffect</1>. При изменении содержимого оно записывается на диск. Защита <2>untrack</2> предотвращает повторную запись того же содержимого.",
   "filename_write": "shared/write.tsx",
   "heading_usage": "Совместное использование Read и Write",
-  "usage_intro": "Комбинируйте <code>Read</code> и <code>Write</code>, чтобы создавать пайплайны, реактивно преобразующие содержимое файлов:",
+  "usage_intro": "Комбинируйте <0>Read</0> и <1>Write</1>, чтобы создавать пайплайны, которые реактивно преобразуют содержимое файлов:",
   "filename_app": "app.tsx",
-  "heading_file_memory": "Файловая память",
-  "file_memory_intro": "Самый распространённый паттерн работы с файловой системой в CReact — реализация <code>FileMemory</code> для персистентности состояния:",
+  "heading_file_memory": "Память на основе файлов",
+  "file_memory_intro": "Самый распространённый паттерн работы с файловой системой в CReact — реализация <0>FileMemory</0> для персистентности состояния:",
   "filename_memory": "src/memory.ts"
 }

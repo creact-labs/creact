@@ -2,7 +2,7 @@
   "title": "unwrap",
   "description": "返回 store 代理底层数据的深拷贝，并剥离所有响应性。",
   "signature": "unwrap<T>(store: T): T",
-  "param_store_name": "<code>store</code>",
-  "param_store_type": "<code>T</code>",
-  "param_store_desc": "由 <code>createStore</code> 创建的 store 代理。"
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "由 <0>createStore</0> 创建的 store 代理。"
 }

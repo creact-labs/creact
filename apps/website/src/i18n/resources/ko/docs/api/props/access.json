@@ -2,8 +2,8 @@
   "title": "access",
   "description": "MaybeAccessor를 언랩합니다. 함수인 경우 호출하고, 그렇지 않으면 직접 반환합니다.",
   "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T | () =&gt; T</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
   "param_value_desc": "값 또는 accessor 함수입니다.",
-  "returns_desc": "타입 <code>T</code>의 언랩된 값입니다."
+  "returns_desc": "타입 <0>T</0>의 언랩된 값입니다."
 }

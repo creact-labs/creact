@@ -1,14 +1,14 @@
 {
-  "title": "पर्यावरण चर",
-  "description": "process.env का उपयोग करके विभिन्न environments के लिए अपने ऐप को कॉन्फ़िगर करें।",
-  "heading_reading": "पर्यावरण चर पढ़ना",
-  "reading_intro": "किसी भी Node.js ऐप की तरह <code>process.env</code> के माध्यम से पर्यावरण चर एक्सेस करें:",
+  "title": "Environment Variables",
+  "description": "process.env का उपयोग करके अपने ऐप को विभिन्न environments के लिए कॉन्फ़िगर करें।",
+  "heading_reading": "Environment Variables पढ़ना",
+  "reading_intro": "किसी भी Node.js ऐप की तरह <0>process.env</0> के माध्यम से environment variables एक्सेस करें:",
   "filename_app": "app.tsx",
-  "heading_per_environment": "Per-Environment कॉन्फ़िगरेशन",
+  "heading_per_environment": "Per-Environment Configuration",
   "filename_config": "config.ts",
   "heading_secrets": "Secrets हैंडल करना",
   "secrets_intro": "Environment variables या secret manager के माध्यम से secrets पास करें:",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact में built-in <code>.env</code> file loading नहीं है। <code>dotenv</code> जैसे package का उपयोग करें या अपने shell / CI environment में variables सेट करें।"
+  "warning_dotenv": "CReact में बिल्ट-इन <0>.env</0> फ़ाइल लोडिंग नहीं है। <1>dotenv</1> जैसे पैकेज का उपयोग करें या अपने shell / CI environment में variables सेट करें।"
 }

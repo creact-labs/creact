@@ -4,9 +4,9 @@
   "nav_docs": "เอกสาร",
   "nav_github": "GitHub",
   "nav_aria": "การนำทางหลัก",
-  "hero_subtitle": "ใช้ JSX เพื่อทำให้เวิร์กโฟลว์ที่ทนทานเป็นอัตโนมัติ",
+  "hero_subtitle": "ใช้ JSX เพื่อทำให้เวิร์กโฟลว์ที่คงทนเป็นอัตโนมัติ",
   "get_started": "เริ่มต้นใช้งาน",
-  "view_demo": "ดูเดโม",
+  "view_demo": "ดู Demo",
   "footer_license": "Apache 2.0",
   "code_filename": "app.tsx"
 }

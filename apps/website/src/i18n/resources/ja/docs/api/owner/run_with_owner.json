@@ -1,12 +1,12 @@
 {
   "title": "runWithOwner",
-  "description": "特定のリアクティブオーナーの下で関数を実行します。非同期コールバック内で effect を作成するために必要です。",
+  "description": "特定のリアクティブオーナーの下で関数を実行します。非同期コールバック内でエフェクトを作成する際に必要です。",
   "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
-  "param_owner_name": "<code>owner</code>",
-  "param_owner_type": "<code>Owner | null</code>",
-  "param_owner_desc": "実行するオーナーのスコープ。<code>getOwner()</code> から取得します。<code>null</code> を受け付けます。",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "実行する関数。内部で作成された effect/cleanup は <code>owner</code> によって所有されます。",
-  "info_async_owner": "<code>await</code> の後やコールバック内では、リアクティブオーナーが失われます。<code>getOwner()</code> で同期的にキャプチャし、<code>runWithOwner()</code> で復元します。"
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "実行対象のオーナースコープ。<0>getOwner()</0> から取得します。<1>null</1> も受け付けます。",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "実行する関数。内部で作成されたエフェクト/クリーンアップは <0>owner</0> が所有します。",
+  "info_async_owner": "<0>await</0> の後やコールバック内では、リアクティブオーナーが失われます。<1>getOwner()</1> で同期的にキャプチャし、<2>runWithOwner()</2> で復元してください。"
 }

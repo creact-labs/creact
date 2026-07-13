@@ -1,14 +1,14 @@
 {
   "title": "環境変数",
-  "description": "process.env を使用して、異なる環境向けにアプリを設定します。",
+  "description": "process.env を使用して、環境ごとにアプリを設定します。",
   "heading_reading": "環境変数の読み取り",
-  "reading_intro": "通常の Node.js アプリと同様に、<code>process.env</code> を通じて環境変数にアクセスします:",
+  "reading_intro": "通常の Node.js アプリと同様に、<0>process.env</0> 経由で環境変数にアクセスします:",
   "filename_app": "app.tsx",
   "heading_per_environment": "環境ごとの設定",
   "filename_config": "config.ts",
-  "heading_secrets": "シークレットの取り扱い",
-  "secrets_intro": "シークレットは環境変数またはシークレットマネージャー経由で渡します:",
+  "heading_secrets": "シークレットの扱い",
+  "secrets_intro": "環境変数またはシークレットマネージャー経由でシークレットを渡します:",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact には <code>.env</code> ファイルの組み込み読み込み機能はありません。<code>dotenv</code> のようなパッケージを使用するか、シェル / CI 環境で変数を設定してください。"
+  "warning_dotenv": "CReact には組み込みの <0>.env</0> ファイル読み込み機能はありません。<1>dotenv</1> などのパッケージを使用するか、シェル / CI 環境で変数を設定してください。"
 }

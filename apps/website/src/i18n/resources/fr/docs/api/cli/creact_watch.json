@@ -1,16 +1,16 @@
 {
   "title": "creact --watch",
-  "description": "Lance CReact en mode watch. Redémarre automatiquement lorsque les fichiers sources changent.",
+  "description": "Exécute CReact en mode watch. Redémarre automatiquement lorsque les fichiers source changent.",
   "heading_usage": "Utilisation",
   "code_usage": "creact --watch <entry-file>",
   "filename_terminal": "Terminal",
   "heading_behavior": "Comportement",
-  "behavior_run": "Vérifie les types et exécute votre fichier d'entrée",
-  "behavior_watch": "Surveille les fichiers <code>.ts</code>, <code>.tsx</code>, <code>.js</code> et <code>.jsx</code> pour détecter les modifications",
-  "behavior_restart": "Lors d'un changement de fichier : arrête l'exécution en cours (exécute les cleanups), revérifie les types et redémarre",
-  "behavior_state": "L'état persiste entre les redémarrages via l'interface Memory",
-  "behavior_stop": "Appuyez sur <code>Ctrl+C</code> pour arrêter",
+  "behavior_run": "Vérifie les types et exécute votre fichier d’entrée",
+  "behavior_watch": "Surveille les fichiers <0>.ts</0>, <1>.tsx</1>, <2>.js</2> et <3>.jsx</3> pour détecter les changements",
+  "behavior_restart": "Lors d’un changement de fichier : arrête l’exécution en cours (exécute les cleanups), relance le type-check et redémarre",
+  "behavior_state": "L’état persiste entre les redémarrages via l’interface Memory",
+  "behavior_stop": "Appuyez sur <0>Ctrl+C</0> pour arrêter",
   "heading_output": "Sortie",
-  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check réussi (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check réussi (3 files, 95ms)\n ▶ App started",
-  "tip_state_persists": "L'état persiste entre les redémarrages. Modifiez votre arbre de composants sans perdre l'état déployé."
+  "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
+  "tip_state_persists": "L’état persiste entre les redémarrages. Modifiez votre arbre de composants sans perdre l’état déployé."
 }

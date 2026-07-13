@@ -2,13 +2,13 @@
   "title": "환경 변수",
   "description": "process.env를 사용하여 다양한 환경에 맞게 앱을 구성하세요.",
   "heading_reading": "환경 변수 읽기",
-  "reading_intro": "모든 Node.js 앱과 마찬가지로 <code>process.env</code>를 통해 환경 변수에 액세스합니다:",
+  "reading_intro": "다른 Node.js 앱과 마찬가지로 <0>process.env</0>를 통해 환경 변수에 접근하세요:",
   "filename_app": "app.tsx",
   "heading_per_environment": "환경별 구성",
   "filename_config": "config.ts",
   "heading_secrets": "시크릿 처리",
-  "secrets_intro": "환경 변수 또는 시크릿 관리자를 통해 시크릿을 전달하세요:",
+  "secrets_intro": "환경 변수나 시크릿 관리자를 통해 시크릿을 전달하세요:",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact에는 내장된 <code>.env</code> 파일 로딩 기능이 없습니다. <code>dotenv</code>와 같은 패키지를 사용하거나 셸 / CI 환경에서 변수를 설정하세요."
+  "warning_dotenv": "CReact에는 내장된 <0>.env</0> 파일 로딩 기능이 없습니다. <1>dotenv</1>와 같은 패키지를 사용하거나 셸 / CI 환경에서 변수를 설정하세요."
 }

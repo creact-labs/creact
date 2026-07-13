@@ -1,16 +1,16 @@
 {
   "title": "Operasi File System",
-  "description": "Bangun komponen baca dan tulis file yang reaktif menggunakan API Node.js.",
+  "description": "Bangun komponen read dan write file yang reaktif menggunakan API Node.js.",
   "heading_read_component": "Komponen Read",
-  "read_intro": "Komponen <code>Read</code> memuat file dan meneruskan kontennya sebagai accessor ke render callback. Children menerima konten secara reaktif.",
+  "read_intro": "Komponen <0>Read</0> memuat file dan meneruskan kontennya sebagai accessor ke render callback. Children menerima konten secara reaktif.",
   "filename_read": "shared/read.tsx",
   "heading_write_component": "Komponen Write",
-  "write_intro": "Komponen <code>Write</code> memantau accessor konten dengan <code>createEffect</code>. Ketika konten berubah, komponen menulis ke disk. Guard <code>untrack</code> mencegah penulisan ulang konten yang sama.",
+  "write_intro": "Komponen <0>Write</0> memantau content accessor dengan <1>createEffect</1>. Saat konten berubah, komponen menulis ke disk. Guard <2>untrack</2> mencegah penulisan ulang konten yang sama.",
   "filename_write": "shared/write.tsx",
   "heading_usage": "Menggunakan Read dan Write Bersama",
-  "usage_intro": "Gabungkan <code>Read</code> dan <code>Write</code> untuk membangun pipeline yang mentransformasi konten file secara reaktif:",
+  "usage_intro": "Gabungkan <0>Read</0> dan <1>Write</1> untuk membangun pipeline yang mentransformasi konten file secara reaktif:",
   "filename_app": "app.tsx",
-  "heading_file_memory": "Memori Berbasis File",
-  "file_memory_intro": "Pola file system yang paling umum di CReact adalah implementasi <code>FileMemory</code> untuk persistensi state:",
+  "heading_file_memory": "Memory Berbasis File",
+  "file_memory_intro": "Pola file system yang paling umum di CReact adalah implementasi <0>FileMemory</0> untuk persistensi state:",
   "filename_memory": "src/memory.ts"
 }

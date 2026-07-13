@@ -1,13 +1,13 @@
 {
   "title": "Context und Provider",
-  "description": "Contexts teilen Daten über den Komponentenbaum, ohne Props auf jeder Ebene durchzureichen.",
+  "description": "Contexts teilen Daten über den Component-Tree, ohne Props durch jede Ebene weiterzureichen.",
   "heading_creating_context": "Einen Context erstellen",
-  "creating_context_intro": "<code>createContext</code> erstellt einen Context mit einem optionalen Standardwert. <code>useContext</code> liest den Wert des nächstgelegenen Providers.",
+  "creating_context_intro": "<0>createContext</0> erstellt einen Context mit einem optionalen Standardwert. <1>useContext</1> liest den Wert des nächstgelegenen Providers.",
   "heading_providing_values": "Werte bereitstellen",
-  "providing_values_intro": "Umschließe Komponenten mit dem <code>Provider</code> des Contexts:",
+  "providing_values_intro": "Umschließe Komponenten mit dem <0>Provider</0> des Contexts:",
   "heading_nested_providers": "Verschachtelte Provider",
-  "nested_providers_intro": "Innere Provider überschreiben äußere für ihren Teilbaum:",
-  "tip_cross_cutting": "Verwende Contexts für querschnittliche Belange wie AWS-Region, Umgebungsname oder gemeinsame Credentials, die viele Komponenten benötigen.",
+  "nested_providers_intro": "Innere Provider überschreiben äußere für ihren Subtree:",
+  "tip_cross_cutting": "Verwende Contexts für Cross-Cutting Concerns wie AWS-Region, Umgebungsname oder freigegebene Credentials, die viele Komponenten benötigen.",
   "filename_config_context": "config-context.ts",
   "filename_app": "app.tsx"
 }

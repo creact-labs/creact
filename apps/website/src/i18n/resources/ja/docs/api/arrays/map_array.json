@@ -1,14 +1,14 @@
 {
   "title": "mapArray",
-  "description": "キー付きイテレーション。各アイテムは一度だけマップされ、同一性でキー付けされます。新規または削除されたアイテムのみが再計算を引き起こします。",
+  "description": "キー付きイテレーション。各アイテムは一度だけマップされ、identity によってキー付けされます。新規または削除されたアイテムのみが再計算を引き起こします。",
   "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
-  "param_list_name": "<code>list</code>",
-  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
-  "param_list_desc": "リアクティブな配列ソース。",
-  "param_map_fn_name": "<code>mapFn</code>",
-  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
-  "param_map_fn_desc": "マップ関数。<code>v</code> はアイテムへのアクセサです。<code>i</code> はリアクティブなインデックスです。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
-  "param_options_desc": "オプション。<code>keyFn</code> はアイテムに安定した同一性を提供します。"
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "リアクティブな配列のソース。",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "マップ関数。<0>v</0> はアイテムへのアクセサーです。<1>i</1> はリアクティブなインデックスです。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "オプション。<0>keyFn</0> はアイテムに対して安定した identity を提供します。"
 }

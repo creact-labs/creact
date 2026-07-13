@@ -1,14 +1,14 @@
 {
   "title": "mapArray",
-  "description": "鍵控迭代。每個項目只映射一次，並以識別作為鍵。僅新增或移除的項目會觸發重新計算。",
+  "description": "鍵控迭代。每個項目只映射一次，並以身分作為鍵。只有新增或移除的項目會觸發重新計算。",
   "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
-  "param_list_name": "<code>list</code>",
-  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
   "param_list_desc": "響應式陣列來源。",
-  "param_map_fn_name": "<code>mapFn</code>",
-  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
-  "param_map_fn_desc": "映射函式。<code>v</code> 是項目的存取器。<code>i</code> 是響應式索引。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
-  "param_options_desc": "可選。<code>keyFn</code> 為項目提供穩定的識別。"
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "映射函式。<0>v</0> 是項目的 accessor。<1>i</1> 是響應式索引。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "可選。<0>keyFn</0> 為項目提供穩定識別。"
 }

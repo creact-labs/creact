@@ -6,12 +6,12 @@
   "code_install": "npm install -D vitest",
   "filename_terminal": "Terminal",
   "heading_testing_signals": "Тестирование Signals",
-  "testing_signals_intro": "Тестируйте реактивные примитивы, оборачивая их в <code>createRoot</code>:",
+  "testing_signals_intro": "Тестируйте реактивные примитивы, оборачивая их в <0>createRoot</0>:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "Тестирование компонентов",
-  "testing_components_intro": "Тестируйте компоненты, вызывая их напрямую и проверяя выходные данные обработчиков:",
+  "testing_components_intro": "Тестируйте компоненты, вызывая их напрямую и проверяя выходные данные их обработчиков:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Тестирование Flow-компонентов",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "Оборачивайте тесты в <code>createRoot</code>, чтобы effects, cleanups и ownership tracking работали."
+  "tip_create_root": "Оборачивайте тесты в <0>createRoot</0>, чтобы эффекты, очистки и отслеживание владения работали."
 }

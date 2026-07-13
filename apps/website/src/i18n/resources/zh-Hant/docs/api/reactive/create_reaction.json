@@ -1,12 +1,12 @@
 {
   "title": "createReaction",
-  "description": "將追蹤與執行分離。追蹤一個運算式，在其變更時執行另一個函式。此 reaction 只觸發一次，之後必須重新武裝。",
+  "description": "將追蹤與執行分離。追蹤一個表達式，在其變更時執行不同的函式。reaction 只觸發一次，之後必須重新啟用。",
   "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
-  "param_on_invalidate_name": "<code>onInvalidate</code>",
-  "param_on_invalidate_type": "<code>() =&gt; void</code>",
-  "param_on_invalidate_desc": "當追蹤的 signal 變更時觸發一次的回呼。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "選用。用於偵錯的 <code>name</code>。",
-  "returns_body": "一個會武裝 reaction 的函式 <code>(tracking: () =&gt; void) =&gt; void</code>。以追蹤運算式呼叫它。在其中讀取的 signal 會被追蹤。當其中任一變更時，<code>onInvalidate</code> 會觸發一次，且追蹤會停止，直到你再次呼叫此函式。"
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "當已追蹤的 signal 變更時觸發一次的回呼。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "選用。<0>name</0> 用於除錯。",
+  "returns_body": "一個用於啟用 reaction 的函式 <0>(tracking: () => void) => void</0>。以追蹤表達式呼叫它。在內部讀取的 signal 會被追蹤。當其中任何一個變更時，<1>onInvalidate</1> 會觸發一次，並停止追蹤，直到你再次呼叫該函式。"
 }

@@ -1,16 +1,16 @@
 {
-  "title": "Operações do Sistema de Arquivos",
+  "title": "Operações de Sistema de Arquivos",
   "description": "Crie componentes reativos de leitura e escrita de arquivos usando as APIs do Node.js.",
   "heading_read_component": "Componente Read",
-  "read_intro": "O componente <code>Read</code> carrega um arquivo e passa seu conteúdo como um accessor para um callback de render. Os children recebem o conteúdo de forma reativa.",
+  "read_intro": "O componente <0>Read</0> carrega um arquivo e passa seu conteúdo como um accessor para um render callback. Os children recebem o conteúdo de forma reativa.",
   "filename_read": "shared/read.tsx",
   "heading_write_component": "Componente Write",
-  "write_intro": "O componente <code>Write</code> observa um accessor de conteúdo com <code>createEffect</code>. Quando o conteúdo muda, ele grava no disco. O guard <code>untrack</code> impede a regravação do mesmo conteúdo.",
+  "write_intro": "O componente <0>Write</0> observa um accessor de conteúdo com <1>createEffect</1>. Quando o conteúdo muda, ele grava no disco. O guard <2>untrack</2> evita reescrever o mesmo conteúdo.",
   "filename_write": "shared/write.tsx",
-  "heading_usage": "Usando Read e Write juntos",
-  "usage_intro": "Componha <code>Read</code> e <code>Write</code> para criar pipelines que transformam o conteúdo de arquivos de forma reativa:",
+  "heading_usage": "Usando Read e Write Juntos",
+  "usage_intro": "Componha <0>Read</0> e <1>Write</1> para construir pipelines que transformam o conteúdo de arquivos de forma reativa:",
   "filename_app": "app.tsx",
-  "heading_file_memory": "Memória baseada em arquivo",
-  "file_memory_intro": "O padrão de sistema de arquivos mais comum no CReact é a implementação <code>FileMemory</code> para persistência de estado:",
+  "heading_file_memory": "Memória Baseada em Arquivos",
+  "file_memory_intro": "O padrão mais comum de sistema de arquivos no CReact é a implementação <0>FileMemory</0> para persistência de estado:",
   "filename_memory": "src/memory.ts"
 }

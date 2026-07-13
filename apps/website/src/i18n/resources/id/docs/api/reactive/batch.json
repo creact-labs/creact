@@ -1,9 +1,9 @@
 {
   "title": "batch",
-  "description": "Mengelompokkan beberapa pembaruan signal ke dalam satu pass komputasi.",
+  "description": "Mengelompokkan beberapa update signal ke dalam satu pass komputasi.",
   "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "Fungsi yang berisi pembaruan signal. Semua pembaruan ditunda hingga fungsi selesai.",
-  "returns_body": "Nilai kembalian dari <code>fn</code>."
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fungsi yang berisi update signal. Semua update ditunda hingga fungsi selesai.",
+  "returns_body": "Nilai return dari <0>fn</0>."
 }

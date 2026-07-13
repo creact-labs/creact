@@ -2,11 +2,11 @@
   "title": "runWithOwner",
   "description": "특정 반응형 owner 하에서 함수를 실행합니다. 비동기 콜백에서 effect를 생성할 때 필요합니다.",
   "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
-  "param_owner_name": "<code>owner</code>",
-  "param_owner_type": "<code>Owner | null</code>",
-  "param_owner_desc": "실행할 owner 스코프입니다. <code>getOwner()</code>에서 가져옵니다. <code>null</code>을 허용합니다.",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "실행할 함수입니다. 내부에서 생성된 effect/cleanup은 <code>owner</code>가 소유합니다.",
-  "info_async_owner": "<code>await</code> 이후 또는 콜백 내부에서는 반응형 owner가 손실됩니다. <code>getOwner()</code>로 동기적으로 캡처한 뒤 <code>runWithOwner()</code>로 복원하세요."
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "실행할 owner 스코프입니다. <0>getOwner()</0>에서 가져옵니다. <1>null</1>을 허용합니다.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "실행할 함수입니다. 내부에서 생성된 effect/cleanup은 <0>owner</0>가 소유합니다.",
+  "info_async_owner": "<0>await</0> 이후 또는 콜백 내부에서는 반응형 owner가 소실됩니다. <1>getOwner()</1>로 동기적으로 캡처한 뒤 <2>runWithOwner()</2>로 복원하세요."
 }

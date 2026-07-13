@@ -2,14 +2,14 @@
   "title": "createComputed",
   "description": "Executa uma função de forma síncrona durante a fase de computação, antes dos effects. Use quando precisar escrever em outros signals conforme as dependências são atualizadas.",
   "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "Função de computação. Executa de forma síncrona.",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "Valor inicial opcional.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Opcional. <code>name</code> para debugging.",
-  "warning_prefer_memo": "Prefira <code>createMemo</code> para valores derivados. Use <code>createComputed</code> apenas quando precisar escrever em outros signals de forma síncrona durante a fase de computação."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opcional. <0>name</0> para depuração.",
+  "warning_prefer_memo": "Prefira <0>createMemo</0> para valores derivados. Use <1>createComputed</1> apenas quando precisar escrever em outros signals de forma síncrona durante a fase de computação."
 }

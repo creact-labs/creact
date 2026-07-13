@@ -1,16 +1,16 @@
 {
   "title": "createRoot",
-  "description": "Crea un root reactivo que posee todas las computaciones en su interior, con una función dispose para el desmontaje.",
+  "description": "Crea una raíz reactiva que posee todos los cálculos dentro de ella, con una función dispose para el desmontaje.",
   "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(dispose: () =&gt; void) =&gt; T</code>",
-  "param_fn_desc": "Función que se ejecuta dentro del root. Recibe una función dispose para desmontar todas las computaciones poseídas.",
-  "param_detached_owner_name": "<code>detachedOwner</code>",
-  "param_detached_owner_type": "<code>Owner</code>",
-  "param_detached_owner_desc": "Opcional. Owner padre del root. Cuando se proporciona, el root se adjunta a la cadena de contexto de este owner (para lookupContext), pero sigue siendo disposable de forma independiente.",
-  "returns_body": "El valor de retorno de <code>fn</code>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(dispose: () => void) => T</0>",
+  "param_fn_desc": "Función que se ejecuta dentro de la raíz. Recibe una función dispose para desmontar todos los cálculos propios.",
+  "param_detached_owner_name": "<0>detachedOwner</0>",
+  "param_detached_owner_type": "<0>Owner</0>",
+  "param_detached_owner_desc": "Opcional. Owner padre de la raíz. Cuando se proporciona, la raíz se adjunta a la cadena de contexto de este owner (para lookupContext), pero sigue siendo disposable de forma independiente.",
+  "returns_body": "El valor de retorno de <0>fn</0>.",
   "heading_usage": "Uso",
-  "heading_basic": "Root básico",
+  "heading_basic": "Raíz básica",
   "heading_testing": "En tests",
-  "info_render_root": "<code>render()</code> crea un root automáticamente. Solo necesitas <code>createRoot</code> para scopes reactivos independientes fuera de <code>render()</code>, como en tests."
+  "info_render_root": "<0>render()</0> crea una raíz automáticamente. Solo necesitas <1>createRoot</1> para scopes reactivos independientes fuera de <2>render()</2>, como en tests."
 }

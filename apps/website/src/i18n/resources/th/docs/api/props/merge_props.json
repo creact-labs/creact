@@ -1,5 +1,5 @@
 {
   "title": "mergeProps",
-  "description": "รวม props objects หลายตัวแบบ reactive โดย sources ที่มาทีหลังจะ override sources ก่อนหน้า ใช้สำหรับ default props",
+  "description": "รวม props objects หลายตัวแบบ reactive โดย sources ทีหลังจะ override ตัวก่อนหน้า ใช้สำหรับ default props",
   "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>"
 }

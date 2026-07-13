@@ -2,12 +2,12 @@
   "title": "Fehlerbehandlung",
   "description": "ErrorBoundary und catchError fangen Fehler in reaktiven Berechnungen und Kindkomponenten ab.",
   "heading_error_boundary": "ErrorBoundary-Komponente",
-  "error_boundary_intro": "<code>ErrorBoundary</code> fängt Fehler ab, die in seinen Kindern geworfen werden, und rendert einen Fallback:",
+  "error_boundary_intro": "<0>ErrorBoundary</0> fängt Fehler ab, die in seinen Kindern ausgelöst werden, und rendert einen Fallback:",
   "heading_catch_error": "catchError-Primitive",
-  "catch_error_intro": "Für eine Kontrolle auf niedrigerer Ebene umschließt <code>catchError</code> eine Funktion und fängt Fehler in Kind-Berechnungen ab:",
-  "heading_error_propagation": "Fehlerpropagation",
-  "error_propagation_body": "Fehler propagieren die Owner-Kette nach oben. Wenn kein Error Boundary einen Fehler abfängt, steigt er bis zur Wurzel auf und wird geworfen. Verschachtelte Error Boundaries fangen nur Fehler aus ihrem Teilbaum ab.",
+  "catch_error_intro": "Für die Kontrolle auf niedrigerer Ebene umschließt <0>catchError</0> eine Funktion und fängt Fehler in untergeordneten Berechnungen ab:",
+  "heading_error_propagation": "Fehlerweitergabe",
+  "error_propagation_body": "Fehler propagieren die Owner-Kette nach oben. Wenn kein Error Boundary einen Fehler abfängt, steigt er bis zur Root auf und wird geworfen. Verschachtelte Error Boundaries fangen nur Fehler aus ihrem Teilbaum ab.",
   "heading_handler_errors": "Fehler in Handlern",
-  "handler_errors_intro": "<code>useAsyncOutput</code>-Handler laufen in der asynchronen Deployment-Schleife der Runtime, nicht innerhalb reaktiver Berechnungen. In Handlern geworfene Fehler führen dazu, dass das Deployment fehlschlägt. Sie werden <strong>nicht</strong> von <code>ErrorBoundary</code> abgefangen. Behandeln Sie Fehler in Ihrem Handler mit try/catch:",
-  "warning_cleanup": "Mit <code>onCleanup</code> registrierte Cleanup-Funktionen werden weiterhin ausgeführt, wenn ein Error Boundary einen Fehler abfängt. Ressourcen werden freigegeben."
+  "handler_errors_intro": "Handler von <0>useAsyncOutput</0> laufen im asynchronen Deployment-Loop der Runtime, nicht innerhalb reaktiver Berechnungen. Fehler, die in Handlern ausgelöst werden, führen dazu, dass das Deployment fehlschlägt. Sie werden <1>nicht</1> von <2>ErrorBoundary</2> abgefangen. Behandeln Sie Fehler innerhalb Ihres Handlers mit try/catch:",
+  "warning_cleanup": "Cleanup-Funktionen, die mit <0>onCleanup</0> registriert wurden, werden weiterhin ausgeführt, wenn ein Error Boundary einen Fehler abfängt. Ressourcen werden freigegeben."
 }

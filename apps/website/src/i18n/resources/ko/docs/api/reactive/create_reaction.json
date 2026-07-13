@@ -1,12 +1,12 @@
 {
   "title": "createReaction",
-  "description": "추적과 실행을 분리합니다. 하나의 표현식을 추적하고, 변경될 때 다른 함수를 실행합니다. 리액션은 한 번 실행된 후 다시 무장해야 합니다.",
+  "description": "추적과 실행을 분리합니다. 하나의 표현식을 추적하고, 변경될 때 다른 함수를 실행합니다. reaction은 한 번 실행된 후 다시 무장해야 합니다.",
   "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
-  "param_on_invalidate_name": "<code>onInvalidate</code>",
-  "param_on_invalidate_type": "<code>() =&gt; void</code>",
-  "param_on_invalidate_desc": "추적 중인 시그널이 변경될 때 한 번 실행되는 콜백입니다.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "선택 사항입니다. 디버깅용 <code>name</code>입니다.",
-  "returns_body": "리액션을 무장하는 함수 <code>(tracking: () =&gt; void) =&gt; void</code>입니다. 추적 표현식과 함께 호출하세요. 내부에서 읽은 시그널이 추적됩니다. 그중 하나라도 변경되면 <code>onInvalidate</code>가 한 번 실행되고, 함수를 다시 호출할 때까지 추적이 중단됩니다."
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "추적된 시그널이 변경될 때 한 번 실행되는 콜백입니다.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "선택 사항입니다. 디버깅을 위한 <0>name</0>입니다.",
+  "returns_body": "reaction을 무장하는 함수 <0>(tracking: () => void) => void</0>입니다. 추적 표현식과 함께 호출하세요. 내부에서 읽은 시그널이 추적됩니다. 그중 하나라도 변경되면 <1>onInvalidate</1>가 한 번 실행되고, 함수를 다시 호출할 때까지 추적이 중지됩니다."
 }

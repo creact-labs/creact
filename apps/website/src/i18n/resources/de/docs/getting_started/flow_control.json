@@ -1,14 +1,14 @@
 {
-  "title": "Ablaufsteuerung",
+  "title": "Kontrollfluss",
   "description": "Show, For, Switch und ErrorBoundary steuern, welche Komponenten basierend auf reaktiven Bedingungen ausgeführt werden.",
   "heading_show": "Bedingtes Rendering mit Show",
-  "show_intro": "<code>Show</code> rendert seine Kinder nur, wenn die <code>when</code>-Bedingung truthy ist. Es kann auch ein Fallback bereitstellen.",
-  "show_callback_intro": "Mit einem Callback-Child kannst du auf den truthy-Wert zugreifen:",
-  "heading_for": "Iterieren mit For",
-  "for_intro": "<code>For</code> iteriert über eine reaktive Liste. Jedes Element wird anhand der Referenz als Schlüssel verwendet. Wenn sich die Liste ändert, werden nur betroffene Elemente aktualisiert.",
-  "heading_switch": "Mehrwege-Verzweigung mit Switch",
-  "switch_intro": "<code>Switch</code> mit <code>Match</code> bietet mehrzweigige bedingte Logik:",
+  "show_intro": "<0>Show</0> rendert seine Children nur, wenn die <1>when</1>-Bedingung truthy ist. Es kann auch einen Fallback bereitstellen.",
+  "show_callback_intro": "Mit einem Callback-Child können Sie auf den truthy-Wert zugreifen:",
+  "heading_for": "Iteration mit For",
+  "for_intro": "<0>For</0> iteriert über eine reaktive Liste. Jedes Element wird per Referenz ge-keyed. Wenn sich die Liste ändert, werden nur betroffene Elemente aktualisiert.",
+  "heading_switch": "Mehrweg-Verzweigung mit Switch",
+  "switch_intro": "<0>Switch</0> mit <1>Match</1> bietet mehrzweigige bedingte Logik:",
   "heading_error_boundary": "Fehlerbehandlung mit ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> fängt Fehler ab, die in Kindkomponenten geworfen werden:",
-  "info_accessor_conditions": "Flow-Komponenten nehmen Accessor-Funktionen (<code>() =&gt; value</code>) für Bedingungen entgegen. Die Bedingung wird neu ausgewertet, ohne die Parent-Komponente erneut auszuführen."
+  "error_boundary_intro": "<0>ErrorBoundary</0> fängt Fehler ab, die in Child-Komponenten geworfen werden:",
+  "info_accessor_conditions": "Flow-Komponenten nehmen Accessor-Funktionen (<0>() => value</0>) für Bedingungen entgegen. Die Bedingung wird neu ausgewertet, ohne die Parent-Komponente erneut auszuführen."
 }

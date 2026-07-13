@@ -1,16 +1,16 @@
 {
-  "title": "การดำเนินการกับระบบไฟล์",
+  "title": "การดำเนินการระบบไฟล์",
   "description": "สร้างคอมโพเนนต์อ่านและเขียนไฟล์แบบ reactive โดยใช้ Node.js APIs",
   "heading_read_component": "คอมโพเนนต์ Read",
-  "read_intro": "คอมโพเนนต์ <code>Read</code> โหลดไฟล์และส่งเนื้อหาเป็น accessor ไปยัง render callback Children จะได้รับเนื้อหาแบบ reactive",
+  "read_intro": "คอมโพเนนต์ <0>Read</0> โหลดไฟล์และส่ง content เป็น accessor ไปยัง render callback โดย Children จะได้รับ content แบบ reactive",
   "filename_read": "shared/read.tsx",
   "heading_write_component": "คอมโพเนนต์ Write",
-  "write_intro": "คอมโพเนนต์ <code>Write</code> เฝ้าดู content accessor ด้วย <code>createEffect</code> เมื่อเนื้อหาเปลี่ยนแปลง จะเขียนลงดิสก์ <code>untrack</code> guard ป้องกันการเขียนเนื้อหาเดิมซ้ำ",
+  "write_intro": "คอมโพเนนต์ <0>Write</0> เฝ้าดู content accessor ด้วย <1>createEffect</1> เมื่อ content เปลี่ยน จะเขียนลงดิสก์ โดย <2>untrack</2> จะป้องกันการเขียน content เดิมซ้ำ",
   "filename_write": "shared/write.tsx",
   "heading_usage": "การใช้ Read และ Write ร่วมกัน",
-  "usage_intro": "ประกอบ <code>Read</code> และ <code>Write</code> เพื่อสร้างไปป์ไลน์ที่แปลงเนื้อหาไฟล์แบบ reactive:",
+  "usage_intro": "ประกอบ <0>Read</0> และ <1>Write</1> เพื่อสร้าง pipeline ที่แปลง content ของไฟล์แบบ reactive:",
   "filename_app": "app.tsx",
-  "heading_file_memory": "หน่วยความจำแบบไฟล์",
-  "file_memory_intro": "รูปแบบระบบไฟล์ที่พบบ่อยที่สุดใน CReact คือ implementation ของ <code>FileMemory</code> สำหรับ state persistence:",
+  "heading_file_memory": "Memory บนไฟล์",
+  "file_memory_intro": "pattern ระบบไฟล์ที่พบได้บ่อยที่สุดใน CReact คือการ implement <0>FileMemory</0> สำหรับการ persist state:",
   "filename_memory": "src/memory.ts"
 }

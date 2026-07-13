@@ -1,13 +1,13 @@
 {
   "title": "TypeScript",
-  "description": "CReact TypeScript में लिखा गया है। signals, props, और components के लिए type system का अधिकतम लाभ कैसे उठाएँ, यहाँ जानें।",
-  "heading_tsconfig": "TypeScript कॉन्फ़िगरेशन",
-  "tsconfig_intro": "मुख्य setting <code>jsxImportSource</code> है। यह TypeScript को CReact के JSX types उपयोग करने के लिए कहता है:",
+  "description": "CReact TypeScript में लिखा गया है। signals, props और components के लिए type system का अधिकतम लाभ कैसे उठाएँ, यहाँ जानें।",
+  "heading_tsconfig": "TypeScript Configuration",
+  "tsconfig_intro": "मुख्य setting है <0>jsxImportSource</0>। यह TypeScript को बताता है कि CReact के JSX types का उपयोग करें:",
   "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
   "filename_tsconfig": "tsconfig.json",
   "heading_typed_signals": "Typed Signals",
   "typed_signals_intro": "Signals अपना type initial value से infer करते हैं, या आप इसे explicitly specify कर सकते हैं:",
   "heading_typed_props": "Typed Props",
-  "heading_accessor_types": "Accessor और MaybeAccessor",
-  "info_types": "CReact प्रमुख types re-export करता है: <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code>, और सभी runtime types।"
+  "heading_accessor_types": "Accessor and MaybeAccessor",
+  "info_types": "CReact प्रमुख types re-export करता है: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, और सभी runtime types।"
 }

@@ -1,13 +1,13 @@
 {
   "title": "APIs HTTP y canales",
-  "description": "Crea un componente de canal que expone endpoints HTTP e introduce entradas en el sistema reactivo.",
+  "description": "Crea un componente de canal que exponga endpoints HTTP e inyecte entradas en el sistema reactivo.",
   "heading_channels": "¿Qué son los canales?",
   "channels_desc": "Un canal es un componente que inicia un servidor HTTP al montarse y lo detiene en la limpieza. Las solicitudes entrantes invocan props de callback, que actualizan signals y activan componentes posteriores.",
   "heading_http_server": "Componente Channel",
-  "http_server_intro": "El componente <code>Channel</code> inicia un servidor Hono dentro de <code>onMount</code>. Los manejadores de rutas se pasan como props. <code>onCleanup</code> detiene el servidor cuando se elimina el componente.",
+  "http_server_intro": "El componente <0>Channel</0> inicia un servidor Hono dentro de <1>onMount</1>. Los route handlers se pasan como props. <2>onCleanup</2> apaga el servidor cuando se elimina el componente.",
   "filename_channel": "components/channel.tsx",
-  "heading_reactive_flow": "Conexión con el sistema reactivo",
-  "reactive_flow_intro": "Las props de callback del canal llaman a <code>setSites</code>, <code>setPendingGeneration</code> y otros setters. Esas actualizaciones de signals activan efectos y componentes <code>Show</code>/<code>For</code> posteriores.",
+  "heading_reactive_flow": "Conexión al sistema reactivo",
+  "reactive_flow_intro": "Las props de callback del canal llaman a <0>setSites</0>, <1>setPendingGeneration</1> y otros setters. Esas actualizaciones de signals activan effects y componentes <2>Show</2>/<3>For</3> posteriores.",
   "filename_app": "app.tsx",
-  "info_cleanup": "El callback <code>onCleanup</code> libera el puerto cuando se elimina el componente o se detiene la app."
+  "info_cleanup": "El callback <0>onCleanup</0> libera el puerto cuando se elimina el componente o se detiene la app."
 }

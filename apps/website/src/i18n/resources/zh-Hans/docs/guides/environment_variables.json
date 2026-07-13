@@ -2,7 +2,7 @@
   "title": "环境变量",
   "description": "使用 process.env 为不同环境配置你的应用。",
   "heading_reading": "读取环境变量",
-  "reading_intro": "像任何 Node.js 应用一样，通过 <code>process.env</code> 访问环境变量：",
+  "reading_intro": "像任何 Node.js 应用一样，通过 <0>process.env</0> 访问环境变量：",
   "filename_app": "app.tsx",
   "heading_per_environment": "分环境配置",
   "filename_config": "config.ts",
@@ -10,5 +10,5 @@
   "secrets_intro": "通过环境变量或密钥管理器传递密钥：",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact 没有内置的 <code>.env</code> 文件加载功能。请使用 <code>dotenv</code> 等包，或在 shell / CI 环境中设置变量。"
+  "warning_dotenv": "CReact 没有内置的 <0>.env</0> 文件加载功能。请使用类似 <1>dotenv</1> 的包，或在你的 shell / CI 环境中设置变量。"
 }

@@ -2,12 +2,12 @@
   "title": "Context 與 Providers",
   "description": "Context 可在元件樹中共享資料，無需透過每一層傳遞 props。",
   "heading_creating_context": "建立 Context",
-  "creating_context_intro": "<code>createContext</code> 會建立一個含可選預設值的 context。<code>useContext</code> 會讀取最近 Provider 的值。",
+  "creating_context_intro": "<0>createContext</0> 會建立一個具有可選預設值的 Context。<1>useContext</1> 會讀取最近 Provider 的值。",
   "heading_providing_values": "提供值",
-  "providing_values_intro": "以 context 的 <code>Provider</code> 包住元件：",
+  "providing_values_intro": "使用 Context 的 <0>Provider</0> 包裝元件：",
   "heading_nested_providers": "巢狀 Providers",
-  "nested_providers_intro": "內層 Provider 會覆寫外層，套用至其子樹：",
-  "tip_cross_cutting": "將 context 用於橫切關注點，例如 AWS region、環境名稱，或許多元件需要的共用認證資訊。",
+  "nested_providers_intro": "內層 Provider 會在其子樹中覆寫外層 Provider：",
+  "tip_cross_cutting": "將 Context 用於橫切關注點，例如許多元件都需要的 AWS 區域、環境名稱或共用憑證。",
   "filename_config_context": "config-context.ts",
   "filename_app": "app.tsx"
 }

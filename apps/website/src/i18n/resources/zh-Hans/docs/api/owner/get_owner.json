@@ -1,6 +1,6 @@
 {
   "title": "getOwner",
-  "description": "返回当前的响应式 owner（拥有当前作用域的 computation 或 root）。",
+  "description": "返回当前的响应式所有者（拥有当前作用域的计算或根）。",
   "signature": "getOwner(): Owner | null",
-  "returns_desc": "当前的 <code>Owner</code>，或在响应式作用域外调用时为 <code>null</code>。"
+  "returns_desc": "当前的 <0>Owner</0>，如果在响应式作用域之外调用则为 <1>null</1>。"
 }

@@ -5,11 +5,11 @@
   "signals_intro": "Um signal é um valor reativo. Ele retorna um par getter e setter. Ler o getter dentro de um effect registra uma dependência. O effect é reexecutado quando o signal muda.",
   "heading_effects": "Effects",
   "effects_intro": "Effects executam efeitos colaterais quando suas dependências mudam. O CReact rastreia quais signals são lidos dentro da função do effect.",
-  "info_batched_effects": "Effects são enfileirados e agrupados em batch. Várias atualizações de signal em um único bloco síncrono disparam apenas uma reexecução do effect.",
+  "info_batched_effects": "Effects são enfileirados e agrupados em batch. Múltiplas atualizações de signal em um único bloco síncrono disparam apenas uma reexecução do effect.",
   "heading_memos": "Memos",
   "memos_intro": "Um memo é um valor reativo derivado. Ele armazena o resultado em cache e só recalcula quando suas dependências mudam.",
   "heading_batching": "Batching",
-  "batching_intro": "<code>batch()</code> agrupa várias atualizações de signal em uma única passagem de reavaliação:",
+  "batching_intro": "<0>batch()</0> agrupa múltiplas atualizações de signal em uma única passagem de reavaliação:",
   "heading_untrack": "Untrack",
-  "untrack_intro": "<code>untrack()</code> lê um signal sem criar uma dependência:"
+  "untrack_intro": "<0>untrack()</0> lê um signal sem criar uma dependência:"
 }

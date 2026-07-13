@@ -2,7 +2,7 @@
   "title": "untrack",
   "description": "读取信号而不创建响应式依赖。",
   "signature": "untrack<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "在不追踪的情况下运行的函数。内部的信号读取不会注册依赖。"
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "在不进行追踪的情况下运行的函数。内部的信号读取不会注册依赖。"
 }

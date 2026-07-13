@@ -2,14 +2,14 @@
   "title": "createRenderEffect",
   "description": "Chạy một hàm đồng bộ trong quá trình render thay vì đưa vào hàng đợi. Được runtime sử dụng nội bộ; hiếm khi cần trong mã ứng dụng.",
   "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "Hàm effect. Chạy ngay lập tức trong quá trình render.",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "Giá trị ban đầu tùy chọn.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Tùy chọn. <code>name</code> để gỡ lỗi.",
-  "info_ordering": "Render effect chạy trước user effect (<code>createEffect</code>). Dùng khi bạn cần phản ứng đồng bộ trong giai đoạn render, chẳng hạn theo dõi render của component."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Tùy chọn. <0>name</0> để gỡ lỗi.",
+  "info_ordering": "Render effect chạy trước user effect (<0>createEffect</0>). Dùng khi bạn cần phản ứng đồng bộ trong giai đoạn render, chẳng hạn theo dõi render của component."
 }

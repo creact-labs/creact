@@ -1,15 +1,15 @@
 {
   "title": "createComputed",
-  "description": "Синхронно выполняет функцию на этапе вычислений, до эффектов. Используйте, когда нужно записывать в другие сигналы по мере обновления зависимостей.",
+  "description": "Синхронно выполняет функцию на этапе вычислений, до эффектов. Используйте, когда нужно записывать в другие сигналы при обновлении зависимостей.",
   "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "Функция вычисления. Выполняется синхронно.",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "Необязательное начальное значение.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Необязательно. <code>name</code> для отладки.",
-  "warning_prefer_memo": "Предпочитайте <code>createMemo</code> для производных значений. Используйте <code>createComputed</code> только когда нужно синхронно записывать в другие сигналы на этапе вычислений."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательно. <0>name</0> для отладки.",
+  "warning_prefer_memo": "Предпочитайте <0>createMemo</0> для производных значений. Используйте <1>createComputed</1> только когда нужно синхронно записывать в другие сигналы на этапе вычислений."
 }

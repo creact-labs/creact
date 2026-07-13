@@ -1,12 +1,12 @@
 {
   "title": "runWithOwner",
-  "description": "Выполняет функцию под конкретным реактивным владельцем (owner). Требуется для создания эффектов в асинхронных колбэках.",
+  "description": "Выполняет функцию в контексте заданного реактивного owner. Необходим для создания effects в асинхронных колбэках.",
   "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
-  "param_owner_name": "<code>owner</code>",
-  "param_owner_type": "<code>Owner | null</code>",
-  "param_owner_desc": "Область владельца (owner), в контексте которой выполняется функция. Получите её через <code>getOwner()</code>. Принимает <code>null</code>.",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "Функция для выполнения. Все эффекты и очистки (cleanups), созданные внутри, принадлежат <code>owner</code>.",
-  "info_async_owner": "После <code>await</code> или внутри колбэков реактивный владелец теряется. Захватите его синхронно с помощью <code>getOwner()</code> и восстановите через <code>runWithOwner()</code>."
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "Область owner, в контексте которой выполняется код. Получите её через <0>getOwner()</0>. Допускает <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Функция для выполнения. Все effects/cleanups, созданные внутри, принадлежат <0>owner</0>.",
+  "info_async_owner": "После <0>await</0> или внутри колбэков реактивный owner теряется. Захватите его синхронно через <1>getOwner()</1> и восстановите с помощью <2>runWithOwner()</2>."
 }

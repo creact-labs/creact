@@ -1,10 +1,10 @@
 {
   "title": "onCleanup",
-  "description": "Registra uma função de limpeza no owner reativo atual. Executa quando o owner é descartado ou antes de um effect reexecutar.",
+  "description": "Registra uma função de limpeza no owner reativo atual. É executada quando o owner é descartado ou antes de um efeito ser reexecutado.",
   "signature": "onCleanup<T extends () => any>(fn: T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; any</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
   "param_fn_desc": "Função de limpeza. Chamada quando o owner é descartado.",
   "returns_desc": "A mesma função passada, por conveniência.",
-  "warning_no_owner": "<code>onCleanup</code> chamado fora de um <code>createRoot</code> ou <code>render</code> emitirá um aviso e a limpeza nunca será executada."
+  "warning_no_owner": "<0>onCleanup</0> chamado fora de um <1>createRoot</1> ou <2>render</2> emitirá um aviso e a limpeza nunca será executada."
 }

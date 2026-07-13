@@ -2,14 +2,14 @@
   "title": "createRenderEffect",
   "description": "Menjalankan fungsi secara sinkron selama render alih-alih mengantrikannya. Digunakan secara internal oleh runtime; jarang dibutuhkan dalam kode aplikasi.",
   "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "Fungsi effect. Berjalan segera selama render.",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "Nilai awal opsional.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Opsional. <code>name</code> untuk debugging.",
-  "info_ordering": "Render effect berjalan sebelum user effect (<code>createEffect</code>). Gunakan ini ketika Anda membutuhkan reaksi sinkron selama fase render, seperti pelacakan render komponen."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opsional. <0>name</0> untuk debugging.",
+  "info_ordering": "Render effect berjalan sebelum user effect (<0>createEffect</0>). Gunakan ini ketika Anda membutuhkan reaksi sinkron selama fase render, seperti pelacakan render komponen."
 }

@@ -1,12 +1,12 @@
 {
   "title": "createReaction",
-  "description": "Sépare le tracking de l'exécution. Suivez une expression, exécutez une fonction différente lorsqu'elle change. La réaction se déclenche une fois, puis doit être réarmée.",
+  "description": "Sépare le suivi de l'exécution. Suivez une expression, exécutez une autre fonction lorsqu'elle change. La réaction se déclenche une fois, puis doit être réarmée.",
   "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
-  "param_on_invalidate_name": "<code>onInvalidate</code>",
-  "param_on_invalidate_type": "<code>() =&gt; void</code>",
-  "param_on_invalidate_desc": "Callback qui se déclenche une fois lorsque les signals suivis changent.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Optionnel. <code>name</code> pour le débogage.",
-  "returns_body": "Une fonction <code>(tracking: () =&gt; void) =&gt; void</code> qui arme la réaction. Appelez-la avec une expression de tracking. Les signals lus à l'intérieur sont suivis. Lorsqu'un d'entre eux change, <code>onInvalidate</code> se déclenche une fois et le tracking s'arrête jusqu'à ce que vous appeliez à nouveau la fonction."
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "Callback qui se déclenche une fois lorsque les signaux suivis changent.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Optionnel. <0>name</0> pour le débogage.",
+  "returns_body": "Une fonction <0>(tracking: () => void) => void</0> qui arme la réaction. Appelez-la avec une expression de suivi. Les signaux lus à l'intérieur sont suivis. Lorsque l'un d'eux change, <1>onInvalidate</1> se déclenche une fois et le suivi s'arrête jusqu'à ce que vous rappeliez la fonction."
 }

@@ -1,15 +1,15 @@
 {
   "title": "createComputed",
-  "description": "計算フェーズ中に関数を同期的に実行します（effects の前）。依存関係の更新時に他の signal へ書き込む必要がある場合に使用します。",
+  "description": "計算フェーズ中に、effects の前で関数を同期的に実行します。依存関係が更新されたときに他の signal へ書き込む必要がある場合に使用します。",
   "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "計算関数。同期的に実行されます。",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "オプションの初期値。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "オプション。<code>name</code> はデバッグ用です。",
-  "warning_prefer_memo": "派生値には <code>createMemo</code> を推奨します。計算フェーズ中に他の signal へ同期的に書き込む必要がある場合にのみ <code>createComputed</code> を使用してください。"
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "オプション。<0>name</0> はデバッグ用。",
+  "warning_prefer_memo": "派生値には <0>createMemo</0> を優先してください。<1>createComputed</1> は、計算フェーズ中に同期的に他の signal へ書き込む必要がある場合にのみ使用してください。"
 }

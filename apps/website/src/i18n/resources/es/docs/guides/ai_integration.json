@@ -2,13 +2,13 @@
   "title": "Integración de IA",
   "description": "Envuelve el SDK de Anthropic en un proveedor de contexto y llama a Claude desde efectos reactivos.",
   "heading_provider": "Proveedor de Claude",
-  "provider_intro": "Envuelve el SDK de Anthropic en un proveedor de contexto para que cualquier componente hijo pueda llamar a la API. El proveedor crea el cliente una sola vez. Los componentes hijos acceden a él mediante <code>useComplete()</code>.",
+  "provider_intro": "Envuelve el SDK de Anthropic en un proveedor de contexto para que cualquier componente hijo pueda llamar a la API. El proveedor crea el cliente una sola vez. Los componentes hijos acceden a él mediante <0>useComplete()</0>.",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Componente de generación",
-  "generate_intro": "El componente <code>GenerateHtml</code> llama a <code>useComplete()</code> dentro de un <code>createEffect</code>. Cuando cambia la señal del prompt, se dispara el efecto, se llama a la API y se pasa el resultado a un callback. La guarda <code>untrack</code> evita generaciones duplicadas.",
+  "generate_intro": "El componente <0>GenerateHtml</0> llama a <1>useComplete()</1> dentro de un <2>createEffect</2>. Cuando el signal del prompt cambia, el efecto se dispara, llama a la API y pasa el resultado a un callback. El guard de <3>untrack</3> evita generaciones duplicadas.",
   "filename_generate": "components/generate-html.tsx",
   "heading_reactive_pipeline": "Pipeline reactivo",
-  "pipeline_intro": "La app conecta la generación y el despliegue con <code>Show</code>. Cuando existe una generación pendiente, se ejecuta <code>GenerateHtml</code>. Cuando produce contenido, <code>Write</code> lo guarda en disco y la lista de sitios se actualiza, lo que dispara el despliegue en AWS aguas abajo.",
+  "pipeline_intro": "La app conecta la generación y el despliegue con <0>Show</0>. Cuando existe una generación pendiente, se ejecuta <1>GenerateHtml</1>. Cuando produce contenido, <2>Write</2> lo guarda en disco y la lista de sitios se actualiza, lo que dispara el despliegue en AWS aguas abajo.",
   "filename_app": "app.tsx",
-  "tip_persistence": "Las salidas de IA se persisten como cualquier otro resultado de <code>useAsyncOutput</code>. La generación solo se vuelve a ejecutar si cambian sus props de entrada."
+  "tip_persistence": "Las salidas de IA se persisten como cualquier otro resultado de <0>useAsyncOutput</0>. La generación solo se vuelve a ejecutar si cambian sus props de entrada."
 }

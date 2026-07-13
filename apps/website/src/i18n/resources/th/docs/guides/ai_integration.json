@@ -1,14 +1,14 @@
 {
   "title": "การผสานรวม AI",
-  "description": "ห่อ Anthropic SDK ไว้ใน context provider แล้วเรียก Claude จาก reactive effects",
+  "description": "ห่อ Anthropic SDK ไว้ใน context provider และเรียกใช้ Claude จาก reactive effects",
   "heading_provider": "Claude Provider",
-  "provider_intro": "ห่อ Anthropic SDK ไว้ใน context provider เพื่อให้ child component ใดก็ได้เรียก API ได้ Provider สร้าง client เพียงครั้งเดียว Child component เข้าถึงผ่าน <code>useComplete()</code>",
+  "provider_intro": "ห่อ Anthropic SDK ไว้ใน context provider เพื่อให้ child component ใดก็ได้สามารถเรียก API ได้ Provider จะสร้าง client เพียงครั้งเดียว Child component เข้าถึงได้ผ่าน <0>useComplete()</0>",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Generation Component",
-  "generate_intro": "คอมโพเนนต์ <code>GenerateHtml</code> เรียก <code>useComplete()</code> ภายใน <code>createEffect</code> เมื่อ prompt signal เปลี่ยน effect จะทำงาน เรียก API แล้วส่งผลลัพธ์ไปยัง callback การป้องกันด้วย <code>untrack</code> ช่วยไม่ให้เกิดการ generate ซ้ำ",
+  "generate_intro": "คอมโพเนนต์ <0>GenerateHtml</0> เรียกใช้ <1>useComplete()</1> ภายใน <2>createEffect</2> เมื่อ prompt signal เปลี่ยนแปลง effect จะทำงาน เรียก API แล้วส่งผลลัพธ์ไปยัง callback ส่วน <3>untrack</3> ช่วยป้องกันการ generate ซ้ำ",
   "filename_generate": "components/generate-html.tsx",
   "heading_reactive_pipeline": "Reactive Pipeline",
-  "pipeline_intro": "แอปเชื่อมการ generate กับการ deploy เข้าด้วยกันด้วย <code>Show</code> เมื่อมีการ generate ที่รอดำเนินการ <code>GenerateHtml</code> จะทำงาน เมื่อสร้าง content แล้ว <code>Write</code> จะบันทึกลงดิสก์ และรายการ site จะอัปเดต ซึ่งจะทริกเกอร์การ deploy ไปยัง AWS ต่อไป",
+  "pipeline_intro": "แอปเชื่อม generation กับ deployment เข้าด้วยกันผ่าน <0>Show</0> เมื่อมี generation ที่ค้างอยู่ <1>GenerateHtml</1> จะทำงาน เมื่อได้ content แล้ว <2>Write</2> จะบันทึกลง disk และ site list จะอัปเดต ซึ่ง trigger การ deploy ไปยัง AWS ต่อไป",
   "filename_app": "app.tsx",
-  "tip_persistence": "ผลลัพธ์จาก AI จะถูก persist เหมือนกับผลลัพธ์ <code>useAsyncOutput</code> อื่นๆ การ generate จะรันอีกครั้งก็ต่อเมื่อ input props เปลี่ยนเท่านั้น"
+  "tip_persistence": "ผลลัพธ์ AI จะถูก persist เหมือนกับผลลัพธ์ <0>useAsyncOutput</0> อื่นๆ การ generate จะรันอีกครั้งเฉพาะเมื่อ input props เปลี่ยนแปลงเท่านั้น"
 }

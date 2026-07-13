@@ -1,13 +1,13 @@
 {
   "title": "useAsyncOutput",
-  "description": "创建一个具有持久化输出的 resource。这是 CReact 组件与外部系统交互的主要 hook。",
+  "description": "创建一个带有持久化输出的资源。用于 CReact 组件与外部系统交互的主要 hook。",
   "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
-  "param_props_or_getter_name": "<code>propsOrGetter</code>",
-  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
-  "param_props_or_getter_desc": "静态 props，或用于响应式追踪的 getter 函数。使用 getter 时，依赖项变化会重新运行 handler。",
-  "param_handler_name": "<code>handler</code>",
-  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
-  "param_handler_desc": "执行工作并设置输出的 setup 函数。可以返回清理函数（同步或异步）。",
-  "returns_desc": "一个包含每个输出键对应 accessor 函数的对象。例如，如果调用 <code>setOutputs({ url: '...' })</code>，返回值会有 <code>result.url()</code>。",
-  "callout_idempotent": "Handler 必须是幂等的。重启时，所有节点的 handler 会重新运行，以重新建立副作用（interval、subscription 等）。输出值会从 state 恢复，但 handler 必须重新创建任何运行时产物。"
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "静态 props，或用于响应式追踪的 getter 函数。使用 getter 时，依赖项变化会触发 handler 重新运行。",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "执行工作并设置输出的 setup 函数。可返回清理函数（同步或异步）。",
+  "returns_desc": "包含每个输出键的 accessor 函数的对象。例如，如果调用 <0>setOutputs({ url: '...' })</0>，返回值中会有 <1>result.url()</1>。",
+  "callout_idempotent": "Handler 必须是幂等的。重启时，handler 会对所有节点重新运行，以重新建立副作用（interval、subscription 等）。输出值会从 state 恢复，但 handler 必须重新创建所有运行时产物。"
 }

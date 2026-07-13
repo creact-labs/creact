@@ -1,15 +1,15 @@
 {
   "title": "createComputed",
-  "description": "在计算阶段同步运行函数，早于 effects。当你需要在依赖更新时向其他 signals 写入时使用。",
+  "description": "在计算阶段同步运行函数，先于 effects 执行。当你需要在依赖更新时写入其他 signals 时使用。",
   "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
   "param_fn_desc": "计算函数。同步运行。",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "可选的初始值。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "可选。<code>name</code> 用于调试。",
-  "warning_prefer_memo": "对于派生值，优先使用 <code>createMemo</code>。仅当你需要在计算阶段同步向其他 signals 写入时，才使用 <code>createComputed</code>。"
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "可选。<0>name</0> 用于调试。",
+  "warning_prefer_memo": "派生值请优先使用 <0>createMemo</0>。仅当你需要在计算阶段同步写入其他 signals 时才使用 <1>createComputed</1>。"
 }

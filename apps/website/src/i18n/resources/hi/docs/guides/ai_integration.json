@@ -1,14 +1,14 @@
 {
-  "title": "AI Integration",
+  "title": "AI एकीकरण",
   "description": "Anthropic SDK को एक context provider में wrap करें और reactive effects से Claude को call करें।",
   "heading_provider": "Claude Provider",
-  "provider_intro": "Anthropic SDK को एक context provider में wrap करें ताकि कोई भी child component API को call कर सके। Provider client को एक बार बनाता है। Child components इसे <code>useComplete()</code> के माध्यम से access करते हैं।",
+  "provider_intro": "Anthropic SDK को एक context provider में wrap करें ताकि कोई भी child component API को call कर सके। Provider client को एक बार बनाता है। Child components इसे <0>useComplete()</0> के माध्यम से access करते हैं।",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Generation Component",
-  "generate_intro": "<code>GenerateHtml</code> component एक <code>createEffect</code> के अंदर <code>useComplete()</code> को call करता है। जब prompt signal बदलता है, effect fire होता है, API को call करता है, और result को एक callback में pass करता है। <code>untrack</code> guard duplicate generations को रोकता है।",
+  "generate_intro": "<0>GenerateHtml</0> component एक <2>createEffect</2> के अंदर <1>useComplete()</1> को call करता है। जब prompt signal बदलता है, effect fire होता है, API को call करता है, और result को एक callback में pass करता है। <3>untrack</3> guard duplicate generations को रोकता है।",
   "filename_generate": "components/generate-html.tsx",
   "heading_reactive_pipeline": "Reactive Pipeline",
-  "pipeline_intro": "App generation और deployment को <code>Show</code> के साथ जोड़ता है। जब एक pending generation मौजूद होती है, <code>GenerateHtml</code> चलता है। जब यह content produce करता है, <code>Write</code> इसे disk पर save करता है, और site list update होती है, जो downstream में AWS deployment को trigger करती है।",
+  "pipeline_intro": "App generation और deployment को <0>Show</0> के साथ जोड़ता है। जब कोई pending generation मौजूद होती है, <1>GenerateHtml</1> चलता है। जब यह content produce करता है, <2>Write</2> इसे disk पर save करता है, और site list update होती है, जो downstream AWS deployment को trigger करती है।",
   "filename_app": "app.tsx",
-  "tip_persistence": "AI outputs किसी भी अन्य <code>useAsyncOutput</code> result की तरह persist होते हैं। Generation केवल तभी फिर से चलती है जब उसके input props बदलते हैं।"
+  "tip_persistence": "AI outputs किसी भी अन्य <0>useAsyncOutput</0> result की तरह persist किए जाते हैं। Generation केवल तब दोबारा चलती है जब इसके input props बदलते हैं।"
 }

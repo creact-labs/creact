@@ -1,8 +1,8 @@
 {
   "sections": {
-    "getting_started": "शुरू करें",
+    "getting_started": "शुरुआत करें",
     "architecture": "आर्किटेक्चर",
-    "build_your_own": "अपना खुद बनाएँ",
+    "build_your_own": "अपना खुद का बनाएं",
     "api_reference": "API संदर्भ"
   },
   "groups": {
@@ -12,10 +12,10 @@
     "runtime": "Runtime",
     "context": "Context",
     "lifecycle": "Lifecycle",
-    "props_children": "Props और Children",
+    "props_children": "Props & Children",
     "arrays": "Arrays",
     "owner": "Owner",
-    "configuration": "Configuration",
+    "configuration": "कॉन्फ़िगरेशन",
     "cli": "CLI"
   },
   "pages": {

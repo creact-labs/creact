@@ -1,9 +1,9 @@
 {
   "title": "batch",
-  "description": "รวมการอัปเดต signal หลายรายการให้อยู่ในรอบการคำนวณเดียว",
+  "description": "จัดกลุ่มการอัปเดต signal หลายรายการให้อยู่ในรอบการคำนวณเดียว",
   "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
   "param_fn_desc": "ฟังก์ชันที่มีการอัปเดต signal อยู่ภายใน การอัปเดตทั้งหมดจะถูกเลื่อนออกไปจนกว่าฟังก์ชันจะทำงานเสร็จ",
-  "returns_body": "ค่าที่ส่งคืนของ <code>fn</code>"
+  "returns_body": "ค่าที่ส่งกลับจาก <0>fn</0>"
 }

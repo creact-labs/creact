@@ -1,14 +1,14 @@
 {
   "title": "Integração com IA",
-  "description": "Encapsule o SDK da Anthropic em um provedor de contexto e chame o Claude a partir de efeitos reativos.",
+  "description": "Encapsule o Anthropic SDK em um context provider e chame o Claude a partir de efeitos reativos.",
   "heading_provider": "Provedor Claude",
-  "provider_intro": "Encapsule o SDK da Anthropic em um provedor de contexto para que qualquer componente filho possa chamar a API. O provedor cria o cliente uma única vez. Os componentes filhos o acessam via <code>useComplete()</code>.",
+  "provider_intro": "Encapsule o Anthropic SDK em um context provider para que qualquer componente filho possa chamar a API. O provider cria o client uma única vez. Os componentes filhos o acessam via <0>useComplete()</0>.",
   "filename_provider": "providers/claude-provider.tsx",
   "heading_generate_component": "Componente de Geração",
-  "generate_intro": "O componente <code>GenerateHtml</code> chama <code>useComplete()</code> dentro de um <code>createEffect</code>. Quando o signal do prompt muda, o efeito é disparado, chama a API e passa o resultado para um callback. A proteção com <code>untrack</code> evita gerações duplicadas.",
+  "generate_intro": "O componente <0>GenerateHtml</0> chama <1>useComplete()</1> dentro de um <2>createEffect</2>. Quando o signal do prompt muda, o effect é disparado, chama a API e passa o resultado para um callback. A proteção com <3>untrack</3> evita gerações duplicadas.",
   "filename_generate": "components/generate-html.tsx",
-  "heading_reactive_pipeline": "Pipeline reativo",
-  "pipeline_intro": "O app conecta geração e deploy com <code>Show</code>. Quando existe uma geração pendente, o <code>GenerateHtml</code> é executado. Quando ele produz conteúdo, o <code>Write</code> salva no disco e a lista de sites é atualizada, o que dispara o deploy na AWS em cascata.",
+  "heading_reactive_pipeline": "Pipeline Reativo",
+  "pipeline_intro": "O app conecta geração e deployment com <0>Show</0>. Quando existe uma geração pendente, o <1>GenerateHtml</1> é executado. Quando ele produz conteúdo, o <2>Write</2> salva em disco, e a lista de sites é atualizada, o que dispara o deployment na AWS em sequência.",
   "filename_app": "app.tsx",
-  "tip_persistence": "As saídas de IA são persistidas como qualquer outro resultado de <code>useAsyncOutput</code>. A geração só é executada novamente se suas props de entrada mudarem."
+  "tip_persistence": "As saídas de IA são persistidas como qualquer outro resultado de <0>useAsyncOutput</0>. A geração só é executada novamente se as props de entrada mudarem."
 }

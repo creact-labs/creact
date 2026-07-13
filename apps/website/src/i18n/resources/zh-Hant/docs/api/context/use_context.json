@@ -1,9 +1,9 @@
 {
   "title": "useContext",
-  "description": "讀取元件樹中上方最近的 context Provider 的值。",
+  "description": "讀取元件樹中上層最近的 context Provider 的值。",
   "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<code>context</code>",
-  "param_context_type": "<code>Context&lt;T&gt;</code>",
-  "param_context_desc": "由 <code>createContext</code> 建立的 context 物件。",
-  "returns_desc": "來自上方最近的 <code>Provider</code> 的值。若沒有 Provider 存在，則回傳傳入 <code>createContext</code> 的預設值。"
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "由 <0>createContext</0> 建立的 context 物件。",
+  "returns_desc": "來自上層最近 <0>Provider</0> 的值。若沒有 Provider，則回傳傳入 <1>createContext</1> 的預設值。"
 }

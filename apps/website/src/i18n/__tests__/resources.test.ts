@@ -62,8 +62,12 @@ describe.each([...byLocale.keys()].map((locale) => ({ locale })))(
 
         for (const [key, value] of translated) {
           expect(value, `${key} is empty`).not.toBe("");
-          // {placeholders} in the en string must survive translation
-          for (const token of source.get(key)?.match(/\{[^}]+\}/g) ?? []) {
+          // {placeholders} in the en string must survive translation.
+          // Identifier-only tokens: resource values also carry code
+          // samples whose brace blocks are legitimately translated
+          // (their comments are copy), so `{ anything }` is too broad.
+          for (const token of source.get(key)?.match(/\{[a-zA-Z0-9_]+\}/g) ??
+            []) {
             expect(value, `${key} lost ${token}`).toContain(token);
           }
         }

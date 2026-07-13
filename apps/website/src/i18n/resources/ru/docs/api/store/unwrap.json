@@ -2,7 +2,7 @@
   "title": "unwrap",
   "description": "Возвращает глубокий клон исходных данных из store-прокси, удаляя всю реактивность.",
   "signature": "unwrap<T>(store: T): T",
-  "param_store_name": "<code>store</code>",
-  "param_store_type": "<code>T</code>",
-  "param_store_desc": "Store-прокси, созданный с помощью <code>createStore</code>."
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Store-прокси, созданный с помощью <0>createStore</0>."
 }

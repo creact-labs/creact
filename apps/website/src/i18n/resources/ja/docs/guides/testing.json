@@ -1,17 +1,17 @@
 {
   "title": "テスト",
-  "description": "Vitest と createRoot を使用して CReact コンポーネントとリアクティブロジックをテストします。",
+  "description": "Vitest と createRoot を使って CReact コンポーネントとリアクティブロジックをテストします。",
   "heading_setup": "セットアップ",
   "setup_intro": "Vitest をインストールします:",
   "code_install": "npm install -D vitest",
   "filename_terminal": "ターミナル",
   "heading_testing_signals": "シグナルのテスト",
-  "testing_signals_intro": "リアクティブプリミティブを <code>createRoot</code> でラップしてテストします:",
+  "testing_signals_intro": "リアクティブプリミティブを <0>createRoot</0> でラップしてテストします:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "コンポーネントのテスト",
   "testing_components_intro": "コンポーネントを直接呼び出し、ハンドラーの出力を検査してテストします:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "フローコンポーネントのテスト",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "effects、クリーンアップ、ownership のトラッキングが機能するよう、テストを <code>createRoot</code> でラップしてください。"
+  "tip_create_root": "エフェクト、クリーンアップ、オーナーシップトラッキングが正しく動作するよう、テストを <0>createRoot</0> でラップしてください。"
 }

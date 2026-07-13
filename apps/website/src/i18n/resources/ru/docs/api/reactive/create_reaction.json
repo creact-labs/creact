@@ -1,12 +1,12 @@
 {
   "title": "createReaction",
-  "description": "Разделяет отслеживание и выполнение. Отслеживайте одно выражение, запускайте другую функцию при его изменении. Реакция срабатывает один раз, после чего её необходимо повторно активировать.",
+  "description": "Отделяет отслеживание от выполнения. Отслеживайте одно выражение, запускайте другую функцию при его изменении. Реакция срабатывает один раз, после чего её нужно снова взвести.",
   "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
-  "param_on_invalidate_name": "<code>onInvalidate</code>",
-  "param_on_invalidate_type": "<code>() =&gt; void</code>",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
   "param_on_invalidate_desc": "Колбэк, который срабатывает один раз при изменении отслеживаемых сигналов.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "Необязательный. <code>name</code> для отладки.",
-  "returns_body": "Функция <code>(tracking: () =&gt; void) =&gt; void</code>, которая активирует реакцию. Вызовите её с выражением отслеживания. Сигналы, прочитанные внутри, отслеживаются. При изменении любого из них <code>onInvalidate</code> срабатывает один раз, и отслеживание прекращается, пока вы снова не вызовете функцию."
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательно. <0>name</0> для отладки.",
+  "returns_body": "Функция <0>(tracking: () => void) => void</0>, которая взводит реакцию. Вызовите её с выражением для отслеживания. Сигналы, прочитанные внутри, отслеживаются. Когда любой из них изменится, <1>onInvalidate</1> сработает один раз, и отслеживание прекратится, пока вы снова не вызовете эту функцию."
 }

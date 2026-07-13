@@ -2,18 +2,18 @@
   "title": "AWS 集成",
   "description": "使用 AWS SDK 构建 S3 存储桶、文件上传和网站部署组件。",
   "heading_aws_provider": "AWS Provider",
-  "provider_intro": "将 AWS 客户端封装在 context provider 中。子组件通过 hooks 访问 S3 客户端、区域和账户 ID。该 provider 使用 <code>useAsyncOutput</code> 获取账户 ID，并在渲染子组件前用 <code>Show</code> 等待其就绪。",
+  "provider_intro": "将 AWS 客户端包装在 context provider 中。子组件通过 hooks 访问 S3 客户端、区域和账户 ID。该 provider 使用 <0>useAsyncOutput</0> 获取账户 ID，并使用 <1>Show</1> 等待其完成后再渲染子组件。",
   "filename_provider": "providers/aws-provider.tsx",
   "heading_bucket_component": "Bucket 组件",
-  "bucket_intro": "<code>Bucket</code> 组件使用 <code>useAsyncOutput</code> 创建 S3 存储桶。它会检查已保存的输出，以便在重启时跳过创建。当组件从树中移除时，cleanup handler 会清空并删除该存储桶。子组件仅在存储桶就绪后才会渲染。",
+  "bucket_intro": "<0>Bucket</0> 组件使用 <1>useAsyncOutput</1> 创建 S3 存储桶。它会检查已保存的输出，以便在重启时跳过创建。清理处理程序会在组件从树中移除时清空并删除存储桶。仅在存储桶就绪后才渲染子组件。",
   "filename_bucket": "components/bucket.tsx",
   "heading_s3_file": "S3 文件上传",
-  "s3_file_intro": "<code>S3File</code> 组件将内容上传到 S3。它会对内容进行哈希，并与已保存的状态进行比较，以便在内容未变化时跳过上传。",
+  "s3_file_intro": "<0>S3File</0> 组件将内容上传到 S3。它会对内容进行哈希处理，并与已保存的状态进行比较，以便在内容未更改时跳过上传。",
   "filename_s3_file": "shared/s3-file.tsx",
   "heading_website_component": "组合 WebSite",
-  "website_intro": "<code>WebSite</code> 组合了 <code>Bucket</code> 和 <code>S3File</code>。存储桶自行创建并配置，随后 <code>S3File</code> 作为子组件上传内容。",
+  "website_intro": "<0>WebSite</0> 组合了 <1>Bucket</1> 和 <2>S3File</2>。存储桶会自行创建并配置，然后 <3>S3File</3> 作为子组件上传内容。",
   "filename_website": "components/website.tsx",
   "heading_multiple_resources": "部署多个站点",
   "filename_app": "app.tsx",
-  "warning_cleanup": "为 AWS 资源实现 cleanup handler。如果没有 cleanup，从树中移除组件时不会删除底层资源。"
+  "warning_cleanup": "请为 AWS 资源实现清理处理程序。若没有清理逻辑，从树中移除组件时不会删除底层资源。"
 }

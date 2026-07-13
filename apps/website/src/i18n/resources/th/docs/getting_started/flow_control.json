@@ -1,14 +1,14 @@
 {
-  "title": "การควบคุม Flow",
-  "description": "Show, For, Switch และ ErrorBoundary ควบคุมว่าคอมโพเนนต์ใดจะทำงานตาม reactive conditions",
+  "title": "Flow Control",
+  "description": "Show, For, Switch และ ErrorBoundary ควบคุมว่า component ใดจะทำงานตามเงื่อนไข reactive",
   "heading_show": "Conditional Rendering ด้วย Show",
-  "show_intro": "<code>Show</code> เรนเดอร์ children เฉพาะเมื่อเงื่อนไข <code>when</code> เป็น truthy และยังสามารถระบุ fallback ได้",
-  "show_callback_intro": "คุณสามารถเข้าถึงค่าที่เป็น truthy ด้วย callback child:",
+  "show_intro": "<0>Show</0> เรนเดอร์ children เฉพาะเมื่อเงื่อนไข <1>when</1> เป็น truthy เท่านั้น และสามารถระบุ fallback ได้ด้วย",
+  "show_callback_intro": "คุณสามารถเข้าถึงค่า truthy ด้วย callback child ได้:",
   "heading_for": "การวนซ้ำด้วย For",
-  "for_intro": "<code>For</code> วนซ้ำบน reactive list แต่ละ item ถูก key ด้วย reference เมื่อ list เปลี่ยนแปลง จะอัปเดตเฉพาะ item ที่ได้รับผลกระทบ",
-  "heading_switch": "การแยกสาขาแบบหลายทางด้วย Switch",
-  "switch_intro": "<code>Switch</code> ร่วมกับ <code>Match</code> ให้ logic เงื่อนไขแบบหลายสาขา:",
-  "heading_error_boundary": "การจัดการ Error ด้วย ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> จับ error ที่ถูก throw ใน child components:",
-  "info_accessor_conditions": "Flow components รับ accessor functions (<code>() =&gt; value</code>) สำหรับเงื่อนไข เงื่อนไขจะถูก evaluate ใหม่โดยไม่ต้องรัน parent component ใหม่"
+  "for_intro": "<0>For</0> วนซ้ำรายการ reactive แต่ละ item ถูก key ด้วย reference เมื่อรายการเปลี่ยนแปลง มีเพียง item ที่ได้รับผลกระทบเท่านั้นที่อัปเดต",
+  "heading_switch": "การแยกสาขาหลายทางด้วย Switch",
+  "switch_intro": "<0>Switch</0> ร่วมกับ <1>Match</1> ให้ตรรกะเงื่อนไขแบบหลายสาขา:",
+  "heading_error_boundary": "การจัดการข้อผิดพลาดด้วย ErrorBoundary",
+  "error_boundary_intro": "<0>ErrorBoundary</0> จับ errors ที่ถูก throw ใน child components:",
+  "info_accessor_conditions": "Flow components รับ accessor functions (<0>() => value</0>) สำหรับเงื่อนไข เงื่อนไขจะถูกประเมินใหม่โดยไม่ต้องรัน parent component ใหม่"
 }

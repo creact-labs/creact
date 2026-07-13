@@ -2,12 +2,12 @@
   "title": "コンテキストとプロバイダー",
   "description": "コンテキストは、すべてのレベルで props を渡すことなく、コンポーネントツリー全体でデータを共有します。",
   "heading_creating_context": "コンテキストの作成",
-  "creating_context_intro": "<code>createContext</code> はオプションのデフォルト値を持つコンテキストを作成します。<code>useContext</code> は最も近いプロバイダーの値を読み取ります。",
+  "creating_context_intro": "<0>createContext</0> は、オプションのデフォルト値を持つコンテキストを作成します。<1>useContext</1> は最も近いプロバイダーの値を読み取ります。",
   "heading_providing_values": "値の提供",
-  "providing_values_intro": "コンテキストの <code>Provider</code> でコンポーネントをラップします:",
+  "providing_values_intro": "コンテキストの <0>Provider</0> でコンポーネントをラップします:",
   "heading_nested_providers": "ネストされたプロバイダー",
-  "nested_providers_intro": "内側のプロバイダーは、そのサブツリーに対して外側のプロバイダーをオーバーライドします:",
-  "tip_cross_cutting": "多くのコンポーネントが必要とする AWS リージョン、環境名、共有クレデンシャルなどの横断的な関心事にコンテキストを使用します。",
+  "nested_providers_intro": "内側のプロバイダーは、そのサブツリーにおいて外側のプロバイダーをオーバーライドします:",
+  "tip_cross_cutting": "多くのコンポーネントが必要とする AWS リージョン、環境名、共有クレデンシャルなどの横断的な関心事には、コンテキストを使用します。",
   "filename_config_context": "config-context.ts",
   "filename_app": "app.tsx"
 }

@@ -2,5 +2,5 @@
   "title": "splitProps",
   "description": "Memisahkan objek props menjadi beberapa grup berdasarkan key. Mempertahankan reaktivitas.",
   "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "Mengambil objek props yang diikuti oleh satu atau lebih array key. Mengembalikan tuple dengan satu objek per grup key ditambah objek sisa yang berisi semua key yang tidak cocok."
+  "behavior": "Mengambil objek props diikuti oleh satu atau lebih array of keys. Mengembalikan tuple dengan satu objek per grup key plus objek sisa yang berisi semua key yang tidak cocok."
 }

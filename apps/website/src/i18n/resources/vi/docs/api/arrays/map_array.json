@@ -1,14 +1,14 @@
 {
   "title": "mapArray",
-  "description": "Vòng lặp có khóa. Mỗi phần tử được map một lần và được khóa theo identity. Chỉ các phần tử mới hoặc bị xóa mới gây ra re-computation.",
+  "description": "Lặp có khóa. Mỗi phần tử được map một lần và được khóa theo identity. Chỉ các phần tử mới hoặc bị xóa mới gây re-computation.",
   "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
-  "param_list_name": "<code>list</code>",
-  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
   "param_list_desc": "Nguồn mảng reactive.",
-  "param_map_fn_name": "<code>mapFn</code>",
-  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
-  "param_map_fn_desc": "Hàm map. <code>v</code> là accessor tới phần tử. <code>i</code> là index reactive.",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
-  "param_options_desc": "Tùy chọn. <code>keyFn</code> cung cấp identity ổn định cho các phần tử."
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Hàm map. <0>v</0> là accessor tới phần tử. <1>i</1> là index reactive.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Tùy chọn. <0>keyFn</0> cung cấp identity ổn định cho các phần tử."
 }

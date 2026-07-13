@@ -1,8 +1,8 @@
 {
-  "title": "Modelo de Fiber",
+  "title": "Modelo Fiber",
   "description": "Fibers são a representação interna da árvore de componentes do CReact. Cada instância de componente mapeia para um nó fiber.",
-  "heading_what_is_fiber": "O Que É um Fiber?",
-  "what_is_fiber_body": "Um fiber é uma unidade de trabalho na árvore de render. Cada instância de componente no seu JSX corresponde a um nó fiber. Fibers formam uma árvore que espelha a hierarquia de componentes.",
+  "heading_what_is_fiber": "O que é um Fiber?",
+  "what_is_fiber_body": "Um fiber é uma unidade de trabalho na árvore de renderização. Cada instância de componente no seu JSX corresponde a um nó fiber. Os fibers formam uma árvore que espelha a hierarquia dos seus componentes.",
   "heading_fiber_structure": "Estrutura do Fiber",
   "code_fiber_structure": "// Component function, intrinsic tag, Fragment symbol, or nothing\ntype FiberType =\n  | ((props: Record<string, unknown>) => unknown)\n  | string\n  | symbol\n  | null;\n\ninterface Fiber {\n  type: FiberType;\n  props: Record<string, unknown>;\n  children: Fiber[];\n  path: string[];               // Path segments from root to this fiber\n  key?: string | number;        // User-provided key for stable identity\n\n  // Instance bindings (from useAsyncOutput)\n  instanceNodes: InstanceNode[];\n\n  // Store (from createStore, JSON-serializable)\n  store?: object;\n\n  // Owner for reactive scope (effects, cleanups)\n  owner?: Owner | null;\n}",
   "code_fiber_structure_filename": "fiber.ts (simplificado)",
@@ -14,14 +14,14 @@
   "step_execution_label": "Execução",
   "step_execution_body": "handlers são executados para fibers novos ou alterados",
   "step_serialization_label": "Serialização",
-  "step_serialization_body": "os outputs dos fibers são salvos na Memory",
+  "step_serialization_body": "as saídas dos fibers são salvas na Memory",
   "step_cleanup_label": "Limpeza",
   "step_cleanup_body": "fibers removidos têm seus handlers de limpeza chamados",
-  "heading_paths": "Paths de Fiber",
-  "paths_body": "Cada fiber tem um <code>path</code>, um array de segmentos de string da raiz até esse fiber. Os nós de instância derivam seu ID unindo o path com <code>\".\"</code> (ex.: <code>app.aws.web-site-blog</code>). Paths são usados para corresponder nós entre execuções na reconciliação.",
+  "heading_paths": "Caminhos de Fiber",
+  "paths_body": "Cada fiber tem um <0>path</0>, um array de segmentos de string da raiz até esse fiber. Os nós de instância derivam seu ID unindo o path com <1>\".\"</1> (ex.: <2>app.aws.web-site-blog</2>). Os paths são usados para corresponder nós entre execuções para a reconciliação.",
   "code_paths": "// <App>\n//   <AWS region=\"us-east-1\">\n//     <WebSite key=\"blog\" name=\"blog\" />\n//     <WebSite key=\"docs\" name=\"docs\" />\n//   </AWS>\n// </App>\n\n// Fiber paths (string[]):\n// [\"App\"]\n// [\"App\", \"AWS\"]\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"blog\")\n// [\"App\", \"AWS\", \"WebSite\"]   (key=\"docs\")\n\n// Instance node IDs (path.join(\".\")):\n// \"app.aws.web-site-blog\"\n// \"app.aws.web-site-docs\"",
   "heading_instance_nodes": "Fibers vs Nós de Instância",
-  "instance_nodes_body": "Fibers representam a estrutura da árvore de componentes. Quando um componente chama <code>useAsyncOutput</code>, ele cria um <code>InstanceNode</code> que é anexado ao fiber via <code>instanceNodes</code>. Nós de instância são o que o reconciler faz o diff e o runtime faz o deploy. Eles carregam o handler, os outputs e a função de limpeza.",
+  "instance_nodes_body": "Os fibers representam a estrutura da árvore de componentes. Quando um componente chama <0>useAsyncOutput</0>, ele cria um <1>InstanceNode</1> que é anexado ao fiber via <2>instanceNodes</2>. Os nós de instância são o que o reconciler compara e o runtime implanta. Eles carregam o handler, as saídas e a função de limpeza.",
   "heading_source": "Fonte",
-  "source_body": "A interface fiber e o <code>createFiber</code> ficam em <code>runtime/src/fiber.ts</code>. Nós de instância são definidos em <code>runtime/src/instance.ts</code>. A lógica de renderização está em <code>runtime/src/render.ts</code>."
+  "source_body": "A interface Fiber e o <0>createFiber</0> ficam em <1>runtime/src/fiber.ts</1>. Os nós de instância são definidos em <2>runtime/src/instance.ts</2>. A lógica de renderização está em <3>runtime/src/render.ts</3>."
 }

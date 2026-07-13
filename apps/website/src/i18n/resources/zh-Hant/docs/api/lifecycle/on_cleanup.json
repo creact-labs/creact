@@ -1,10 +1,10 @@
 {
   "title": "onCleanup",
-  "description": "在目前的響應式擁有者上註冊清理函式。當擁有者被銷毀時，或在 effect 重新執行前會執行。",
+  "description": "在目前的響應式擁有者上註冊清理函式。當擁有者被銷毀或 effect 重新執行前會執行。",
   "signature": "onCleanup<T extends () => any>(fn: T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; any</code>",
-  "param_fn_desc": "清理函式。當擁有者銷毀時會被呼叫。",
-  "returns_desc": "傳入的同一函式，方便使用。",
-  "warning_no_owner": "在 <code>createRoot</code> 或 <code>render</code> 之外呼叫 <code>onCleanup</code> 會發出警告，且清理函式永遠不會執行。"
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "清理函式。當擁有者銷毀時呼叫。",
+  "returns_desc": "傳入的同一個函式，方便使用。",
+  "warning_no_owner": "在 <1>createRoot</1> 或 <2>render</2> 之外呼叫 <0>onCleanup</0> 會發出警告，且清理函式永遠不會執行。"
 }

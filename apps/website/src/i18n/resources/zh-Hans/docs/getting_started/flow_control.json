@@ -1,14 +1,14 @@
 {
-  "title": "控制流",
+  "title": "流程控制",
   "description": "Show、For、Switch 和 ErrorBoundary 根据响应式条件控制哪些组件运行。",
   "heading_show": "使用 Show 进行条件渲染",
-  "show_intro": "<code>Show</code> 仅在 <code>when</code> 条件为真值时渲染其子节点。它还可以提供 fallback。",
-  "show_callback_intro": "你可以通过回调子元素访问该真值：",
+  "show_intro": "<0>Show</0> 仅在 <1>when</1> 条件为真值时渲染其子组件。它还可以提供回退内容。",
+  "show_callback_intro": "你可以通过回调子项访问该真值：",
   "heading_for": "使用 For 进行迭代",
-  "for_intro": "<code>For</code> 遍历响应式列表。每一项以引用作为 key。当列表变化时，仅受影响的项会更新。",
+  "for_intro": "<0>For</0> 迭代响应式列表。每个项按引用作为键。当列表变化时，仅受影响的项会更新。",
   "heading_switch": "使用 Switch 进行多路分支",
-  "switch_intro": "<code>Switch</code> 配合 <code>Match</code> 提供多分支条件逻辑：",
+  "switch_intro": "<0>Switch</0> 与 <1>Match</1> 提供多分支条件逻辑：",
   "heading_error_boundary": "使用 ErrorBoundary 进行错误处理",
-  "error_boundary_intro": "<code>ErrorBoundary</code> 捕获子组件中抛出的错误：",
-  "info_accessor_conditions": "控制流组件接受访问器函数（<code>() =&gt; value</code>）作为条件。条件会重新求值，而无需重新运行父组件。"
+  "error_boundary_intro": "<0>ErrorBoundary</0> 捕获子组件中抛出的错误：",
+  "info_accessor_conditions": "流程组件接受访问器函数（<0>() => value</0>）作为条件。条件会重新求值，而无需重新运行父组件。"
 }

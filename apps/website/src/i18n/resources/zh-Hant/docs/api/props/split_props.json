@@ -1,6 +1,6 @@
 {
   "title": "splitProps",
-  "description": "將 props 物件依鍵分割為多個群組。保留響應性。",
+  "description": "將 props 物件依 key 分割成多個群組。保留響應性。",
   "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
-  "behavior": "接受 props 物件，後接一或多個鍵陣列。回傳一個元組，包含每個鍵群組對應的一個物件，以及一個包含所有未匹配鍵的剩餘物件。"
+  "behavior": "接受 props 物件，後接一個或多個 key 陣列。回傳一個元組，其中每個 key 群組各有一個物件，以及一個包含所有未匹配 key 的剩餘物件。"
 }

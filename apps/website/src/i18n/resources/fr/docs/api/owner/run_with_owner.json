@@ -1,12 +1,12 @@
 {
   "title": "runWithOwner",
-  "description": "Exécute une fonction sous un propriétaire réactif spécifique. Requis pour créer des effets dans des callbacks asynchrones.",
+  "description": "Exécute une fonction sous un propriétaire réactif spécifique. Requis pour créer des effets dans les callbacks asynchrones.",
   "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
-  "param_owner_name": "<code>owner</code>",
-  "param_owner_type": "<code>Owner | null</code>",
-  "param_owner_desc": "Le scope owner sous lequel exécuter. Obtenez-le via <code>getOwner()</code>. Accepte <code>null</code>.",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
-  "param_fn_desc": "Fonction à exécuter. Tous les effets/cleanups créés à l'intérieur sont gérés par <code>owner</code>.",
-  "info_async_owner": "Après un <code>await</code> ou à l'intérieur de callbacks, le propriétaire réactif est perdu. Capturez-le de manière synchrone avec <code>getOwner()</code> et restaurez-le avec <code>runWithOwner()</code>."
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "La portée owner sous laquelle exécuter. Récupérez-la via <0>getOwner()</0>. Accepte <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fonction à exécuter. Tous les effets/nettoyages créés à l’intérieur sont possédés par <0>owner</0>.",
+  "info_async_owner": "Après un <0>await</0> ou à l’intérieur de callbacks, le propriétaire réactif est perdu. Capturez-le de façon synchrone avec <1>getOwner()</1> et restaurez-le avec <2>runWithOwner()</2>."
 }

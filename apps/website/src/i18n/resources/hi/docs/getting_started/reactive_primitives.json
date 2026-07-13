@@ -1,15 +1,15 @@
 {
-  "title": "रिएक्टिव प्रिमिटिव्स",
-  "description": "Signals, effects और memos components को बदलाव पर प्रतिक्रिया देने योग्य बनाते हैं।",
+  "title": "Reactive Primitives",
+  "description": "Signals, effects, और memos components को बदलाव पर प्रतिक्रिया करने देते हैं।",
   "heading_signals": "Signals",
-  "signals_intro": "Signal एक reactive value है। यह getter और setter pair लौटाता है। Effect के अंदर getter पढ़ने से dependency register हो जाती है। Signal बदलने पर effect फिर से चलता है।",
+  "signals_intro": "एक signal एक reactive value है। यह एक getter और setter pair लौटाता है। Effect के अंदर getter पढ़ने से dependency register होती है। Signal बदलने पर effect दोबारा चलता है।",
   "heading_effects": "Effects",
-  "effects_intro": "Effects अपनी dependencies बदलने पर side effects चलाते हैं। CReact track करता है कि effect function के अंदर कौन-से signals पढ़े गए हैं।",
-  "info_batched_effects": "Effects queue और batch किए जाते हैं। एक single synchronous block में multiple signal updates केवल एक effect re-run ट्रिगर करते हैं।",
+  "effects_intro": "Dependencies बदलने पर effects side effects चलाते हैं। CReact track करता है कि effect function के अंदर कौन से signals पढ़े गए।",
+  "info_batched_effects": "Effects queue और batch किए जाते हैं। एक ही synchronous block में कई signal updates केवल एक effect re-run trigger करते हैं।",
   "heading_memos": "Memos",
-  "memos_intro": "Memo एक derived reactive value है। यह result को cache करता है और केवल अपनी dependencies बदलने पर recompute करता है।",
+  "memos_intro": "एक memo एक derived reactive value है। यह result को cache करता है और केवल अपनी dependencies बदलने पर recompute करता है।",
   "heading_batching": "Batching",
-  "batching_intro": "<code>batch()</code> multiple signal updates को एक single re-evaluation pass में group करता है:",
+  "batching_intro": "<0>batch()</0> कई signal updates को एक single re-evaluation pass में group करता है:",
   "heading_untrack": "Untrack",
-  "untrack_intro": "<code>untrack()</code> dependency बनाए बिना signal पढ़ता है:"
+  "untrack_intro": "<0>untrack()</0> dependency बनाए बिना signal पढ़ता है:"
 }

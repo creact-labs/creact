@@ -1,9 +1,9 @@
 {
   "title": "useContext",
-  "description": "트리에서 가장 가까운 상위 컨텍스트 Provider의 값을 읽습니다.",
+  "description": "트리 상단에서 가장 가까운 context Provider의 값을 읽습니다.",
   "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<code>context</code>",
-  "param_context_type": "<code>Context&lt;T&gt;</code>",
-  "param_context_desc": "<code>createContext</code>로 생성된 컨텍스트 객체입니다.",
-  "returns_desc": "가장 가까운 상위 <code>Provider</code>의 값입니다. Provider가 없으면 <code>createContext</code>에 전달된 기본값을 반환합니다."
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "<0>createContext</0>로 생성된 context 객체입니다.",
+  "returns_desc": "상위 계층에서 가장 가까운 <0>Provider</0>의 값입니다. Provider가 없으면 <1>createContext</1>에 전달된 기본값을 반환합니다."
 }

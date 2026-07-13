@@ -1,11 +1,11 @@
 {
   "title": "createStore",
-  "description": "नेस्टेड स्टेट प्रबंधित करने के लिए एक रिएक्टिव स्टोर प्रॉक्सी बनाता है।",
+  "description": "नेस्टेड स्टेट प्रबंधित करने के लिए एक reactive store proxy बनाता है।",
   "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T</code>",
-  "param_value_desc": "प्रारंभिक स्टोर वैल्यू। एक ऑब्जेक्ट होना चाहिए।",
-  "returns_intro": "<code>[store, setStore]</code> का एक टपल:",
-  "returns_store": "<code>store</code>: एक रिएक्टिव प्रॉक्सी। प्रॉपर्टी एक्सेस ट्रैक किया जाता है।",
-  "returns_setstore": "<code>setStore</code>: सेटर जो path-based अपडेट स्वीकार करता है।"
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "प्रारंभिक store value। एक object होना चाहिए।",
+  "returns_intro": "<0>[store, setStore]</0> का एक tuple:",
+  "returns_store": "<0>store</0>: एक reactive proxy। Property access ट्रैक किया जाता है।",
+  "returns_setstore": "<0>setStore</0>: path-based updates स्वीकार करने वाला setter।"
 }

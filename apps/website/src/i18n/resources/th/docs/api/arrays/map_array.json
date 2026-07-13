@@ -1,14 +1,14 @@
 {
   "title": "mapArray",
-  "description": "การวนซ้ำแบบมีคีย์ แต่ละรายการจะถูก map เพียงครั้งเดียวและระบุคีย์ตาม identity มีเฉพาะรายการใหม่หรือที่ถูกลบเท่านั้นที่ทำให้เกิดการคำนวณใหม่",
+  "description": "Keyed iteration แต่ละ item จะถูก map เพียงครั้งเดียวและถูก key ตาม identity มีเฉพาะ item ใหม่หรือที่ถูกลบเท่านั้นที่ทำให้เกิด re-computation",
   "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
-  "param_list_name": "<code>list</code>",
-  "param_list_type": "<code>Accessor&lt;readonly T[] | undefined | null | false&gt;</code>",
-  "param_list_desc": "แหล่ง array แบบ reactive",
-  "param_map_fn_name": "<code>mapFn</code>",
-  "param_map_fn_type": "<code>(v: Accessor&lt;T&gt;, i: Accessor&lt;number&gt;) =&gt; U</code>",
-  "param_map_fn_desc": "ฟังก์ชัน map <code>v</code> เป็น accessor ของรายการ <code>i</code> เป็น index แบบ reactive",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>{ fallback?: Accessor; keyFn?: (item: T) =&gt; any }</code>",
-  "param_options_desc": "ไม่บังคับ <code>keyFn</code> ให้ identity ที่เสถียรสำหรับรายการ"
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "แหล่ง array แบบ Reactive",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "ฟังก์ชัน Map <0>v</0> คือ accessor ของ item <1>i</1> คือ index แบบ reactive",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "ไม่บังคับ <0>keyFn</0> ให้ identity ที่เสถียรสำหรับ items"
 }

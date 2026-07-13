@@ -3,10 +3,10 @@
   "description": "Bắt các lỗi được ném ra trong các component con và render một fallback.",
   "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
   "heading_props": "Props",
-  "prop_fallback_name": "<code>fallback</code>",
-  "prop_fallback_type": "<code>MaybeAccessor&lt;CReactNode&gt; | ((err: any, reset: () =&gt; void) =&gt; CReactNode)</code>",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
   "prop_fallback_desc": "Fallback tĩnh hoặc hàm render được gọi với lỗi đã bắt và một hàm reset.",
-  "prop_children_name": "<code>children</code>",
-  "prop_children_type": "<code>MaybeAccessor&lt;CReactNode&gt;</code>",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
   "prop_children_desc": "Nội dung cần render. Các lỗi trong subtree này sẽ bị bắt."
 }

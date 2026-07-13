@@ -2,8 +2,8 @@
   "title": "access",
   "description": "解包 MaybeAccessor。若為函式則呼叫它，否則直接回傳。",
   "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T | () =&gt; T</code>",
-  "param_value_desc": "值或 accessor 函式。",
-  "returns_desc": "型別為 <code>T</code> 的解包後值。"
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "值或存取器函式。",
+  "returns_desc": "類型為 <0>T</0> 的解包後值。"
 }

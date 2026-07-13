@@ -1,8 +1,8 @@
 {
   "title": "unwrap",
-  "description": "Trả về một bản sao sâu của dữ liệu gốc từ một store proxy, loại bỏ toàn bộ reactivity.",
+  "description": "Trả về một deep clone của dữ liệu gốc từ store proxy, loại bỏ toàn bộ reactivity.",
   "signature": "unwrap<T>(store: T): T",
-  "param_store_name": "<code>store</code>",
-  "param_store_type": "<code>T</code>",
-  "param_store_desc": "Một store proxy được tạo bởi <code>createStore</code>."
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Một store proxy được tạo bởi <0>createStore</0>."
 }

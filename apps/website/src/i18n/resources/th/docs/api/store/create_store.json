@@ -2,10 +2,10 @@
   "title": "createStore",
   "description": "สร้าง reactive store proxy สำหรับจัดการ nested state",
   "signature": "createStore<T extends object>(value: T): [T, SetStoreFunction<T>]",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T</code>",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
   "param_value_desc": "ค่าเริ่มต้นของ store ต้องเป็น object",
-  "returns_intro": "tuple ของ <code>[store, setStore]</code>:",
-  "returns_store": "<code>store</code>: reactive proxy การเข้าถึง property จะถูกติดตาม",
-  "returns_setstore": "<code>setStore</code>: setter ที่รับการอัปเดตแบบ path-based"
+  "returns_intro": "tuple ของ <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: reactive proxy การเข้าถึง property จะถูก track",
+  "returns_setstore": "<0>setStore</0>: setter ที่รับการอัปเดตแบบ path-based"
 }

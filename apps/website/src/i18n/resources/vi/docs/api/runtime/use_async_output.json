@@ -1,13 +1,13 @@
 {
   "title": "useAsyncOutput",
-  "description": "Tạo một resource với các output được lưu trữ. Hook chính cho các component CReact tương tác với hệ thống bên ngoài.",
+  "description": "Tạo một resource với các output được persist. Hook chính cho các component CReact tương tác với hệ thống bên ngoài.",
   "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
-  "param_props_or_getter_name": "<code>propsOrGetter</code>",
-  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
   "param_props_or_getter_desc": "Props tĩnh hoặc hàm getter để theo dõi reactive. Khi dùng getter, handler sẽ chạy lại khi các dependency thay đổi.",
-  "param_handler_name": "<code>handler</code>",
-  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
-  "param_handler_desc": "Hàm setup thực hiện công việc và thiết lập output. Có thể trả về hàm cleanup (đồng bộ hoặc bất đồng bộ).",
-  "returns_desc": "Một object chứa các hàm accessor cho mỗi khóa output. Ví dụ, nếu bạn gọi <code>setOutputs({ url: '...' })</code>, giá trị trả về có <code>result.url()</code>.",
-  "callout_idempotent": "Handler phải là idempotent. Khi khởi động lại, handler chạy lại cho tất cả node để thiết lập lại side effect (interval, subscription, v.v.). Giá trị output được khôi phục từ state, nhưng handler phải tạo lại mọi artifact runtime."
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Hàm setup thực hiện công việc và set output. Có thể trả về hàm cleanup (sync hoặc async).",
+  "returns_desc": "Một object chứa các hàm accessor cho mỗi key của output. Ví dụ, nếu bạn gọi <0>setOutputs({ url: '...' })</0>, giá trị trả về sẽ có <1>result.url()</1>.",
+  "callout_idempotent": "Handler phải idempotent. Khi restart, handler sẽ chạy lại cho tất cả node để thiết lập lại side effect (interval, subscription, v.v.). Giá trị output được khôi phục từ state, nhưng handler phải tạo lại mọi runtime artifact."
 }

@@ -2,7 +2,7 @@
   "title": "untrack",
   "description": "Lit des signaux sans créer de dépendances réactives.",
   "signature": "untrack<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
   "param_fn_desc": "Fonction à exécuter sans suivi. Les lectures de signaux à l'intérieur n'enregistrent pas de dépendances."
 }

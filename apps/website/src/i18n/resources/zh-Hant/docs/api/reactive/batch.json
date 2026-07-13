@@ -1,9 +1,9 @@
 {
   "title": "batch",
-  "description": "將多個 signal 更新分組為單一計算遍次。",
+  "description": "將多個 signal 更新分組為單一計算過程。",
   "signature": "batch<T>(fn: () => T): T",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; T</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
   "param_fn_desc": "包含 signal 更新的函式。所有更新會延遲到函式完成後才執行。",
-  "returns_body": "<code>fn</code> 的回傳值。"
+  "returns_body": "<0>fn</0> 的回傳值。"
 }

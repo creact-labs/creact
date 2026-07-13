@@ -2,7 +2,7 @@
   "title": "onMount",
   "description": "Führt eine Funktion einmal aus, wenn die Komponente initialisiert wird, ohne Abhängigkeiten zu tracken.",
   "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
   "param_fn_desc": "Funktion, die einmal beim Mount ausgeführt wird. Läuft untracked; Signal-Reads erzeugen keine Abhängigkeiten."
 }

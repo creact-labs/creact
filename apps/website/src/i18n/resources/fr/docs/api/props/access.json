@@ -1,9 +1,9 @@
 {
   "title": "access",
-  "description": "Déballe un MaybeAccessor. L'appelle s'il s'agit d'une fonction, le retourne directement sinon.",
+  "description": "Déballe un MaybeAccessor. L'appelle s'il s'agit d'une fonction, le renvoie directement sinon.",
   "signature": "access<T>(value: MaybeAccessor<T>): T",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>T | () =&gt; T</code>",
-  "param_value_desc": "Une valeur ou une fonction d'accès.",
-  "returns_desc": "La valeur déballée de type <code>T</code>."
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "Une valeur ou une fonction accessor.",
+  "returns_desc": "La valeur déballée de type <0>T</0>."
 }

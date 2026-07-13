@@ -2,12 +2,12 @@
   "title": "useAsyncOutput",
   "description": "Crée une ressource avec des sorties persistées. Le hook principal pour les composants CReact qui interagissent avec des systèmes externes.",
   "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
-  "param_props_or_getter_name": "<code>propsOrGetter</code>",
-  "param_props_or_getter_type": "<code>P | (() =&gt; P)</code>",
-  "param_props_or_getter_desc": "Props statiques ou une fonction getter pour le suivi réactif. Lorsqu'un getter est utilisé, le handler se réexécute lorsque les dépendances changent.",
-  "param_handler_name": "<code>handler</code>",
-  "param_handler_type": "<code>(props: P, setOutputs: SetOutputs&lt;O&gt;) =&gt; Promise&lt;(() =&gt; void) | void&gt; | void</code>",
-  "param_handler_desc": "Fonction de setup qui effectue le travail et définit les sorties. Peut renvoyer une fonction de nettoyage (synchrone ou asynchrone).",
-  "returns_desc": "Un objet avec des fonctions d'accès pour chaque clé de sortie. Par exemple, si vous appelez <code>setOutputs({ url: '...' })</code>, le retour contient <code>result.url()</code>.",
-  "callout_idempotent": "Les handlers doivent être idempotents. Au redémarrage, les handlers se réexécutent pour tous les nœuds afin de rétablir les effets de bord (intervalles, abonnements, etc.). Les valeurs de sortie sont restaurées depuis l'état, mais les handlers doivent recréer tous les artefacts d'exécution."
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "Props statiques ou fonction getter pour le suivi réactif. Lorsqu’un getter est utilisé, le handler se réexécute lorsque les dépendances changent.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Fonction de configuration qui effectue le travail et définit les sorties. Peut renvoyer une fonction de nettoyage (synchrone ou asynchrone).",
+  "returns_desc": "Un objet contenant des fonctions d’accès pour chaque clé de sortie. Par exemple, si vous appelez <0>setOutputs({ url: '...' })</0>, le retour expose <1>result.url()</1>.",
+  "callout_idempotent": "Les handlers doivent être idempotents. Au redémarrage, les handlers se réexécutent pour tous les nœuds afin de rétablir les effets de bord (intervalles, abonnements, etc.). Les valeurs de sortie sont restaurées depuis l’état, mais les handlers doivent recréer tous les artefacts d’exécution."
 }

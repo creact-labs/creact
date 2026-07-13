@@ -2,8 +2,8 @@
   "title": "createContext",
   "description": "สร้าง context สำหรับส่งข้อมูลผ่าน component tree โดยไม่ต้องใช้ props",
   "signature": "createContext<T>(defaultValue?: T): Context<T>",
-  "param_default_value_name": "<code>defaultValue</code>",
-  "param_default_value_type": "<code>T</code>",
-  "param_default_value_desc": "ไม่บังคับ ค่าที่ถูกคืนโดย <code>useContext</code> เมื่อไม่มี Provider อยู่ด้านบน",
-  "returns_desc": "อ็อบเจ็กต์ <code>Context&lt;T&gt;</code> ที่มีคอมโพเนนต์ <code>Provider</code>"
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "ไม่บังคับ ค่าที่ <0>useContext</0> คืนเมื่อไม่มี Provider อยู่ด้านบน",
+  "returns_desc": "อ็อบเจ็กต์ <0>Context<T></0> ที่มี component <1>Provider</1>"
 }

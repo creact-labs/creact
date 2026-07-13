@@ -1,15 +1,15 @@
 {
   "title": "createRenderEffect",
-  "description": "キューに入れずに、render 中に関数を同期的に実行します。ランタイム内部で使用され、アプリケーションコードではほとんど必要ありません。",
+  "description": "レンダー中に関数を同期的に実行し、キューに入れません。ランタイム内部で使用され、アプリケーションコードではほとんど必要ありません。",
   "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>(v: Init | Next) =&gt; Next</code>",
-  "param_fn_desc": "エフェクト関数。render 中に即座に実行されます。",
-  "param_value_name": "<code>value</code>",
-  "param_value_type": "<code>Init</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "エフェクト関数。レンダー中に即座に実行されます。",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
   "param_value_desc": "オプションの初期値。",
-  "param_options_name": "<code>options</code>",
-  "param_options_type": "<code>EffectOptions</code>",
-  "param_options_desc": "オプション。<code>name</code> はデバッグ用。",
-  "info_ordering": "Render エフェクトはユーザーエフェクト（<code>createEffect</code>）より先に実行されます。コンポーネントの render トラッキングなど、render フェーズ中に同期的な反応が必要な場合に使用します。"
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "オプション。<0>name</0> はデバッグ用。",
+  "info_ordering": "レンダーエフェクトはユーザーエフェクト（<0>createEffect</0>）より先に実行されます。コンポーネントのレンダートラッキングなど、レンダーフェーズ中に同期的な反応が必要な場合に使用します。"
 }

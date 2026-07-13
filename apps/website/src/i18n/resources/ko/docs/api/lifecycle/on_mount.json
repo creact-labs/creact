@@ -1,8 +1,8 @@
 {
   "title": "onMount",
-  "description": "컴포넌트가 초기화될 때 함수를 한 번 실행하며, 의존성을 추적하지 않습니다.",
+  "description": "컴포넌트가 초기화될 때 의존성을 추적하지 않고 함수를 한 번 실행합니다.",
   "signature": "onMount(fn: () => void): void",
-  "param_fn_name": "<code>fn</code>",
-  "param_fn_type": "<code>() =&gt; void</code>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
   "param_fn_desc": "마운트 시 한 번 실행할 함수입니다. 추적 없이 실행되며, 시그널 읽기는 의존성을 생성하지 않습니다."
 }

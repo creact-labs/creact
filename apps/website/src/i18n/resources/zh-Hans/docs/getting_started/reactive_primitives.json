@@ -1,15 +1,15 @@
 {
   "title": "响应式原语",
-  "description": "信号、副作用和 memo 使组件能够响应变化。",
-  "heading_signals": "信号",
-  "signals_intro": "信号是一个响应式值。它返回 getter 和 setter 对。在 effect 内部读取 getter 会注册依赖。当信号发生变化时，effect 会重新运行。",
-  "heading_effects": "副作用",
-  "effects_intro": "当依赖发生变化时，副作用会运行。CReact 会跟踪在 effect 函数内部读取了哪些信号。",
-  "info_batched_effects": "副作用会被排队并批量处理。在单个同步代码块中的多次信号更新只会触发一次 effect 重新运行。",
-  "heading_memos": "Memo",
-  "memos_intro": "Memo 是派生的响应式值。它会缓存结果，仅在其依赖发生变化时重新计算。",
-  "heading_batching": "批量更新",
-  "batching_intro": "<code>batch()</code> 将多次信号更新归组到单次重新求值过程中：",
-  "heading_untrack": "取消跟踪",
-  "untrack_intro": "<code>untrack()</code> 读取信号而不创建依赖："
+  "description": "Signal、effect 和 memo 使组件能够响应变化。",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal 是一个响应式值。它返回 getter 和 setter 对。在 effect 内部读取 getter 会注册依赖。当 signal 发生变化时，effect 会重新运行。",
+  "heading_effects": "Effects",
+  "effects_intro": "当依赖发生变化时，effect 会运行副作用。CReact 会跟踪在 effect 函数内部读取了哪些 signal。",
+  "info_batched_effects": "Effect 会被排队并批量处理。在单个同步代码块中对 signal 的多次更新只会触发一次 effect 重新运行。",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo 是派生的响应式值。它会缓存结果，仅在依赖发生变化时重新计算。",
+  "heading_batching": "批处理",
+  "batching_intro": "<0>batch()</0> 将多次 signal 更新归入单次重新求值过程：",
+  "heading_untrack": "Untrack",
+  "untrack_intro": "<0>untrack()</0> 读取 signal 而不创建依赖："
 }

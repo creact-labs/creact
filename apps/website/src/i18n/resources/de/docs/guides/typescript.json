@@ -1,13 +1,13 @@
 {
   "title": "TypeScript",
-  "description": "CReact ist in TypeScript geschrieben. So holen Sie das Maximum aus dem Typsystem für Signals, Props und Components heraus.",
+  "description": "CReact ist in TypeScript geschrieben. So holst du das Maximum aus dem Typsystem für Signals, Props und Components heraus.",
   "heading_tsconfig": "TypeScript-Konfiguration",
-  "tsconfig_intro": "Die entscheidende Einstellung ist <code>jsxImportSource</code>. Damit weist TypeScript an, die JSX-Typen von CReact zu verwenden:",
+  "tsconfig_intro": "Die entscheidende Einstellung ist <0>jsxImportSource</0>. Damit weist du TypeScript an, die JSX-Typen von CReact zu verwenden:",
   "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
   "filename_tsconfig": "tsconfig.json",
   "heading_typed_signals": "Typisierte Signals",
-  "typed_signals_intro": "Signals leiten ihren Typ aus dem Anfangswert ab, oder Sie können ihn explizit angeben:",
+  "typed_signals_intro": "Signals leiten ihren Typ vom Anfangswert ab, oder du gibst ihn explizit an:",
   "heading_typed_props": "Typisierte Props",
   "heading_accessor_types": "Accessor und MaybeAccessor",
-  "info_types": "CReact re-exportiert wichtige Typen: <code>Accessor</code>, <code>Setter</code>, <code>MaybeAccessor</code>, <code>SignalOptions</code>, <code>MemoOptions</code>, <code>Owner</code>, <code>Context</code> und alle Runtime-Typen."
+  "info_types": "CReact reexportiert zentrale Typen: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6> sowie alle Runtime-Typen."
 }

@@ -1,9 +1,9 @@
 {
   "title": "useContext",
-  "description": "Lee el valor del Provider de contexto más cercano superior en el árbol.",
+  "description": "Lee el valor del Provider de contexto más cercano por encima en el árbol.",
   "signature": "useContext<T>(context: Context<T>): T",
-  "param_context_name": "<code>context</code>",
-  "param_context_type": "<code>Context&lt;T&gt;</code>",
-  "param_context_desc": "El objeto de contexto creado por <code>createContext</code>.",
-  "returns_desc": "El valor del <code>Provider</code> más cercano superior. Si no existe un Provider, devuelve el valor predeterminado pasado a <code>createContext</code>."
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "El objeto de contexto creado por <0>createContext</0>.",
+  "returns_desc": "El valor del <0>Provider</0> más cercano por encima. Si no existe ningún Provider, devuelve el valor predeterminado pasado a <1>createContext</1>."
 }

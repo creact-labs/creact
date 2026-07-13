@@ -2,5 +2,5 @@
   "title": "getOwner",
   "description": "回傳目前的響應式擁有者（擁有目前作用域的計算或根）。",
   "signature": "getOwner(): Owner | null",
-  "returns_desc": "目前的 <code>Owner</code>，若在響應式作用域外呼叫則為 <code>null</code>。"
+  "returns_desc": "目前的 <0>Owner</0>，若在響應式作用域之外呼叫則為 <1>null</1>。"
 }

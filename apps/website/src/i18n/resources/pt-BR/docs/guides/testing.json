@@ -6,12 +6,12 @@
   "code_install": "npm install -D vitest",
   "filename_terminal": "Terminal",
   "heading_testing_signals": "Testando Signals",
-  "testing_signals_intro": "Teste primitivas reativas envolvendo-as em <code>createRoot</code>:",
+  "testing_signals_intro": "Teste primitivas reativas envolvendo-as em <0>createRoot</0>:",
   "filename_signals_spec": "signals.spec.ts",
   "heading_testing_components": "Testando Componentes",
-  "testing_components_intro": "Teste componentes chamando-os diretamente e inspecionando as saídas dos handlers:",
+  "testing_components_intro": "Teste componentes chamando-os diretamente e inspecionando as saídas de seus handlers:",
   "filename_counter_spec": "counter.spec.ts",
   "heading_testing_flow": "Testando Componentes Flow",
   "filename_flow_spec": "flow.spec.tsx",
-  "tip_create_root": "Envolva os testes em <code>createRoot</code> para que effects, cleanups e o rastreamento de ownership funcionem."
+  "tip_create_root": "Envolva os testes em <0>createRoot</0> para que effects, cleanups e o rastreamento de ownership funcionem."
 }

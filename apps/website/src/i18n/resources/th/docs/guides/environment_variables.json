@@ -1,14 +1,14 @@
 {
-  "title": "ตัวแปรสภาพแวดล้อม",
-  "description": "กำหนดค่าแอปของคุณสำหรับ environment ต่างๆ โดยใช้ process.env.",
-  "heading_reading": "การอ่านตัวแปรสภาพแวดล้อม",
-  "reading_intro": "เข้าถึงตัวแปรสภาพแวดล้อมผ่าน <code>process.env</code> เหมือนในแอป Node.js ทั่วไป:",
+  "title": "Environment Variables",
+  "description": "กำหนดค่าแอปของคุณสำหรับ environment ต่างๆ โดยใช้ process.env",
+  "heading_reading": "การอ่าน Environment Variables",
+  "reading_intro": "เข้าถึง environment variables ผ่าน <0>process.env</0> เหมือนกับแอป Node.js ทั่วไป:",
   "filename_app": "app.tsx",
-  "heading_per_environment": "การกำหนดค่าแยกตาม Environment",
+  "heading_per_environment": "การกำหนดค่าตาม Environment",
   "filename_config": "config.ts",
   "heading_secrets": "การจัดการ Secrets",
   "secrets_intro": "ส่ง secrets ผ่าน environment variables หรือ secret manager:",
   "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
   "filename_env": ".env",
-  "warning_dotenv": "CReact ไม่มีการโหลดไฟล์ <code>.env</code> ในตัว ใช้ package อย่าง <code>dotenv</code> หรือตั้งค่าตัวแปรใน shell / CI environment ของคุณ."
+  "warning_dotenv": "CReact ไม่มีระบบโหลดไฟล์ <0>.env</0> ในตัว ใช้แพ็กเกจอย่าง <1>dotenv</1> หรือตั้งค่าตัวแปรใน shell / CI environment ของคุณ"
 }

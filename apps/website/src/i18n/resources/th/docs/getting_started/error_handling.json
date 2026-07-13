@@ -1,13 +1,13 @@
 {
   "title": "การจัดการข้อผิดพลาด",
-  "description": "ErrorBoundary และ catchError จับข้อผิดพลาดในการคำนวณแบบ reactive และคอมโพเนนต์ลูก",
+  "description": "ErrorBoundary และ catchError จับข้อผิดพลาดใน reactive computation และ child component",
   "heading_error_boundary": "คอมโพเนนต์ ErrorBoundary",
-  "error_boundary_intro": "<code>ErrorBoundary</code> จับข้อผิดพลาดที่ถูก throw จาก children แล้ว render fallback:",
+  "error_boundary_intro": "<0>ErrorBoundary</0> จับข้อผิดพลาดที่ถูก throw ใน children แล้ว render fallback:",
   "heading_catch_error": "Primitive catchError",
-  "catch_error_intro": "สำหรับการควบคุมในระดับต่ำกว่า <code>catchError</code> จะ wrap ฟังก์ชันและจับข้อผิดพลาดในการคำนวณลูก:",
-  "heading_error_propagation": "การแพร่กระจายข้อผิดพลาด",
-  "error_propagation_body": "ข้อผิดพลาดจะ propagate ขึ้นตาม owner chain หากไม่มี error boundary ใดจับข้อผิดพลาด มันจะ bubble ไปที่ root แล้ว throw Error boundary ที่ซ้อนกันจะจับเฉพาะข้อผิดพลาดจาก subtree ของตนเองเท่านั้น",
-  "heading_handler_errors": "ข้อผิดพลาดใน Handlers",
-  "handler_errors_intro": "handlers ของ <code>useAsyncOutput</code> ทำงานใน async deployment loop ของ runtime ไม่ได้อยู่ในการคำนวณแบบ reactive ข้อผิดพลาดที่ถูก throw ใน handlers จะทำให้ deployment ล้มเหลว ข้อผิดพลาดเหล่านี้<strong>ไม่</strong>ถูกจับโดย <code>ErrorBoundary</code> จัดการข้อผิดพลาดภายใน handler ของคุณด้วย try/catch:",
-  "warning_cleanup": "ฟังก์ชัน cleanup ที่ลงทะเบียนด้วย <code>onCleanup</code> ยังคงทำงานเมื่อ error boundary จับข้อผิดพลาด ทรัพยากรจะถูกปล่อย"
+  "catch_error_intro": "สำหรับการควบคุมในระดับที่ต่ำกว่า <0>catchError</0> จะห่อ function และจับข้อผิดพลาดใน child computation:",
+  "heading_error_propagation": "การแพร่กระจายของข้อผิดพลาด",
+  "error_propagation_body": "ข้อผิดพลาดจะ propagate ขึ้นตาม owner chain หากไม่มี error boundary จับข้อผิดพลาด มันจะ bubble ไปยัง root แล้ว throw Error boundary ที่ซ้อนกันจะจับเฉพาะข้อผิดพลาดจาก subtree ของตัวเองเท่านั้น",
+  "heading_handler_errors": "ข้อผิดพลาดใน Handler",
+  "handler_errors_intro": "handler ของ <0>useAsyncOutput</0> ทำงานใน async deployment loop ของ runtime ไม่ได้อยู่ภายใน reactive computation ข้อผิดพลาดที่ throw ใน handler จะทำให้ deployment ล้มเหลว ข้อผิดพลาดเหล่านี้จะ <1>ไม่</1> ถูกจับโดย <2>ErrorBoundary</2> จัดการข้อผิดพลาดภายใน handler ของคุณด้วย try/catch:",
+  "warning_cleanup": "cleanup function ที่ลงทะเบียนด้วย <0>onCleanup</0> ยังคงทำงานเมื่อ error boundary จับข้อผิดพลาดได้ Resource จะถูกปล่อย"
 }

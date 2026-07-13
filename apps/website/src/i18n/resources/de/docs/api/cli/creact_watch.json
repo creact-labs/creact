@@ -1,16 +1,16 @@
 {
   "title": "creact --watch",
-  "description": "CReact im Watch-Modus ausführen. Startet automatisch neu, wenn sich Quelldateien ändern.",
+  "description": "CReact im Watch-Modus ausführen. Startet bei Änderungen an Quelldateien automatisch neu.",
   "heading_usage": "Verwendung",
   "code_usage": "creact --watch <entry-file>",
   "filename_terminal": "Terminal",
   "heading_behavior": "Verhalten",
-  "behavior_run": "Führt Type-Checks durch und startet Ihre Entry-Datei",
-  "behavior_watch": "Überwacht <code>.ts</code>-, <code>.tsx</code>-, <code>.js</code>- und <code>.jsx</code>-Dateien auf Änderungen",
-  "behavior_restart": "Bei Dateiänderung: stoppt den aktuellen Lauf (führt Cleanups aus), führt erneute Type-Checks durch und startet neu",
+  "behavior_run": "Führt Type-Checks durch und führt deine Entry-Datei aus",
+  "behavior_watch": "Überwacht <0>.ts</0>-, <1>.tsx</1>-, <2>.js</2>- und <3>.jsx</3>-Dateien auf Änderungen",
+  "behavior_restart": "Bei Dateiänderung: stoppt den aktuellen Lauf (führt Cleanups aus), führt erneut Type-Checks durch und startet neu",
   "behavior_state": "State bleibt zwischen Neustarts über das Memory-Interface erhalten",
-  "behavior_stop": "Drücken Sie <code>Ctrl+C</code>, um zu beenden",
+  "behavior_stop": "Drücke <0>Ctrl+C</0> zum Beenden",
   "heading_output": "Ausgabe",
   "code_output": "$ creact --watch index.tsx\n\n ╭──────────────────────╮\n │    CReact v0.3.0     │\n ╰──────────────────────╯\n\n ✓ Type check passed (3 files, 120ms)\n ▶ App started\n ◎ Watching for changes...\n\n ⟳ File changed: src/app.tsx\n ⟳ Restarting...\n ✓ Type check passed (3 files, 95ms)\n ▶ App started",
-  "tip_state_persists": "State bleibt über Neustarts hinweg erhalten. Bearbeiten Sie Ihren Component Tree, ohne den deployed State zu verlieren."
+  "tip_state_persists": "State bleibt über Neustarts hinweg erhalten. Bearbeite deinen Component Tree, ohne den deployten State zu verlieren."
 }
