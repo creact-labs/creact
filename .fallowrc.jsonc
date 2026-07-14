@@ -4,8 +4,14 @@
   // Run from the repo root: dead-code · dupes · health --coverage · audit
 
   // The creact CLI bin entry: package.json bin points at the dist build, so
-  // the source file needs to be declared as an entry explicitly.
-  "entry": ["packages/creact/src/cli.ts"],
+  // the source file needs to be declared as an entry explicitly. The
+  // coi-serviceworker is a vendored public asset loaded via <script> in
+  // index.html to enable cross-origin isolation on GitHub Pages — it is not a
+  // module, so it is declared here rather than resolved through the graph.
+  "entry": [
+    "packages/creact/src/cli.ts",
+    "apps/website/public/coi-serviceworker.min.js"
+  ],
 
   // These are published libraries — their entry-point exports ARE the product
   // and have external consumers, so they must not be flagged as unused.
@@ -15,7 +21,29 @@
     // Workspace self-dependency: packages/testing imports @creact-labs/creact
     // (render, Memory types), but the dep points at the unbuilt dist/ so the
     // analyzer can't attribute the imports to it.
-    "@creact-labs/creact"
+    "@creact-labs/creact",
+    // Same limitation for the example-app workspaces: their imports resolve
+    // through libs/examples tsconfig paths to unbuilt package source, so the
+    // analyzer can't attribute them to each app's package.json dependency.
+    "@creact-labs/example-memory",
+    "@creact-labs/example-file-memory",
+    // Example mock service clients: page-writer imports
+    // @creact-labs/example-mock-anthropic (src/claude/html-writer) and
+    // site-publisher imports @creact-labs/example-mock-s3 (src/aws/*). fallow
+    // finds the imports ("imported in libs/examples") but attributes them to
+    // the libs/examples root workspace rather than the nested app that declares
+    // the dependency, so it reports them unused. Same monorepo-in-monorepo
+    // attribution gap as the other example packages above.
+    "@creact-labs/example-mock-s3",
+    "@creact-labs/example-mock-anthropic"
+  ],
+
+  "ignorePatterns": [
+    // site-publisher's ./site is deployable static content, not source: the
+    // app reads it at runtime via an fs walk (buildManifest globs ./site/**)
+    // and uploads it to S3. No static import reaches styles.css, so dead-code
+    // sees it as unreachable — it is runtime data, not orphaned code.
+    "libs/examples/apps/site-publisher/site/**"
   ],
 
   // Memory backends implement the creact `Memory` interface — their methods

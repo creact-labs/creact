@@ -1,0 +1,19 @@
+{
+  "title": "AI 集成",
+  "description": "在 durable resource handler 中调用 Claude，节选自 page-writer 示例。",
+  "heading_client": "客户端接缝",
+  "client_intro": "page-writer 通过一个小型接口封装 Anthropic SDK。<0>HtmlWriterClient</0> 声明应用所用的唯一方法，<1>createHtmlWriterClient</1> 则根据环境构建真实客户端：",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "该接口即依赖注入接缝。生产代码无需传参即可获得真实 SDK，而测试则向 <0>writeHtml</0> 注入脚本化的假实现——无网络、无 API key。",
+  "heading_request": "发起请求",
+  "request_intro": "<0>writeHtml</0> 将用户的 prompt 与固定的 system prompt 一并发送，并将其 <1>client</1> 参数默认设为真实 SDK：",
+  "request_notice": "system prompt 固定了输出约定——一份独立的 HTML 文档，不含 markdown 代码围栏——从而使后续流水线可将响应视为可部署产物，而非聊天内容。",
+  "heading_extract": "提取文档",
+  "extract_intro": "响应以 content block 形式到达。<0>extractHtmlDocument</0> 提取第一个文本块，并在 Claude 未返回可用内容时明确失败：",
+  "heading_generate_handler": "生成 Handler",
+  "generate_intro": "Page 组件将一个 prompt 转化为一个 durable resource。其 handler 先从 ledger 恢复状态，仅在页面从未生成时才调用 <0>writeHtml</0>——正是这一检查保证了幂等性：",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> 会接收上次持久化的值，即便跨越重启也是如此。若前一次运行已到达 <1>ready</1>，handler 将保留该状态并直接返回，不再消耗另一次 API 调用。",
+  "tip_persistence": "AI 输出与其他 <0>useAsyncOutput</0> 结果一样会持久化。重启应用会重新运行每个 handler，但已恢复的页面会跳过生成——只有真正新的 prompt 才会到达 API。",
+  "see_walkthrough": "在 <0>page-writer walkthrough</0> 中查看完整的 prompt-to-page 流水线。"
+}

@@ -1,0 +1,5 @@
+[
+  { "name": "acme", "region": "us-east-1", "plan": "pro" },
+  { "name": "globex", "region": "eu-west-1", "plan": "starter" },
+  { "name": "initech", "region": "ap-southeast-2", "plan": "enterprise" }
+]

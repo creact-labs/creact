@@ -1,0 +1,22 @@
+{
+  "title": "package.json",
+  "description": "CReact प्रोजेक्ट्स के लिए पैकेज कॉन्फ़िगरेशन।",
+  "heading_minimal": "न्यूनतम कॉन्फ़िगरेशन",
+  "code_minimal": "{\n  \"name\": \"my-creact-app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\"\n  },\n  \"dependencies\": {\n    \"@creact-labs/creact\": \"^0.3.0\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\"\n  }\n}",
+  "filename_package_json": "package.json",
+  "heading_key_fields": "मुख्य फ़ील्ड्स",
+  "table_header_field": "फ़ील्ड",
+  "table_header_value": "मान",
+  "table_header_why": "क्यों",
+  "row_type_name": "<0>\"type\"</0>",
+  "row_type_value": "<0>\"module\"</0>",
+  "row_type_why": "CReact केवल ESM है। उचित module resolution के लिए आवश्यक।",
+  "row_start_name": "<0>\"scripts.start\"</0>",
+  "row_start_value": "<0>\"creact index.tsx\"</0>",
+  "row_start_why": "सिंगल रन: reconcile करके exit।",
+  "row_dev_name": "<0>\"scripts.dev\"</0>",
+  "row_dev_value": "<0>\"creact --watch index.tsx\"</0>",
+  "row_dev_why": "वॉच मोड: फ़ाइल परिवर्तन पर रीस्टार्ट।",
+  "heading_with_testing": "टेस्टिंग के साथ",
+  "code_with_testing": "{\n  \"scripts\": {\n    \"start\": \"creact index.tsx\",\n    \"dev\": \"creact --watch index.tsx\",\n    \"test\": \"vitest --run\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.0.0\",\n    \"@types/node\": \"^20.0.0\",\n    \"vitest\": \"^3.0.0\"\n  }\n}"
+}

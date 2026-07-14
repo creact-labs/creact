@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "Mengembalikan owner reaktif saat ini (komputasi atau root yang memiliki scope saat ini).",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "<0>Owner</0> saat ini, atau <1>null</1> jika dipanggil di luar scope reaktif.",
+  "usage_states": "<0>Page</0> dari page writer memanggil <1>getOwner</1> di body komponen, saat scope sinkron masih ada. Owner tersebut diserahkan ke handler agar <2>onCleanup</2> yang dijalankan nanti dapat menempel ke scope yang tepat setelah awaiting.",
+  "in_the_wild": "Lihat owner ini diteruskan melalui pekerjaan async di <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

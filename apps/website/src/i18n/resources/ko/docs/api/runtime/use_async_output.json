@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "영속화된 출력을 가진 리소스를 생성합니다. 외부 시스템과 상호작용하는 CReact 컴포넌트의 주요 훅입니다.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "정적 props 또는 반응형 추적을 위한 getter 함수입니다. getter를 사용하면 의존성이 변경될 때 handler가 다시 실행됩니다.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "작업을 수행하고 출력을 설정하는 setup 함수입니다. cleanup 함수를 반환할 수 있습니다(동기 또는 비동기).",
+  "returns_desc": "각 출력 키에 대한 accessor 함수를 가진 객체입니다. 예를 들어 <0>setOutputs({ url: '...' })</0>를 호출하면 반환값에 <1>result.url()</1>이 포함됩니다.",
+  "heading_counter": "내구성 리소스",
+  "usage_counter": "내구성 카운터의 <0>Counter</0>는 빈 props와 handler로 <1>useAsyncOutput</1>을 한 번 호출합니다. 반환된 <2>counter.count()</2>는 모든 effect가 읽을 수 있는 반응형 accessor입니다.",
+  "heading_restore": "영속화된 상태 복원",
+  "usage_restore": "페이지 작성기의 handler는 이미 생성된 페이지를 감지하기 위해 <1>setOutputs</1> 내부에서 <0>prev</0>를 읽습니다. <2>state === \"ready\"</2>가 복원된 경우 Claude 호출을 건너뛰고 재생성하지 않으며 조기 반환합니다.",
+  "heading_prev_aware": "변경되지 않은 작업 건너뛰기",
+  "usage_prev_aware": "사이트 퍼블리셔는 들어오는 <0>entry.hash</0>를 영속화된 <1>prev.hash</1>와 비교합니다. 해시가 일치하면 객체가 이미 업로드된 것이므로 handler는 <2>S3</2>에 접근하기 전에 반환합니다.",
+  "callout_idempotent": "Handler는 멱등해야 합니다. 재시작 시 모든 노드에 대해 handler가 다시 실행되어 사이드 이펙트(interval, subscription 등)를 재설정합니다. 출력 값은 상태에서 복원되지만, handler는 모든 런타임 아티팩트를 다시 생성해야 합니다.",
+  "in_the_wild": "이 handler들이 재시작을 거쳐 영속화되고 복구되는 모습을 <0>durable-counter walkthrough</0>에서 확인하세요.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

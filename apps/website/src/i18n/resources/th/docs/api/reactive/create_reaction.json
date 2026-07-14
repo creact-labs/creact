@@ -1,0 +1,16 @@
+{
+  "title": "createReaction",
+  "description": "แยก tracking ออกจาก execution ติดตาม expression หนึ่ง แล้วรันฟังก์ชันอื่นเมื่อมันเปลี่ยนแปลง reaction จะ fire ครั้งเดียว แล้วต้อง re-arm ใหม่",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "Callback ที่ fire ครั้งเดียวเมื่อ signal ที่ถูก track เปลี่ยนแปลง",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "ไม่บังคับ <0>name</0> สำหรับ debugging",
+  "returns_body": "ฟังก์ชัน <0>(tracking: () => void) => void</0> ที่ arm reaction เรียกใช้พร้อม tracking expression signal ที่ถูกอ่านภายในจะถูก track เมื่อ signal ใดเปลี่ยนแปลง <1>onInvalidate</1> จะ fire ครั้งเดียว และ tracking จะหยุดจนกว่าคุณจะเรียกฟังก์ชันนี้อีกครั้ง",
+  "heading_alert_on_first_failure": "การแจ้งเตือนเมื่อ failure ครั้งแรก",
+  "usage_alert_on_first_failure": "คอมโพเนนต์ <0>Alert</0> ของ uptime monitor จะ arm reaction บน <1>props.incidents()</1> ทุกครั้งที่ list เปลี่ยนแปลง มันจะบันทึก incident ที่ยังไม่ได้ alert จากนั้น re-arm ตัวเองเพื่อให้การเปลี่ยนแปลงครั้งถัดไป fire อีกครั้ง effect ธรรมดาจะ re-run การสแกนทั้งหมด ส่วน reaction จะแยก tracking กับ side effect ออกจากกัน",
+  "in_the_wild": "ดู reaction นี้ขับเคลื่อน alert log ใน <0>uptime-monitor walkthrough</0>",
+  "filename_alert": "uptime-monitor/src/components/alert/index.tsx"
+}

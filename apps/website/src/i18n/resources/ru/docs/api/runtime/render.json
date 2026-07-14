@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "Точка входа для приложений CReact. Рендерит дерево компонентов, согласует состояние, запускает обработчики.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "Функция, возвращающая корневое дерево компонентов.",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "Обязательный. Бэкенд персистентности состояния.",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "Обязательный. Идентификатор хранилища состояния.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "Необязательный. Дополнительная конфигурация рендера.",
+  "returns_desc": "Объект <0>RenderResult</0>. Его свойство <1>ready</1> — это <2>Promise<void></2>, который резолвится после завершения начального развёртывания.",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "Ожидание развёртывания",
+  "usage_awaiting": "Значение, возвращаемое <0>render</0>, синхронно, но работа, которую он запускает, — нет. Точка входа tenant-fleet ожидает <1>ready</1> для первого развёртывания, затем <2>settled</2> для каждого каскада, который она инициирует, чтобы одноразовый запуск сохранил всё до выхода процесса.",
+  "in_the_wild": "Посмотрите, как один вызов поднимает durable-приложение в <0>руководстве durable-counter</0>."
+}

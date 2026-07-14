@@ -1,0 +1,13 @@
+{
+  "title": "splitProps",
+  "description": "แยก props object ออกเป็นหลายกลุ่มตาม key รักษา reactivity ไว้",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "รับ props object ตามด้วยอาร์เรย์ของ keys หนึ่งตัวหรือมากกว่า คืนค่าเป็น tuple ที่มี object หนึ่งตัวต่อกลุ่ม key พร้อม remainder object ที่มี keys ที่ไม่ตรงทั้งหมด",
+  "heading_bucket": "แยก config ออกจาก children",
+  "usage_bucket": "<0>SiteBucket</0> ของ site publisher แยก merged props ออกเป็นกลุ่ม <1>site</1> ที่เก็บชื่อ bucket และการตั้งค่า document เหลือกลุ่ม <2>rest</2> ที่ children จะ render อยู่ใต้ bucket ที่ provision แล้ว",
+  "heading_tenant": "Placement กับ service props",
+  "usage_tenant": "<0>TenantDatabase</0> ของ tenant fleet แยก props ออกเป็นกลุ่ม <1>placement</1> ที่ provision database และ remainder <2>service</2> ที่ไหลต่อไปยัง API tier",
+  "in_the_wild": "ดูว่ากลุ่มเหล่านี้ขับเคลื่อนการ provision จริงใน <0>site-publisher walkthrough</0>",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

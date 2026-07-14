@@ -1,0 +1,18 @@
+{
+  "name": "@creact-labs/example-durable-counter",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "A counter that survives restarts — the canonical durable-state first app",
+  "scripts": {
+    "start": "creact index.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-file-memory": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

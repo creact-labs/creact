@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Führt mehrere Props-Objekte reaktiv zusammen, wobei spätere Quellen frühere überschreiben. Für Default-Props verwenden.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Default-Props ausfüllen",
+  "usage_bucket": "Der <0>SiteBucket</0> des Site-Publishers führt ein Defaults-Objekt vor <1>rawProps</1> zusammen, sodass Aufrufer, die <2>indexDocument</2> und <2>errorDocument</2> weglassen, auf index.html zurückfallen, während jeder übergebene Wert weiterhin Vorrang hat.",
+  "heading_tenant": "Defaults über eine Runtime-Grenze hinweg",
+  "usage_tenant": "Der <0>TenantTree</0> der Tenant-Fleet führt einen Starter-<1>plan</1> vor den eingehenden Props zusammen und gibt so jedem Tenant eine Default-Stufe, ohne dass jeder Aufrufer sie explizit angeben muss.",
+  "in_the_wild": "Sehen Sie, wie diese Defaults im <0>site-publisher walkthrough</0> echte Buckets und Tenants formen.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

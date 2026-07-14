@@ -1,0 +1,18 @@
+{
+  "title": "การทดสอบ",
+  "description": "ทดสอบแอป CReact โดยเรนเดอร์กับ Memory backend แบบ in-memory และ assert บน outputs จริงของ handler",
+  "heading_setup": "การตั้งค่า",
+  "setup_intro": "ติดตั้ง Vitest:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Terminal",
+  "heading_rendering": "การเรนเดอร์แอป",
+  "rendering_intro": "ส่ง Memory backend แบบ in-memory และชื่อ stack ให้ <0>render</0> จากนั้น await <1>result.ready</1> เพื่อรอให้ handler ทุกตัว settle ก่อนที่คุณจะ assert",
+  "rendering_outputs": "อ่าน instance ที่ deploy แล้วด้วย <0>getNodes()</0> และตรวจสอบ <1>outputs</1> ของพวกมัน เนื่องจาก handler ทำงานจริง ให้ใช้ <0>vi.waitFor</0> ของ Vitest เมื่อ output เปลี่ยนแปลงตามเวลา",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "เรียก <0>resetRuntime()</0> และ <1>result.dispose()</1> ใน afterEach hook เพื่อไม่ให้ runtime state และ interval รั่วไหลระหว่างการทดสอบ",
+  "heading_mocking": "การ Mock globals",
+  "mocking_intro": "Handler เรียก globals เดียวกับที่แอปของคุณใช้ ดังนั้นให้แทนที่ที่ขอบเขต Stub <0>fetch</0> ด้วย <1>vi.stubGlobal</1> เพื่อขับ component ผ่านลำดับ response ที่สคริปต์ไว้",
+  "mocking_transitions": "ป้อน script ให้ stub เรนเดอร์ component แล้ว assert การเปลี่ยนสถานะที่มันรายงาน คืนค่า stub ด้วย <0>vi.unstubAllGlobals</0> หลังการทดสอบแต่ละครั้ง",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "ดูรูปแบบเหล่านี้ครอบคลุม status page เต็มรูปแบบได้ใน <0>uptime-monitor walkthrough</0>"
+}

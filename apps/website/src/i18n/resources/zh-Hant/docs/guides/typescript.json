@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "CReact 以 TypeScript 編寫。以下說明如何充分運用型別系統來處理 signals、props 與 components。",
+  "heading_tsconfig": "TypeScript 設定",
+  "tsconfig_intro": "關鍵設定是 <0>jsxImportSource</0>。這會告訴 TypeScript 使用 CReact 的 JSX 型別：",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "為 value-or-accessor props 加上型別",
+  "value_or_accessor_intro": "site publisher 的 <0>SiteObjectProps</0> 將 <1>bucket</1> 與 <2>entry</2> 的型別設為 <0>MaybeAccessor</0>，因此單一介面可同時接受一般值與 getter，而 handler 在 access 解包後仍保持完整型別。",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "具預設值的型別化 props",
+  "typed_defaults_intro": "tenant fleet 的 <0>TenantTreeProps</0> 將 <1>plan</1> 標示為 optional，接著 <2>mergeProps</2> 提供預設值，並將結果窄化為其餘 tree 可依賴的完全 required 形狀。",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact 重新匯出關鍵型別：<0>Accessor</0>、<1>Setter</1>、<2>MaybeAccessor</2>、<3>SignalOptions</3>、<4>MemoOptions</4>、<5>Owner</5>、<6>Context</6>，以及所有 runtime 型別。",
+  "in_the_wild": "請在 <0>site-publisher walkthrough</0> 中查看這些 typed props 如何佈建真實資源。"
+}

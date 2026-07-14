@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "Menjalankan fungsi secara sinkron selama render alih-alih mengantrikannya. Digunakan secara internal oleh runtime; jarang diperlukan dalam kode aplikasi.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Fungsi effect. Berjalan segera selama render.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Nilai awal opsional.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opsional. <0>name</0> untuk debugging.",
+  "heading_reporting_state": "Melaporkan state selama render",
+  "usage_reporting_state": "Komponen <0>Page</0> milik page writer melaporkan output-nya ke parent saat berubah. Sebuah <1>createRenderEffect</1> membaca snapshot page dan memanggil <2>props.onState</2> secara sinkron selama render, sehingga ledger parent melihat state pertama sebelum effect yang diantrikan berjalan.",
+  "info_ordering": "Render effect berjalan sebelum user effect (<0>createEffect</0>). Gunakan ini ketika Anda membutuhkan reaksi sinkron selama fase render, seperti pelacakan render komponen.",
+  "in_the_wild": "Lihat bagaimana effect ini mengalirkan state page ke parent di <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

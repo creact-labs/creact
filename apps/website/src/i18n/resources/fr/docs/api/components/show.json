@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "Rend conditionnellement les children en fonction d'une condition réactive.",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "Condition réactive. Les children s'affichent lorsque la valeur est truthy. Accepte une valeur ou un accessor.",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "Contenu optionnel à afficher lorsque <0>when</0> est falsy.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "Contenu à afficher, ou un callback recevant la valeur truthy sous forme d'accessor.",
+  "heading_usage": "Utilisation",
+  "usage_intro": "Le moniteur d'uptime garde toute sa couche de reporting derrière une seule porte <0>Show</0> : la page de statut et la bannière restent démontées jusqu'à ce que le premier balayage enregistre un horodatage, puis <1>lastSweepAt()</1> devient truthy et le sous-arbre se monte.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "Cette portion est le layout du moniteur d'uptime. Voyez comment la porte s'intègre à l'arbre complet dans le <0>parcours guidé uptime-monitor</0>."
+}

@@ -24,5 +24,13 @@
       "@creact-labs/testing": ["packages/testing/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "**/dist", "**/coverage"]
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/coverage",
+    // Solid JSX app with its own tsconfig (jsx: preserve, jsxImportSource solid-js)
+    "apps/website",
+    // Example apps typecheck as their own project (libs/examples/tsconfig.json)
+    "libs"
+  ]
 }

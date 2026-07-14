@@ -1,0 +1,13 @@
+{
+  "title": "children",
+  "description": "Разрешает children, переданные в компонент, в реактивный accessor. Обрабатывает lazy children и массивы.",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
+  "param_fn_desc": "Accessor, который возвращает prop children.",
+  "returns_desc": "<0>ChildrenReturn</0> — вызываемый accessor, возвращающий разрешённые children. Также имеет метод <1>toArray()</1>, который возвращает разрешённые children в виде плоского массива.",
+  "heading_provider": "Разрешение children провайдера",
+  "usage_provider": "<0>AwsProvider</0> в site publisher оборачивает своё поддерево в <1>children(() => props.children)</1> и рендерит <2>resolved()</2> внутри context provider, чтобы S3-клиент создавался и уничтожался вместе с деревом, которое он обслуживает.",
+  "in_the_wild": "Посмотрите, как этот provider подключает всё дерево развёртывания, в <0>руководстве site-publisher</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

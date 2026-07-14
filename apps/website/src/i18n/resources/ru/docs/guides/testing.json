@@ -1,0 +1,18 @@
+{
+  "title": "Тестирование",
+  "description": "Тестируйте приложения CReact, рендеря их на in-memory бэкенде Memory и проверяя реальные outputs обработчиков.",
+  "heading_setup": "Настройка",
+  "setup_intro": "Установите Vitest:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Терминал",
+  "heading_rendering": "Рендеринг приложения",
+  "rendering_intro": "Передайте <0>render</0> in-memory бэкенд Memory и имя стека, затем дождитесь <1>result.ready</1>, чтобы каждый обработчик завершил работу, прежде чем выполнять проверки.",
+  "rendering_outputs": "Прочитайте развёрнутые экземпляры с помощью <0>getNodes()</0> и проверьте их <1>outputs</1>. Поскольку обработчики выполняются по-настоящему, используйте <0>vi.waitFor</0> из Vitest, когда output меняется со временем.",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "Вызывайте <0>resetRuntime()</0> и <1>result.dispose()</1> в хуке afterEach, чтобы состояние runtime и интервалы не утекали между тестами.",
+  "heading_mocking": "Мокирование globals",
+  "mocking_intro": "Обработчики вызывают те же globals, что и ваше приложение, поэтому заменяйте их на границе. Заглушите <0>fetch</0> с помощью <1>vi.stubGlobal</1>, чтобы провести компонент через заданную последовательность ответов.",
+  "mocking_transitions": "Передайте stub сценарий, отрендерите компонент и проверьте переходы статусов, о которых он сообщает. Восстановите stub с помощью <0>vi.unstubAllGlobals</0> после каждого теста.",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "Посмотрите, как эти паттерны покрывают полноценную status page, в <0>uptime-monitor walkthrough</0>."
+}

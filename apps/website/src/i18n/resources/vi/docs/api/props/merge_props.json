@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Gộp nhiều object props một cách reactive, với các source sau ghi đè các source trước. Dùng cho default props.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Điền default props",
+  "usage_bucket": "<0>SiteBucket</0> của site publisher gộp một object defaults trước <1>rawProps</1>, nên các caller bỏ qua <2>indexDocument</2> và <2>errorDocument</2> sẽ fallback về index.html trong khi mọi giá trị được cung cấp vẫn thắng.",
+  "heading_tenant": "Default qua ranh giới runtime",
+  "usage_tenant": "<0>TenantTree</0> của tenant fleet gộp một <1>plan</1> khởi đầu trước các props đầu vào, mang lại cho mọi tenant một tier mặc định mà không buộc mỗi caller phải chỉ định rõ.",
+  "in_the_wild": "Xem các default này định hình buckets và tenants thực tế trong <0>site-publisher walkthrough</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://lingo.dev/schema/i18n.json",
+  "version": "1.10",
+  "locale": {
+    "source": "en",
+    "targets": [
+      "de",
+      "es",
+      "fr",
+      "hi",
+      "id",
+      "ja",
+      "ko",
+      "pt-BR",
+      "ru",
+      "th",
+      "vi",
+      "zh-Hans",
+      "zh-Hant"
+    ]
+  },
+  "buckets": {
+    "json": {
+      "include": ["src/i18n/resources/[locale]/**/*.json"],
+      "lockedKeys": ["brand", "logo_alt", "code_filename"]
+    }
+  },
+  "provider": {
+    "id": "openai",
+    "model": "grok-4.5",
+    "prompt": "You are localizing UI copy for CReact, an open-source TypeScript framework that uses JSX to automate durable workflows. Translate from {source} to {target} for a professional software-developer audience. Keep the brand name \"CReact\", API identifiers (createSignal, useAsyncOutput, render), and inline code exactly as written. Preserve placeholders like {example}, Markdown, and HTML markup verbatim. Prefer the established technical terminology of the target language, and keep English developer terms untranslated where that is the local convention."
+  }
+}

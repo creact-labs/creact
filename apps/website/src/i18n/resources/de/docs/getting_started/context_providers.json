@@ -1,0 +1,12 @@
+{
+  "title": "Context und Provider",
+  "description": "Contexts teilen Daten über den Komponentenbaum, ohne Props durch jede Ebene weiterzureichen.",
+  "heading_creating_context": "Einen Context erstellen",
+  "creating_context_intro": "<0>createContext</0> deklariert einen typisierten Kanal mit einem Standardwert. Der Site-Publisher erstellt einen <1>AwsContext</1>, der einen aktiven S3-Client und dessen Region den Baum hinunterträgt.",
+  "heading_providing_values": "Werte bereitstellen",
+  "providing_values_intro": "Eine Komponente umschließt ihre Children mit dem <0>Provider</0> des Contexts. <1>AwsProvider</1> erstellt den S3-Client einmal, registriert Cleanup und stellt die Verbindung allem bereit, was darin verschachtelt ist.",
+  "heading_consuming": "Einen Context verwenden",
+  "consuming_intro": "<0>useContext</0> liest den Wert des nächstgelegenen Providers. Der Hook <1>useAws</1> kapselt dieses Auslesen und wirft einen klaren Fehler, wenn er außerhalb eines Providers ausgeführt wird.",
+  "tip_cross_cutting": "Verwende Contexts für Querschnittsbelange wie eine AWS-Region, einen gemeinsamen Client oder Credentials, die viele Komponenten benötigen.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "फ्लो कंट्रोल",
+  "description": "Show, For, Switch, Match, और ErrorBoundary प्रतिक्रियाशील स्थितियों के आधार पर तय करते हैं कि कौन से कंपोनेंट चलेंगे।",
+  "heading_one_tree": "एक ट्री, हर प्रिमिटिव",
+  "one_tree_intro": "अपटाइम मॉनिटर का लेआउट एक साथ हर फ्लो कंपोनेंट का उपयोग करता है। <0>ErrorBoundary</0> एक <1>For</1> को रैप करता है जो प्रत्येक टारगेट के लिए एक प्रोब माउंट करता है, <2>Show</2> पहली स्वीप आने तक स्टेटस पेज को रोककर रखता है, और <4>Match</4> ब्रांचों का एक <3>Switch</3> समग्र स्टेटस से एक बैनर चुनता है।",
+  "info_accessor_conditions": "फ्लो कंपोनेंट्स अपनी स्थितियों के लिए <0>() => value</0> जैसे एक्सेसर फ़ंक्शन लेते हैं। जब सिग्नल बदलते हैं तो स्थिति स्वयं re-evaluate हो जाती है, बिना parent कंपोनेंट को फिर से चलाए।",
+  "heading_switch_states": "रिसोर्स स्टेट पर ब्रांचिंग",
+  "switch_states_intro": "एक <0>Switch</0> सीधे एक रिसोर्स से पढ़ता है। page writer में प्रत्येक page एक <1>state</1> एक्सेसर expose करता है, और Match ब्रांचें handler के आगे बढ़ने पर writing, ready, और failed व्यूज़ render करती हैं।",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

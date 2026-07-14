@@ -1,0 +1,15 @@
+{
+  "title": "Primitif Reaktif",
+  "description": "Signals, memos, dan computations membuat komponen merespons perubahan tanpa re-rendering.",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal adalah nilai reaktif dengan getter dan setter. <0>App</0> pada uptime monitor menyimpan setiap sample probe dan waktu sweep terakhir di dalam signals, dan membaca <1>samples()</1> di dalam memo atau effect mendaftarkan dependency yang dijalankan ulang saat <2>setSamples</2> menulis.",
+  "info_batch": "<0>batch()</0> mengelompokkan beberapa penulisan signal menjadi satu pass re-evaluasi. Merekam sample memperbarui riwayat sample sekaligus waktu sweep terakhir, tetapi memo downstream hanya menghitung ulang sekali.",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo menyimpan cache nilai turunan dan hanya menghitung ulang saat dependency-nya berubah. <0>latestSamples</0> memetakan setiap target ke sample terbarunya, dan <1>overall</1> merangkum status-status tersebut menjadi satu verdict.",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> dijalankan sebelum effects, sehingga dapat menurunkan state yang dibaca effects selanjutnya dalam pass yang sama. Di sini ia mem-diff target yang down terhadap daftar incident terbuka dan menulis <1>setIncidents</1> hanya saat set tersebut benar-benar berubah.",
+  "heading_on_untrack": "on dan untrack",
+  "on_untrack_intro": "<0>on</0> mendeklarasikan dependency secara eksplisit dan menyerahkan ke effect baik nilai berikutnya maupun nilai sebelumnya. Setiap check mencatat transisi status dari <1>on(status, ...)</1>, membaca latency dengan <2>untrack</2> agar field tersebut tidak menjadi dependency.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

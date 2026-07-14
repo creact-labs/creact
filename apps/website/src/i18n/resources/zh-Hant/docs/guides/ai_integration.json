@@ -1,0 +1,19 @@
+{
+  "title": "AI 整合",
+  "description": "從 durable resource handler 呼叫 Claude，節錄自 page-writer 範例。",
+  "heading_client": "Client 接縫",
+  "client_intro": "page-writer 將 Anthropic SDK 包裝在一個小型介面之後。<0>HtmlWriterClient</0> 宣告應用程式使用的唯一方法，而 <1>createHtmlWriterClient</1> 則從環境建置真正的 client：",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "此介面即為 dependency injection 接縫。正式環境程式碼不傳入任何參數即可取得真正的 SDK，而測試則將腳本化的 fake 傳給 <0>writeHtml</0>——無需網路、無需 API key。",
+  "heading_request": "發送請求",
+  "request_intro": "<0>writeHtml</0> 會以固定的 system prompt 傳送使用者的 prompt，並將其 <1>client</1> 參數預設為真正的 SDK：",
+  "request_notice": "system prompt 鎖定了輸出契約——一份獨立的 HTML 文件、不含 markdown 圍欄——因此 pipeline 的其餘部分可將回應視為可部署的產物，而非聊天內容。",
+  "heading_extract": "擷取文件",
+  "extract_intro": "回應以 content blocks 形式抵達。<0>extractHtmlDocument</0> 會取出第一個 text block，並在 Claude 回傳無法使用的內容時明確失敗：",
+  "heading_generate_handler": "Generation Handler",
+  "generate_intro": "Page 元件將一個 prompt 轉成一個 durable resource。其 handler 會先從 ledger 還原狀態，且僅在該頁面從未產生過時才呼叫 <0>writeHtml</0>——這個檢查正是讓它具備冪等性的關鍵：",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> 會收到上次持久化的值，即使跨過重新啟動也一樣。若前一次執行已到達 <1>ready</1>，handler 會保留該狀態並直接返回，不再消耗另一次 API 呼叫。",
+  "tip_persistence": "AI 輸出會像其他 <0>useAsyncOutput</0> 結果一樣被持久化。重新啟動應用程式會重新執行每個 handler，但已還原的頁面會跳過產生——只有真正新的 prompt 才會送到 API。",
+  "see_walkthrough": "請參閱 <0>page-writer walkthrough</0> 中完整的 prompt-to-page pipeline。"
+}

@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "Bắt các lỗi được throw trong các component con và render một fallback.",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "Fallback tĩnh hoặc hàm render được gọi với error đã bắt và hàm reset.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "Nội dung cần render. Lỗi trong subtree này sẽ được bắt.",
+  "heading_guarding_the_sweep": "Bảo vệ probe sweep",
+  "usage_guarding_the_sweep": "Uptime monitor bọc toàn bộ fleet probe <0>HttpCheck</0> trong một <1>ErrorBoundary</1>. Throw từ bất kỳ probe nào được bắt và truyền vào hàm render <2>fallback</2> thay vì crash sweep.",
+  "heading_rendering_the_fault": "Render fault",
+  "usage_rendering_the_fault": "Fallback nhận <0>error</0> đã bắt và render <1>MonitorFault</1>, component này log rằng các check đã dừng. Phần còn lại của tree vẫn tiếp tục chạy.",
+  "in_the_wild": "Xem boundary này giữ status page hoạt động trong <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

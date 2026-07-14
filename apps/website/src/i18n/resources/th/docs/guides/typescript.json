@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "CReact เขียนด้วย TypeScript นี่คือวิธีใช้ type system ให้เต็มประสิทธิภาพสำหรับ signals, props และ components",
+  "heading_tsconfig": "การตั้งค่า TypeScript",
+  "tsconfig_intro": "การตั้งค่าสำคัญคือ <0>jsxImportSource</0> ซึ่งบอก TypeScript ให้ใช้ JSX types ของ CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "การกำหนด type ของ value-or-accessor props",
+  "value_or_accessor_intro": "<0>SiteObjectProps</0> ของ site publisher กำหนด type ให้ <1>bucket</1> และ <2>entry</2> เป็น <0>MaybeAccessor</0> ดังนั้น interface เดียวจึงรับได้ทั้ง plain values และ getters และ handler ยังคงมี type ครบถ้วนหลังจาก access unwrap แล้ว",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "Typed props พร้อมค่า defaults",
+  "typed_defaults_intro": "<0>TenantTreeProps</0> ของ tenant fleet ทำเครื่องหมาย <1>plan</1> เป็น optional จากนั้น <2>mergeProps</2> จะใส่ค่า default และ narrow ผลลัพธ์ให้เป็น shape ที่ required ทั้งหมด ซึ่งส่วนที่เหลือของ tree สามารถพึ่งพาได้",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact re-export types สำคัญ: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6> และ runtime types ทั้งหมด",
+  "in_the_wild": "ดู typed props เหล่านี้ provision resources จริงใน <0>site-publisher walkthrough</0>"
+}

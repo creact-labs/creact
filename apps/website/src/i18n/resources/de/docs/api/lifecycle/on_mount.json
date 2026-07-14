@@ -1,0 +1,11 @@
+{
+  "title": "onMount",
+  "description": "Führt eine Funktion einmal aus, wenn die Komponente initialisiert wird, ohne Abhängigkeiten zu tracken.",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
+  "param_fn_desc": "Funktion, die einmal beim Mount ausgeführt wird. Läuft untracked; Signal-Reads erzeugen keine Abhängigkeiten.",
+  "usage_sweep": "Der <0>HttpCheck</0> des Uptime-Monitors nutzt <1>onMount</1>, um den ersten Probe auszulösen und das Sweep-Intervall genau einmal zu starten. Das zugehörige <2>onCleanup</2> löscht dieses Intervall, wenn der Check unmountet.",
+  "in_the_wild": "Sieh dir an, wie diese Sweep-Schleife pro Target im <0>uptime-monitor walkthrough</0> startet.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

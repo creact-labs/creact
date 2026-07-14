@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Creates a reactive store proxy for managing nested state.",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Initial store value. Must be an object.",
+  "returns_intro": "A tuple of <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: a reactive proxy. Property access is tracked.",
+  "returns_setstore": "<0>setStore</0>: setter that accepts path-based updates.",
+  "heading_the_manifest_shape": "The manifest shape",
+  "usage_the_manifest_shape": "The site publisher models the deployed site as a <0>Manifest</0> of hashed files. Each <1>ManifestEntry</1> carries a path, hash, and size, and the store keeps this nested shape reactive.",
+  "heading_a_reactive_manifest": "A reactive manifest",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> walks the build directory and hands the resulting manifest to <1>createStore</1>. The returned proxy tracks reads down to individual entries, so a component that renders one file only re-runs when that file's hash changes.",
+  "in_the_wild": "See this store drive incremental uploads in the <0>site-publisher walkthrough</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

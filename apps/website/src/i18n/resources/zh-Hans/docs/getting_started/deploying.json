@@ -1,0 +1,23 @@
+{
+  "title": "部署",
+  "description": "在生产环境中运行 CReact 应用，支持状态持久化与正确的进程管理。",
+  "heading_production_run": "在生产环境中运行",
+  "production_run_intro": "在生产环境中使用 <0>start</0> 脚本（不带 <1>--watch</1>）：",
+  "code_run_start": "npm run start",
+  "production_run_outro": "这会运行一次你的入口点。CReact 会将当前组件树与持久化状态进行协调，应用更改，保存新状态，然后退出。",
+  "heading_ci_cd": "CI/CD 集成",
+  "ci_cd_intro": "CReact 应用非常适合 CI/CD 流水线。应用会读取先前状态、进行协调、部署更改并写入新状态，全部在一次运行中完成。",
+  "code_ci_cd": "# GitHub Actions 示例\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "状态存储",
+  "state_storage_intro": "在生产环境中，应将状态存储在远程后端，而不是本地文件系统。为你的存储实现 <0>Memory</0> 接口：",
+  "storage_s3": "<0>S3:</0> 将状态 JSON 存储在 S3 存储桶中",
+  "storage_dynamodb": "<0>DynamoDB:</0> 使用表实现并发安全的状态",
+  "storage_database": "<0>Database:</0> PostgreSQL、Redis 等",
+  "heading_watch_mode": "使用 Watch 模式长期运行",
+  "watch_mode_intro": "对于需要持续运行的应用（如服务器或监控程序），请使用 watch 模式：",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Watch 模式会在源文件更改时重启应用，并在重启之间保留状态。",
+  "tip_process_manager": "对于长期运行的进程，请使用 PM2 或 systemd 来管理重启和日志记录。",
+  "filename_terminal": "终端",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

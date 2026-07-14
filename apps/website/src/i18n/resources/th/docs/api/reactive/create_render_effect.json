@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "รันฟังก์ชันแบบซิงโครนัสระหว่าง render แทนที่จะเข้าคิว ใช้ภายในโดย runtime; แทบไม่จำเป็นในโค้ดแอปพลิเคชัน",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "ฟังก์ชัน effect รันทันทีระหว่าง render",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "ค่าเริ่มต้น (ไม่บังคับ)",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "ไม่บังคับ <0>name</0> สำหรับการดีบัก",
+  "heading_reporting_state": "การรายงาน state ระหว่าง render",
+  "usage_reporting_state": "คอมโพเนนต์ <0>Page</0> ของ page writer รายงาน outputs ไปยัง parent เมื่อมีการเปลี่ยนแปลง <1>createRenderEffect</1> อ่าน page snapshot และเรียก <2>props.onState</2> แบบซิงโครนัสระหว่าง render เพื่อให้ parent ledger เห็น state แรกก่อนที่ effect ที่เข้าคิวจะรัน",
+  "info_ordering": "Render effects รันก่อน user effects (<0>createEffect</0>) ใช้เมื่อต้องการปฏิกิริยาแบบซิงโครนัสในเฟส render เช่น การติดตามการ render ของคอมโพเนนต์",
+  "in_the_wild": "ดู effect นี้ที่ stream state ของหน้าไปยัง parent ใน <0>page-writer walkthrough</0>",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

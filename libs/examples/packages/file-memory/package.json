@@ -1,0 +1,11 @@
+{
+  "name": "@creact-labs/example-file-memory",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "File-backed Memory ledger shared by the example apps",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@creact-labs/creact": "*"
+  }
+}

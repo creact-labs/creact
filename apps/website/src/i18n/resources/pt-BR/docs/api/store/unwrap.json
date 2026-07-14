@@ -1,0 +1,15 @@
+{
+  "title": "unwrap",
+  "description": "Retorna um clone profundo dos dados subjacentes de um proxy de store, removendo toda a reatividade.",
+  "signature": "unwrap<T>(store: T): T",
+  "param_store_name": "<0>store</0>",
+  "param_store_type": "<0>T</0>",
+  "param_store_desc": "Um proxy de store criado por <0>createStore</0>.",
+  "heading_the_store_source": "De onde vêm os proxies",
+  "usage_the_store_source": "O site publisher mantém seu manifesto de arquivos em um store de <0>createManifestStore</0>. Cada <1>ManifestEntry</1> que um filho lê é um proxy reativo, não um objeto simples.",
+  "heading_snapshotting_props": "Tirando um snapshot de uma prop com proxy",
+  "usage_snapshotting_props": "Cada <0>SiteObject</0> recebe uma entrada do manifesto como prop reativa. Suas props de handler chamam <1>unwrap</1> nessa entrada para que o upload assíncrono funcione a partir de um snapshot simples e desconectado, em vez de um proxy ao vivo.",
+  "in_the_wild": "Veja este snapshot alimentando os uploads do S3 no <0>walkthrough do site-publisher</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

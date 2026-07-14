@@ -1,0 +1,12 @@
+{
+  "title": "untrack",
+  "description": "Читает сигналы без создания реактивных зависимостей.",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Функция, выполняемая без отслеживания. Чтения сигналов внутри не регистрируют зависимости.",
+  "heading_reading_aside": "Чтение значения сбоку",
+  "usage_reading_aside": "Монитор uptime логирует переход только при изменении <0>status</0> проверки. Ему по-прежнему нужна последняя latency для сообщения, поэтому он читает <1>latest()</1> через <2>untrack</2>, исключая latency из зависимостей effect, а перезапуск определяется только status.",
+  "in_the_wild": "См. этот лог переходов в <0>uptime-monitor walkthrough</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

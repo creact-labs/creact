@@ -1,0 +1,15 @@
+{
+  "title": "響應式原語",
+  "description": "Signals、memos 與 computations 讓元件能回應變更而無須重新渲染。",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal 是具有 getter 與 setter 的響應式值。正常運作監控的 <0>App</0> 將每次探測樣本與上次掃描時間保存在 signal 中；在 memo 或 effect 內讀取 <1>samples()</1> 會註冊依賴，當 <2>setSamples</2> 寫入時即會重新執行。",
+  "info_batch": "<0>batch()</0> 將多次 signal 寫入合併為單次重新評估。記錄樣本會同時更新樣本歷史與上次掃描時間，但下游 memo 只會重新計算一次。",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo 會快取衍生值，且僅在其依賴變更時重新計算。<0>latestSamples</0> 將每個目標對應至其最新樣本，而 <1>overall</1> 則將這些狀態彙整為單一判定結果。",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> 在 effects 之前執行，因此能衍生同一輪中後續 effects 會讀取的狀態。此處它會比對故障目標與未結案事件清單的差異，僅在集合實際變更時才寫入 <1>setIncidents</1>。",
+  "heading_on_untrack": "on 與 untrack",
+  "on_untrack_intro": "<0>on</0> 會明確宣告依賴，並將下一個值與前一個值一併交給 effect。每次檢查透過 <1>on(status, ...)</1> 記錄狀態轉換，並以 <2>untrack</2> 讀取延遲，使該欄位不會成為依賴。",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "CReact ditulis dalam TypeScript. Berikut cara memanfaatkan type system secara maksimal untuk signals, props, dan components.",
+  "heading_tsconfig": "Konfigurasi TypeScript",
+  "tsconfig_intro": "Pengaturan kuncinya adalah <0>jsxImportSource</0>. Ini memberitahu TypeScript untuk menggunakan tipe JSX dari CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "Pengetikan props value-or-accessor",
+  "value_or_accessor_intro": "<0>SiteObjectProps</0> milik site publisher mengetik <1>bucket</1> dan <2>entry</2> sebagai <0>MaybeAccessor</0>, sehingga satu interface menerima plain values maupun getters dan handler tetap fully typed setelah access me-unwrap-nya.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "Props typed dengan defaults",
+  "typed_defaults_intro": "<0>TenantTreeProps</0> milik tenant fleet menandai <1>plan</1> sebagai optional, kemudian <2>mergeProps</2> menyediakan default dan mempersempit hasilnya menjadi shape fully-required yang dapat diandalkan sisa tree.",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact mengekspor ulang tipe-tipe kunci: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, dan semua tipe runtime.",
+  "in_the_wild": "Lihat bagaimana props typed ini menyediakan resource nyata di <0>site-publisher walkthrough</0>."
+}

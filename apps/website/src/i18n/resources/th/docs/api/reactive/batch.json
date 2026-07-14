@@ -1,0 +1,13 @@
+{
+  "title": "batch",
+  "description": "จัดกลุ่มการอัปเดต signal หลายรายการให้อยู่ใน computation pass เดียว",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "ฟังก์ชันที่มีการอัปเดต signal อยู่ภายใน การอัปเดตทั้งหมดจะถูกเลื่อนออกไปจนกว่าฟังก์ชันจะทำงานเสร็จ",
+  "returns_body": "ค่า return ของ <0>fn</0>",
+  "heading_record_sample": "Commit probe ใน pass เดียว",
+  "usage_record_sample": "เมื่อ uptime monitor บันทึก probe <0>recordSample</0> จะเขียนทั้ง <1>setSamples</1> และ <2>setLastSweepAt</2> ภายใน batch เดียว ดังนั้น memo และ effect ทุกตัวที่อ่านค่าเหล่านี้จะ re-run เพียงครั้งเดียวแทนที่จะสองครั้ง",
+  "in_the_wild": "ดู batched write นี้ feed หน้า status แบบ live ใน <0>uptime-monitor walkthrough</0>",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

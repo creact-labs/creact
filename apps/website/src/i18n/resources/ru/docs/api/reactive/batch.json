@@ -1,0 +1,13 @@
+{
+  "title": "batch",
+  "description": "Группирует несколько обновлений сигналов в один проход вычислений.",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Функция, содержащая обновления сигналов. Все обновления откладываются до завершения функции.",
+  "returns_body": "Возвращаемое значение <0>fn</0>.",
+  "heading_record_sample": "Фиксация пробы за один проход",
+  "usage_record_sample": "Когда монитор uptime записывает пробу, <0>recordSample</0> вызывает и <1>setSamples</1>, и <2>setLastSweepAt</2> внутри одного batch, поэтому каждый memo и effect, которые их читают, перезапускаются один раз вместо двух.",
+  "in_the_wild": "Посмотрите, как эта пакетная запись питает live-страницу статуса в <0>руководстве uptime-monitor</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

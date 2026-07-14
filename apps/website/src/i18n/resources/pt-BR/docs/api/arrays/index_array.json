@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "Iteração indexada. Cada posição é um accessor reativo. Ideal para arrays de primitivos.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Fonte de array reativa.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Função de mapeamento. <0>v</0> é um accessor (reativo). <1>i</1> é um índice estático.",
+  "heading_numbered_roster": "Uma lista numerada por slot",
+  "usage_numbered_roster": "A frota de tenants lê suas specs de tenant do disco para um signal e então monta uma lista numerada com <0>indexArray</0>. Cada posição mantém o número do seu <1>slot</1>, enquanto <2>tenant()</2> permanece um accessor, de modo que editar uma spec no lugar atualiza aquela linha sem renumerar as demais.",
+  "in_the_wild": "Veja esta lista acompanhar um arquivo de spec ao vivo no <0>tenant-fleet walkthrough</0>.",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

@@ -1,0 +1,22 @@
+{
+  "title": "createEffect",
+  "description": "创建一个响应式副作用，在其依赖发生变化时运行。用于副作用（日志记录、外部调用）。在当前批处理之后运行。",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Effect 函数。接收上一次的返回值。自动追踪。",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "可选的初始值，在首次运行时传入。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "可选。<0>name</0> 用于调试。",
+  "heading_durable_outputs": "响应持久化输出",
+  "usage_durable_outputs": "持久化计数器在每次 tick 时记录日志。该 effect 读取 <0>counter.count()</0>，因此每当处理程序持久化新值时都会重新运行，包括重启后恢复的计数值。",
+  "heading_publish": "发布状态页",
+  "usage_publish": "可用性监控在总体状态或任何表格行发生变化时重写 <0>./out/status.html</0>。<1>createEffect</1> 会追踪这两处读取，并在每次扫描后重新运行发布。",
+  "info_batching": "Effect 会进行批处理。多个同步的 signal 更新只会触发一次重新运行。对于复杂的更新序列，请显式使用 <0>batch()</0>。",
+  "in_the_wild": "可在 <0>durable-counter</0> 和 <1>uptime-monitor</1> 演练中查看这些 effect。",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

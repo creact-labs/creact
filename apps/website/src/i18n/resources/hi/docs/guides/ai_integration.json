@@ -1,0 +1,19 @@
+{
+  "title": "AI इंटीग्रेशन",
+  "description": "page-writer उदाहरण से लिए गए एक durable resource handler से Claude को कॉल करें।",
+  "heading_client": "Client Seam",
+  "client_intro": "page-writer Anthropic SDK को एक छोटे interface के पीछे wrap करता है। <0>HtmlWriterClient</0> वह एक method declare करता है जिसका app उपयोग करता है, और <1>createHtmlWriterClient</1> environment से real client बनाता है:",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "यह interface dependency-injection seam है। Production code कुछ नहीं pass करता और real SDK प्राप्त करता है, जबकि tests <0>writeHtml</0> को एक scripted fake देते हैं — कोई network नहीं, कोई API key नहीं।",
+  "heading_request": "Request बनाना",
+  "request_intro": "<0>writeHtml</0> उपयोगकर्ता का prompt एक fixed system prompt के साथ भेजता है और अपने <1>client</1> parameter को real SDK पर default करता है:",
+  "request_notice": "system prompt output contract को तय करता है — एक standalone HTML document, कोई markdown fences नहीं — ताकि pipeline का बाकी हिस्सा response को chat के बजाय deployable artifact के रूप में treat कर सके।",
+  "heading_extract": "Document निकालना",
+  "extract_intro": "Responses content blocks के रूप में आते हैं। <0>extractHtmlDocument</0> पहला text block निकालता है और जब Claude कुछ usable नहीं लौटाता तो जोर से fail करता है:",
+  "heading_generate_handler": "Generation Handler",
+  "generate_intro": "Page component एक prompt को एक durable resource में बदलता है। इसका handler पहले ledger से restore करता है और <0>writeHtml</0> को केवल तब कॉल करता है जब page कभी generate नहीं हुआ हो — यही check इसे idempotent बनाता है:",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> अंतिम persisted value प्राप्त करता है, restarts के पार भी। यदि previous run पहले ही <1>ready</1> तक पहुँच चुका है, तो handler उस state को बनाए रखता है और बिना एक और API call खर्च किए return कर जाता है।",
+  "tip_persistence": "AI outputs किसी भी अन्य <0>useAsyncOutput</0> result की तरह persist होते हैं। App को restart करने पर हर handler फिर से चलता है, लेकिन restored pages generation skip कर देते हैं — केवल सच में नए prompts API तक पहुँचते हैं।",
+  "see_walkthrough": "पूरा prompt-to-page pipeline <0>page-writer walkthrough</0> में देखें।"
+}

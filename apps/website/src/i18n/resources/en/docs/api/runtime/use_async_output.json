@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Creates a resource with persisted outputs. The primary hook for CReact components that interact with external systems.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "Static props or a getter function for reactive tracking. When a getter is used, the handler re-runs when dependencies change.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Setup function that performs work and sets outputs. May return a cleanup function (sync or async).",
+  "returns_desc": "An object with accessor functions for each output key. For example, if you call <0>setOutputs({ url: '...' })</0>, the return has <1>result.url()</1>.",
+  "heading_counter": "A durable resource",
+  "usage_counter": "The durable counter's <0>Counter</0> calls <1>useAsyncOutput</1> once with empty props and a handler. The returned <2>counter.count()</2> is a reactive accessor that any effect can read.",
+  "heading_restore": "Restoring persisted state",
+  "usage_restore": "The page writer's handler reads <0>prev</0> inside <1>setOutputs</1> to detect an already-generated page. When <2>state === \"ready\"</2> was restored, it skips the Claude call and returns early instead of regenerating.",
+  "heading_prev_aware": "Skipping unchanged work",
+  "usage_prev_aware": "The site publisher compares the incoming <0>entry.hash</0> against the persisted <1>prev.hash</1>. Matching hashes mean the object is already uploaded, so the handler returns before touching <2>S3</2>.",
+  "callout_idempotent": "Handlers must be idempotent. On restart, handlers re-run for all nodes to re-establish side effects (intervals, subscriptions, etc.). Output values are restored from state, but handlers must re-create any runtime artifacts.",
+  "in_the_wild": "Watch these handlers persist and recover across restarts in the <0>durable-counter walkthrough</0>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

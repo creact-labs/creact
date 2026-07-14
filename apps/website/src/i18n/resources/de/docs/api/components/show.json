@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "Rendert Kinder bedingt basierend auf einer reaktiven Bedingung.",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "Reaktive Bedingung. Kinder werden gerendert, wenn der Wert truthy ist. Akzeptiert einen Wert oder einen Accessor.",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "Optionaler Inhalt, der gerendert wird, wenn <0>when</0> falsy ist.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "Zu rendernder Inhalt oder ein Callback, der den truthy-Wert als Accessor erhält.",
+  "heading_usage": "Verwendung",
+  "usage_intro": "Der Uptime-Monitor hält seine gesamte Reporting-Schicht hinter einem <0>Show</0>-Gate: Statusseite und Banner bleiben ungemountet, bis der erste Sweep einen Timestamp erfasst; dann wird <1>lastSweepAt()</1> truthy und der Subtree wird gemountet.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "Dieser Ausschnitt ist das Layout des Uptime-Monitors. Siehe, wie das Gate in den vollständigen Tree passt, im <0>Uptime-Monitor-Walkthrough</0>."
+}

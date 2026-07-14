@@ -1,0 +1,13 @@
+{
+  "title": "access",
+  "description": "एक MaybeAccessor को unwrap करता है। अगर यह function है तो उसे call करता है, अन्यथा सीधे return कर देता है।",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "एक value या accessor function।",
+  "returns_desc": "प्रकार <0>T</0> का unwrapped value।",
+  "heading_unwrapping": "value-or-accessor props को unwrap करना",
+  "usage_unwrapping": "site publisher का <0>SiteObject</0> <1>bucket</1> और <2>entry</2> को <3>MaybeAccessor</3> के रूप में accept करता है, इसलिए callers plain value या getter दोनों pass कर सकते हैं। handler का reactive props object प्रत्येक पर access call करता है और जो भी form आया हो उसे upload के लिए आवश्यक concrete value में resolve कर देता है।",
+  "in_the_wild": "<0>site-publisher walkthrough</0> में देखें कि upload से पहले प्रत्येक file अपने bucket और entry को कैसे resolve करती है।",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

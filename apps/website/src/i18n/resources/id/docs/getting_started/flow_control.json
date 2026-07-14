@@ -1,0 +1,11 @@
+{
+  "title": "Kontrol Alur",
+  "description": "Show, For, Switch, Match, dan ErrorBoundary menentukan komponen mana yang dijalankan berdasarkan kondisi reaktif.",
+  "heading_one_tree": "Satu Tree, Setiap Primitive",
+  "one_tree_intro": "Layout uptime monitor menggunakan setiap flow component sekaligus. <0>ErrorBoundary</0> membungkus <1>For</1> yang mem-mount satu probe per target, <2>Show</2> menahan halaman status hingga sweep pertama tiba, dan <3>Switch</3> dari cabang-cabang <4>Match</4> memilih banner berdasarkan status keseluruhan.",
+  "info_accessor_conditions": "Flow component menerima fungsi accessor seperti <0>() => value</0> untuk kondisinya. Kondisi dievaluasi ulang sendiri saat signal berubah, tanpa menjalankan ulang komponen parent.",
+  "heading_switch_states": "Percabangan berdasarkan State Resource",
+  "switch_states_intro": "Sebuah <0>Switch</0> membaca langsung dari resource. Setiap page di page writer mengekspos accessor <1>state</1>, dan cabang-cabang Match merender view writing, ready, dan failed seiring handler maju melaluinya.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

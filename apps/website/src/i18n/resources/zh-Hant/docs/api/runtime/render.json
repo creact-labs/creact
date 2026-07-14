@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "CReact 應用程式的進入點。渲染元件樹、協調狀態、執行處理器。",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "回傳根元件樹的函式。",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "必填。狀態持久化後端。",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "必填。狀態儲存的識別碼。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "選用。額外的渲染設定。",
+  "returns_desc": "一個 <0>RenderResult</0> 物件。其 <1>ready</1> 屬性是一個 <2>Promise<void></2>，會在初始部署完成時 resolve。",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "等待部署",
+  "usage_awaiting": "<0>render</0> 回傳的值是同步的，但它啟動的工作並非同步。tenant-fleet 進入點會 await <1>ready</1> 以等待首次部署，接著 await <2>settled</2> 以等待其觸發的每次 cascade，因此單次執行可在程序結束前持久化所有內容。",
+  "in_the_wild": "在 <0>durable-counter 逐步教學</0> 中觀看單次呼叫如何啟動一個 durable 應用程式。"
+}

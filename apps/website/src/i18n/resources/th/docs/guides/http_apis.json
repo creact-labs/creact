@@ -1,0 +1,17 @@
+{
+  "title": "HTTP API และ Channels",
+  "description": "รันเซิร์ฟเวอร์ node:http จริงในฐานะ managed resource ตัดมาจากตัวอย่าง page-writer",
+  "heading_channels": "Channels คืออะไร?",
+  "channels_desc": "Channel คือคอมโพเนนต์ที่เป็นเจ้าของ network endpoint โดยจะเริ่มเซิร์ฟเวอร์เมื่อ handler ทำงาน ส่ง request ที่เข้ามาเข้าสู่ระบบ reactive ผ่าน callback props และปิด socket เมื่อ cleanup",
+  "heading_server_resource": "Server Resource",
+  "server_intro": "<0>HttpChannel</0> ของ page-writer ห่อหุ้มเซิร์ฟเวอร์ <1>node:http</1> ด้วย useAsyncOutput ดังนั้น listening socket จึงมี lifecycle เดียวกับ managed resource อื่นๆ:",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "handler จะ resolve เฉพาะเมื่อ <0>listen</0> สำเร็จ แล้ว publish URL ด้วย <1>setOutputs</1> และคืนค่า cleanup function Request จะไม่แตะ runtime โดยตรง — แต่เรียก callback props ที่ parent ส่งเข้ามา",
+  "heading_routes": "การ Routing Request",
+  "routes_intro": "Routing คือโค้ด Node.js ธรรมดา แต่ละ route จะ validate input แล้วมอบหมายงานให้ prop เช่น <0>onCreatePage</0> หรือ <1>onListPages</1>:",
+  "routes_notice": "Channel ยังคงเป็น generic — รู้จักแค่ HTTP ไม่ใช่ pages <0>onCreatePage</0> อัปเดต store ใน parent, Page resource ใหม่ mount และ response ถูกส่งกลับทันทีพร้อม slug ที่รับไว้",
+  "heading_teardown": "Responses และการ Teardown",
+  "teardown_intro": "Helper เล็กๆ สองตัวทำให้คอมโพเนนต์สมบูรณ์: JSON responder และ <0>server.close</0> ที่ห่อด้วย promise ซึ่งใช้โดย cleanup function:",
+  "info_cleanup": "cleanup ที่คืนจาก handler จะปล่อยพอร์ตเมื่อคอมโพเนนต์ unmount หรือก่อนที่ handler จะรันใหม่ ดังนั้นการ restart แบบ <0>--watch</0> จะไม่เจอ error address-in-use",
+  "see_walkthrough": "ดู pipeline จาก request ถึง page ทั้งหมดได้ใน <0>page-writer walkthrough</0>"
+}

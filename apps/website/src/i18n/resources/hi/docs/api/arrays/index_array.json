@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "Indexed iteration. प्रत्येक position एक reactive accessor है। Primitive arrays के लिए सर्वश्रेष्ठ।",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Reactive array स्रोत।",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Map function. <0>v</0> एक accessor (reactive) है। <1>i</1> एक static index है।",
+  "heading_numbered_roster": "Slot के अनुसार क्रमांकित roster",
+  "usage_numbered_roster": "Tenant fleet disk से अपने tenant specs को एक signal में पढ़ता है, फिर <0>indexArray</0> से एक क्रमांकित roster बनाता है। प्रत्येक position अपना <1>slot</1> number बनाए रखता है जबकि <2>tenant()</2> accessor बना रहता है, इसलिए किसी spec को in place edit करने पर वह line update हो जाती है बिना बाकी को फिर से number किए।",
+  "in_the_wild": "इस roster को live spec file का पालन करते हुए <0>tenant-fleet walkthrough</0> में देखें।",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

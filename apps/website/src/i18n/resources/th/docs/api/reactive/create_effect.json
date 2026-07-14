@@ -1,0 +1,22 @@
+{
+  "title": "createEffect",
+  "description": "สร้าง reactive side effect ที่รันเมื่อ dependencies ของมันเปลี่ยน ใช้สำหรับ side effects (logging, external calls) รันหลัง batch ปัจจุบัน",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "ฟังก์ชัน effect รับค่า return ก่อนหน้า ถูก track โดยอัตโนมัติ",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "ค่าเริ่มต้น (optional) ที่ส่งให้การรันครั้งแรก",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Optional <0>name</0> สำหรับ debugging",
+  "heading_durable_outputs": "การตอบสนองต่อ durable outputs",
+  "usage_durable_outputs": "durable counter บันทึก log ทุก tick effect อ่าน <0>counter.count()</0> จึง re-run ทุกครั้งที่ handler persist ค่าใหม่ รวมถึง count ที่ restore หลัง restart",
+  "heading_publish": "การ publish status page",
+  "usage_publish": "uptime monitor เขียนทับ <0>./out/status.html</0> ทุกครั้งที่ overall status หรือ table row ใดๆ เปลี่ยน <1>createEffect</1> track การอ่านทั้งสองและ re-run การ publish หลังแต่ละ sweep",
+  "info_batching": "Effects ถูก batch การอัปเดต signal แบบ synchronous หลายครั้งจะ trigger re-run เพียงครั้งเดียว ใช้ <0>batch()</0> อย่างชัดเจนสำหรับลำดับการอัปเดตที่ซับซ้อน",
+  "in_the_wild": "ดู effects เหล่านี้ใน walkthrough ของ <0>durable-counter</0> และ <1>uptime-monitor</1>",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

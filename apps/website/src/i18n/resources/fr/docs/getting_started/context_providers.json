@@ -1,0 +1,12 @@
+{
+  "title": "Contextes et Providers",
+  "description": "Les contextes partagent des données dans l'arbre de composants sans passer les props à chaque niveau.",
+  "heading_creating_context": "Créer un contexte",
+  "creating_context_intro": "<0>createContext</0> déclare un canal typé avec une valeur par défaut. Le site publisher crée un <1>AwsContext</1> qui transporte un client S3 actif et sa région dans l'arbre.",
+  "heading_providing_values": "Fournir des valeurs",
+  "providing_values_intro": "Un composant enveloppe ses enfants dans le <0>Provider</0> du contexte. <1>AwsProvider</1> construit le client S3 une seule fois, enregistre le nettoyage et publie la connexion à tout ce qui est imbriqué à l'intérieur.",
+  "heading_consuming": "Consommer un contexte",
+  "consuming_intro": "<0>useContext</0> lit la valeur du provider le plus proche. Le hook <1>useAws</1> encapsule cette lecture et lève une erreur claire lorsqu'il s'exécute en dehors d'un provider.",
+  "tip_cross_cutting": "Utilisez les contextes pour les préoccupations transversales comme une région AWS, un client partagé ou des identifiants dont de nombreux composants ont besoin.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "Indizierte Iteration. Jede Position ist ein reaktiver Accessor. Ideal für primitive Arrays.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Reaktive Array-Quelle.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Map-Funktion. <0>v</0> ist ein Accessor (reaktiv). <1>i</1> ist ein statischer Index.",
+  "heading_numbered_roster": "Ein nummeriertes Roster nach Slot",
+  "usage_numbered_roster": "Die Tenant-Flotte liest ihre Tenant-Specs von der Festplatte in ein Signal ein und erstellt dann ein nummeriertes Roster mit <0>indexArray</0>. Jede Position behält ihre <1>slot</1>-Nummer, während <2>tenant()</2> ein Accessor bleibt, sodass das Bearbeiten einer Spec an Ort und Stelle diese Zeile aktualisiert, ohne den Rest neu zu nummerieren.",
+  "in_the_wild": "Sehen Sie, wie dieses Roster einer Live-Spec-Datei im <0>tenant-fleet walkthrough</0> folgt.",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

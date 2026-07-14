@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "การวนซ้ำแบบ indexed แต่ละตำแหน่งเป็น reactive accessor เหมาะที่สุดสำหรับ primitive arrays",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "แหล่ง array แบบ reactive",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "ฟังก์ชัน map <0>v</0> เป็น accessor (reactive) <1>i</1> เป็น index แบบ static",
+  "heading_numbered_roster": "บัญชีรายชื่อแบบมีหมายเลขตาม slot",
+  "usage_numbered_roster": "tenant fleet อ่าน tenant specs จากดิสก์เข้า signal แล้วสร้างบัญชีรายชื่อแบบมีหมายเลขด้วย <0>indexArray</0> แต่ละตำแหน่งคงหมายเลข <1>slot</1> ไว้ ในขณะที่ <2>tenant()</2> ยังคงเป็น accessor ดังนั้นการแก้ไข spec ณ ที่เดิมจะอัปเดตบรรทัดนั้นโดยไม่ต้องเรียงหมายเลขส่วนที่เหลือใหม่",
+  "in_the_wild": "ดูบัญชีรายชื่อนี้ติดตามไฟล์ spec แบบ live ได้ใน <0>tenant-fleet walkthrough</0>",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

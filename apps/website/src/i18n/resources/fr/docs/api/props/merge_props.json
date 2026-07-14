@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Fusionne plusieurs objets de props de manière réactive, les sources ultérieures écrasant les précédentes. À utiliser pour les props par défaut.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Remplir les props par défaut",
+  "usage_bucket": "Le <0>SiteBucket</0> du site publisher fusionne un objet de valeurs par défaut avant <1>rawProps</1>, afin que les appelants qui omettent <2>indexDocument</2> et <2>errorDocument</2> se rabattent sur index.html, tandis que toute valeur fournie l’emporte toujours.",
+  "heading_tenant": "Valeurs par défaut à travers une frontière de runtime",
+  "usage_tenant": "Le <0>TenantTree</0> de la flotte de tenants fusionne un <1>plan</1> de démarrage avant les props entrantes, donnant à chaque tenant un niveau par défaut sans obliger chaque appelant à le préciser explicitement.",
+  "in_the_wild": "Voyez comment ces valeurs par défaut façonnent de vrais buckets et tenants dans le <0>tutoriel site-publisher</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

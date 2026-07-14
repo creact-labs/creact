@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "สร้าง resource ที่มี outputs ที่ถูก persist ฮุคหลักสำหรับ CReact components ที่โต้ตอบกับระบบภายนอก",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "props แบบ static หรือฟังก์ชัน getter สำหรับการติดตามแบบ reactive เมื่อใช้ getter แล้ว handler จะรันใหม่เมื่อ dependencies เปลี่ยน",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "ฟังก์ชัน setup ที่ทำงานและตั้งค่า outputs อาจคืนค่า cleanup function (sync หรือ async)",
+  "returns_desc": "อ็อบเจ็กต์ที่มีฟังก์ชัน accessor สำหรับแต่ละ output key ตัวอย่างเช่น หากเรียก <0>setOutputs({ url: '...' })</0> ค่าที่คืนจะมี <1>result.url()</1>",
+  "heading_counter": "resource แบบ durable",
+  "usage_counter": "<0>Counter</0> ของ durable counter เรียก <1>useAsyncOutput</1> ครั้งเดียวด้วย props ว่างและ handler ค่าที่คืน <2>counter.count()</2> เป็น reactive accessor ที่ effect ใดก็อ่านได้",
+  "heading_restore": "การ restore state ที่ถูก persist",
+  "usage_restore": "handler ของ page writer อ่าน <0>prev</0> ภายใน <1>setOutputs</1> เพื่อตรวจจับ page ที่สร้างไว้แล้ว เมื่อ <2>state === \"ready\"</2> ถูก restore แล้ว จะข้ามการเรียก Claude และ return ก่อนแทนที่จะสร้างใหม่",
+  "heading_prev_aware": "ข้ามงานที่ไม่เปลี่ยนแปลง",
+  "usage_prev_aware": "site publisher เปรียบเทียบ <0>entry.hash</0> ที่เข้ามากับ <1>prev.hash</1> ที่ถูก persist แล้ว หาก hash ตรงกัน แสดงว่า object อัปโหลดแล้ว ดังนั้น handler จะ return ก่อนที่จะแตะ <2>S3</2>",
+  "callout_idempotent": "Handlers ต้องเป็น idempotent เมื่อ restart แล้ว handlers จะรันใหม่สำหรับทุก node เพื่อสร้าง side effects ขึ้นใหม่ (intervals, subscriptions ฯลฯ) ค่า output ถูก restore จาก state แต่ handlers ต้องสร้าง runtime artifacts ใดๆ ขึ้นใหม่",
+  "in_the_wild": "ดู handlers เหล่านี้ persist และ recover ข้าม restarts ใน <0>durable-counter walkthrough</0>",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

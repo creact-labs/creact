@@ -1,0 +1,13 @@
+{
+  "title": "access",
+  "description": "Unwraps a MaybeAccessor. Calls it if it's a function, returns it directly otherwise.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "A value or an accessor function.",
+  "returns_desc": "The unwrapped value of type <0>T</0>.",
+  "heading_unwrapping": "Unwrapping value-or-accessor props",
+  "usage_unwrapping": "The site publisher's <0>SiteObject</0> accepts <1>bucket</1> and <2>entry</2> as <3>MaybeAccessor</3>, so callers can pass either a plain value or a getter. The handler's reactive props object calls access on each one, resolving whichever form arrived into the concrete value the upload needs.",
+  "in_the_wild": "See each file resolve its bucket and entry before uploading in the <0>site-publisher walkthrough</0>.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

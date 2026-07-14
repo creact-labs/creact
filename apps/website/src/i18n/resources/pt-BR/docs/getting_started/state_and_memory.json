@@ -1,0 +1,20 @@
+{
+  "title": "Estado e Memória",
+  "description": "A interface Memory salva e restaura o estado de implantação entre execuções.",
+  "heading_why_persistence": "Por que a Persistência Importa",
+  "why_persistence_body": "Apps CReact descrevem infraestrutura e processos. Quando o app para e reinicia, você precisa saber o que já foi implantado; caso contrário, cada reinício recria tudo do zero. A interface <0>Memory</0> resolve isso salvando e restaurando o estado de implantação.",
+  "heading_memory_interface": "A Interface Memory",
+  "memory_interface_intro": "Uma implementação de <0>Memory</0> fornece dois métodos, <1>getState</1> e <2>saveState</2>. O exemplo <3>FileMemory</3> lê e grava um arquivo JSON por stack, e o CReact nunca inclui um backend embutido, então você escolhe o armazenamento.",
+  "heading_using_memory": "Passando Memory para render()",
+  "using_memory_intro": "O ponto de entrada constrói um <0>FileMemory</0> e o passa para <1>render()</1> junto com o nome do stack. Essa função é tudo o que um app CReact precisa para iniciar.",
+  "tip_stack_name": "O terceiro argumento de <0>render()</0> é o nome do stack. Ele nomeia o arquivo de estado, então nomes de stack distintos mantêm stores de estado independentes lado a lado.",
+  "heading_use_async_output": "Persistindo Outputs com useAsyncOutput",
+  "use_async_output_intro": "<0>useAsyncOutput</0> gerencia os outputs duráveis de um recurso. O handler do contador inicializa sua contagem a partir de <1>setOutputs(prev => ...)</1>, para que um reinício retome do último valor salvo em vez de zero.",
+  "heading_what_gets_persisted": "O Que É Persistido",
+  "what_gets_persisted_body": "Somente os valores passados para <0>setOutputs()</0> são persistidos. Signals regulares, effects e variáveis locais <1>não</1> são salvos, então eles reinicializam a cada execução.",
+  "info_gitignore": "Adicione o diretório de estado, como <0>.state/</0>, ao seu <1>.gitignore</1>.",
+  "durable_counter_link": "Veja Memory, setOutputs e a recuperação de falhas funcionando de ponta a ponta no <0>tutorial do durable-counter</0>.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

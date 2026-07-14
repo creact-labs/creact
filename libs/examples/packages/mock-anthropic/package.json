@@ -1,0 +1,8 @@
+{
+  "name": "@creact-labs/example-mock-anthropic",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "In-memory mock of the Anthropic SDK for the page-writer example — returns a generated HTML document and logs the call, so the example runs with no API key",
+  "main": "src/index.ts"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "createComputed",
+  "description": "Computation phase के दौरान effects से पहले एक function को synchronously चलाता है। तब उपयोग करें जब dependencies update होने पर आपको अन्य signals में write करने की आवश्यकता हो।",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Computation function। Synchronously चलता है।",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "वैकल्पिक initial value।",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "वैकल्पिक। Debugging के लिए <0>name</0>।",
+  "heading_tracking_incidents": "Open incidents derive करना",
+  "usage_tracking_incidents": "Uptime monitor <0>incidents</0> signal में open incidents की एक list रखता है। एक <1>createComputed</1> <2>latestSamples()</2> पढ़ता है, फिर reconciled incident list वापस write करता है ताकि कोई भी effect इसे पढ़े उससे पहले signal write synchronously हो जाए।",
+  "warning_prefer_memo": "Derived values के लिए <0>createMemo</0> को प्राथमिकता दें। <1>createComputed</1> का उपयोग केवल तब करें जब आपको computation phase के दौरान अन्य signals में synchronously write करने की आवश्यकता हो।",
+  "in_the_wild": "इस computation को <0>uptime-monitor walkthrough</0> में incidents को open और close करते हुए देखें।",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

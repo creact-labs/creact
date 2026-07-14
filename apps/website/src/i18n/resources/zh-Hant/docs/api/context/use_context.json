@@ -1,0 +1,15 @@
+{
+  "title": "useContext",
+  "description": "讀取元件樹中上層最近的 context Provider 的值。",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "由 <0>createContext</0> 建立的 context 物件。",
+  "returns_desc": "來自上層最近的 <0>Provider</0> 的值。若沒有 Provider，則回傳傳入 <1>createContext</1> 的預設值。",
+  "heading_the_context_shape": "所讀取的 context",
+  "usage_the_context_shape": "site publisher 的 <0>AwsContext</0> 攜帶 region 與 S3 client；當沒有任何來源提供時，預設為 <1>null</1>。",
+  "heading_reading_the_connection": "讀取連線",
+  "usage_reading_the_connection": "<0>useAws</0> 輔助函式會呼叫 <1>useContext</1>，並在值為 <2>null</2> 時擲出明確的錯誤。每個 publisher 元件都透過此存取器讀取共用連線，而非直接存取 context。",
+  "in_the_wild": "請在 <0>site-publisher walkthrough</0> 中查看此存取器如何共用同一個 S3 client。",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

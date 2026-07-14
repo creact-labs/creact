@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "การวนซ้ำแบบมีคีย์ แต่ละรายการถูก map ครั้งเดียวและใช้ identity เป็นคีย์ มีเฉพาะรายการที่เพิ่มใหม่หรือถูกลบเท่านั้นที่ทำให้เกิดการคำนวณใหม่",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "แหล่ง array แบบ reactive",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "ฟังก์ชัน map <0>v</0> คือ accessor ไปยังรายการ <1>i</1> คือ index แบบ reactive",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "ไม่บังคับ <0>keyFn</0> ให้ identity ที่เสถียรสำหรับรายการ",
+  "heading_one_line_per_tenant": "หนึ่งบรรทัดสถานะต่อ tenant",
+  "usage_one_line_per_tenant": "<0>FleetStatus</0> ของ tenant fleet map roster ของ tenant แบบ reactive ออกมาเป็น <1>createMemo</1> หนึ่งตัวต่อ tenant โดยแต่ละตัวอธิบาย deployment ของ tenant นั้น เนื่องจาก <2>mapArray</2> ใช้ item เป็นคีย์ จึงสร้าง memo ครั้งเดียวเมื่อ tenant ปรากฏ และถูกทำลายเฉพาะเมื่อ tenant ออกไป",
+  "in_the_wild": "ดูบรรทัดเหล่านี้ติดตาม fleet แบบสดใน <0>tenant-fleet walkthrough</0>",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

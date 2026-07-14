@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Membuat resource dengan output yang di-persist. Hook utama untuk komponen CReact yang berinteraksi dengan sistem eksternal.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "Props statis atau fungsi getter untuk pelacakan reaktif. Ketika getter digunakan, handler dijalankan ulang saat dependensi berubah.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Fungsi setup yang melakukan pekerjaan dan menetapkan output. Dapat mengembalikan fungsi cleanup (sync atau async).",
+  "returns_desc": "Objek dengan fungsi accessor untuk setiap kunci output. Misalnya, jika Anda memanggil <0>setOutputs({ url: '...' })</0>, nilai kembalian memiliki <1>result.url()</1>.",
+  "heading_counter": "Resource yang durable",
+  "usage_counter": "<0>Counter</0> pada durable counter memanggil <1>useAsyncOutput</1> sekali dengan props kosong dan handler. Nilai kembalian <2>counter.count()</2> adalah accessor reaktif yang dapat dibaca oleh effect mana pun.",
+  "heading_restore": "Memulihkan state yang di-persist",
+  "usage_restore": "Handler page writer membaca <0>prev</0> di dalam <1>setOutputs</1> untuk mendeteksi halaman yang sudah digenerate. Ketika <2>state === \"ready\"</2> dipulihkan, handler melewati pemanggilan Claude dan return lebih awal alih-alih meregenerasi.",
+  "heading_prev_aware": "Melewati pekerjaan yang tidak berubah",
+  "usage_prev_aware": "Site publisher membandingkan <0>entry.hash</0> yang masuk dengan <1>prev.hash</1> yang di-persist. Hash yang cocok berarti objek sudah di-upload, sehingga handler return sebelum menyentuh <2>S3</2>.",
+  "callout_idempotent": "Handler harus idempoten. Saat restart, handler dijalankan ulang untuk semua node guna membangun kembali side effect (interval, subscription, dll.). Nilai output dipulihkan dari state, tetapi handler harus membuat ulang artefak runtime apa pun.",
+  "in_the_wild": "Lihat bagaimana handler ini mempersistensi dan memulihkan diri lintas restart di <0>durable-counter walkthrough</0>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

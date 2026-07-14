@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "Tạo một context để truyền dữ liệu xuyên suốt component tree mà không cần props.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "Tùy chọn. Giá trị được trả về bởi <0>useContext</0> khi không có Provider nào phía trên.",
+  "returns_desc": "Một object <0>Context<T></0> kèm component <1>Provider</1>.",
+  "heading_declaring_the_context": "Khai báo AWS context",
+  "usage_declaring_the_context": "Site publisher khai báo một <0>AwsContext</0> mang theo region và S3 client. Giá trị mặc định là <1>null</1>, để các component có thể phát hiện khi không có <2>AwsProvider</2> phía trên.",
+  "heading_providing_a_value": "Cung cấp kết nối",
+  "usage_providing_a_value": "<0>AwsProvider</0> tạo S3 client một lần và cung cấp nó thông qua <1>AwsContext.Provider</1>. Mọi component con cháu publish object đều chia sẻ connection này.",
+  "in_the_wild": "Xem cách provider này kết nối S3 trong <0>site-publisher walkthrough</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

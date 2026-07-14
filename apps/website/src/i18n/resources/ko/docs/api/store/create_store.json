@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "중첩 상태를 관리하기 위한 반응형 스토어 프록시를 생성합니다.",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "초기 스토어 값입니다. 객체여야 합니다.",
+  "returns_intro": "<0>[store, setStore]</0> 튜플:",
+  "returns_store": "<0>store</0>: 반응형 프록시입니다. 프로퍼티 접근이 추적됩니다.",
+  "returns_setstore": "<0>setStore</0>: 경로 기반 업데이트를 받는 세터입니다.",
+  "heading_the_manifest_shape": "매니페스트 형태",
+  "usage_the_manifest_shape": "사이트 퍼블리셔는 배포된 사이트를 해시된 파일의 <0>Manifest</0>로 모델링합니다. 각 <1>ManifestEntry</1>는 경로, 해시, 크기를 포함하며, 스토어는 이 중첩 구조를 반응형으로 유지합니다.",
+  "heading_a_reactive_manifest": "반응형 매니페스트",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0>는 빌드 디렉터리를 순회한 뒤 결과 매니페스트를 <1>createStore</1>에 전달합니다. 반환된 프록시는 개별 엔트리까지 읽기를 추적하므로, 한 파일을 렌더링하는 컴포넌트는 해당 파일의 해시가 변경될 때만 다시 실행됩니다.",
+  "in_the_wild": "이 스토어가 증분 업로드를 구동하는 예시는 <0>site-publisher walkthrough</0>에서 확인하세요.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

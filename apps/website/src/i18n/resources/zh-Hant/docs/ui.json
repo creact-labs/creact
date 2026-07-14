@@ -1,0 +1,25 @@
+{
+  "reference": "參考",
+  "usage": "用法",
+  "parameters": "參數",
+  "returns": "回傳值",
+  "param_table": {
+    "parameter": "參數",
+    "type": "型別",
+    "description": "說明"
+  },
+  "prop_table": {
+    "prop": "屬性",
+    "type": "型別",
+    "description": "說明"
+  },
+  "copy": "複製",
+  "copied": "已複製",
+  "open_playground": "在 Playground 中開啟",
+  "open_playground_sub": "在瀏覽器中即時執行此範例 — 編輯器、終端機、真實的 Node",
+  "callout": {
+    "info": "注意",
+    "warning": "警告",
+    "tip": "小知識"
+  }
+}

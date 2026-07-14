@@ -1,0 +1,16 @@
+{
+  "title": "File System Operations",
+  "description": "Write files from reactive state and persist app state to disk, sliced from the uptime-monitor example.",
+  "heading_write_effect": "Writing Files from an Effect",
+  "write_effect_intro": "The uptime-monitor's status page component turns reactive state into a file on disk. A <0>createEffect</0> re-renders the HTML whenever a probe result changes, and <1>catchError</1> keeps a bad render from crashing the app:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "The effect tracks <0>props.overall()</0> and <1>rows()</1> synchronously, then hands the finished HTML to an async publish step. Reading signals before the first await is what keeps the dependency graph accurate.",
+  "heading_publish": "The Publish Step",
+  "publish_intro": "The actual disk write is a plain async function built on <0>node:fs/promises</0>. It creates the output directory on demand and overwrites <1>./out/status.html</1> in place:",
+  "publish_notice": "Nothing here is CReact-specific — the reactive system decides when to write, and ordinary Node.js APIs do the writing. Every effect run produces a fresh, complete file.",
+  "heading_file_memory": "File-Based Memory",
+  "file_memory_intro": "The other file system pattern every app needs is persistence. <0>FileMemory</0> implements the <1>Memory</1> contract with one JSON file per stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> returns null when no ledger exists yet, and <1>saveState</1> rewrites the full deployment state after every change. This is the ledger the example apps use to survive restarts.",
+  "see_walkthrough": "See the full app in the <0>uptime-monitor walkthrough</0>."
+}

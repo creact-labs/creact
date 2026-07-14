@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "建立用於管理巢狀狀態的響應式 store proxy。",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "初始 store 值。必須為物件。",
+  "returns_intro": "一個 <0>[store, setStore]</0> 元組：",
+  "returns_store": "<0>store</0>：響應式 proxy。屬性存取會被追蹤。",
+  "returns_setstore": "<0>setStore</0>：接受路徑式更新的 setter。",
+  "heading_the_manifest_shape": "Manifest 結構",
+  "usage_the_manifest_shape": "site publisher 將已部署的網站建模為雜湊檔案的 <0>Manifest</0>。每個 <1>ManifestEntry</1> 帶有路徑、雜湊與大小，而 store 會讓此巢狀結構保持響應式。",
+  "heading_a_reactive_manifest": "響應式 Manifest",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> 會遍歷建置目錄，並將產生的 manifest 交給 <1>createStore</1>。回傳的 proxy 會追蹤至個別項目的讀取，因此只渲染單一檔案的元件，僅會在該檔案的雜湊變更時重新執行。",
+  "in_the_wild": "請參閱 <0>site-publisher 逐步教學</0>，了解此 store 如何驅動增量上傳。",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

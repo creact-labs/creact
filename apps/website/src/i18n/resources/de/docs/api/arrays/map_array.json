@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Schlüsselbasierte Iteration. Jedes Element wird einmal gemappt und anhand seiner Identität geschlüsselt. Nur neue oder entfernte Elemente führen zu einer Neuberechnung.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Reaktive Array-Quelle.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Map-Funktion. <0>v</0> ist ein Accessor auf das Element. <1>i</1> ist ein reaktiver Index.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Optional. <0>keyFn</0> stellt eine stabile Identität für Elemente bereit.",
+  "heading_one_line_per_tenant": "Eine Statuszeile pro Tenant",
+  "usage_one_line_per_tenant": "Die <0>FleetStatus</0> der Tenant-Flotte mappt ihren reaktiven Tenant-Bestand in jeweils ein <1>createMemo</1> pro Tenant, das das Deployment dieses Tenants beschreibt. Da <2>mapArray</2> nach Element schlüsselt, wird ein Memo einmal erstellt, wenn ein Tenant erscheint, und erst abgebaut, wenn er die Flotte verlässt.",
+  "in_the_wild": "Sieh dir an, wie diese Zeilen eine Live-Flotte im <0>tenant-fleet walkthrough</0> verfolgen.",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "การผสานรวม AWS",
+  "description": "จัดการทรัพยากร S3 จริงด้วย handlers แบบ idempotent แยกมาจากตัวอย่าง site-publisher",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "site-publisher แชร์ <0>S3Client</0> ตัวเดียวผ่าน context โดย Provider จะสร้าง client ลงทะเบียน <1>onCleanup</1> เพื่อทำลาย client และส่ง connection ไปยัง descendant ทุกตัว:",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "คอมโพเนนต์ใดก็ตามภายใต้ Provider เรียก <0>useAws</0> เพื่อรับ client และ region Connection เดียวให้บริการทั้ง tree และถูกทำลายเพียงครั้งเดียวเมื่อ tree <1>disposes</1>",
+  "heading_ensure_bucket": "การทำให้แน่ใจว่า Bucket มีอยู่",
+  "ensure_bucket_intro": "Bucket handler สร้าง bucket และถือว่า <0>BucketAlreadyOwnedByYou</0> เป็นความสำเร็จ เพราะ handlers จะรันซ้ำทุกครั้งที่ startup:",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "การจับ error แบบ already-owned คือรูปแบบ idempotency สำหรับ cloud resources — handler จะ converge ไปยังสถานะที่ต้องการแทนที่จะสมมติว่าเริ่มจากศูนย์ Error อื่นๆ ยังคง <0>throws</0> และทำให้ node ล้มเหลว",
+  "heading_website_config": "การกำหนดค่า Static Hosting",
+  "website_config_intro": "หลังจาก bucket มีอยู่แล้ว handler เดียวกันจะเปิดใช้ website hosting และเผยแพร่ URL ของไซต์ด้วย <0>setOutputs</0>:",
+  "website_config_notice": "URL จะกลายเป็น reactive output — <0>bucket.url()</0> — ที่ child components และ effects สามารถใช้งานได้ทันทีที่ถูกตั้งค่า",
+  "heading_changed_check": "การข้ามไฟล์ที่ไม่เปลี่ยนแปลง",
+  "changed_check_intro": "แต่ละไฟล์ที่อัปโหลดเป็น resource ของตัวเอง ก่อนอัปโหลด handler จะเปรียบเทียบ content hash ของไฟล์กับ outputs ที่ persist ไว้ผ่าน <0>setOutputs(prev => …)</0>:",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "เมื่อ hash ตรงกัน handler จะ return ทันที — <0>prev</0> คือค่าที่ persist ล่าสุด ดังนั้นไฟล์ที่ไม่เปลี่ยนแปลงจะไม่เสีย API call ใดๆ ตอน redeploy",
+  "heading_upload": "การอัปโหลดไฟล์ที่เปลี่ยนแปลง",
+  "upload_intro": "เฉพาะไฟล์ที่เปลี่ยนแปลงเท่านั้นที่ไปถึง <0>PutObjectCommand</0> hash ใหม่จะถูก persist พร้อม path พร้อมสำหรับการเปรียบเทียบในรอบถัดไป:",
+  "warning_idempotent": "Cloud handlers ต้องเป็น idempotent: พวกมันรันซ้ำทุกครั้งที่ startup ดังนั้นรูปแบบ create-or-confirm และการตรวจจับการเปลี่ยนแปลงคือสิ่งที่ป้องกันไม่ให้การรันซ้ำสร้างงานซ้ำซ้อนหรือล้มเหลวเมื่อ resource มีอยู่แล้ว",
+  "see_walkthrough": "ดูเรื่องราวการ deploy ฉบับเต็ม รวมถึง manifest hashing ได้ใน <0>site-publisher walkthrough</0>"
+}

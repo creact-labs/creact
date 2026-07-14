@@ -1,0 +1,25 @@
+{
+  "reference": "Справка",
+  "usage": "Использование",
+  "parameters": "Параметры",
+  "returns": "Возвращает",
+  "param_table": {
+    "parameter": "Параметр",
+    "type": "Тип",
+    "description": "Описание"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Тип",
+    "description": "Описание"
+  },
+  "copy": "Копировать",
+  "copied": "Скопировано",
+  "open_playground": "Открыть в playground",
+  "open_playground_sub": "Запустите этот пример прямо в браузере — редактор, терминал, настоящий Node",
+  "callout": {
+    "info": "Примечание",
+    "warning": "Предупреждение",
+    "tip": "Полезно знать"
+  }
+}

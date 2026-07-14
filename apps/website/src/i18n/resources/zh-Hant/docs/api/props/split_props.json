@@ -1,0 +1,13 @@
+{
+  "title": "splitProps",
+  "description": "依鍵將 props 物件拆分成多個群組。保留響應性。",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "接受 props 物件，後接一或多個 key 陣列。回傳一個元組，包含各 key 群組對應的物件，以及一個含有所有未匹配 key 的剩餘物件。",
+  "heading_bucket": "將設定與 children 分離",
+  "usage_bucket": "網站發佈器的 <0>SiteBucket</0> 將合併後的 props 拆分成 <1>site</1> 群組（保存 bucket 名稱與文件設定），以及 <2>rest</2> 群組，其 children 會渲染在已佈建的 bucket 下方。",
+  "heading_tenant": "Placement 與 service props",
+  "usage_tenant": "租戶機群的 <0>TenantDatabase</0> 將其 props 拆分成用於佈建資料庫的 <1>placement</1> 群組，以及流向 API 層的 <2>service</2> 剩餘部分。",
+  "in_the_wild": "請在 <0>site-publisher walkthrough</0> 中查看這些群組如何驅動實際佈建。",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Operasi File System",
+  "description": "Tulis file dari state reaktif dan persist state aplikasi ke disk, diambil dari contoh uptime-monitor.",
+  "heading_write_effect": "Menulis File dari Effect",
+  "write_effect_intro": "Komponen status page uptime-monitor mengubah state reaktif menjadi file di disk. <0>createEffect</0> me-render ulang HTML setiap kali hasil probe berubah, dan <1>catchError</1> mencegah render yang gagal merusak aplikasi:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "Effect melacak <0>props.overall()</0> dan <1>rows()</1> secara sinkron, lalu menyerahkan HTML yang sudah selesai ke langkah publish async. Membaca signal sebelum await pertama adalah yang menjaga dependency graph tetap akurat.",
+  "heading_publish": "Langkah Publish",
+  "publish_intro": "Penulisan ke disk sebenarnya adalah fungsi async biasa yang dibangun di atas <0>node:fs/promises</0>. Fungsi ini membuat direktori output sesuai kebutuhan dan menimpa <1>./out/status.html</1> di tempat:",
+  "publish_notice": "Tidak ada yang spesifik CReact di sini — sistem reaktif menentukan kapan menulis, dan API Node.js biasa yang melakukan penulisan. Setiap kali effect dijalankan menghasilkan file yang baru dan lengkap.",
+  "heading_file_memory": "Memory Berbasis File",
+  "file_memory_intro": "Pola file system lain yang dibutuhkan setiap aplikasi adalah persistensi. <0>FileMemory</0> mengimplementasikan kontrak <1>Memory</1> dengan satu file JSON per stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> mengembalikan null ketika ledger belum ada, dan <1>saveState</1> menulis ulang state deployment penuh setelah setiap perubahan. Inilah ledger yang digunakan aplikasi contoh untuk bertahan dari restart.",
+  "see_walkthrough": "Lihat aplikasi lengkap di <0>uptime-monitor walkthrough</0>."
+}

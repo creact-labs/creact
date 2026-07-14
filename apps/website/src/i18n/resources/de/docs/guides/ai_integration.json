@@ -1,0 +1,19 @@
+{
+  "title": "AI-Integration",
+  "description": "Claude aus einem dauerhaften Resource-Handler aufrufen, extrahiert aus dem page-writer-Beispiel.",
+  "heading_client": "Die Client-Naht",
+  "client_intro": "Der page-writer kapselt das Anthropic SDK hinter einem schlanken Interface. <0>HtmlWriterClient</0> deklariert die eine Methode, die die App nutzt, und <1>createHtmlWriterClient</1> baut den echten Client aus der Umgebung:",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "Dieses Interface ist die Dependency-Injection-Naht. Produktionscode übergibt nichts und erhält das echte SDK, während Tests <0>writeHtml</0> einen skriptbasierten Fake übergeben — kein Netzwerk, kein API-Key.",
+  "heading_request": "Den Request stellen",
+  "request_intro": "<0>writeHtml</0> sendet den Prompt des Users mit einem festen System-Prompt und setzt den Parameter <1>client</1> standardmäßig auf das echte SDK:",
+  "request_notice": "Der System-Prompt legt den Output-Vertrag fest — ein eigenständiges HTML-Dokument, keine Markdown-Fences — sodass der Rest der Pipeline die Antwort als deploybares Artefakt statt als Chat behandeln kann.",
+  "heading_extract": "Das Dokument extrahieren",
+  "extract_intro": "Antworten kommen als Content-Blöcke an. <0>extractHtmlDocument</0> holt den ersten Textblock und schlägt laut fehl, wenn Claude nichts Verwertbares zurückgibt:",
+  "heading_generate_handler": "Der Generation-Handler",
+  "generate_intro": "Die Page-Komponente verwandelt einen Prompt in eine dauerhafte Resource. Ihr Handler stellt zuerst aus dem Ledger wieder her und ruft <0>writeHtml</0> nur auf, wenn die Seite noch nie generiert wurde — diese Prüfung macht ihn idempotent:",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> erhält den zuletzt persistierten Wert, auch über Neustarts hinweg. Wenn der vorherige Lauf bereits <1>ready</1> erreicht hat, behält der Handler diesen Zustand bei und kehrt zurück, ohne einen weiteren API-Aufruf zu verbrauchen.",
+  "tip_persistence": "AI-Outputs persistieren wie jedes andere <0>useAsyncOutput</0>-Ergebnis. Ein Neustart der App führt jeden Handler erneut aus, aber wiederhergestellte Seiten überspringen die Generierung — nur wirklich neue Prompts erreichen die API.",
+  "see_walkthrough": "Siehe die vollständige Prompt-zu-Seite-Pipeline im <0>page-writer-Walkthrough</0>."
+}

@@ -1,0 +1,23 @@
+{
+  "title": "AWS 集成",
+  "description": "使用幂等 handlers 管理真实的 S3 资源，摘自 site-publisher 示例。",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "site-publisher 通过 context 共享同一个 <0>S3Client</0>。Provider 会构建 client，注册 <1>onCleanup</1> 以销毁它，并将连接交给每个后代：",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "Provider 下的任意组件调用 <0>useAws</0> 即可获取 client 和 region。整个树共用一个连接，并在树 <1>disposes</1> 时恰好销毁一次。",
+  "heading_ensure_bucket": "确保 Bucket 存在",
+  "ensure_bucket_intro": "Bucket handler 会创建 bucket，并将 <0>BucketAlreadyOwnedByYou</0> 视为成功，因为 handlers 会在每次启动时重新运行：",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "捕获 already-owned 错误是云资源的幂等模式——handler 会收敛到期望状态，而不是假设从空白开始。任何其他错误仍会 <0>throws</0> 并使该节点失败。",
+  "heading_website_config": "配置静态托管",
+  "website_config_intro": "Bucket 存在后，同一个 handler 会启用网站托管，并通过 <0>setOutputs</0> 发布站点 URL：",
+  "website_config_notice": "该 URL 会成为响应式输出——<0>bucket.url()</0>——子组件和 effects 可在其被设置的瞬间消费。",
+  "heading_changed_check": "跳过未更改的文件",
+  "changed_check_intro": "每个上传的文件都是独立资源。上传前，handler 通过 <0>setOutputs(prev => …)</0> 将文件内容哈希与已持久化的 outputs 进行比较：",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "当哈希匹配时，handler 会提前返回——<0>prev</0> 是上次持久化的值，因此未更改的文件在重新部署时不会产生任何 API 调用。",
+  "heading_upload": "上传已更改的文件",
+  "upload_intro": "只有已更改的文件会到达 <0>PutObjectCommand</0>。新哈希会与路径一起持久化，以供下次运行比较：",
+  "warning_idempotent": "云 handlers 必须是幂等的：它们会在每次启动时重新运行，因此 create-or-confirm 模式与变更检测才能避免重复运行时重复劳动，或在已有资源上失败。",
+  "see_walkthrough": "完整的部署过程（含 manifest 哈希）见 <0>site-publisher walkthrough</0>。"
+}

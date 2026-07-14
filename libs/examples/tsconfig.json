@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@creact-labs/creact",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@creact-labs/creact": ["../../packages/creact/src/index.ts"],
+      "@creact-labs/creact/jsx-runtime": [
+        "../../packages/creact/src/jsx/jsx-runtime.ts"
+      ],
+      "@creact-labs/example-memory": ["packages/memory/src/index.ts"],
+      "@creact-labs/example-file-memory": ["packages/file-memory/src/index.ts"],
+      "@creact-labs/example-mock-s3": ["packages/mock-s3/src/index.ts"],
+      "@creact-labs/example-mock-anthropic": ["packages/mock-anthropic/src/index.ts"],
+      "@creact-labs/testing": ["../../packages/testing/src/index.ts"]
+    }
+  },
+  "include": ["apps/**/*", "packages/**/*"]
+}

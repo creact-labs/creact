@@ -1,0 +1,23 @@
+{
+  "title": "Déploiement",
+  "description": "Exécutez des applications CReact en production avec persistance d'état et une gestion appropriée des processus.",
+  "heading_production_run": "Exécution en production",
+  "production_run_intro": "Utilisez le script <0>start</0> (sans <1>--watch</1>) pour la production :",
+  "code_run_start": "npm run start",
+  "production_run_outro": "Cela exécute votre point d'entrée une seule fois. CReact réconcilie l'arbre de composants actuel avec l'état persisté, applique les modifications, enregistre le nouvel état et se termine.",
+  "heading_ci_cd": "Intégration CI/CD",
+  "ci_cd_intro": "Les applications CReact fonctionnent bien dans les pipelines CI/CD. L'application lit l'état précédent, réconcilie, déploie les modifications et écrit le nouvel état, le tout en une seule exécution.",
+  "code_ci_cd": "# GitHub Actions example\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "Stockage d'état",
+  "state_storage_intro": "Pour la production, stockez l'état dans un backend distant plutôt que sur le système de fichiers local. Implémentez l'interface <0>Memory</0> pour votre stockage :",
+  "storage_s3": "<0>S3 :</0> stockez le JSON d'état dans un bucket S3",
+  "storage_dynamodb": "<0>DynamoDB :</0> utilisez une table pour un état sûr en concurrence",
+  "storage_database": "<0>Base de données :</0> PostgreSQL, Redis, etc.",
+  "heading_watch_mode": "Exécution longue avec le mode watch",
+  "watch_mode_intro": "Pour les applications qui doivent s'exécuter en continu (comme les serveurs ou moniteurs), utilisez le mode watch :",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Le mode watch redémarre l'application lorsque les fichiers sources changent, en préservant l'état entre les redémarrages.",
+  "tip_process_manager": "Pour les processus de longue durée, utilisez PM2 ou systemd pour gérer les redémarrages et la journalisation.",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

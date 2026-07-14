@@ -1,0 +1,22 @@
+{
+  "title": "createSignal",
+  "description": "Cria um signal reativo com getter e setter.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valor inicial do signal. Opcional; omita para <0>T | undefined</0>.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>SignalOptions<T></0>",
+  "param_options_desc": "Opcional. Defina <0>equals</0> como <1>false</1> para desabilitar verificações de igualdade, ou forneça um comparador personalizado.",
+  "returns_intro": "Uma tupla de <0>[getter, setter]</0>:",
+  "returns_getter": "<0>getter()</0>: lê o valor atual e registra uma dependência quando chamado dentro de um escopo de tracking",
+  "returns_setter": "<0>setter(value)</0>: atualiza o valor. Aceita um valor direto ou uma função <1>(prev) => next</1>.",
+  "heading_sweep_state": "Coletando o estado do sweep",
+  "usage_sweep_state": "O <0>App</0> do monitor de uptime mantém cada amostra de probe e a contagem por check em signals. Cada escrita usa a forma funcional <1>prev => next</1>, de modo que uma nova amostra é anexada ao histórico daquele target sem alterar o restante.",
+  "heading_latest_probe": "Acompanhando a probe mais recente",
+  "usage_latest_probe": "Cada <0>HttpCheck</0> mantém o resultado da probe mais recente em um signal. O loop de sweep grava via <1>setLatest</1>, e todo memo ou effect que lê <2>latest()</2> é reexecutado quando o próximo sweep chega.",
+  "tip_equality": "Por padrão, signals usam comparação <0>===</0>. Definir o mesmo valor novamente não dispara recomputação.",
+  "in_the_wild": "Veja esses signals alimentando uma página de status ao vivo no <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

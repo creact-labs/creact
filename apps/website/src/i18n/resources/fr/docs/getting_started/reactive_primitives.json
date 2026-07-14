@@ -1,0 +1,15 @@
+{
+  "title": "Primitives réactives",
+  "description": "Les signals, memos et computations permettent aux composants de réagir aux changements sans re-rendu.",
+  "heading_signals": "Signals",
+  "signals_intro": "Un signal est une valeur réactive avec un getter et un setter. Le composant <0>App</0> du moniteur d’uptime conserve chaque échantillon de sonde et l’heure de la dernière passe dans des signals ; lire <1>samples()</1> dans un memo ou un effect enregistre une dépendance qui se réexécute lorsque <2>setSamples</2> écrit.",
+  "info_batch": "<0>batch()</0> regroupe plusieurs écritures de signals en une seule passe de réévaluation. Enregistrer un échantillon met à jour à la fois l’historique des échantillons et l’heure de la dernière passe, mais les memos en aval ne se recalculent qu’une seule fois.",
+  "heading_memos": "Memos",
+  "memos_intro": "Un memo met en cache une valeur dérivée et ne se recalcule que lorsque ses dépendances changent. <0>latestSamples</0> associe chaque cible à son échantillon le plus récent, et <1>overall</1> regroupe ces statuts en un seul verdict.",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> s’exécute avant les effects, ce qui lui permet de dériver un état que les effects ultérieurs lisent dans la même passe. Ici, il compare les cibles down à la liste des incidents ouverts et n’écrit via <1>setIncidents</1> que lorsque l’ensemble a réellement changé.",
+  "heading_on_untrack": "on et untrack",
+  "on_untrack_intro": "<0>on</0> déclare les dépendances explicitement et fournit à l’effect la valeur suivante et la valeur précédente. Chaque vérification journalise les transitions de statut via <1>on(status, ...)</1>, en lisant la latence avec <2>untrack</2> afin que ce champ ne devienne pas une dépendance.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

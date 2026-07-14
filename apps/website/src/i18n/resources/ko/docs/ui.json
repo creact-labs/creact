@@ -1,0 +1,25 @@
+{
+  "reference": "참조",
+  "usage": "사용법",
+  "parameters": "매개변수",
+  "returns": "반환값",
+  "param_table": {
+    "parameter": "매개변수",
+    "type": "타입",
+    "description": "설명"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "타입",
+    "description": "설명"
+  },
+  "copy": "복사",
+  "copied": "복사됨",
+  "open_playground": "플레이그라운드에서 열기",
+  "open_playground_sub": "브라우저에서 이 예제를 실시간으로 실행하세요 — 에디터, 터미널, 실제 Node",
+  "callout": {
+    "info": "참고",
+    "warning": "경고",
+    "tip": "알아두면 좋은 점"
+  }
+}

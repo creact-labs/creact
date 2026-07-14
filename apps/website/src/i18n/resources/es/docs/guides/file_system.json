@@ -1,0 +1,16 @@
+{
+  "title": "Operaciones del sistema de archivos",
+  "description": "Escribe archivos desde el estado reactivo y persiste el estado de la app en disco, extraído del ejemplo uptime-monitor.",
+  "heading_write_effect": "Escribir archivos desde un efecto",
+  "write_effect_intro": "El componente de la página de estado de uptime-monitor convierte el estado reactivo en un archivo en disco. Un <0>createEffect</0> vuelve a renderizar el HTML cada vez que cambia el resultado de un probe, y <1>catchError</1> evita que un render fallido cierre la app:",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "El efecto rastrea <0>props.overall()</0> y <1>rows()</1> de forma síncrona y luego entrega el HTML terminado a un paso de publicación asíncrono. Leer los signals antes del primer await es lo que mantiene el grafo de dependencias preciso.",
+  "heading_publish": "El paso de publicación",
+  "publish_intro": "La escritura real en disco es una función asíncrona sencilla basada en <0>node:fs/promises</0>. Crea el directorio de salida bajo demanda y sobrescribe <1>./out/status.html</1> in situ:",
+  "publish_notice": "Nada de esto es específico de CReact: el sistema reactivo decide cuándo escribir, y las APIs ordinarias de Node.js se encargan de la escritura. Cada ejecución del efecto produce un archivo nuevo y completo.",
+  "heading_file_memory": "Memoria basada en archivos",
+  "file_memory_intro": "El otro patrón de sistema de archivos que toda app necesita es la persistencia. <0>FileMemory</0> implementa el contrato <1>Memory</1> con un archivo JSON por stack:",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> devuelve null cuando aún no existe un ledger, y <1>saveState</1> reescribe el estado completo del deployment tras cada cambio. Este es el ledger que las apps de ejemplo usan para sobrevivir a los reinicios.",
+  "see_walkthrough": "Consulta la app completa en la <0>guía de uptime-monitor</0>."
+}

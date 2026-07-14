@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "CReact được viết bằng TypeScript. Đây là cách tận dụng tối đa hệ thống type cho signals, props và components.",
+  "heading_tsconfig": "Cấu hình TypeScript",
+  "tsconfig_intro": "Thiết lập quan trọng là <0>jsxImportSource</0>. Thiết lập này bảo TypeScript sử dụng các type JSX của CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "Định kiểu props value-or-accessor",
+  "value_or_accessor_intro": "Trong site publisher, <0>SiteObjectProps</0> định kiểu <1>bucket</1> và <2>entry</2> là <0>MaybeAccessor</0>, nên một interface duy nhất chấp nhận cả plain values lẫn getters, và handler vẫn được định kiểu đầy đủ sau khi access unwrap chúng.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "Typed props với defaults",
+  "typed_defaults_intro": "Trong tenant fleet, <0>TenantTreeProps</0> đánh dấu <1>plan</1> là optional, sau đó <2>mergeProps</2> cung cấp default và thu hẹp kết quả thành shape fully-required mà phần còn lại của tree có thể dựa vào.",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "CReact re-export các type chính: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6>, và tất cả runtime types.",
+  "in_the_wild": "Xem các typed props này cấp phát tài nguyên thực tế trong <0>site-publisher walkthrough</0>."
+}

@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "CReact applications का entry point। Component tree को render करता है, state reconcile करता है, handlers चलाता है।",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "Function जो root component tree लौटाती है।",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "Required. State persistence backend.",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "Required. State store के लिए identifier.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "Optional. अतिरिक्त render configuration.",
+  "returns_desc": "एक <0>RenderResult</0> object. इसकी <1>ready</1> property एक <2>Promise<void></2> है जो initial deployment पूरा होने पर resolve होती है।",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "Deployment की प्रतीक्षा में",
+  "usage_awaiting": "<0>render</0> जो value लौटाता है वह synchronous है, लेकिन वह जो work शुरू करता है वह नहीं है। tenant-fleet entry पहले deployment के लिए <1>ready</1> await करता है, फिर हर cascade के लिए <2>settled</2> जो वह trigger करता है, ताकि one-shot run process exit होने से पहले सब कुछ persist कर दे।",
+  "in_the_wild": "<0>durable-counter walkthrough</0> में देखें कि एक single call कैसे durable app को boot करता है।"
+}

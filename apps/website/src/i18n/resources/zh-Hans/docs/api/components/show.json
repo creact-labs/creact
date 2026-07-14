@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "根据响应式条件有条件地渲染子节点。",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "属性",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "响应式条件。为真值时渲染子节点。接受值或 accessor。",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "当 <0>when</0> 为假值时可选渲染的内容。",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "要渲染的内容，或一个回调，以 accessor 形式接收该真值。",
+  "heading_usage": "用法",
+  "usage_intro": "正常运行时间监控将整个报告层置于一个 <0>Show</0> 门控之后：状态页和横幅保持未挂载，直到首次扫描记录时间戳，然后 <1>lastSweepAt()</1> 变为真值，子树挂载。",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "此片段是正常运行时间监控的布局。查看该门控如何融入完整树结构，请参阅 <0>uptime-monitor 导览</0>。"
+}

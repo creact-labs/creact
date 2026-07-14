@@ -1,0 +1,22 @@
+{
+  "title": "createSignal",
+  "description": "게터와 세터를 가진 반응형 시그널을 생성합니다.",
+  "signature": "createSignal<T>(): [Accessor<T | undefined>, Setter<T | undefined>]\ncreateSignal<T>(value: T, options?: SignalOptions<T>): [Accessor<T>, Setter<T>]",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "시그널의 초기값입니다. 선택 사항이며, 생략하면 <0>T | undefined</0>가 됩니다.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>SignalOptions<T></0>",
+  "param_options_desc": "선택 사항입니다. 동등성 검사를 비활성화하려면 <0>equals</0>를 <1>false</1>로 설정하거나, 사용자 정의 비교 함수를 제공하세요.",
+  "returns_intro": "<0>[getter, setter]</0> 튜플입니다:",
+  "returns_getter": "<0>getter()</0>: 현재 값을 읽고, 추적 스코프 안에서 호출되면 의존성을 등록합니다",
+  "returns_setter": "<0>setter(value)</0>: 값을 업데이트합니다. 직접 값 또는 함수 <1>(prev) => next</1>를 받을 수 있습니다.",
+  "heading_sweep_state": "스윕 상태 수집",
+  "usage_sweep_state": "업타임 모니터의 <0>App</0>은 모든 프로브 샘플과 체크별 집계를 시그널에 보관합니다. 각 쓰기는 함수형 형태 <1>prev => next</1>를 사용하므로, 새 샘플이 해당 타깃의 히스토리에 추가되고 나머지는 건드리지 않습니다.",
+  "heading_latest_probe": "최신 프로브 추적",
+  "usage_latest_probe": "각 <0>HttpCheck</0>는 가장 최근 프로브 결과를 시그널에 보관합니다. 스윕 루프가 <1>setLatest</1>를 통해 기록하며, <2>latest()</2>를 읽는 모든 memo나 effect는 다음 스윕이 도착할 때 다시 실행됩니다.",
+  "tip_equality": "기본적으로 시그널은 <0>===</0> 비교를 사용합니다. 같은 값을 다시 설정해도 재계산이 트리거되지 않습니다.",
+  "in_the_wild": "이 시그널들이 라이브 상태 페이지를 구동하는 모습을 <0>uptime-monitor walkthrough</0>에서 확인하세요.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "以響應式方式合併多個 props 物件，後面的來源會覆寫前面的。用於設定預設 props。",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "填入預設 props",
+  "usage_bucket": "站點發佈器的 <0>SiteBucket</0> 會將預設物件合併在 <1>rawProps</1> 之前，因此省略 <2>indexDocument</2> 與 <2>errorDocument</2> 的呼叫端會回退至 index.html，而任何提供的值仍會優先採用。",
+  "heading_tenant": "跨執行階段邊界的預設值",
+  "usage_tenant": "租戶機群的 <0>TenantTree</0> 會將起始 <1>plan</1> 合併在傳入的 props 之前，為每個租戶提供預設層級，無需每個呼叫端明確指定。",
+  "in_the_wild": "在 <0>site-publisher 逐步導覽</0> 中查看這些預設值如何塑造實際的 bucket 與 tenant。",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

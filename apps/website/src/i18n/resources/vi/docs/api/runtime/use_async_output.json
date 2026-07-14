@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Tạo một resource với các output được persist. Hook chính cho các component CReact tương tác với hệ thống bên ngoài.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "Props tĩnh hoặc hàm getter để theo dõi reactive. Khi dùng getter, handler chạy lại khi dependencies thay đổi.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Hàm setup thực hiện công việc và set outputs. Có thể trả về hàm cleanup (sync hoặc async).",
+  "returns_desc": "Một object chứa các hàm accessor cho mỗi key của output. Ví dụ, nếu bạn gọi <0>setOutputs({ url: '...' })</0>, giá trị trả về có <1>result.url()</1>.",
+  "heading_counter": "Một resource durable",
+  "usage_counter": "<0>Counter</0> của durable counter gọi <1>useAsyncOutput</1> một lần với props rỗng và một handler. Giá trị trả về <2>counter.count()</2> là một accessor reactive mà bất kỳ effect nào cũng có thể đọc.",
+  "heading_restore": "Khôi phục state đã persist",
+  "usage_restore": "Handler của page writer đọc <0>prev</0> bên trong <1>setOutputs</1> để phát hiện trang đã được tạo sẵn. Khi <2>state === \"ready\"</2> đã được khôi phục, handler bỏ qua lời gọi Claude và return sớm thay vì tạo lại.",
+  "heading_prev_aware": "Bỏ qua công việc không thay đổi",
+  "usage_prev_aware": "Site publisher so sánh <0>entry.hash</0> nhận được với <1>prev.hash</1> đã được persist. Hash khớp nghĩa là object đã được upload, nên handler return trước khi chạm tới <2>S3</2>.",
+  "callout_idempotent": "Handler phải idempotent. Khi restart, handler chạy lại cho tất cả các node để thiết lập lại side effect (interval, subscription, v.v.). Giá trị output được khôi phục từ state, nhưng handler phải tạo lại mọi artifact runtime.",
+  "in_the_wild": "Xem các handler này persist và khôi phục qua các lần restart trong <0>durable-counter walkthrough</0>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

@@ -1,0 +1,17 @@
+{
+  "title": "HTTP API とチャネル",
+  "description": "page-writer の例から切り出した、マネージドリソースとしての本物の node:http サーバーを実行します。",
+  "heading_channels": "チャネルとは？",
+  "channels_desc": "チャネルはネットワークエンドポイントを所有するコンポーネントです。ハンドラーの実行時にサーバーを起動し、受信リクエストをコールバック props 経由でリアクティブシステムに流し込み、クリーンアップ時にソケットを閉じます。",
+  "heading_server_resource": "サーバーリソース",
+  "server_intro": "page-writer の <0>HttpChannel</0> は <1>node:http</1> サーバーを useAsyncOutput でラップするため、リッスン中のソケットは他のマネージドリソースと同じライフサイクルを持ちます:",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "ハンドラーは <0>listen</0> が成功した後にのみ解決し、<1>setOutputs</1> で URL を公開し、クリーンアップ関数を返します。リクエストがランタイムに直接触れることはありません — 親から渡されたコールバック props を呼び出します。",
+  "heading_routes": "リクエストのルーティング",
+  "routes_intro": "ルーティングは通常の Node.js コードです。各ルートは入力を検証し、<0>onCreatePage</0> や <1>onListPages</1> のような prop に委譲します:",
+  "routes_notice": "チャネルは汎用のままです — 知っているのは HTTP であり、ページではありません。<0>onCreatePage</0> が親のストアを更新し、新しい Page リソースがマウントされ、受理されたスラッグとともにレスポンスが即座に返されます。",
+  "heading_teardown": "レスポンスとティアダウン",
+  "teardown_intro": "2 つの小さなヘルパーがコンポーネントを完成させます: JSON レスポンダーと、クリーンアップ関数で使用される Promise でラップされた <0>server.close</0> です:",
+  "info_cleanup": "ハンドラーから返されるクリーンアップは、コンポーネントのアンマウント時またはハンドラーの再実行前にポートを解放するため、<0>--watch</0> による再起動で address-in-use エラーが発生することはありません。",
+  "see_walkthrough": "リクエストからページまでのパイプライン全体は <0>page-writer ウォークスルー</0> をご覧ください。"
+}

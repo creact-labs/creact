@@ -1,0 +1,13 @@
+{
+  "title": "children",
+  "description": "将传递给组件的 children 解析为响应式访问器。处理惰性 children 和数组。",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
+  "param_fn_desc": "返回 children prop 的访问器。",
+  "returns_desc": "一个 <0>ChildrenReturn</0>，即可调用的访问器，返回已解析的 children。还具有 <1>toArray()</1> 方法，将已解析的 children 以扁平数组形式返回。",
+  "heading_provider": "解析 provider children",
+  "usage_provider": "站点发布器的 <0>AwsProvider</0> 用 <1>children(() => props.children)</1> 包装其子树，并在 context provider 内渲染 <2>resolved()</2>，使 S3 客户端与其所服务的树一同解析和拆除。",
+  "in_the_wild": "请参阅此 provider 在 <0>site-publisher walkthrough</0> 中如何串联整个部署树。",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

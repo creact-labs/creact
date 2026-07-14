@@ -1,0 +1,13 @@
+{
+  "title": "children",
+  "description": "Resolve children ที่ส่งเข้า component ให้เป็น reactive accessor รองรับ lazy children และ arrays",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
+  "param_fn_desc": "Accessor ที่คืนค่า children prop",
+  "returns_desc": "<0>ChildrenReturn</0> คือ callable accessor ที่คืนค่า children ที่ resolve แล้ว และมีเมธอด <1>toArray()</1> ที่คืนค่า children ที่ resolve แล้วเป็น flat array",
+  "heading_provider": "การ resolve children ของ provider",
+  "usage_provider": "<0>AwsProvider</0> ของ site publisher ห่อ subtree ด้วย <1>children(() => props.children)</1> และ render <2>resolved()</2> ภายใน context provider เพื่อให้ S3 client ถูก resolve และ tear down ไปพร้อมกับ tree ที่ให้บริการ",
+  "in_the_wild": "ดู provider นี้เชื่อม deployment tree ทั้งชุดใน <0>site-publisher walkthrough</0>",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@creact-labs/examples",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Real, type-checked CReact example apps — the website imports source regions from them for its code samples",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@creact-labs/creact": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.0"
+  }
+}

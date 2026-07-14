@@ -1,0 +1,18 @@
+{
+  "title": "mapArray",
+  "description": "Keyed iteration. Each item maps once and is keyed by identity. Only new or removed items cause re-computation.",
+  "signature": "mapArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: Accessor<number>) => U, options?: { fallback?: Accessor<any>; keyFn?: (item: T) => any }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Reactive array source.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: Accessor<number>) => U</0>",
+  "param_map_fn_desc": "Map function. <0>v</0> is an accessor to the item. <1>i</1> is a reactive index.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>{ fallback?: Accessor; keyFn?: (item: T) => any }</0>",
+  "param_options_desc": "Optional. <0>keyFn</0> provides stable identity for items.",
+  "heading_one_line_per_tenant": "One status line per tenant",
+  "usage_one_line_per_tenant": "The tenant fleet's <0>FleetStatus</0> maps its reactive tenant roster into one <1>createMemo</1> per tenant, each describing that tenant's deployment. Since <2>mapArray</2> keys by item, a memo is created once when a tenant appears and torn down only when it leaves.",
+  "in_the_wild": "See these lines track a live fleet in the <0>tenant-fleet walkthrough</0>.",
+  "filename_fleet_status": "tenant-fleet/src/components/fleet-status/index.tsx"
+}
