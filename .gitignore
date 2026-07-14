@@ -6,3 +6,5 @@ coverage
 
 # Local scratch (design docs, notes) — not committed
 .claude-scratch/
+
+.vscode/
