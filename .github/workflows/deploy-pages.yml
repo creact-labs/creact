@@ -37,11 +37,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # The website's prebuild snapshots @creact-labs/creact's dist into the
-      # playground runtime manifest, so the package must be built first.
-      - name: Build CReact
-        run: npm run build -w packages/creact
-
       - name: Build
         working-directory: apps/website
         run: npm run build

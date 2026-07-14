@@ -19,9 +19,7 @@
     "cli": "CLI"
   },
   "pages": {
-    "why_creact": "ทำไมต้อง CReact",
     "installation": "การติดตั้ง",
-    "troubleshooting": "การแก้ไขปัญหา",
     "durable_counter": "Durable Counter",
     "uptime_monitor": "Uptime Monitor",
     "site_publisher": "Site Publisher",

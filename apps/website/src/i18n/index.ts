@@ -1,10 +1,7 @@
 export {
   type Locale,
   type TranslationKey,
-  LOCALES,
-  detectLocale,
   locale,
-  matchLocale,
   resources,
   setLocale,
   t,

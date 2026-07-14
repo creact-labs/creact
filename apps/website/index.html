@@ -12,18 +12,6 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Cross-origin isolation for the WebContainer-based playground. GitHub
-         Pages can't set COOP/COEP headers, so this service worker injects them
-         client-side (no-op locally, where Vite already sends the headers). The
-         vendored asset is injected here rather than referenced with a bare
-         src so it stays out of the module graph. -->
-    <script>
-      (function () {
-        var s = document.createElement("script");
-        s.src = "/creact/coi-serviceworker.min.js";
-        document.head.appendChild(s);
-      })();
-    </script>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="canonical" href="https://creact-labs.github.io/creact/" />
 

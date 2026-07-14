@@ -19,9 +19,7 @@
     "cli": "CLI"
   },
   "pages": {
-    "why_creact": "なぜ CReact なのか",
     "installation": "インストール",
-    "troubleshooting": "トラブルシューティング",
     "durable_counter": "Durable Counter",
     "uptime_monitor": "Uptime Monitor",
     "site_publisher": "Site Publisher",

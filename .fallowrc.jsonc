@@ -4,14 +4,8 @@
   // Run from the repo root: dead-code · dupes · health --coverage · audit
 
   // The creact CLI bin entry: package.json bin points at the dist build, so
-  // the source file needs to be declared as an entry explicitly. The
-  // coi-serviceworker is a vendored public asset loaded via <script> in
-  // index.html to enable cross-origin isolation on GitHub Pages — it is not a
-  // module, so it is declared here rather than resolved through the graph.
-  "entry": [
-    "packages/creact/src/cli.ts",
-    "apps/website/public/coi-serviceworker.min.js"
-  ],
+  // the source file needs to be declared as an entry explicitly.
+  "entry": ["packages/creact/src/cli.ts"],
 
   // These are published libraries — their entry-point exports ARE the product
   // and have external consumers, so they must not be flagged as unused.

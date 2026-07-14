@@ -5,7 +5,6 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
-import LiveExample from "@/shared/playground/live-example";
 
 const entry = "page-writer/index.tsx";
 const app = "page-writer/src/app.tsx";
@@ -62,7 +61,6 @@ function RunItInvoke() {
         code={t("docs.examples.page_writer.code_run")}
         filename={t("docs.examples.page_writer.filename_terminal")}
       />
-      <LiveExample app="page-writer" />
       <p>{t("docs.examples.page_writer.run_create_intro")}</p>
       <DocCodeBlock
         lang="bash"

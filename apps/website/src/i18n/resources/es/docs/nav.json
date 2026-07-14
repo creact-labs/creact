@@ -19,9 +19,7 @@
     "cli": "CLI"
   },
   "pages": {
-    "why_creact": "Por qué CReact",
     "installation": "Instalación",
-    "troubleshooting": "Solución de problemas",
     "durable_counter": "Contador durable",
     "uptime_monitor": "Monitor de uptime",
     "site_publisher": "Publicador de sitios",

@@ -6,7 +6,6 @@ import Code from "@/shared/components/code";
 import DocCodeBlock from "@/shared/components/doc-code-block";
 import DocHeading from "@/shared/components/doc-heading";
 import TextLink from "@/shared/components/text-link";
-import LiveExample from "@/shared/playground/live-example";
 
 const entry = "tenant-fleet/index.tsx";
 const app = "tenant-fleet/src/app.tsx";
@@ -47,7 +46,11 @@ function RunIt() {
         filename={t("docs.examples.tenant_fleet.filename_terminal")}
       />
       <p>{t("docs.examples.tenant_fleet.run_output_intro")}</p>
-      <LiveExample app="tenant-fleet" />
+      <DocCodeBlock
+        lang="bash"
+        code={t("docs.examples.tenant_fleet.code_run_output")}
+        filename={t("docs.examples.tenant_fleet.filename_output")}
+      />
       <p>
         <Trans
           k="docs.examples.tenant_fleet.ledgers_intro"
