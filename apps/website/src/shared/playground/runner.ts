@@ -29,12 +29,6 @@ function ensureBase(): Promise<WebContainer> {
   return basePromise;
 }
 
-// Warm the runtime in the background (boot + mount base) so that when a
-// reader chooses to interact, the app starts near-instantly.
-export function prefetchRuntime(): void {
-  void ensureBase().catch(() => {});
-}
-
 // Compile a demo and run it in its own directory as a fresh `node` process,
 // streaming output to `write`. Each example on the page gets an isolated dir
 // so many can run at once against the one shared runtime.

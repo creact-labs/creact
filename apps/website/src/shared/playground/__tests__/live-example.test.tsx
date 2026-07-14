@@ -3,21 +3,22 @@ import { render, fireEvent, cleanup, waitFor } from "@solidjs/testing-library";
 
 type Write = (chunk: string) => void;
 const runSource = vi.fn<(id: string, source: string, write: Write) => Promise<void>>();
-const prefetchRuntime = vi.fn<() => void>();
-const createEditor = vi.fn<(el: HTMLElement, doc: string) => unknown>(() => ({
-  state: { doc: { toString: () => "EDITED" } },
+const spotlight = vi.fn<(from: number, to: number) => void>();
+const createCodeView = vi.fn<(el: HTMLElement, source: string) => unknown>(() => ({
+  view: {},
+  lineOf: () => 1,
+  spotlight,
+  doc: () => "EDITED SOURCE",
 }));
 
 vi.mock("../runner", () => ({
   runSource: (id: string, source: string, write: Write) => runSource(id, source, write),
-  prefetchRuntime: () => prefetchRuntime(),
 }));
-vi.mock("../editor", () => ({
-  createEditor: (el: HTMLElement, doc: string) => createEditor(el, doc),
+vi.mock("../code-view", () => ({
+  createCodeView: (el: HTMLElement, source: string) => createCodeView(el, source),
 }));
 
-// An IntersectionObserver that reports the target as visible immediately, so
-// the background-prefetch path runs.
+// Report the target as visible immediately so the boot-and-run path fires.
 class ImmediateIO {
   constructor(private cb: IntersectionObserverCallback) {}
   observe() {
@@ -38,49 +39,41 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("LiveExample", () => {
-  it("prefetches the runtime when it nears the viewport", () => {
-    vi.stubGlobal("IntersectionObserver", ImmediateIO);
-    render(() => <LiveExample app="durable-counter" />);
-    expect(prefetchRuntime).toHaveBeenCalled();
-  });
-
-  it("stays a poster until activated, then runs the demo", async () => {
+describe("LiveExample stage", () => {
+  it("renders the code and the inspector together, with step dots", () => {
     vi.stubGlobal("IntersectionObserver", ImmediateIO);
     const { container } = render(() => <LiveExample app="durable-counter" />);
-    expect(container.querySelector(".cx-poster")).toBeTruthy();
-    expect(container.querySelector(".cx-live-bar")).toBeNull();
-
-    fireEvent.click(container.querySelector(".cx-poster")!);
-
-    await waitFor(() => expect(container.querySelector(".cx-live-bar")).toBeTruthy());
-    expect(runSource).toHaveBeenCalledWith(
-      "durable-counter",
-      DEMOS["durable-counter"]!.source,
-      expect.any(Function),
+    expect(container.querySelector(".cx-stage")).toBeTruthy();
+    expect(createCodeView).toHaveBeenCalled();
+    expect(container.querySelector(".cx-inspector")).toBeTruthy();
+    expect(container.querySelectorAll(".cx-step-dots span")).toHaveLength(
+      DEMOS["durable-counter"]!.steps.length,
+    );
+    expect(container.querySelector(".cx-step-text")?.textContent).toBe(
+      DEMOS["durable-counter"]!.steps[0]!.caption,
     );
   });
 
-  it("reveals the editor and re-runs with edited source", async () => {
+  it("boots and runs when scrolled into view", async () => {
     vi.stubGlobal("IntersectionObserver", ImmediateIO);
-    const { container, getByText } = render(() => <LiveExample app="uptime-monitor" />);
-    fireEvent.click(container.querySelector(".cx-poster")!);
-    await waitFor(() => expect(container.querySelector(".cx-live-bar")).toBeTruthy());
-
-    fireEvent.click(getByText("Edit code"));
-    expect(createEditor).toHaveBeenCalled();
-
-    fireEvent.click(getByText("▶ Run"));
+    render(() => <LiveExample app="uptime-monitor" />);
     await waitFor(() =>
-      expect(runSource).toHaveBeenLastCalledWith("uptime-monitor", "EDITED", expect.any(Function)),
+      expect(runSource).toHaveBeenCalledWith("uptime-monitor", "EDITED SOURCE", expect.any(Function)),
     );
   });
 
-  it("surfaces a run failure to the console", async () => {
+  it("re-runs from the edited source on Run", async () => {
+    vi.stubGlobal("IntersectionObserver", ImmediateIO);
+    const { getByText } = render(() => <LiveExample app="site-publisher" />);
+    await waitFor(() => expect(runSource).toHaveBeenCalled());
+    fireEvent.click(getByText("▶ Run"));
+    await waitFor(() => expect(runSource).toHaveBeenCalledTimes(2));
+  });
+
+  it("surfaces a run failure as an error banner", async () => {
     vi.stubGlobal("IntersectionObserver", ImmediateIO);
     runSource.mockRejectedValueOnce(new Error("boom"));
     const { container } = render(() => <LiveExample app="page-writer" />);
-    fireEvent.click(container.querySelector(".cx-poster")!);
-    await waitFor(() => expect(container.querySelector(".cx-console")?.textContent).toContain("boom"));
+    await waitFor(() => expect(container.querySelector(".cx-error")?.textContent).toContain("boom"));
   });
 });

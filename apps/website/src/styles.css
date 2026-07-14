@@ -146,8 +146,17 @@ body {
   color: var(--text);
 }
 
-/* LiveExample — inline runnable example */
-.cx-live {
+/* LiveExample — scroll-driven, viewport-filling stage */
+.cx-stage-section {
+  position: relative;
+  /* height set inline: one tall band the sticky stage pins within */
+  margin: 32px 0;
+}
+
+.cx-stage {
+  position: sticky;
+  top: var(--docs-nav-height);
+  height: calc(100vh - var(--docs-nav-height) - 24px);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
@@ -156,70 +165,37 @@ body {
   background: var(--code-bg);
 }
 
-/* Collapsed poster — the example at rest, before interaction */
-.cx-poster {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 16px 18px;
-  background: transparent;
+.cx-stage-fs:fullscreen,
+.cx-stage:fullscreen {
+  top: 0;
+  height: 100vh;
   border: none;
-  cursor: pointer;
-  text-align: left;
-  color: var(--text);
-  font-family: inherit;
+  border-radius: 0;
 }
 
-.cx-poster:hover {
-  background: var(--code-header-bg);
-}
-
-.cx-poster-play {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--syn-function);
-  color: var(--bg);
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.cx-poster-text {
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-}
-
-.cx-poster-sub {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.cx-live-bar {
+.cx-stage-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 14px;
   background: var(--code-header-bg);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.cx-live-title {
+.cx-stage-title {
   font-size: 13px;
   font-weight: 600;
 }
 
-.cx-live-actions {
+.cx-stage-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .cx-run,
-.cx-toggle {
+.cx-fs {
   font-family: var(--font-mono);
   font-size: 12px;
   border-radius: 6px;
@@ -241,32 +217,63 @@ body {
   cursor: default;
 }
 
-.cx-live-body {
+.cx-stage-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   flex: 1;
   min-height: 0;
 }
 
-.cx-live-body.cx-code-hidden {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.cx-live-editor {
+.cx-stage-code {
   overflow: hidden;
   border-right: 1px solid var(--border);
   min-height: 0;
 }
 
-.cx-hidden {
-  display: none;
+/* Scroll-step spotlight on the active code lines */
+.cx-cm-active {
+  background: rgba(130, 170, 255, 0.14);
+  box-shadow: inset 3px 0 0 var(--syn-function);
 }
 
-.cx-live-inspector {
+.cx-stage-viz {
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+
+.cx-stage-caption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.cx-step-dots {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cx-step-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.cx-step-dots span.on {
+  background: var(--syn-function);
+}
+
+.cx-step-text {
+  color: var(--text);
 }
 
 /* Inspector */
@@ -494,6 +501,17 @@ body {
 .cx-ai-cursor {
   animation: cx-pulse 0.8s step-end infinite;
   color: var(--syn-function);
+}
+
+/* Error banner */
+.cx-error {
+  margin: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--text);
+  font-size: 12px;
 }
 
 /* Console */
