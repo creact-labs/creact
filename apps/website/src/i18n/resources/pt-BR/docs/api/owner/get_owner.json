@@ -1,9 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Retorna o owner reativo atual (a computation ou o root que possui o escopo atual).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "O <0>Owner</0> atual, ou <1>null</1> se chamado fora de um escopo reativo.",
-  "usage_states": "O <0>Page</0> do page-writer chama <1>getOwner</1> no corpo do componente, enquanto um escopo síncrono ainda existe. Ele passa esse owner ao handler para que um <2>onCleanup</2> posterior possa se anexar ao escopo correto após o await.",
-  "in_the_wild": "Veja este owner sendo propagado por trabalho assíncrono no <0>passo a passo do page-writer</0>.",
-  "filename_page": "page-writer/src/components/page/index.tsx"
-}

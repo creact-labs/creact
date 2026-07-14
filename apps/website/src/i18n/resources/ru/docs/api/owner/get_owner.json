@@ -1,9 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Возвращает текущий реактивный owner (computation или root, который владеет текущим scope).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "Текущий <0>Owner</0> или <1>null</1>, если вызов выполнен вне реактивного scope.",
-  "usage_states": "Компонент <0>Page</0> page-writer'а вызывает <1>getOwner</1> в теле компонента, пока ещё существует синхронный scope. Он передаёт этот owner обработчику, чтобы последующий <2>onCleanup</2> мог прикрепиться к нужному scope после await.",
-  "in_the_wild": "Посмотрите, как этот owner передаётся через асинхронную работу в <0>page-writer walkthrough</0>.",
-  "filename_page": "page-writer/src/components/page/index.tsx"
-}

@@ -15,28 +15,7 @@
     // Workspace self-dependency: packages/testing imports @creact-labs/creact
     // (render, Memory types), but the dep points at the unbuilt dist/ so the
     // analyzer can't attribute the imports to it.
-    "@creact-labs/creact",
-    // Same limitation for the example-app workspaces: their imports resolve
-    // through libs/examples tsconfig paths to unbuilt package source, so the
-    // analyzer can't attribute them to each app's package.json dependency.
-    "@creact-labs/example-memory",
-    "@creact-labs/example-file-memory",
-    // Real third-party SDKs used by the example apps: page-writer imports
-    // @anthropic-ai/sdk (src/claude/html-writer) and site-publisher imports
-    // @aws-sdk/client-s3 (src/aws/*). fallow finds the imports ("imported in
-    // libs/examples") but attributes them to the libs/examples root workspace
-    // rather than the nested app that declares the dependency, so it reports
-    // them unused. Same monorepo-in-monorepo attribution gap as above.
-    "@anthropic-ai/sdk",
-    "@aws-sdk/client-s3"
-  ],
-
-  "ignorePatterns": [
-    // site-publisher's ./site is deployable static content, not source: the
-    // app reads it at runtime via an fs walk (buildManifest globs ./site/**)
-    // and uploads it to S3. No static import reaches styles.css, so dead-code
-    // sees it as unreachable — it is runtime data, not orphaned code.
-    "libs/examples/apps/site-publisher/site/**"
+    "@creact-labs/creact"
   ],
 
   // Memory backends implement the creact `Memory` interface — their methods

@@ -1,9 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Retourne le propriétaire réactif courant (le calcul ou la racine qui possède le scope actuel).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "L’<0>Owner</0> courant, ou <1>null</1> s’il est appelé en dehors d’un scope réactif.",
-  "usage_states": "Le composant <0>Page</0> de page-writer appelle <1>getOwner</1> dans le corps du composant, tant qu’un scope synchrone existe encore. Il transmet ce propriétaire au handler afin qu’un <2>onCleanup</2> ultérieur puisse s’attacher au bon scope après l’await.",
-  "in_the_wild": "Voir ce propriétaire transmis à travers le travail asynchrone dans le <0>tutoriel page-writer</0>.",
-  "filename_page": "page-writer/src/components/page/index.tsx"
-}

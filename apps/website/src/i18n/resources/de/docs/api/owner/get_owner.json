@@ -1,9 +1,0 @@
-{
-  "title": "getOwner",
-  "description": "Gibt den aktuellen reaktiven Owner zurück (die Computation oder den Root, der den aktuellen Scope besitzt).",
-  "signature": "getOwner(): Owner | null",
-  "returns_desc": "Der aktuelle <0>Owner</0> oder <1>null</1>, wenn außerhalb eines reaktiven Scopes aufgerufen.",
-  "usage_states": "Die <0>Page</0> des Page Writers ruft <1>getOwner</1> im Komponentenrumpf auf, solange noch ein synchroner Scope existiert. Sie übergibt diesen Owner an den Handler, damit ein späteres <2>onCleanup</2> nach dem Await am richtigen Scope angebunden werden kann.",
-  "in_the_wild": "Sieh dir an, wie dieser Owner im <0>page-writer walkthrough</0> durch asynchrone Arbeit gereicht wird.",
-  "filename_page": "page-writer/src/components/page/index.tsx"
-}
