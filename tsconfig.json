@@ -13,6 +13,16 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    // Workspace packages resolve to source, never to (possibly stale) dist
+    "baseUrl": ".",
+    "paths": {
+      "@creact-labs/creact": ["packages/creact/src/index.ts"],
+      "@creact-labs/creact/jsx-runtime": [
+        "packages/creact/src/jsx/jsx-runtime.ts"
+      ],
+      "@creact-labs/testing": ["packages/testing/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "**/dist", "**/coverage"]
 }

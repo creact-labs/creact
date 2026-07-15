@@ -1,0 +1,279 @@
+name: Code Quality
+
+on:
+  workflow_dispatch:
+  # Reusable trigger so release.yml can gate publishing on this workflow.
+  workflow_call:
+  # PR-only by design: direct pushes to develop run nothing. The gate runs
+  # once, on the PR into release (or develop), and again on the release
+  # branch itself via release.yml's workflow_call after the merge.
+  pull_request:
+    branches: [develop, release]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Cheap, independent checks run in parallel — typecheck/test/build surface
+  # co-failures in a single CI cycle (twd code-quality pattern).
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PR-controlled code runs after checkout — no token in .git/config
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Root (packages + testing, strict flags)
+        run: npx tsc --noEmit
+      - name: creact test suites
+        run: npx tsc --noEmit -p packages/creact/tsconfig.test.json
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: creact — tests + enforced 100% coverage gate
+        run: npm run test:coverage -w packages/creact
+      - name: testing package (with coverage)
+        run: npx vitest --run --coverage --root packages/testing
+      - name: create-creact-app (with coverage)
+        run: npx vitest --run --coverage --root packages/create-creact-app
+      - name: Merge coverage across workspaces
+        run: npm run coverage:merge
+      - name: Upload merged coverage (consumed by the fallow job)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-merged
+          path: coverage/coverage-final.json
+          retention-days: 14
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: creact (tsc; typecheck+test hooks covered by sibling jobs)
+        run: npm run build -w packages/creact --ignore-scripts
+
+  # Fallow static analysis: dead code, duplication, complexity/CRAP health,
+  # and a changed-files audit. Config + justified ignores in .fallowrc.jsonc.
+  fallow:
+    name: Fallow
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # audit diffs changed files against the base branch
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # fallow resolves imports and dependency usage through node_modules —
+      # without an install it warns and degrades to less accurate results
+      - run: npm ci
+      - name: Download merged coverage for exact CRAP scores
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-merged
+          path: coverage
+      # Each aspect both hard-gates the build (non-zero exit fails the job)
+      # AND appends its full report to fallow-report.txt, so the Grok review
+      # sees all four — dead code, duplication, health (score, large
+      # functions, hotspots, coupling), and the changed-files audit — not
+      # just the audit. pipefail keeps the gate: a failing aspect fails here.
+      - name: Dead code
+        run: |
+          set -o pipefail
+          { echo "=== DEAD CODE ==="; npx --yes fallow@3.3.0 dead-code; echo; } 2>&1 | tee -a fallow-report.txt
+      - name: Duplication
+        run: |
+          set -o pipefail
+          { echo "=== DUPLICATION ==="; npx --yes fallow@3.3.0 dupes; echo; } 2>&1 | tee -a fallow-report.txt
+      - name: Health (CRAP < 15, zero findings)
+        run: |
+          set -o pipefail
+          { echo "=== HEALTH ==="; npx --yes fallow@3.3.0 health --coverage coverage/coverage-final.json; echo; } 2>&1 | tee -a fallow-report.txt
+      - name: Audit changed files (PRs)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -o pipefail
+          { echo "=== AUDIT (changed files vs ${GITHUB_BASE_REF}) ==="; npx --yes fallow@3.3.0 audit --base "origin/${GITHUB_BASE_REF}" --coverage coverage/coverage-final.json; echo; } 2>&1 | tee -a fallow-report.txt
+      - name: Upload fallow report (consumed by the Grok review)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fallow-report
+          path: fallow-report.txt
+          retention-days: 14
+
+  # AI review of the full fallow report — all four aspects (dead code,
+  # duplication, health, changed-files audit), never the PR diff: Grok reads
+  # fallow's semantic findings as a seasoned release gatekeeper with full
+  # autonomy: its proceed/block verdict IS the gate, and the analysis is
+  # published to the PR either way (one comment, edited in place on re-runs).
+  # The rubric lives (versioned) in .github/prompts/fallow-review.md.
+  grok-review:
+    name: Grok Review
+    needs: [fallow]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write # verdict comment
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          # Only the versioned review prompt is needed from the repo
+          sparse-checkout: .github/prompts
+      - name: Download fallow report
+        uses: actions/download-artifact@v4
+        with:
+          name: fallow-report
+      - name: Ask Grok for a verdict
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          # Strict schema: the model must reason through `analysis` before
+          # committing to `verdict` (field order is part of the contract)
+          jq -n --rawfile system .github/prompts/fallow-review.md \
+                --rawfile report fallow-report.txt '{
+            model: "grok-4.5",
+            temperature: 0,
+            max_tokens: 1500,
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "fallow_review_verdict",
+                strict: true,
+                schema: {
+                  type: "object",
+                  properties: {
+                    analysis: {type: "string"},
+                    concerns: {type: "array", items: {type: "string"}},
+                    verdict: {type: "string", enum: ["proceed", "block"]},
+                    summary: {type: "string"}
+                  },
+                  required: ["analysis", "concerns", "verdict", "summary"],
+                  additionalProperties: false
+                }
+              }
+            },
+            messages: [
+              {role: "system", content: $system},
+              {role: "user", content: $report}
+            ]
+          }' > request.json
+          curl -sS --fail-with-body https://api.x.ai/v1/chat/completions \
+            -H "Authorization: Bearer ${XAI_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d @request.json > response.json
+          jq -e -r '.choices[0].message.content' response.json > verdict.json
+          # A malformed verdict fails loudly rather than silently passing
+          jq -e '.verdict and .summary' verdict.json > /dev/null
+      - name: Publish the verdict (summary + PR comment, edited in place)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          MARKER="<!-- grok-fallow-review -->"
+          {
+            echo "$MARKER"
+            echo "### 🤖 Grok fallow review — **$(jq -r .verdict verdict.json)**"
+            echo
+            jq -r .summary verdict.json
+            echo
+            jq -r '(.concerns // [])[] | "- " + .' verdict.json
+            echo
+            echo "<sub>Reviews the full fallow report — dead code, duplication, health, and audit. Re-runs edit this comment.</sub>"
+          } > comment.md
+          cat comment.md >> "$GITHUB_STEP_SUMMARY"
+
+          # Upsert: edit the existing verdict comment instead of stacking
+          EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --paginate --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty")
+          if [ -n "$EXISTING_ID" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID}" \
+              --field body=@comment.md > /dev/null
+            echo "Updated existing verdict comment ${EXISTING_ID}"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+          fi
+      - name: Gate on the verdict
+        run: |
+          VERDICT=$(jq -r .verdict verdict.json)
+          if [ "$VERDICT" != "proceed" ]; then
+            echo "::error::Grok blocked this change: $(jq -r .summary verdict.json)"
+            exit 1
+          fi
+          echo "Grok verdict: proceed"
+
+  # Single stable aggregate — THE required status check for branch
+  # protection. Required checks are selected per job and job matrices/names
+  # drift; this one context stays stable: "Code Quality / Quality Gate".
+  # `if: always()` is load-bearing: without it a failing job would make this
+  # SKIP, and GitHub treats a skipped required check as a PASS.
+  quality-gate:
+    name: Quality Gate
+    needs: [typecheck, test, build, fallow, grok-review]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Verify all checks passed
+        env:
+          TYPECHECK: ${{ needs.typecheck.result }}
+          TEST: ${{ needs.test.result }}
+          BUILD: ${{ needs.build.result }}
+          FALLOW: ${{ needs.fallow.result }}
+          GROK: ${{ needs['grok-review'].result }}
+        run: |
+          FAILED=""
+          check() { # name result pr_only — pr_only jobs may be skipped on push
+            if [ "$2" = "success" ]; then return; fi
+            if [ "$3" = "pr-only" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ] && [ "$2" = "skipped" ]; then return; fi
+            FAILED="$FAILED $1=$2"
+          }
+          check typecheck "$TYPECHECK" always
+          check test "$TEST" always
+          check build "$BUILD" always
+          check fallow "$FALLOW" always
+          check grok-review "$GROK" pr-only
+          if [ -n "$FAILED" ]; then
+            echo "::error::Quality gate failed:$FAILED"
+            exit 1
+          fi
+          echo "All quality checks passed."

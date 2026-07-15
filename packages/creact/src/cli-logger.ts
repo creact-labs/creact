@@ -7,13 +7,10 @@ import type { TypeCheckResult } from "./cli-typecheck.js";
 const theme = {
   error: (s: string) => pc.bold(pc.red(s)),
   success: (s: string) => pc.green(s),
-  warning: (s: string) => pc.yellow(s),
   info: (s: string) => pc.cyan(s),
   dimmed: (s: string) => pc.dim(s),
   path: (s: string) => pc.italic(pc.dim(s)),
-  command: (s: string) => pc.dim(s),
   version: (s: string) => pc.green(s),
-  header: (s: string) => pc.bold(pc.green(s)),
 };
 
 // ── Spinner state ────────────────────────────────────────────────
@@ -73,8 +70,9 @@ export function typeCheckFailed(result: TypeCheckResult) {
   for (const err of result.errors) {
     const loc = theme.info(`${err.file}:${err.line}:${err.column}`);
     const code = theme.dimmed(`TS${err.code}`);
+    // split() always yields at least one element
     const msgLines = err.message.split("\n");
-    const firstLine = msgLines[0] ?? "";
+    const firstLine = msgLines[0]!;
     const prefix = `${code}: `;
     const contPad = " ".repeat(stripAnsi(prefix).length);
 

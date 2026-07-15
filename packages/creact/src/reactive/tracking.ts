@@ -2,15 +2,33 @@
  * Global tracking context for reactive system
  */
 
-import { setOwner } from "./owner";
+import type { Owner } from "./current-owner";
+import { setOwner } from "./current-owner";
 import type { Computation, Signal } from "./signal";
+
+// Computation<any> throughout this module is deliberate: the scheduler
+// manages heterogeneous computations whose value types are unrelated, and
+// Computation<T> is invariant in T (fn takes and returns T), so neither
+// unknown nor a union can hold the graph. Solid's scheduler types these
+// collections the same way.
+
+/**
+ * A computation that is also a signal (memo): carries downstream observers
+ * and a comparator on top of the Computation fields. Optional so plain
+ * Computation values flow in unchanged — callers gate on `observers`.
+ */
+type MemoLike = Computation<any> & {
+  observers?: Computation<any>[] | null;
+  observerSlots?: number[] | null;
+  comparator?: (prev: any, next: any) => boolean;
+};
 
 // Computation states
 export const STALE = 1;
-export const PENDING = 2;
+const PENDING = 2;
 
 // Currently executing computation (for dependency tracking)
-export let Listener: Computation<any> | null = null;
+let Listener: Computation<any> | null = null;
 
 // Dual queue system: Updates for pure computations, Effects for side effects
 let Updates: Computation<any>[] | null = null;
@@ -19,28 +37,66 @@ let Effects: Computation<any>[] | null = null;
 // Execution counter for update cycle tracking
 let ExecCount = 0;
 
-// Callback for when computations are flushed (for runtime integration)
-let onFlushCallback: (() => void) | null = null;
+// Callbacks for when computations are flushed (for runtime integration)
+// A Set so multiple concurrent runtimes each receive flushes independently.
+const onFlushCallbacks = new Set<() => void>();
 
 // Late-bound error handler (set by signal.ts to avoid circular imports)
-let handleErrorFn: ((err: unknown, owner: any) => void) | null = null;
+let handleErrorFn: ((err: unknown, owner: Owner | null) => void) | null = null;
 
 /**
  * Register the error handler (called from signal.ts at module init)
  * @internal
  */
 export function registerHandleError(
-  fn: (err: unknown, owner: any) => void,
+  fn: (err: unknown, owner: Owner | null) => void,
 ): void {
   handleErrorFn = fn;
 }
 
 /**
- * Set callback to be called after computations are flushed
+ * Register a callback to be called after computations are flushed
  * Used by runtime to re-collect nodes after reactive updates
  */
-export function setOnFlushCallback(callback: (() => void) | null): void {
-  onFlushCallback = callback;
+export function addFlushCallback(callback: () => void): void {
+  onFlushCallbacks.add(callback);
+}
+
+/**
+ * Remove a previously registered flush callback
+ */
+export function removeFlushCallback(callback: () => void): void {
+  onFlushCallbacks.delete(callback);
+}
+
+/**
+ * Register a signal read on the current listener: the listener tracks the
+ * signal as a source, and the signal tracks the listener as an observer
+ * (slot indices kept in sync for O(1) unsubscription).
+ * Shared by createSignal, createMemo, and store property tracking.
+ * @internal
+ */
+export function trackRead(
+  signal: Pick<Signal<any>, "observers" | "observerSlots">,
+  listener: Computation<any>,
+): void {
+  const sSlot = signal.observers?.length ?? 0;
+
+  if (!listener.sources) {
+    listener.sources = [signal as Signal<any>];
+    listener.sourceSlots = [sSlot];
+  } else {
+    listener.sources.push(signal as Signal<any>);
+    listener.sourceSlots?.push(sSlot);
+  }
+
+  if (!signal.observers) {
+    signal.observers = [listener];
+    signal.observerSlots = [listener.sources.length - 1];
+  } else {
+    signal.observers.push(listener);
+    signal.observerSlots?.push(listener.sources.length - 1);
+  }
 }
 
 /**
@@ -144,9 +200,9 @@ function completeUpdates(wait: boolean): void {
   Effects = null;
   if (e.length) runUpdates(() => runEffects(e), false);
 
-  // Notify runtime that computations were flushed
-  if (onFlushCallback) {
-    onFlushCallback();
+  // Notify runtimes that computations were flushed
+  for (const callback of onFlushCallbacks) {
+    callback();
   }
 }
 
@@ -165,15 +221,14 @@ function runQueue(queue: Computation<any>[]): void {
 }
 
 /**
- * Run effects queue
+ * Run effects queue.
+ * No runaway guard needed here: unlike runQueue (which iterates the live
+ * Updates array), this iterates a detached snapshot — new effects scheduled
+ * while it runs go to a fresh Effects array, so `queue` cannot grow.
  */
 function runEffects(queue: Computation<any>[]): void {
   for (let i = 0; i < queue.length; i++) {
     runTop(queue[i]!);
-    if (i > 10e5) {
-      queue.length = 0;
-      throw new Error("Potential infinite loop detected.");
-    }
   }
 }
 
@@ -187,10 +242,15 @@ function runTop(node: Computation<any>): void {
     return;
   }
 
+  // Owning computations have always completed at least one run by the time
+  // an owned child is scheduled (children are created during that run), so
+  // updatedAt is never null here. And because markDownstream enqueues every
+  // PENDING pure computation into Updates — which fully drains before any
+  // effect executes — an ancestor can only be CLEAN or STALE at this point.
   const ancestors: Computation<any>[] = [node];
   while (
     (node = node.owner as Computation<any>) &&
-    (!node.updatedAt || node.updatedAt < ExecCount)
+    node.updatedAt! < ExecCount
   ) {
     if (node.state) ancestors.push(node);
   }
@@ -199,11 +259,6 @@ function runTop(node: Computation<any>): void {
     node = ancestors[i]!;
     if (node.state === STALE) {
       updateComputation(node);
-    } else if (node.state === PENDING) {
-      const updates = Updates;
-      Updates = null;
-      runUpdates(() => lookUpstream(node, ancestors[0]), false);
-      Updates = updates;
     }
   }
 }
@@ -211,36 +266,35 @@ function runTop(node: Computation<any>): void {
 /**
  * Look upstream for stale sources
  */
-function lookUpstream(node: Computation<any>, ignore?: Computation<any>): void {
+function lookUpstream(node: Computation<any>): void {
   node.state = 0;
-  if (!node.sources) return;
 
-  for (let i = 0; i < node.sources.length; i++) {
-    const source = node.sources[i] as any;
+  // PENDING is only ever set on observers (markDownstream), and observing
+  // anything guarantees a sources array exists
+  for (let i = 0; i < node.sources!.length; i++) {
+    const source = node.sources![i] as MemoLike;
     if (source.sources) {
       const state = source.state;
       if (state === STALE) {
-        if (
-          source !== ignore &&
-          (!source.updatedAt || source.updatedAt < ExecCount)
-        ) {
+        // Memos run at creation, so updatedAt is always set; skip sources
+        // already brought up to date in this cycle
+        if (source.updatedAt! < ExecCount) {
           runTop(source);
         }
       } else if (state === PENDING) {
-        lookUpstream(source, ignore);
+        lookUpstream(source);
       }
     }
   }
 }
 
 /**
- * Mark downstream observers as pending
+ * Mark downstream observers as pending.
+ * Callers check `node.observers` before calling, so it is always non-null.
  */
-export function markDownstream(node: any): void {
-  if (!node.observers) return;
-
-  for (let i = 0; i < node.observers.length; i++) {
-    const o = node.observers[i]!;
+export function markDownstream(node: MemoLike): void {
+  for (let i = 0; i < node.observers!.length; i++) {
+    const o = node.observers![i]! as MemoLike;
     if (!o.state) {
       o.state = PENDING;
       if (o.pure) Updates?.push(o);
@@ -251,10 +305,11 @@ export function markDownstream(node: any): void {
 }
 
 /**
- * Update a computation - clean it and run it
+ * Update a computation - clean it and run it.
+ * Every scheduled node has an fn (owners without fn are never queued —
+ * runTop filters the ancestor walk on `node.state`, which owners lack).
  */
 export function updateComputation(node: Computation<any>): void {
-  if (!node.fn) return;
   cleanComputation(node);
   const time = ExecCount;
   runComputation(node, node.value, time);
@@ -264,28 +319,20 @@ export function updateComputation(node: Computation<any>): void {
  * Run a computation with tracking
  * Sets both Listener (for dependency tracking) and Owner (for onCleanup/ownership)
  */
-export function runComputation(
+function runComputation(
   node: Computation<any>,
-  value: any,
+  value: unknown,
   time: number,
 ): void {
-  let nextValue: any;
+  let nextValue: unknown;
   const prevListener = Listener;
-  const prevOwner = setOwner(node as any);
+  const prevOwner = setOwner(node);
   Listener = node;
 
   try {
     nextValue = node.fn(value);
   } catch (err) {
-    if (node.pure) {
-      node.state = STALE;
-      if (node.owned) {
-        for (let i = node.owned.length - 1; i >= 0; i--) {
-          cleanComputation(node.owned[i] as Computation<any>);
-        }
-        node.owned = null;
-      }
-    }
+    resetPureOnError(node);
     node.updatedAt = time + 1;
     Listener = prevListener;
     setOwner(prevOwner);
@@ -300,54 +347,73 @@ export function runComputation(
   Listener = prevListener;
   setOwner(prevOwner);
 
-  if (!node.updatedAt || node.updatedAt <= time) {
-    // If this is a memo (has observers), check if value changed and propagate
-    if (node.updatedAt != null && "observers" in node) {
-      const memo = node as any;
-      if (!memo.comparator || !memo.comparator(memo.value, nextValue)) {
-        memo.value = nextValue;
-        if (memo.observers?.length) {
-          for (let i = 0; i < memo.observers.length; i++) {
-            const o = memo.observers[i]!;
-            if (!o.state) {
-              if (o.pure) Updates?.push(o);
-              else Effects?.push(o);
-              if (o.observers) markDownstream(o);
-            }
-            o.state = STALE;
-          }
-        }
-      }
-    } else {
-      node.value = nextValue;
+  commitComputationValue(node, nextValue, time);
+}
+
+/**
+ * A pure computation that threw goes back to STALE with its owned
+ * computations cleaned, so it can re-run cleanly next time
+ */
+function resetPureOnError(node: Computation<any>): void {
+  if (!node.pure) return;
+  node.state = STALE;
+  if (node.owned) {
+    for (let i = node.owned.length - 1; i >= 0; i--) {
+      cleanComputation(node.owned[i] as Computation<any>);
     }
-    node.updatedAt = time;
+    node.owned = null;
+  }
+}
+
+/**
+ * Store the computed value; memos additionally propagate to observers
+ * when the value actually changed
+ */
+function commitComputationValue(
+  node: Computation<any>,
+  nextValue: unknown,
+  time: number,
+): void {
+  if (node.updatedAt && node.updatedAt > time) return;
+
+  // If this is a memo (has observers), check if value changed and propagate
+  if (node.updatedAt != null && "observers" in node) {
+    propagateMemoValue(node as MemoLike, nextValue);
+  } else {
+    node.value = nextValue;
+  }
+  node.updatedAt = time;
+}
+
+/**
+ * Update a memo's value and mark its observers stale (skips when the
+ * comparator reports no change)
+ */
+function propagateMemoValue(memo: MemoLike, nextValue: unknown): void {
+  if (memo.comparator?.(memo.value, nextValue)) return;
+
+  memo.value = nextValue;
+  if (!memo.observers?.length) return;
+
+  for (let i = 0; i < memo.observers.length; i++) {
+    const o = memo.observers[i]! as MemoLike;
+    if (!o.state) {
+      // Only pure observers can be found clean mid-propagation: memos are
+      // re-resolved on demand (resolvePending) while non-pure observers
+      // (effects) only drain after every pure update has settled — by then
+      // markDownstream has already marked them.
+      Updates?.push(o);
+      if (o.observers) markDownstream(o);
+    }
+    o.state = STALE;
   }
 }
 
 /**
  * Clean up a computation's subscriptions (swap-and-pop for O(1))
  */
-export function cleanComputation(comp: Computation<any>): void {
-  // Remove from all sources' observer lists
-  if (comp.sources && comp.sourceSlots) {
-    while (comp.sources.length) {
-      const source: Signal<any> = comp.sources.pop()!;
-      const index = comp.sourceSlots.pop()!;
-
-      // Swap-and-pop removal from source.observers
-      if (source.observers?.length && source.observerSlots) {
-        const last = source.observers.pop()!;
-        const lastSlot = source.observerSlots.pop()!;
-
-        if (index < source.observers.length) {
-          source.observers[index] = last;
-          source.observerSlots[index] = lastSlot;
-          last.sourceSlots![lastSlot] = index;
-        }
-      }
-    }
-  }
+function cleanComputation(comp: Computation<any>): void {
+  unsubscribeSources(comp);
 
   // Clean owned computations
   if (comp.owned) {
@@ -364,6 +430,42 @@ export function cleanComputation(comp: Computation<any>): void {
   }
 
   comp.state = 0;
+}
+
+/**
+ * Detach a disposed computation from the reactive graph: unsubscribe from
+ * every source and reset state so an already-queued run is skipped by
+ * runTop. Used by owner disposal (cleanupOwner), which walks owner trees
+ * whose owned entries can be computations.
+ * @internal
+ */
+export function disposeComputation(comp: Computation<any>): void {
+  unsubscribeSources(comp);
+  comp.state = 0;
+}
+
+/**
+ * Remove a computation from all its sources' observer lists
+ * (swap-and-pop keeps every removal O(1))
+ */
+function unsubscribeSources(comp: Computation<any>): void {
+  if (!comp.sources || !comp.sourceSlots) return;
+
+  while (comp.sources.length) {
+    const source: Signal<any> = comp.sources.pop()!;
+    const index = comp.sourceSlots.pop()!;
+
+    if (source.observers?.length && source.observerSlots) {
+      const last = source.observers.pop()!;
+      const lastSlot = source.observerSlots.pop()!;
+
+      if (index < source.observers.length) {
+        source.observers[index] = last;
+        source.observerSlots[index] = lastSlot;
+        last.sourceSlots![lastSlot] = index;
+      }
+    }
+  }
 }
 
 /**

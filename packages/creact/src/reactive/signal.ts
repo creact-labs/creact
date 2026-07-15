@@ -11,6 +11,7 @@ import {
   runUpdates,
   STALE,
   scheduleComputation,
+  trackRead,
   untrack,
   updateComputation,
 } from "./tracking";
@@ -41,15 +42,15 @@ export interface Computation<T> {
   user?: boolean;
   name?: string;
   // Owner fields
-  owned: any[] | null;
-  owner: any | null;
+  owned: Owner[] | null;
+  owner: Owner | null;
   context: Record<symbol, unknown> | null;
 }
 
 /**
  * Memo extends both Signal and Computation
  */
-export interface Memo<T> extends Signal<T>, Computation<T> {
+interface Memo<T> extends Signal<T>, Computation<T> {
   value: T | undefined;
 }
 
@@ -111,25 +112,7 @@ export function createSignal<T>(
 
     // If there's an active computation, register it
     if (listener) {
-      const sSlot = signal.observers?.length ?? 0;
-
-      // Listener tracks this signal
-      if (!listener.sources) {
-        listener.sources = [signal];
-        listener.sourceSlots = [sSlot];
-      } else {
-        listener.sources.push(signal);
-        listener.sourceSlots?.push(sSlot);
-      }
-
-      // Signal tracks this listener
-      if (!signal.observers) {
-        signal.observers = [listener];
-        signal.observerSlots = [listener.sources.length - 1];
-      } else {
-        signal.observers.push(listener);
-        signal.observerSlots?.push(listener.sources.length - 1);
-      }
+      trackRead(signal, listener);
     }
 
     return signal.value;
@@ -148,20 +131,23 @@ export function createSignal<T>(
 
     // Notify all observers - wrapped in runUpdates for proper batching
     if (signal.observers?.length) {
-      runUpdates(() => {
-        for (let i = 0; i < signal.observers!.length; i++) {
-          const o = signal.observers![i]!;
-          if (!o.state) {
-            scheduleComputation(o);
-            if ((o as any).observers) markDownstream(o);
-          }
-          o.state = STALE;
-        }
-      }, false);
+      runUpdates(() => notifySignalObservers(signal), false);
     }
   }
 
   return [read, write] as [Accessor<T | undefined>, Setter<T | undefined>];
+}
+
+/** Mark every observer of a written signal stale and schedule it */
+function notifySignalObservers<T>(signal: Signal<T>): void {
+  for (let i = 0; i < signal.observers!.length; i++) {
+    const o = signal.observers![i]!;
+    if (!o.state) {
+      scheduleComputation(o);
+      if ((o as { observers?: unknown }).observers) markDownstream(o);
+    }
+    o.state = STALE;
+  }
 }
 
 /**
@@ -216,23 +202,7 @@ export function createMemo<T>(
 
     const listener = getListener();
     if (listener) {
-      const sSlot = c.observers?.length ?? 0;
-
-      if (!listener.sources) {
-        listener.sources = [c];
-        listener.sourceSlots = [sSlot];
-      } else {
-        listener.sources.push(c);
-        listener.sourceSlots?.push(sSlot);
-      }
-
-      if (!c.observers) {
-        c.observers = [listener];
-        c.observerSlots = [listener.sources.length - 1];
-      } else {
-        c.observers.push(listener);
-        c.observerSlots?.push(listener.sources.length - 1);
-      }
+      trackRead(c, listener);
     }
 
     return c.value as T;
@@ -255,7 +225,7 @@ export function on<S extends readonly unknown[], T>(
   options?: { defer?: boolean },
 ): (prevValue: T | undefined) => T;
 export function on<S, T>(
-  deps: Accessor<S> | Accessor<any>[],
+  deps: Accessor<S> | readonly Accessor<unknown>[],
   fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T,
   options?: { defer?: boolean },
 ): (prevValue: T | undefined) => T {
@@ -264,15 +234,7 @@ export function on<S, T>(
   let defer = options?.defer;
 
   return (prevValue: T | undefined) => {
-    let input: S;
-    if (isArray) {
-      input = Array((deps as Accessor<S>[]).length) as unknown as S;
-      for (let i = 0; i < (deps as Accessor<S>[]).length; i++) {
-        (input as unknown as any[])[i] = (deps as Accessor<S>[])[i]!();
-      }
-    } else {
-      input = (deps as Accessor<S>)() as S;
-    }
+    const input = readOnDeps<S>(deps, isArray);
 
     if (defer) {
       defer = false;
@@ -283,6 +245,21 @@ export function on<S, T>(
     prevInput = input;
     return result;
   };
+}
+
+/** Read on()'s dependency (or dependency tuple), tracking each accessor */
+function readOnDeps<S>(
+  deps: Accessor<S> | readonly Accessor<unknown>[],
+  isArray: boolean,
+): S {
+  if (!isArray) {
+    return (deps as Accessor<S>)();
+  }
+  const input = Array((deps as Accessor<S>[]).length) as unknown as S;
+  for (let i = 0; i < (deps as Accessor<S>[]).length; i++) {
+    (input as unknown[])[i] = (deps as Accessor<S>[])[i]!();
+  }
+  return input;
 }
 
 // Error handling
@@ -297,15 +274,16 @@ function getErrorSymbol(): symbol {
  * Walk the owner chain looking for error handlers (catchError boundaries).
  * If found, calls the handler. If not found, re-throws.
  */
-function handleError(err: unknown, owner: any): void {
+function handleError(err: unknown, owner: Owner | null): void {
   const sym = getErrorSymbol();
   const error = err instanceof Error ? err : new Error(String(err));
   const fns = sym && owner && owner.context && owner.context[sym];
   if (!fns) throw error;
   try {
-    for (const f of fns as ((err: any) => void)[]) f(error);
+    for (const f of fns as ((err: Error) => void)[]) f(error);
   } catch (e) {
-    handleError(e, owner?.owner ?? null);
+    // owner is non-null here (fns came from owner.context)
+    handleError(e, owner.owner);
   }
 }
 
@@ -334,10 +312,10 @@ export function catchError<T>(
     return fn();
   } catch (err) {
     handler(err instanceof Error ? err : new Error(String(err)));
-    return undefined;
   } finally {
     setOwner(prevOwner);
   }
+  return undefined;
 }
 
 /**

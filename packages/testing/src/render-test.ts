@@ -12,7 +12,7 @@ interface TestRenderOptions extends RenderOptions {
 }
 
 export function renderTest(
-  fn: () => any,
+  fn: () => unknown,
   options?: TestRenderOptions,
 ): RenderResult {
   const memory = options?.memory ?? new NoopMemory();

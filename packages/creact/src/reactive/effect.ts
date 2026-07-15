@@ -137,26 +137,6 @@ export function onMount(fn: () => void): void {
 }
 
 /**
- * Register a cleanup function for the current owner/computation
- *
- * Registers on the current Owner (which could be a computation
- * since Computation extends Owner).
- */
-export function onCleanup<T extends () => any>(fn: T): T {
-  const owner = getOwner();
-  if (owner === null) {
-    console.warn(
-      "cleanups created outside a `createRoot` or `render` will never be run",
-    );
-  } else if (owner.cleanups === null) {
-    owner.cleanups = [fn];
-  } else {
-    owner.cleanups.push(fn);
-  }
-  return fn;
-}
-
-/**
  * Creates a reactive tracker that separates tracking from side effects.
  * Returns a function that accepts a tracking expression — when any signal
  * read inside that expression changes, `onInvalidate` fires once, then

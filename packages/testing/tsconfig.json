@@ -3,8 +3,12 @@
   "compilerOptions": {
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    // Publish builds resolve @creact-labs/creact through its published
+    // types (dist), not repo source — build creact first. This clears the
+    // source-first path mappings inherited from the root tsconfig.
+    "paths": {}
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/test/**"]
+  "exclude": ["node_modules", "dist", "**/__tests__/**"]
 }

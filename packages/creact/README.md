@@ -13,7 +13,6 @@
 Use JSX to automate durable workflows. Declare what should exist, and runtime reconciles the difference, tracking dependencies, managing lifecycle, and persisting state across restarts.
 
 - Visit the [documentation](https://github.com/creact-labs/creact/tree/main/docs) to get started with CReact.
-- Check out the [AI-Powered Website Generator](https://github.com/creact-labs/ai-powered-aws-website-generator) to see a full demo built with CReact.
 
 ## Documentation
 

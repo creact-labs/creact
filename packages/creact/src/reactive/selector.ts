@@ -2,7 +2,8 @@
  * createSelector — O(2) reactive selection primitive
  */
 
-import { createComputation, onCleanup } from "./effect";
+import { createComputation } from "./effect";
+import { onCleanup } from "./owner";
 import type { Accessor, Computation } from "./signal";
 import {
   getListener,
@@ -25,20 +26,10 @@ export function createSelector<T, U = T>(
   source: Accessor<T>,
   fn: EqualityCheckerFunction<T, U> = equalFn as EqualityCheckerFunction<T, U>,
 ): (key: U) => boolean {
+  // Computation<any>: heterogeneous subscribers, invariant in T (see tracking.ts)
   const subs = new Map<U, Set<Computation<any>>>();
   const node = createComputation(
-    (p: T | undefined) => {
-      const v = source();
-      for (const [key, val] of subs.entries()) {
-        if (fn(key, v) !== fn(key, p!)) {
-          for (const c of val.values()) {
-            c.state = STALE;
-            scheduleUpdate(c);
-          }
-        }
-      }
-      return v;
-    },
+    (p: T | undefined) => notifyChangedKeys(subs, fn, source(), p),
     undefined,
     true, // pure
     STALE as 0 | 1 | 2,
@@ -58,4 +49,22 @@ export function createSelector<T, U = T>(
     }
     return fn(key, node.value as T);
   };
+}
+
+/** Schedule the subscribers of keys whose match result flipped */
+function notifyChangedKeys<T, U>(
+  subs: Map<U, Set<Computation<any>>>,
+  fn: EqualityCheckerFunction<T, U>,
+  v: T,
+  p: T | undefined,
+): T {
+  for (const [key, val] of subs.entries()) {
+    if (fn(key, v) !== fn(key, p!)) {
+      for (const c of val.values()) {
+        c.state = STALE;
+        scheduleUpdate(c);
+      }
+    }
+  }
+  return v;
 }
