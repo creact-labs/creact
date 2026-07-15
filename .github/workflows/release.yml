@@ -82,9 +82,12 @@ jobs:
               echo "$NAME@$PKG_VERSION already on npm — skipping."
               continue
             fi
-            # typecheck/tests already passed in the quality job
+            # The quality job already ran typecheck + tests. Build explicitly,
+            # then publish the built artifact with --ignore-scripts so npm does
+            # NOT re-trigger prepublishOnly (which would re-run the whole test
+            # suite a second time here). Both steps skip lifecycle scripts.
             npm run build -w "$NAME" --ignore-scripts
-            npm publish -w "$NAME" --provenance --access public
+            npm publish -w "$NAME" --provenance --access public --ignore-scripts
           done
 
       # Not gated on the publish outputs: a retry after "published but not
