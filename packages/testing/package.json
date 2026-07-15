@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Testing utilities for CReact applications",
+  "files": ["dist"],
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "exports": {

@@ -36,7 +36,7 @@ jobs:
     uses: ./.github/workflows/code-quality.yml
 
   publish:
-    name: Publish @creact-labs/creact
+    name: Publish packages to npm
     needs: [quality]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -59,22 +59,23 @@ jobs:
 
       - run: npm ci
 
-      # The repo tag/release track the creact version; every package ships at
-      # the same version, so this is the release's version too.
+      # The repo tag/release track the creact version. creact and the
+      # scaffolder share it; the testing helpers version independently, and
+      # each package publishes at its own version below.
       - name: Resolve version
         id: version
         run: |
           VERSION=$(node -p "require('./packages/creact/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Publish creact, the vite plugin, and the scaffolder together. Each is
-      # independently idempotent: a package already on npm at its version is
+      # Publish creact, the scaffolder, and the testing helpers together. Each
+      # is independently idempotent: a package already on npm at its version is
       # skipped, so a retry after a partial publish heals only what is missing.
       - name: Publish packages to npm (with provenance)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          for pkg in packages/creact packages/create-creact-app; do
+          for pkg in packages/creact packages/create-creact-app packages/testing; do
             NAME=$(node -p "require('./$pkg/package.json').name")
             PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
             if npm view "$NAME@$PKG_VERSION" version > /dev/null 2>&1; then
