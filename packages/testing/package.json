@@ -19,6 +19,11 @@
   },
   "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creact-labs/creact.git",
+    "directory": "packages/testing"
+  },
   "peerDependencies": {
     "@creact-labs/creact": "^0.4.0"
   },
