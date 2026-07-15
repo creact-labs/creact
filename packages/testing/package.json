@@ -19,10 +19,11 @@
   },
   "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@creact-labs/creact": "*"
+  "peerDependencies": {
+    "@creact-labs/creact": "^0.4.0"
   },
   "devDependencies": {
+    "@creact-labs/creact": "*",
     "vitest": "^3.2.4"
   }
 }
