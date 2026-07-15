@@ -23,22 +23,15 @@ function buildStamp(): Plugin {
   };
 }
 
-// The playground boots a WebContainer (Node in the browser), which needs the
-// document cross-origin isolated for SharedArrayBuffer. In dev/preview Vite
-// sets the headers directly; production (GitHub Pages, no custom headers) is
-// covered by the coi-serviceworker registered in index.html.
-const crossOriginIsolation = {
-  "Cross-Origin-Opener-Policy": "same-origin",
-  "Cross-Origin-Embedder-Policy": "require-corp",
-};
-
 export default defineConfig({
   plugins: [solidPlugin(), buildStamp()],
   base: "/creact/",
   // Allow the Tailscale funnel host to reach the dev/preview server so the
-  // running playground can be shared over the tailnet.
-  server: { headers: crossOriginIsolation, allowedHosts: [".ts.net"] },
-  preview: { headers: crossOriginIsolation, allowedHosts: [".ts.net"] },
+  // running playground can be shared over the tailnet. The StackBlitz IDE runs
+  // in its own cross-origin-isolated iframe, so the host page needs no COOP/COEP
+  // headers — and must not send COEP:require-corp, which would block the embed.
+  server: { allowedHosts: [".ts.net"] },
+  preview: { allowedHosts: [".ts.net"] },
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),

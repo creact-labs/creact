@@ -1,7 +1,7 @@
-// Real example-app sources, pulled straight from libs/examples at build time.
-// The playground bundles and runs these — no replicas. Code files are bundled;
-// data files (a site/ folder, tenants.json, …) are mounted as-is so the app's
-// runtime fs reads work.
+// Real example sources, pulled straight from libs/examples at build time. The
+// playground ships these verbatim into a StackBlitz project and runs the actual
+// app with the actual creact CLI — no replicas, no pre-bundling. Both the app
+// files and the example packages it depends on are carried as-is.
 
 const rawAppFiles = import.meta.glob(
   "../../../../../libs/examples/apps/**/*",
@@ -9,7 +9,7 @@ const rawAppFiles = import.meta.glob(
 ) as Record<string, string>;
 
 const rawPackageFiles = import.meta.glob(
-  "../../../../../libs/examples/packages/*/src/index.ts",
+  "../../../../../libs/examples/packages/*/**/*",
   { query: "?raw", import: "default", eager: true },
 ) as Record<string, string>;
 
@@ -17,6 +17,14 @@ function stripApp(fullPath: string): { app: string; rel: string } {
   const rest = fullPath.slice(fullPath.indexOf("/apps/") + "/apps/".length);
   const slash = rest.indexOf("/");
   return { app: rest.slice(0, slash), rel: rest.slice(slash + 1) };
+}
+
+function stripPackage(fullPath: string): { pkg: string; rel: string } {
+  const rest = fullPath.slice(
+    fullPath.indexOf("/packages/") + "/packages/".length,
+  );
+  const slash = rest.indexOf("/");
+  return { pkg: rest.slice(0, slash), rel: rest.slice(slash + 1) };
 }
 
 function isTestOrMock(rel: string): boolean {
@@ -39,16 +47,16 @@ export function appSources(app: string): AppSources {
   return { files };
 }
 
-/** Bare `@creact-labs/example-*` specifier → its single-file src contents,
- * bundled into the app so only @creact-labs/creact stays external. */
-export function packageSources(): Record<string, string> {
-  const packages: Record<string, string> = {};
+/** All files of one example package (its dir name under libs/examples/packages,
+ * e.g. "file-memory"), keyed relative to the package root, tests/mocks removed.
+ * These are carried into the StackBlitz project as workspace packages so the
+ * app resolves `@creact-labs/example-*` to the real source. */
+export function examplePackageFiles(dir: string): Record<string, string> {
+  const files: Record<string, string> = {};
   for (const [fullPath, contents] of Object.entries(rawPackageFiles)) {
-    const dir = fullPath.slice(
-      fullPath.indexOf("/packages/") + "/packages/".length,
-      fullPath.indexOf("/src/index.ts"),
-    );
-    packages[`@creact-labs/example-${dir}`] = contents;
+    const { pkg, rel } = stripPackage(fullPath);
+    if (pkg !== dir || isTestOrMock(rel)) continue;
+    files[rel] = contents;
   }
-  return packages;
+  return files;
 }

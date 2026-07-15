@@ -1,35 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, fireEvent, cleanup, waitFor } from "@solidjs/testing-library";
+import { render, cleanup, waitFor } from "@solidjs/testing-library";
 import { MemoryRouter, Route, createMemoryHistory } from "@solidjs/router";
 
-const runApp = vi.fn<(app: string, files: Record<string, string>, write: (c: string) => void) => Promise<void>>();
-const createEditor = vi.fn<(el: HTMLElement, doc: string) => unknown>(() => ({
-  state: { doc: { toString: () => "EDITED" } },
-  destroy: vi.fn(),
+// The StackBlitz embed mounts a real cross-origin iframe; here we only assert
+// the page asks it to embed the right app.
+const embed = vi.fn<(el: HTMLElement, app: string, title: string) => Promise<unknown>>(
+  () => Promise.resolve({}),
+);
+vi.mock("@/shared/playground/stackblitz", () => ({
+  embed: (el: HTMLElement, app: string, title: string) => embed(el, app, title),
 }));
-
-vi.mock("@/shared/playground/runner", () => ({
-  runApp: (app: string, files: Record<string, string>, write: (c: string) => void) => runApp(app, files, write),
-}));
-vi.mock("@/shared/playground/editor", () => ({
-  createEditor: (el: HTMLElement, doc: string) => createEditor(el, doc),
-}));
-vi.mock("@/shared/playground/sources", () => ({
-  appSources: () => ({
-    files: { "index.tsx": "ENTRY", "src/app.tsx": "APP", "site/index.html": "<h1>hi</h1>" },
-  }),
-}));
-vi.mock("@xterm/xterm/css/xterm.css", () => ({}));
-vi.mock("@xterm/xterm", () => ({
-  Terminal: class {
-    loadAddon() {}
-    open() {}
-    clear() {}
-    writeln() {}
-    write() {}
-  },
-}));
-vi.mock("@xterm/addon-fit", () => ({ FitAddon: class { fit() {} } }));
 
 import Playground from "..";
 
@@ -49,36 +29,26 @@ afterEach(() => {
 });
 
 describe("Playground", () => {
-  it("shows the real file tree and boots the app on mount", async () => {
-    const { container } = renderAt("/playground/durable-counter");
-    const files = [...container.querySelectorAll(".pg-file")].map((f) => f.textContent);
-    expect(files).toContain("index.tsx");
-    expect(files).toContain("src/app.tsx");
+  it("embeds the StackBlitz IDE for the requested app on mount", async () => {
+    const { getByText } = renderAt("/playground/durable-counter");
+    expect(getByText("Durable Counter")).toBeTruthy();
     await waitFor(() =>
-      expect(runApp).toHaveBeenCalledWith("durable-counter", expect.any(Object), expect.any(Function)),
+      expect(embed).toHaveBeenCalledWith(
+        expect.any(HTMLElement),
+        "durable-counter",
+        "Durable Counter",
+      ),
     );
   });
 
-  it("opens a source file in the editor and a data file read-only", async () => {
-    const { container, getByText } = renderAt("/playground/durable-counter");
-    await waitFor(() => expect(runApp).toHaveBeenCalled());
-
-    fireEvent.click(getByText("src/app.tsx"));
-    expect(createEditor).toHaveBeenCalledTimes(2); // entry on mount + this file
-
-    fireEvent.click(getByText("site/index.html"));
-    expect(container.querySelector(".pg-readonly")?.textContent).toContain("<h1>hi</h1>");
+  it("links back to the example's docs page", () => {
+    const { getByText } = renderAt("/playground/site-publisher");
+    expect(getByText("← Docs").getAttribute("href")).toBe("#/docs/examples/site-publisher");
   });
 
-  it("re-runs on the Run button", async () => {
-    const { getByText } = renderAt("/playground/durable-counter");
-    await waitFor(() => expect(runApp).toHaveBeenCalledTimes(1));
-    fireEvent.click(getByText("▶ Run"));
-    await waitFor(() => expect(runApp).toHaveBeenCalledTimes(2));
-  });
-
-  it("falls back for an unknown example", () => {
+  it("falls back for an unknown example without embedding", () => {
     const { container } = renderAt("/playground/nope");
     expect(container.querySelector(".pg-unknown")).toBeTruthy();
+    expect(embed).not.toHaveBeenCalled();
   });
 });

@@ -35,11 +35,3 @@ class IntersectionObserverStub {
   }
 }
 vi.stubGlobal("IntersectionObserver", IntersectionObserverStub);
-
-// esbuild-wasm asserts its runtime is a real browser at import time and throws
-// under jsdom. The playground bundler is verified in-browser, not here; tests
-// that import through it (runner) only need the module to load.
-vi.mock("esbuild-wasm", () => ({
-  initialize: vi.fn(async () => {}),
-  build: vi.fn(async () => ({ outputFiles: [{ text: "" }] })),
-}));
