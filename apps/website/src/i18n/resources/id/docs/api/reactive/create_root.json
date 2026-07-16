@@ -1,0 +1,18 @@
+{
+  "title": "createRoot",
+  "description": "Membuat root reaktif yang memiliki semua komputasi di dalamnya, dengan fungsi dispose untuk teardown.",
+  "signature": "createRoot<T>(fn: (dispose: () => void) => T, detachedOwner?: Owner): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(dispose: () => void) => T</0>",
+  "param_fn_desc": "Fungsi yang dijalankan di dalam root. Menerima fungsi dispose untuk membongkar semua komputasi yang dimiliki.",
+  "param_detached_owner_name": "<0>detachedOwner</0>",
+  "param_detached_owner_type": "<0>Owner</0>",
+  "param_detached_owner_desc": "Opsional. Owner induk untuk root. Jika disediakan, root dilampirkan ke rantai konteks owner ini (untuk lookupContext) tetapi tetap dapat di-dispose secara independen.",
+  "returns_body": "Nilai kembalian dari <0>fn</0>.",
+  "heading_usage": "Penggunaan",
+  "heading_self_disposing_scope": "Scope yang mem-dispose dirinya sendiri",
+  "usage_self_disposing_scope": "Page writer mengamati setiap request hingga settle. Ia membuka <0>createRoot</0> dan menjalankan effect yang membaca state request. Setelah page mencapai <1>ready</1> atau <2>failed</2>, effect memanggil <0>dispose</0> untuk membongkar root dan menghentikan tracking.",
+  "info_render_root": "<0>render()</0> membuat root secara otomatis. Anda hanya perlu <1>createRoot</1> untuk scope reaktif mandiri di luar <2>render()</2>, seperti watcher ini atau test.",
+  "in_the_wild": "Lihat watcher ini men-settle page live di <0>page-writer walkthrough</0>.",
+  "filename_app": "page-writer/src/app.tsx"
+}

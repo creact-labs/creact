@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "Exécute une fonction sous un propriétaire réactif spécifique. Requis pour créer des effets dans les callbacks asynchrones.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "Le scope propriétaire sous lequel exécuter. Obtenez-le via <0>getOwner()</0>. Accepte <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fonction à exécuter. Tous les effets/cleanups créés à l'intérieur sont rattachés à <0>owner</0>.",
+  "info_async_owner": "Après un <0>await</0> ou à l'intérieur de callbacks, le propriétaire réactif est perdu. Capturez-le de façon synchrone avec <1>getOwner()</1> et restaurez-le avec <2>runWithOwner()</2>.",
+  "usage_deploy_write": "Le <0>retainOnDetach</0> du page writer s'exécute sous le propriétaire capturé afin que son <1>onCleanup</1> s'attache au scope de la page. Cet enregistrement a lieu après l'écriture asynchrone, où <2>runWithOwner</2> est le seul moyen de retrouver le bon propriétaire.",
+  "in_the_wild": "Voir ce propriétaire restauré autour d'une écriture de fichier durable dans le <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

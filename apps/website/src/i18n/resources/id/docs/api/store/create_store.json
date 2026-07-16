@@ -1,0 +1,17 @@
+{
+  "title": "createStore",
+  "description": "Membuat proxy store reaktif untuk mengelola nested state.",
+  "signature": "createStore<T extends object>(initial: T): [T, SetStoreFunction<T>]",
+  "param_value_name": "<0>initial</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Nilai store awal. Harus berupa object.",
+  "returns_intro": "Tuple <0>[store, setStore]</0>:",
+  "returns_store": "<0>store</0>: proxy reaktif. Akses properti dilacak.",
+  "returns_setstore": "<0>setStore</0>: setter yang menerima update berbasis path.",
+  "heading_the_manifest_shape": "Bentuk manifest",
+  "usage_the_manifest_shape": "Site publisher memodelkan site yang di-deploy sebagai <0>Manifest</0> berisi file-file yang di-hash. Setiap <1>ManifestEntry</1> membawa path, hash, dan size, dan store menjaga bentuk nested ini tetap reaktif.",
+  "heading_a_reactive_manifest": "Manifest reaktif",
+  "usage_a_reactive_manifest": "<0>createManifestStore</0> menelusuri direktori build dan menyerahkan manifest hasilnya ke <1>createStore</1>. Proxy yang dikembalikan melacak pembacaan hingga entri individual, sehingga komponen yang merender satu file hanya dijalankan ulang ketika hash file tersebut berubah.",
+  "in_the_wild": "Lihat store ini menggerakkan upload inkremental di <0>site-publisher walkthrough</0>.",
+  "filename_manifest": "site-publisher/src/shared/manifest/index.ts"
+}

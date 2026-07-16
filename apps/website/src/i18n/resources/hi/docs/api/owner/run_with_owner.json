@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "किसी विशिष्ट reactive owner के अंतर्गत एक function चलाता है। Async callbacks में effects बनाने के लिए आवश्यक।",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "वह owner scope जिसके अंतर्गत चलाना है। इसे <0>getOwner()</0> से प्राप्त करें। <1>null</1> स्वीकार करता है।",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "चलाने के लिए function। अंदर बनाए गए किसी भी effects/cleanups का स्वामी <0>owner</0> होता है।",
+  "info_async_owner": "<0>await</0> के बाद या callbacks के अंदर, reactive owner खो जाता है। इसे <1>getOwner()</1> से synchronously capture करें और <2>runWithOwner()</2> से restore करें।",
+  "usage_deploy_write": "Page writer का <0>retainOnDetach</0> captured owner के अंतर्गत चलता है ताकि उसका <1>onCleanup</1> page scope से attach हो। यह registration async write के बाद होती है, जहाँ <2>runWithOwner</2> सही owner में वापस जाने का एकमात्र तरीका है।",
+  "in_the_wild": "Durable file write के आसपास इस owner को restore होते देखें — <0>page-writer walkthrough</0> में।",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

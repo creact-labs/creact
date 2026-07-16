@@ -1,0 +1,15 @@
+{
+  "title": "Reactive Primitives",
+  "description": "Signals, memos และ computations ทำให้ components ตอบสนองต่อการเปลี่ยนแปลงโดยไม่ต้อง re-render",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal คือค่า reactive ที่มี getter และ setter <0>App</0> ของ uptime monitor เก็บทุก probe sample และเวลา sweep ล่าสุดไว้ใน signals และการอ่าน <1>samples()</1> ภายใน memo หรือ effect จะลงทะเบียน dependency ที่รันใหม่เมื่อ <2>setSamples</2> เขียนค่า",
+  "info_batch": "<0>batch()</0> จัดกลุ่มการเขียน signal หลายรายการให้เป็นการ re-evaluation ครั้งเดียว การบันทึก sample จะอัปเดตทั้งประวัติ sample และเวลา sweep ล่าสุด แต่ memos ฝั่ง downstream จะ recompute เพียงครั้งเดียว",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo แคชค่าที่ derive มาและ recompute เฉพาะเมื่อ dependencies เปลี่ยน <0>latestSamples</0> แมปแต่ละ target ไปยัง sample ล่าสุด และ <1>overall</1> รวมสถานะเหล่านั้นเป็น verdict เดียว",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> รันก่อน effects จึงสามารถ derive state ที่ effects ภายหลังอ่านใน pass เดียวกันได้ ที่นี่มัน diff targets ที่ down กับรายการ incident ที่เปิดอยู่ และเขียน <1>setIncidents</1> เฉพาะเมื่อ set เปลี่ยนแปลงจริง",
+  "heading_on_untrack": "on และ untrack",
+  "on_untrack_intro": "<0>on</0> ประกาศ dependencies อย่างชัดเจน และส่งทั้งค่า next และ previous ให้ effect แต่ละ check จะ log การเปลี่ยนสถานะจาก <1>on(status, ...)</1> โดยอ่าน latency ด้วย <2>untrack</2> เพื่อไม่ให้ field นั้นกลายเป็น dependency",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@creact-labs/example-page-writer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "An HTTP service where a model writes HTML pages that deploy as durable resources, using an example mock Anthropic client so it runs anywhere",
+  "scripts": {
+    "start": "creact --watch index.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-file-memory": "*",
+    "@creact-labs/example-mock-anthropic": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

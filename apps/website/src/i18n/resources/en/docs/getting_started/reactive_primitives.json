@@ -1,0 +1,15 @@
+{
+  "title": "Reactive Primitives",
+  "description": "Signals, memos, and computations make components respond to change without re-rendering.",
+  "heading_signals": "Signals",
+  "signals_intro": "A signal is a reactive value with a getter and setter. The uptime monitor's <0>App</0> keeps every probe sample and the last sweep time in signals, and reading <1>samples()</1> inside a memo or effect registers a dependency that re-runs when <2>setSamples</2> writes.",
+  "info_batch": "<0>batch()</0> groups multiple signal writes into one re-evaluation pass. Recording a sample updates both the sample history and the last sweep time, but downstream memos recompute only once.",
+  "heading_memos": "Memos",
+  "memos_intro": "A memo caches a derived value and recomputes only when its dependencies change. <0>latestSamples</0> maps each target to its newest sample, and <1>overall</1> rolls those statuses into a single verdict.",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> runs before effects, so it can derive state that later effects read in the same pass. Here it diffs the down targets against the open incident list and writes <1>setIncidents</1> only when the set actually changed.",
+  "heading_on_untrack": "on and untrack",
+  "on_untrack_intro": "<0>on</0> declares dependencies explicitly and hands the effect both the next and previous value. Each check logs status transitions from <1>on(status, ...)</1>, reading the latency with <2>untrack</2> so that field does not become a dependency.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

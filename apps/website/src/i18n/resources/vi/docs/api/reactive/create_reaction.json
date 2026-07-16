@@ -1,0 +1,16 @@
+{
+  "title": "createReaction",
+  "description": "Tách biệt tracking khỏi execution. Track một expression, chạy một function khác khi nó thay đổi. Reaction kích hoạt một lần, sau đó phải được re-arm.",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "Callback kích hoạt một lần khi các signal được track thay đổi.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Tùy chọn. <0>name</0> để debug.",
+  "returns_body": "Một function <0>(tracking: () => void) => void</0> dùng để arm reaction. Gọi nó với một tracking expression. Các signal được đọc bên trong sẽ được track. Khi bất kỳ signal nào trong số đó thay đổi, <1>onInvalidate</1> kích hoạt một lần và tracking dừng cho đến khi bạn gọi lại function.",
+  "heading_alert_on_first_failure": "Cảnh báo ở failure đầu tiên",
+  "usage_alert_on_first_failure": "Component <0>Alert</0> của uptime monitor arm một reaction trên <1>props.incidents()</1>. Mỗi khi list thay đổi, nó ghi nhận mọi incident chưa được alert, rồi re-arm để thay đổi tiếp theo kích hoạt lại. Một effect thông thường sẽ chạy lại toàn bộ scan; reaction giữ tracking và side effect tách biệt.",
+  "in_the_wild": "Xem reaction này điều khiển alert log trong <0>uptime-monitor walkthrough</0>.",
+  "filename_alert": "uptime-monitor/src/components/alert/index.tsx"
+}

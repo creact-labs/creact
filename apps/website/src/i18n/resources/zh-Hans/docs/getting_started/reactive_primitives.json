@@ -1,0 +1,15 @@
+{
+  "title": "响应式原语",
+  "description": "信号、记忆值和计算使组件无需重新渲染即可响应变化。",
+  "heading_signals": "信号",
+  "signals_intro": "信号是带有 getter 和 setter 的响应式值。可用性监控的 <0>App</0> 将每次探测样本和最近一次扫描时间保存在信号中；在记忆值或 effect 中读取 <1>samples()</1> 会注册依赖，当 <2>setSamples</2> 写入时该依赖会重新运行。",
+  "info_batch": "<0>batch()</0> 将多次信号写入合并为一次重新求值。记录样本会同时更新样本历史和最近扫描时间，但下游记忆值只会重新计算一次。",
+  "heading_memos": "记忆值",
+  "memos_intro": "记忆值会缓存派生值，仅在其依赖发生变化时重新计算。<0>latestSamples</0> 将每个目标映射到其最新样本，<1>overall</1> 将这些状态汇总为单一判定结果。",
+  "heading_computed": "计算",
+  "computed_intro": "<0>createComputed</0> 在 effect 之前运行，因此可以派生出后续 effect 在同一轮中读取的状态。此处它会将宕机目标与未关闭的事件列表进行 diff，仅在集合实际发生变化时调用 <1>setIncidents</1> 写入。",
+  "heading_on_untrack": "on 和 untrack",
+  "on_untrack_intro": "<0>on</0> 显式声明依赖，并向 effect 同时提供新值和旧值。每次检查通过 <1>on(status, ...)</1> 记录状态转换，并用 <2>untrack</2> 读取延迟，使该字段不会成为依赖。",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

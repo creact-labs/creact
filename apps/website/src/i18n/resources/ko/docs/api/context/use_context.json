@@ -1,0 +1,15 @@
+{
+  "title": "useContext",
+  "description": "트리 상위에 있는 가장 가까운 context Provider의 값을 읽습니다.",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "<0>createContext</0>로 생성된 context 객체입니다.",
+  "returns_desc": "상위에 있는 가장 가까운 <0>Provider</0>의 값입니다. Provider가 없으면 <1>createContext</1>에 전달된 기본값을 반환합니다.",
+  "heading_the_context_shape": "읽고 있는 context",
+  "usage_the_context_shape": "사이트 퍼블리셔의 <0>AwsContext</0>는 리전과 S3 클라이언트를 담으며, 아무것도 제공하지 않을 때 기본값으로 <1>null</1>을 사용합니다.",
+  "heading_reading_the_connection": "연결 읽기",
+  "usage_reading_the_connection": "<0>useAws</0> 헬퍼는 <1>useContext</1>를 호출하며, 값이 <2>null</2>일 때 명확한 오류를 던집니다. 모든 publisher 컴포넌트는 context를 직접 건드리지 않고 이 단일 접근자를 통해 공유 연결을 읽습니다.",
+  "in_the_wild": "이 접근자가 하나의 S3 클라이언트를 공유하는 모습은 <0>site-publisher walkthrough</0>에서 확인할 수 있습니다.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

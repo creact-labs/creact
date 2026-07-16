@@ -1,0 +1,15 @@
+{
+  "title": "useContext",
+  "description": "Читает значение ближайшего Provider контекста выше в дереве.",
+  "signature": "useContext<T>(context: Context<T>): T",
+  "param_context_name": "<0>context</0>",
+  "param_context_type": "<0>Context<T></0>",
+  "param_context_desc": "Объект контекста, созданный с помощью <0>createContext</0>.",
+  "returns_desc": "Значение из ближайшего <0>Provider</0> выше. Если Provider отсутствует, возвращает значение по умолчанию, переданное в <1>createContext</1>.",
+  "heading_the_context_shape": "Читаемый контекст",
+  "usage_the_context_shape": "<0>AwsContext</0> издателя сайта содержит region и S3-клиент; по умолчанию равен <1>null</1>, если ничего его не предоставляет.",
+  "heading_reading_the_connection": "Чтение подключения",
+  "usage_reading_the_connection": "Хелпер <0>useAws</0> вызывает <1>useContext</1> и выбрасывает понятную ошибку, когда значение равно <2>null</2>. Каждый компонент издателя читает общее подключение через этот единый аксессор, вместо того чтобы обращаться к контексту напрямую.",
+  "in_the_wild": "См., как этот аксессор использует один S3-клиент, в <0>site-publisher walkthrough</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

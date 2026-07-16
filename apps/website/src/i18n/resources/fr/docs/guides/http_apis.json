@@ -1,0 +1,17 @@
+{
+  "title": "API HTTP et canaux",
+  "description": "Exécutez un vrai serveur node:http en tant que ressource gérée, extrait de l'exemple page-writer.",
+  "heading_channels": "Que sont les canaux ?",
+  "channels_desc": "Un canal est un composant qui possède un endpoint réseau. Il démarre un serveur lorsque son handler s'exécute, injecte les requêtes entrantes dans le système réactif via des props de callback, et ferme le socket lors du cleanup.",
+  "heading_server_resource": "La ressource serveur",
+  "server_intro": "Le <0>HttpChannel</0> de page-writer encapsule un serveur <1>node:http</1> dans useAsyncOutput, de sorte que le socket d'écoute a le même cycle de vie que toute autre ressource gérée :",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "Le handler ne se résout qu'après le succès de <0>listen</0>, publie l'URL avec <1>setOutputs</1>, et renvoie une fonction de cleanup. Les requêtes ne touchent jamais le runtime directement — elles appellent les props de callback passées par le parent.",
+  "heading_routes": "Routage des requêtes",
+  "routes_intro": "Le routage est du code Node.js pur. Chaque route valide son entrée et délègue à une prop comme <0>onCreatePage</0> ou <1>onListPages</1> :",
+  "routes_notice": "Le canal reste générique — il connaît HTTP, pas les pages. <0>onCreatePage</0> met à jour un store dans le parent, de nouvelles ressources Page se montent, et la réponse est renvoyée immédiatement avec le slug accepté.",
+  "heading_teardown": "Réponses et démontage",
+  "teardown_intro": "Deux petits helpers finalisent le composant : un répondeur JSON et un <0>server.close</0> encapsulé dans une promise, utilisé par la fonction de cleanup :",
+  "info_cleanup": "Le cleanup renvoyé par le handler libère le port lorsque le composant se démonte ou avant que le handler ne se réexécute, ainsi les redémarrages <0>--watch</0> ne rencontrent jamais d'erreur address-in-use.",
+  "see_walkthrough": "Consultez l'ensemble du pipeline requête-vers-page dans le <0>page-writer walkthrough</0>."
+}

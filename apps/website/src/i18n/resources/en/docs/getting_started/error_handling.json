@@ -1,0 +1,14 @@
+{
+  "title": "Error Handling",
+  "description": "ErrorBoundary, catchError, and handler try/catch keep a failing resource from taking the whole tree down.",
+  "heading_error_boundary": "ErrorBoundary Component",
+  "error_boundary_intro": "<0>ErrorBoundary</0> catches errors thrown in its children and renders a fallback. The uptime monitor wraps its probes in one and renders <1>MonitorFault</1>, which logs that checks halted instead of crashing the process.",
+  "heading_catch_error": "catchError Primitive",
+  "catch_error_intro": "For finer control, <0>catchError</0> wraps a single computation. The status page renders its HTML through <0>catchError</0>, and a failed render returns <1>undefined</1> so the effect skips the publish instead of throwing.",
+  "heading_handler_errors": "Errors in Handlers",
+  "handler_errors_intro": "<0>useAsyncOutput</0> handlers run in the deployment loop, so their throws are <1>not</1> caught by <2>ErrorBoundary</2>. The page writer's handler wraps generation in try/catch and records the failure as durable output instead of letting the deployment throw.",
+  "warning_cleanup": "Cleanup functions registered with <0>onCleanup</0> still run when an error boundary catches an error, so resources are released.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

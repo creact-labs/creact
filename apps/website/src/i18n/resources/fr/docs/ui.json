@@ -1,0 +1,25 @@
+{
+  "reference": "Référence",
+  "usage": "Utilisation",
+  "parameters": "Paramètres",
+  "returns": "Retourne",
+  "param_table": {
+    "parameter": "Paramètre",
+    "type": "Type",
+    "description": "Description"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Type",
+    "description": "Description"
+  },
+  "copy": "Copier",
+  "copied": "Copié",
+  "open_playground": "Ouvrir dans le playground",
+  "open_playground_sub": "Exécutez cet exemple en direct dans votre navigateur — éditeur, terminal, vrai Node",
+  "callout": {
+    "info": "Note",
+    "warning": "Avertissement",
+    "tip": "Bon à savoir"
+  }
+}

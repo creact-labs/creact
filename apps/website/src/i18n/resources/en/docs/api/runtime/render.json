@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "Entry point for CReact applications. Renders the component tree, reconciles state, runs handlers.",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "Function that returns the root component tree.",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "Required. State persistence backend.",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "Required. Identifier for the state store.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "Optional. Additional render configuration.",
+  "returns_desc": "A <0>RenderResult</0> object. Its <1>ready</1> property is a <2>Promise<void></2> that resolves when the initial deployment completes.",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "Awaiting deployment",
+  "usage_awaiting": "The value <0>render</0> returns is synchronous, but the work it starts is not. The tenant-fleet entry awaits <1>ready</1> for the first deployment, then <2>settled</2> for every cascade it triggers, so a one-shot run persists everything before the process exits.",
+  "in_the_wild": "Watch a single call boot a durable app in the <0>durable-counter walkthrough</0>."
+}

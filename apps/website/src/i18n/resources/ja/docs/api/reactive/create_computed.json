@@ -1,0 +1,19 @@
+{
+  "title": "createComputed",
+  "description": "コンピュテーションフェーズ中に、effect の前で関数を同期的に実行します。依存関係が更新されたときに他の signal に書き込む必要がある場合に使用します。",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "コンピュテーション関数。同期的に実行されます。",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "省略可能な初期値。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "省略可能。デバッグ用の <0>name</0>。",
+  "heading_tracking_incidents": "オープンインシデントの派生",
+  "usage_tracking_incidents": "uptime モニターは、オープンなインシデントのリストを <0>incidents</0> signal に保持します。<1>createComputed</1> が <2>latestSamples()</2> を読み取り、調整済みのインシデントリストを書き戻すことで、いずれの effect が読み取る前に signal への書き込みが同期的に完了します。",
+  "warning_prefer_memo": "派生値には <0>createMemo</0> を推奨します。コンピュテーションフェーズ中に他の signal へ同期的に書き込む必要がある場合にのみ、<1>createComputed</1> を使用してください。",
+  "in_the_wild": "このコンピュテーションがインシデントをオープン・クローズする様子は、<0>uptime-monitor walkthrough</0> で確認できます。",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

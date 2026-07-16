@@ -1,0 +1,13 @@
+{
+  "title": "Components and JSX",
+  "description": "CReact components are functions that return JSX. JSX describes resources and processes, not DOM elements.",
+  "heading_jsx": "JSX in CReact",
+  "jsx_intro": "CReact uses JSX to describe <0>resources and processes</0>, not DOM elements. The durable counter's <1>App</1> returns a single <2>Counter</2> node that declares the counter should exist.",
+  "heading_component_functions": "Components Run Once",
+  "component_functions_intro": "A component is a plain function that returns JSX. It runs a single time as setup. <0>Counter</0> calls <1>useAsyncOutput</1> to own its durable state, wires an effect, and returns. Reactivity comes from signals and effects, never from re-rendering.",
+  "heading_composing": "Composing Resources",
+  "composing_intro": "Nesting JSX composes real resources into a tree. The uptime monitor's <0>App</0> pairs a <1>For</1> over its targets with a <2>StatusPage</2>, so each probe and the rendered page all live in one component body.",
+  "filename_app": "durable-counter/src/app.tsx",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "tip_reactive_props": "Props can be reactive. Pass an accessor such as <0>overall</0> or a callback such as <1>onSample</1> and children re-run when the value changes, without re-running the parent."
+}

@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "Crea un recurso con salidas persistidas. El hook principal para componentes de CReact que interactúan con sistemas externos.",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "Props estáticas o una función getter para el seguimiento reactivo. Cuando se usa un getter, el handler se vuelve a ejecutar al cambiar las dependencias.",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "Función de configuración que realiza el trabajo y establece las salidas. Puede devolver una función de limpieza (síncrona o asíncrona).",
+  "returns_desc": "Un objeto con funciones accessor para cada clave de salida. Por ejemplo, si llamas a <0>setOutputs({ url: '...' })</0>, el retorno incluye <1>result.url()</1>.",
+  "heading_counter": "Un recurso durable",
+  "usage_counter": "El <0>Counter</0> del contador durable llama a <1>useAsyncOutput</1> una vez con props vacías y un handler. El <2>counter.count()</2> devuelto es un accessor reactivo que cualquier effect puede leer.",
+  "heading_restore": "Restaurar el estado persistido",
+  "usage_restore": "El handler del page writer lee <0>prev</0> dentro de <1>setOutputs</1> para detectar una página ya generada. Cuando se restauró <2>state === \"ready\"</2>, omite la llamada a Claude y retorna anticipadamente en lugar de regenerar.",
+  "heading_prev_aware": "Omitir trabajo sin cambios",
+  "usage_prev_aware": "El site publisher compara el <0>entry.hash</0> entrante con el <1>prev.hash</1> persistido. Si los hashes coinciden, el objeto ya está subido, por lo que el handler retorna antes de tocar <2>S3</2>.",
+  "callout_idempotent": "Los handlers deben ser idempotentes. Al reiniciar, los handlers se vuelven a ejecutar en todos los nodos para restablecer los efectos secundarios (intervalos, suscripciones, etc.). Los valores de salida se restauran desde el estado, pero los handlers deben recrear cualquier artefacto de runtime.",
+  "in_the_wild": "Observa cómo estos handlers persisten y se recuperan tras reinicios en el <0>walkthrough de durable-counter</0>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

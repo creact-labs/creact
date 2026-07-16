@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "Itération indexée. Chaque position est un accesseur réactif. Idéal pour les tableaux de primitives.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Source de tableau réactive.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Fonction de mapping. <0>v</0> est un accesseur (réactif). <1>i</1> est un index statique.",
+  "heading_numbered_roster": "Un roster numéroté par slot",
+  "usage_numbered_roster": "La flotte de tenants lit ses specs de tenant depuis le disque dans un signal, puis construit un roster numéroté avec <0>indexArray</0>. Chaque position conserve son numéro de <1>slot</1> tandis que <2>tenant()</2> reste un accesseur, de sorte que la modification d’une spec en place met à jour cette ligne sans renuméroter le reste.",
+  "in_the_wild": "Voir ce roster suivre un fichier de specs en direct dans le <0>tenant-fleet walkthrough</0>.",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

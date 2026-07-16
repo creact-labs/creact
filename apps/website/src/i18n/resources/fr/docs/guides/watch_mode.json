@@ -1,0 +1,20 @@
+{
+  "title": "Mode watch",
+  "description": "Le mode watch de CReact redémarre automatiquement votre application lorsque des fichiers changent.",
+  "heading_usage": "Utilisation",
+  "code_usage": "creact --watch index.tsx",
+  "filename_terminal": "Terminal",
+  "usage_desc": "Le mode watch surveille vos fichiers sources et redémarre l'application lors des modifications. L'état est préservé entre les redémarrages via l'interface Memory.",
+  "heading_how_it_works": "Fonctionnement",
+  "step_start": "CReact démarre votre application normalement",
+  "step_watchers": "Des watchers du système de fichiers surveillent les fichiers <0>.ts</0>, <1>.tsx</1>, <2>.js</2> et <3>.jsx</3>",
+  "step_stop": "Lorsqu'un fichier change, l'exécution en cours est arrêtée proprement (les fonctions de cleanup s'exécutent)",
+  "step_restart": "Une nouvelle exécution démarre, en lisant l'état persisté depuis la mémoire",
+  "step_reconcile": "La réconciliation garantit que seuls les composants modifiés réexécutent leurs handlers",
+  "heading_development_workflow": "Workflow de développement",
+  "workflow_intro": "Une session de développement typique :",
+  "code_workflow": "# Démarrer en mode watch\nnpm run dev\n\n# Modifiez vos composants, l'application redémarre automatiquement\n# L'état persiste entre les redémarrages\n# Appuyez sur Ctrl+C pour arrêter",
+  "heading_type_checking": "Vérification des types",
+  "type_checking_desc": "Le mode watch exécute la vérification des types TypeScript avant chaque redémarrage. Si la vérification des types échoue, le redémarrage est annulé et les erreurs s'affichent.",
+  "tip_type_check": "En mode watch, CReact effectue une passe de vérification des types avant d'exécuter votre code. Les échecs de vérification des types affichent des messages d'erreur clairs avec l'emplacement des fichiers."
+}

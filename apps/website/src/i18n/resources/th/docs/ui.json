@@ -1,0 +1,25 @@
+{
+  "reference": "อ้างอิง",
+  "usage": "การใช้งาน",
+  "parameters": "พารามิเตอร์",
+  "returns": "คืนค่า",
+  "param_table": {
+    "parameter": "พารามิเตอร์",
+    "type": "Type",
+    "description": "คำอธิบาย"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "Type",
+    "description": "คำอธิบาย"
+  },
+  "copy": "คัดลอก",
+  "copied": "คัดลอกแล้ว",
+  "open_playground": "เปิดใน playground",
+  "open_playground_sub": "รันตัวอย่างนี้แบบสดในเบราว์เซอร์ของคุณ — เอดิเตอร์, เทอร์มินัล, Node จริง",
+  "callout": {
+    "info": "หมายเหตุ",
+    "warning": "คำเตือน",
+    "tip": "ดีที่รู้"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Context and Providers",
+  "description": "Contexts share data across the component tree without passing props through every level.",
+  "heading_creating_context": "Creating a Context",
+  "creating_context_intro": "<0>createContext</0> declares a typed channel with a default value. The site publisher creates an <1>AwsContext</1> that carries a live S3 client and its region down the tree.",
+  "heading_providing_values": "Providing Values",
+  "providing_values_intro": "A component wraps its children in the context's <0>Provider</0>. <1>AwsProvider</1> builds the S3 client once, registers cleanup, and publishes the connection to everything nested inside it.",
+  "heading_consuming": "Consuming a Context",
+  "consuming_intro": "<0>useContext</0> reads the nearest provider's value. The <1>useAws</1> hook wraps that read and throws a clear error when it runs outside a provider.",
+  "tip_cross_cutting": "Use contexts for cross-cutting concerns like an AWS region, a shared client, or credentials that many components need.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

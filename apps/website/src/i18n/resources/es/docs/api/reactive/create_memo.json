@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "Crea un valor derivado en caché. Úsalo al calcular un valor a partir de otras signals. Solo se vuelve a calcular cuando cambian las dependencias.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "Función de cómputo. Recibe el valor anterior.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valor semilla inicial opcional.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "Opcional. <0>equals</0> para una comparación personalizada.",
+  "returns_body": "Un <0>Accessor<T></0> que devuelve el valor memoizado. Actúa tanto como lector de signal (rastreable) como cómputo (se actualiza automáticamente).",
+  "heading_chained_status": "Encadenar estado derivado",
+  "usage_chained_status": "El monitor de uptime deriva <0>latestSamples</0> del historial de muestras en bruto y luego lo consolida en un único estado <1>overall</1>. Como los memos comparan los resultados antes de notificar, un barrido que deja el estado consolidado sin cambios detiene la cadena en ese punto.",
+  "heading_table_rows": "Dar forma a las filas de estado",
+  "usage_table_rows": "La página de estado convierte targets, samples y contadores en filas de visualización con un solo memo. El efecto de escritura solo lee <0>rows()</0> y nunca repite el cálculo por target.",
+  "in_the_wild": "Consulta cómo ambos memos alimentan la página de estado generada en el <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

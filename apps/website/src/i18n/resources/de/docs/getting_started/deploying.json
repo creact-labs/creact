@@ -1,0 +1,23 @@
+{
+  "title": "Bereitstellen",
+  "description": "CReact-Apps in der Produktion mit Zustandspersistenz und korrektem Prozessmanagement ausführen.",
+  "heading_production_run": "In der Produktion ausführen",
+  "production_run_intro": "Verwende das <0>start</0>-Skript (ohne <1>--watch</1>) für die Produktion:",
+  "code_run_start": "npm run start",
+  "production_run_outro": "Dies führt deinen Einstiegspunkt einmal aus. CReact gleicht den aktuellen Komponentenbaum mit dem persistierten Zustand ab, wendet Änderungen an, speichert den neuen Zustand und beendet sich.",
+  "heading_ci_cd": "CI/CD-Integration",
+  "ci_cd_intro": "CReact-Apps eignen sich gut für CI/CD-Pipelines. Die App liest den vorherigen Zustand, gleicht ab, deployt Änderungen und schreibt den neuen Zustand – alles in einem einzigen Lauf.",
+  "code_ci_cd": "# GitHub-Actions-Beispiel\n- name: Infrastruktur deployen\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "Zustandsspeicher",
+  "state_storage_intro": "Speichere den Zustand in der Produktion in einem Remote-Backend statt im lokalen Dateisystem. Implementiere das <0>Memory</0>-Interface für deinen Speicher:",
+  "storage_s3": "<0>S3:</0> Zustands-JSON in einem S3-Bucket speichern",
+  "storage_dynamodb": "<0>DynamoDB:</0> eine Tabelle für nebenläufigkeitssicheren Zustand verwenden",
+  "storage_database": "<0>Datenbank:</0> PostgreSQL, Redis usw.",
+  "heading_watch_mode": "Dauerbetrieb mit Watch-Modus",
+  "watch_mode_intro": "Für Apps, die kontinuierlich laufen sollen (wie Server oder Monitore), verwende den Watch-Modus:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Der Watch-Modus startet die App neu, wenn sich Quelldateien ändern, und behält den Zustand zwischen Neustarts bei.",
+  "tip_process_manager": "Für langlebige Prozesse verwende PM2 oder systemd, um Neustarts und Logging zu verwalten.",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

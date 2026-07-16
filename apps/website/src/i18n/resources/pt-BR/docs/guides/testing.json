@@ -1,0 +1,18 @@
+{
+  "title": "Testes",
+  "description": "Teste apps CReact renderizando-as contra um backend Memory em memória e fazendo asserts nos outputs reais dos handlers.",
+  "heading_setup": "Configuração",
+  "setup_intro": "Instale o Vitest:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Terminal",
+  "heading_rendering": "Renderizando um app",
+  "rendering_intro": "Passe para o <0>render</0> um backend Memory em memória e um nome de stack e, em seguida, faça await de <1>result.ready</1> para deixar todos os handlers se estabilizarem antes de fazer asserts.",
+  "rendering_outputs": "Leia as instâncias implantadas com <0>getNodes()</0> e verifique seus <1>outputs</1>. Como os handlers rodam de verdade, use o <0>vi.waitFor</0> do Vitest quando um output muda ao longo do tempo.",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "Chame <0>resetRuntime()</0> e <1>result.dispose()</1> em um hook afterEach para que o estado do runtime e os intervals nunca vazem entre os testes.",
+  "heading_mocking": "Mockando globals",
+  "mocking_intro": "Handlers chamam os mesmos globals que o seu app, então substitua-os na fronteira. Faça stub de <0>fetch</0> com <1>vi.stubGlobal</1> para conduzir um componente por uma sequência scriptada de respostas.",
+  "mocking_transitions": "Alimente o stub com um script, renderize o componente e faça assert nas transições de status que ele reporta. Restaure o stub com <0>vi.unstubAllGlobals</0> após cada teste.",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "Veja como esses padrões cobrem uma página de status completa no <0>walkthrough do uptime-monitor</0>."
+}

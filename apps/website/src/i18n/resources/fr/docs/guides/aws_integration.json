@@ -1,0 +1,23 @@
+{
+  "title": "Intégration AWS",
+  "description": "Gérez de vraies ressources S3 avec des handlers idempotents, extraits de l'exemple site-publisher.",
+  "heading_aws_provider": "Le provider AWS",
+  "provider_intro": "Le site-publisher partage un seul <0>S3Client</0> via le contexte. Le provider construit le client, enregistre <1>onCleanup</1> pour le détruire, et transmet la connexion à chaque descendant :",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "Tout composant sous le provider appelle <0>useAws</0> pour obtenir le client et la région. Une seule connexion dessert tout l'arbre, et elle est détruite exactement une fois lorsque l'arbre <1>disposes</1>.",
+  "heading_ensure_bucket": "Garantir l'existence du bucket",
+  "ensure_bucket_intro": "Le handler du bucket crée le bucket et traite <0>BucketAlreadyOwnedByYou</0> comme un succès, car les handlers se réexécutent à chaque démarrage :",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "Intercepter l'erreur already-owned est le pattern d'idempotence pour les ressources cloud — le handler converge vers l'état souhaité au lieu de supposer un état vierge. Toute autre erreur <0>throws</0> toujours et fait échouer le nœud.",
+  "heading_website_config": "Configuration de l'hébergement statique",
+  "website_config_intro": "Une fois le bucket existant, le même handler active l'hébergement de site web et publie l'URL du site avec <0>setOutputs</0> :",
+  "website_config_notice": "L'URL devient un output réactif — <0>bucket.url()</0> — que les composants enfants et les effects peuvent consommer dès qu'il est défini.",
+  "heading_changed_check": "Ignorer les fichiers inchangés",
+  "changed_check_intro": "Chaque fichier uploadé est sa propre ressource. Avant l'upload, le handler compare le hash du contenu du fichier aux outputs persistés via <0>setOutputs(prev => …)</0> :",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "Lorsque le hash correspond, le handler retourne immédiatement — <0>prev</0> est la dernière valeur persistée, ainsi un fichier inchangé ne coûte aucun appel API lors d'un redéploiement.",
+  "heading_upload": "Upload des fichiers modifiés",
+  "upload_intro": "Seuls les fichiers modifiés atteignent le <0>PutObjectCommand</0>. Le nouveau hash est persisté avec le chemin, prêt pour la comparaison du prochain run :",
+  "warning_idempotent": "Les handlers cloud doivent être idempotents : ils se réexécutent à chaque démarrage, donc les patterns create-or-confirm et la détection de changements sont ce qui empêche les exécutions répétées de dupliquer le travail ou d'échouer sur des ressources existantes.",
+  "see_walkthrough": "Consultez le récit complet du déploiement, hachage de manifeste inclus, dans le <0>tutoriel site-publisher</0>."
+}

@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "Cria um contexto para passar dados pela árvore de componentes sem props.",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "Opcional. Valor retornado por <0>useContext</0> quando nenhum Provider existe acima.",
+  "returns_desc": "Um objeto <0>Context<T></0> com um componente <1>Provider</1>.",
+  "heading_declaring_the_context": "Declarando o contexto AWS",
+  "usage_declaring_the_context": "O site publisher declara um <0>AwsContext</0> que carrega uma região e um client S3. O valor padrão é <1>null</1>, para que os componentes detectem quando não há um <2>AwsProvider</2> acima deles.",
+  "heading_providing_a_value": "Fornecendo uma conexão",
+  "usage_providing_a_value": "<0>AwsProvider</0> cria o client S3 uma vez e o expõe por meio de <1>AwsContext.Provider</1>. Todo descendente que publica um objeto compartilha essa única conexão.",
+  "in_the_wild": "Veja este provider conectar o S3 no <0>site-publisher walkthrough</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

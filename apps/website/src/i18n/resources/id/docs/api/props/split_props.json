@@ -1,0 +1,13 @@
+{
+  "title": "splitProps",
+  "description": "Memisahkan objek props menjadi beberapa grup berdasarkan key. Mempertahankan reaktivitas.",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "Mengambil objek props diikuti oleh satu atau lebih array key. Mengembalikan tuple dengan satu objek per grup key ditambah objek remainder yang berisi semua key yang tidak cocok.",
+  "heading_bucket": "Memisahkan config dari children",
+  "usage_bucket": "Komponen <0>SiteBucket</0> milik site publisher memisahkan props yang digabungkan menjadi grup <1>site</1> yang menampung nama bucket dan pengaturan dokumen, menyisakan grup <2>rest</2> yang children-nya di-render di bawah bucket yang di-provision.",
+  "heading_tenant": "Placement versus service props",
+  "usage_tenant": "Komponen <0>TenantDatabase</0> milik tenant fleet memisahkan props-nya menjadi grup <1>placement</1> yang mem-provision database dan remainder <2>service</2> yang diteruskan ke tier API.",
+  "in_the_wild": "Lihat bagaimana grup-grup ini mendorong provisioning nyata di <0>site-publisher walkthrough</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

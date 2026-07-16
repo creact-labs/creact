@@ -1,0 +1,13 @@
+{
+  "title": "splitProps",
+  "description": "Teilt ein Props-Objekt anhand von Keys in mehrere Gruppen. Erhält die Reaktivität.",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "Nimmt das Props-Objekt gefolgt von einem oder mehreren Arrays von Keys entgegen. Gibt ein Tupel zurück mit einem Objekt pro Key-Gruppe sowie einem Rest-Objekt, das alle nicht gematchten Keys enthält.",
+  "heading_bucket": "Config von Children trennen",
+  "usage_bucket": "Der <0>SiteBucket</0> des Site Publishers teilt die zusammengeführten Props in eine <1>site</1>-Gruppe mit Bucket-Namen und Document-Settings und lässt eine <2>rest</2>-Gruppe übrig, deren Children unter dem provisionierten Bucket gerendert werden.",
+  "heading_tenant": "Placement- versus Service-Props",
+  "usage_tenant": "Die <0>TenantDatabase</0> der Tenant Fleet teilt ihre Props in eine <1>placement</1>-Gruppe, die die Database provisioniert, und einen <2>service</2>-Rest, der an die API-Ebene weiterfließt.",
+  "in_the_wild": "Sieh, wie diese Gruppen im <0>site-publisher walkthrough</0> reales Provisioning steuern.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

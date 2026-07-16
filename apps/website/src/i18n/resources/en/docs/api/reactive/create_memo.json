@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "Creates a cached derived value. Use when computing a value from other signals. Only recomputes when dependencies change.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "Computation function. Receives previous value.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Optional initial seed value.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "Optional. <0>equals</0> for custom comparison.",
+  "returns_body": "An <0>Accessor<T></0> that returns the memoized value. Acts as both a signal reader (trackable) and a computation (auto-updates).",
+  "heading_chained_status": "Chaining derived status",
+  "usage_chained_status": "The uptime monitor derives <0>latestSamples</0> from raw sample history, then rolls it up into one <1>overall</1> status. Because memos compare results before notifying, a sweep that leaves the rolled-up status unchanged stops the chain right there.",
+  "heading_table_rows": "Shaping status rows",
+  "usage_table_rows": "The status page turns targets, samples, and tallies into display rows with a single memo. The write effect just reads <0>rows()</0> and never repeats the per-target math.",
+  "in_the_wild": "See both memos feed the generated status page in the <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

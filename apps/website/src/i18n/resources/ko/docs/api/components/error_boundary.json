@@ -1,0 +1,18 @@
+{
+  "title": "ErrorBoundary",
+  "description": "자식 컴포넌트에서 발생한 오류를 포착하고 폴백을 렌더링합니다.",
+  "signature": "ErrorBoundary(props: { fallback: MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode); children: MaybeAccessor<CReactNode> }): JSXElement",
+  "heading_props": "Props",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode> | ((err: any, reset: () => void) => CReactNode)</0>",
+  "prop_fallback_desc": "포착된 오류와 reset 함수를 인자로 받는 정적 폴백 또는 렌더 함수입니다.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_children_desc": "렌더링할 콘텐츠입니다. 이 하위 트리에서 발생한 오류가 포착됩니다.",
+  "heading_guarding_the_sweep": "프로브 스윕 보호하기",
+  "usage_guarding_the_sweep": "업타임 모니터는 전체 <0>HttpCheck</0> 프로브 플릿을 하나의 <1>ErrorBoundary</1>로 감쌉니다. 어떤 프로브에서 throw가 발생해도 스윕이 중단되지 않고 해당 오류가 <2>fallback</2> 렌더 함수로 전달됩니다.",
+  "heading_rendering_the_fault": "장애 렌더링하기",
+  "usage_rendering_the_fault": "폴백은 포착된 <0>error</0>를 받아 <1>MonitorFault</1>를 렌더링하며, 이 컴포넌트는 검사가 중단되었음을 로깅합니다. 나머지 트리는 계속 실행됩니다.",
+  "in_the_wild": "<0>uptime-monitor walkthrough</0>에서 이 바운더리가 상태 페이지를 유지하는 모습을 확인하세요.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

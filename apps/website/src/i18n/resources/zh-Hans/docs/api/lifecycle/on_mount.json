@@ -1,0 +1,11 @@
+{
+  "title": "onMount",
+  "description": "在组件初始化时运行一次函数，不跟踪依赖。",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
+  "param_fn_desc": "在挂载时运行一次的函数。以未跟踪方式运行；读取 signal 不会创建依赖。",
+  "usage_sweep": "正常运行时间监控的 <0>HttpCheck</0> 使用 <1>onMount</1> 触发首次探测，并恰好启动一次扫描间隔。配对的 <2>onCleanup</2> 会在检查卸载时清除该间隔。",
+  "in_the_wild": "在 <0>uptime-monitor 演练</0> 中查看此扫描循环如何按目标启动。",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

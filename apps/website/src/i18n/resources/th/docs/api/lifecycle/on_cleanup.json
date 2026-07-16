@@ -1,0 +1,17 @@
+{
+  "title": "onCleanup",
+  "description": "ลงทะเบียนฟังก์ชัน cleanup บน reactive owner ปัจจุบัน ทำงานเมื่อ owner ถูก dispose หรือก่อนที่ effect จะรันใหม่",
+  "signature": "onCleanup<T extends () => any>(fn: T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "ฟังก์ชัน cleanup ถูกเรียกเมื่อ owner ถูก dispose",
+  "returns_desc": "ฟังก์ชันเดียวกันกับที่ส่งเข้ามา เพื่อความสะดวก",
+  "heading_timer": "การ clear interval",
+  "usage_timer": "<0>HttpCheck</0> ของ uptime monitor เริ่ม probe timer ใน <1>onMount</1> และลงทะเบียน <2>onCleanup</2> เพื่อ clear มัน เมื่อ check ถูก unmount interval จะหยุดแทนที่จะ fire กับ component ที่ถูก dispose แล้ว",
+  "heading_server": "การปิด real server",
+  "usage_server": "<0>HttpChannel</0> ของ page writer เปิด HTTP server ภายใน handler และ return <1>closeServer</1> เป็น teardown cleanup ที่ return มาจะรันตอน dispose โดยเรียก <2>server.close()</2> เพื่อปล่อย port ก่อนที่ process จะ exit",
+  "warning_no_owner": "การเรียก <0>onCleanup</0> นอก <1>createRoot</1> หรือ <2>render</2> จะเตือนและ cleanup จะไม่เคยรัน",
+  "in_the_wild": "ดู teardowns เหล่านี้ทำงานเมื่อ checks เข้ามาและหายไปใน <0>uptime-monitor walkthrough</0>",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx",
+  "filename_http_channel": "page-writer/src/components/http-channel/index.tsx"
+}

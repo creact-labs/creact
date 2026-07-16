@@ -1,0 +1,11 @@
+{
+  "title": "Flow Control",
+  "description": "Show, For, Switch, Match, and ErrorBoundary decide which components run based on reactive conditions.",
+  "heading_one_tree": "One Tree, Every Primitive",
+  "one_tree_intro": "The uptime monitor's layout uses every flow component at once. <0>ErrorBoundary</0> wraps a <1>For</1> that mounts one probe per target, <2>Show</2> holds the status page back until the first sweep lands, and a <3>Switch</3> of <4>Match</4> branches picks a banner from the overall status.",
+  "info_accessor_conditions": "Flow components take accessor functions such as <0>() => value</0> for their conditions. The condition re-evaluates on its own when signals change, without re-running the parent component.",
+  "heading_switch_states": "Branching on Resource State",
+  "switch_states_intro": "A <0>Switch</0> reads straight from a resource. Each page in the page writer exposes a <1>state</1> accessor, and the Match branches render the writing, ready, and failed views as the handler advances through them.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

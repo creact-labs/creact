@@ -1,0 +1,23 @@
+{
+  "title": "render",
+  "description": "CReact アプリケーションのエントリーポイント。コンポーネントツリーをレンダリングし、状態をリコンサイルし、ハンドラーを実行します。",
+  "signature": "render(fn: () => any, memory: Memory, stackName: string, options?: RenderOptions): RenderResult",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => any</0>",
+  "param_fn_desc": "ルートコンポーネントツリーを返す関数。",
+  "param_memory_name": "<0>memory</0>",
+  "param_memory_type": "<0>Memory</0>",
+  "param_memory_desc": "必須。状態永続化バックエンド。",
+  "param_stack_name_name": "<0>stackName</0>",
+  "param_stack_name_type": "<0>string</0>",
+  "param_stack_name_desc": "必須。状態ストアの識別子。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>RenderOptions</0>",
+  "param_options_desc": "任意。追加のレンダー設定。",
+  "returns_desc": "<0>RenderResult</0> オブジェクト。<1>ready</1> プロパティは、初期デプロイが完了すると解決する <2>Promise<void></2> です。",
+  "filename_counter": "durable-counter/index.tsx",
+  "filename_fleet": "tenant-fleet/index.tsx",
+  "heading_awaiting": "デプロイを待機中",
+  "usage_awaiting": "<0>render</0> が返す値は同期的ですが、開始される処理は非同期です。tenant-fleet のエントリーは、最初のデプロイに対して <1>ready</1> を待機し、その後トリガーされるすべてのカスケードに対して <2>settled</2> を待機するため、ワンショット実行ではプロセス終了前にすべてが永続化されます。",
+  "in_the_wild": "<0>durable-counter walkthrough</0> で、1 回の呼び出しで耐久アプリが起動する様子をご覧ください。"
+}

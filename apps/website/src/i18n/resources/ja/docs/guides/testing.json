@@ -1,0 +1,18 @@
+{
+  "title": "テスト",
+  "description": "インメモリの Memory バックエンドに対して CReact アプリをレンダリングし、実際のハンドラー出力をアサートしてテストします。",
+  "heading_setup": "セットアップ",
+  "setup_intro": "Vitest をインストールします:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "ターミナル",
+  "heading_rendering": "アプリのレンダリング",
+  "rendering_intro": "<0>render</0> にインメモリの Memory バックエンドとスタック名を渡し、<1>result.ready</1> を await してすべてのハンドラーが安定してからアサートします。",
+  "rendering_outputs": "デプロイ済みのインスタンスを <0>getNodes()</0> で読み取り、<1>outputs</1> を確認します。ハンドラーは実際に実行されるため、出力が時間とともに変化する場合は Vitest の <0>vi.waitFor</0> を使います。",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "afterEach フックで <0>resetRuntime()</0> と <1>result.dispose()</1> を呼び出し、ランタイムの状態とインターバルがテスト間でリークしないようにします。",
+  "heading_mocking": "グローバルのモック",
+  "mocking_intro": "ハンドラーはアプリと同じグローバルを呼び出すため、境界で置き換えます。<1>vi.stubGlobal</1> で <0>fetch</0> をスタブし、スクリプト化された一連のレスポンスでコンポーネントを駆動します。",
+  "mocking_transitions": "スタブにスクリプトを渡し、コンポーネントをレンダリングして、報告されるステータス遷移をアサートします。各テスト後に <0>vi.unstubAllGlobals</0> でスタブを復元します。",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "これらのパターンがステータスページ全体をカバーする様子は、<0>uptime-monitor ウォークスルー</0> でご覧ください。"
+}

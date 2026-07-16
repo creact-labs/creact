@@ -1,0 +1,11 @@
+{
+  "title": "Ablaufsteuerung",
+  "description": "Show, For, Switch, Match und ErrorBoundary entscheiden anhand reaktiver Bedingungen, welche Komponenten ausgeführt werden.",
+  "heading_one_tree": "Ein Baum, jedes Primitiv",
+  "one_tree_intro": "Das Layout des Uptime-Monitors nutzt alle Flow-Komponenten gleichzeitig. <0>ErrorBoundary</0> umschließt ein <1>For</1>, das pro Target eine Probe mountet, <2>Show</2> hält die Statusseite zurück, bis der erste Sweep eintrifft, und ein <3>Switch</3> aus <4>Match</4>-Zweigen wählt anhand des Gesamtstatus ein Banner aus.",
+  "info_accessor_conditions": "Flow-Komponenten nehmen Accessor-Funktionen wie <0>() => value</0> für ihre Bedingungen entgegen. Die Bedingung wird selbstständig neu ausgewertet, wenn sich Signals ändern, ohne die Parent-Komponente erneut auszuführen.",
+  "heading_switch_states": "Verzweigung nach Resource-State",
+  "switch_states_intro": "Ein <0>Switch</0> liest direkt aus einer Resource. Jede Seite im Page Writer stellt einen <1>state</1>-Accessor bereit, und die Match-Zweige rendern die Views writing, ready und failed, während der Handler sie durchläuft.",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

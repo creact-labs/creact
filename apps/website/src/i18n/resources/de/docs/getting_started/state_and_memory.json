@@ -1,0 +1,20 @@
+{
+  "title": "Zustand und Memory",
+  "description": "Das Memory-Interface speichert den Deployment-Zustand und stellt ihn zwischen Läufen wieder her.",
+  "heading_why_persistence": "Warum Persistenz wichtig ist",
+  "why_persistence_body": "CReact-Apps beschreiben Infrastruktur und Prozesse. Wenn die App stoppt und neu startet, müssen Sie wissen, was bereits deployed wurde – sonst erstellt jeder Neustart alles von Grund auf neu. Das <0>Memory</0>-Interface löst dieses Problem, indem es den Deployment-Zustand speichert und wiederherstellt.",
+  "heading_memory_interface": "Das Memory-Interface",
+  "memory_interface_intro": "Eine <0>Memory</0>-Implementierung stellt zwei Methoden bereit: <1>getState</1> und <2>saveState</2>. Das Beispiel <3>FileMemory</3> liest und schreibt eine JSON-Datei pro Stack, und CReact liefert kein eingebautes Backend mit – Sie wählen den Speicher selbst.",
+  "heading_using_memory": "Memory an render() übergeben",
+  "using_memory_intro": "Der Einstiegspunkt erzeugt ein <0>FileMemory</0> und übergibt es zusammen mit dem Stack-Namen an <1>render()</1>. Diese Funktion ist alles, was eine CReact-App zum Starten braucht.",
+  "tip_stack_name": "Das dritte Argument von <0>render()</0> ist der Stack-Name. Er benennt die Zustandsdatei, sodass unterschiedliche Stack-Namen unabhängige Zustandsspeicher nebeneinander halten.",
+  "heading_use_async_output": "Outputs mit useAsyncOutput persistieren",
+  "use_async_output_intro": "<0>useAsyncOutput</0> verwaltet die dauerhaften Outputs einer Ressource. Der Counter-Handler initialisiert seinen Zähler über <1>setOutputs(prev => ...)</1>, sodass ein Neustart beim zuletzt gespeicherten Wert fortgesetzt wird statt bei null.",
+  "heading_what_gets_persisted": "Was persistiert wird",
+  "what_gets_persisted_body": "Nur Werte, die an <0>setOutputs()</0> übergeben werden, werden persistiert. Reguläre Signals, Effects und lokale Variablen werden <1>nicht</1> gespeichert und initialisieren sich daher bei jedem Lauf neu.",
+  "info_gitignore": "Fügen Sie das Zustandsverzeichnis wie <0>.state/</0> zu Ihrer <1>.gitignore</1> hinzu.",
+  "durable_counter_link": "Sehen Sie Memory, setOutputs und Crash Recovery im Zusammenspiel im <0>durable-counter-Walkthrough</0>.",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "filename_index_tsx": "durable-counter/index.tsx",
+  "filename_app": "durable-counter/src/app.tsx"
+}

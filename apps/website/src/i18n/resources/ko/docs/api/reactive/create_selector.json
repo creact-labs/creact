@@ -1,0 +1,16 @@
+{
+  "title": "createSelector",
+  "description": "O(2) 선택 시그널을 생성합니다. 이전 선택과 새 선택만 재평가됩니다.",
+  "signature": "createSelector<T, U = T>(source: Accessor<T>, fn?: (a: U, b: T) => boolean): (key: U) => boolean",
+  "param_source_name": "<0>source</0>",
+  "param_source_type": "<0>Accessor<T></0>",
+  "param_source_desc": "현재 선택된 값을 보유하는 시그널입니다.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(a: U, b: T) => boolean</0>",
+  "param_fn_desc": "선택적 비교 함수입니다. 기본값은 <0>===</0>입니다.",
+  "returns_body": "<0>(key: U) => boolean</0> 함수를 반환하며, <2>key</2>가 현재 선택과 일치하면 <1>true</1>를 반환합니다. 이전에 선택된 항목과 새로 선택된 항목만 재평가됩니다. 목록 크기와 관계없이 O(2)입니다.",
+  "heading_latest_request": "최신 ready 페이지 표시하기",
+  "usage_latest_request": "page writer는 페이지가 ready인 가장 최신 slug의 memo로부터 <0>isLatest</0>를 만듭니다. 각 행은 <1>isLatest(request.slug)</1>를 호출해 현재 항목인지 확인하며, 새 페이지가 settle될 때 플래그를 잃은 행과 얻은 행만 재평가됩니다.",
+  "in_the_wild": "이 셀렉터가 <0>page-writer walkthrough</0>에서 최신 페이지를 하이라이트하는 모습을 확인하세요.",
+  "filename_app": "page-writer/src/app.tsx"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Variables de entorno",
+  "description": "Configura tu app para diferentes entornos usando process.env.",
+  "heading_reading": "Lectura de variables de entorno",
+  "reading_intro": "Lee las variables de entorno a través de <0>process.env</0> como en cualquier app de Node.js. El site-publisher envuelve cada consulta en un helper <1>requireEnv</1> que devuelve el valor o lanza un mensaje que apunta a <2>.env.example</2>.",
+  "filename_app": "site-publisher/src/app.tsx",
+  "heading_fail_fast": "Fallo rápido ante una clave ausente",
+  "fail_fast_intro": "El page-writer comprueba si existe <0>ANTHROPIC_API_KEY</0> al inicio de su punto de entrada y llama a <1>process.exit(1)</1> con instrucciones de configuración cuando está ausente, de modo que la ejecución se detiene antes de que comience cualquier trabajo y no en lo profundo de un handler.",
+  "filename_entry": "page-writer/index.tsx",
+  "heading_secrets": "Gestión de secretos",
+  "secrets_intro": "Pasa los secretos mediante variables de entorno o un gestor de secretos:",
+  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact no tiene carga integrada de archivos <0>.env</0>. Usa un paquete como <1>dotenv</1> o define las variables en tu shell / entorno de CI.",
+  "in_the_wild": "Consulta estas comprobaciones de env que controlan un despliegue real en la <0>guía de site-publisher</0>."
+}

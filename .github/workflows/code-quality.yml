@@ -38,6 +38,10 @@ jobs:
         run: npx tsc --noEmit
       - name: creact test suites
         run: npx tsc --noEmit -p packages/creact/tsconfig.test.json
+      - name: Website (Solid JSX)
+        run: npx tsc --noEmit -p apps/website/tsconfig.json
+      - name: Example apps (real CReact apps behind the docs samples)
+        run: npx tsc --noEmit -p libs/examples
 
   test:
     name: Test
@@ -58,6 +62,10 @@ jobs:
         run: npx vitest --run --coverage --root packages/testing
       - name: create-creact-app (with coverage)
         run: npx vitest --run --coverage --root packages/create-creact-app
+      - name: Website (with coverage)
+        run: npx vitest --run --coverage --root apps/website
+      - name: Example apps (coverage feeds fallow CRAP for libs/examples)
+        run: npx vitest --run --coverage --root libs/examples
       - name: Merge coverage across workspaces
         run: npm run coverage:merge
       - name: Upload merged coverage (consumed by the fallow job)
@@ -82,6 +90,8 @@ jobs:
       - run: npm ci
       - name: creact (tsc; typecheck+test hooks covered by sibling jobs)
         run: npm run build -w packages/creact --ignore-scripts
+      - name: Website (vite)
+        run: npm run build -w apps/website
 
   # Fallow static analysis: dead code, duplication, complexity/CRAP health,
   # and a changed-files audit. Config + justified ignores in .fallowrc.jsonc.

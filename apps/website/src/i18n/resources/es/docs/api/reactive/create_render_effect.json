@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "Ejecuta una función de forma síncrona durante el render en lugar de encolarla. Se usa internamente en el runtime; rara vez se necesita en el código de aplicación.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Función de efecto. Se ejecuta inmediatamente durante el render.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Valor inicial opcional.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opcional. <0>name</0> para depuración.",
+  "heading_reporting_state": "Reportar estado durante el render",
+  "usage_reporting_state": "El componente <0>Page</0> de page-writer reporta sus outputs al padre a medida que cambian. Un <1>createRenderEffect</1> lee el snapshot de la página y llama a <2>props.onState</2> de forma síncrona durante el render, de modo que el ledger del padre ve el primer estado antes de que se ejecute cualquier efecto encolado.",
+  "info_ordering": "Los efectos de render se ejecutan antes que los efectos de usuario (<0>createEffect</0>). Úsalo cuando necesites reacciones síncronas durante la fase de render, como el seguimiento del render de componentes.",
+  "in_the_wild": "Consulta cómo este efecto transmite el estado de la página al padre en el <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

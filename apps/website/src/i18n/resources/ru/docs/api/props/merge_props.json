@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Реактивно объединяет несколько объектов props, причём более поздние источники переопределяют более ранние. Используйте для props по умолчанию.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Заполнение props по умолчанию",
+  "usage_bucket": "В site publisher <0>SiteBucket</0> объединяет объект defaults перед <1>rawProps</1>, поэтому вызывающие, которые не указывают <2>indexDocument</2> и <2>errorDocument</2>, получают index.html, а любое переданное значение всё равно имеет приоритет.",
+  "heading_tenant": "Значения по умолчанию через границу runtime",
+  "usage_tenant": "В tenant fleet <0>TenantTree</0> объединяет стартовый <1>plan</1> перед входящими props, задавая каждому tenant уровень по умолчанию и не заставляя каждого вызывающего указывать его явно.",
+  "in_the_wild": "Посмотрите, как эти defaults формируют реальные buckets и tenants в <0>site-publisher walkthrough</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

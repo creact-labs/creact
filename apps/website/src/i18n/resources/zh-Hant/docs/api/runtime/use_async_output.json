@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "建立具有持久化輸出的資源。這是 CReact 元件與外部系統互動時的主要 hook。",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "靜態 props，或用於響應式追蹤的 getter 函式。使用 getter 時，依賴變更會重新執行 handler。",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "執行工作並設定輸出的 setup 函式。可回傳清理函式（同步或非同步）。",
+  "returns_desc": "包含各輸出鍵 accessor 函式的物件。例如，若呼叫 <0>setOutputs({ url: '...' })</0>，回傳值會有 <1>result.url()</1>。",
+  "heading_counter": "持久化資源",
+  "usage_counter": "持久化計數器的 <0>Counter</0> 以空 props 與 handler 呼叫一次 <1>useAsyncOutput</1>。回傳的 <2>counter.count()</2> 是響應式 accessor，任何 effect 都可讀取。",
+  "heading_restore": "還原持久化狀態",
+  "usage_restore": "頁面撰寫器的 handler 在 <1>setOutputs</1> 內讀取 <0>prev</0>，以偵測是否已產生頁面。當還原了 <2>state === \"ready\"</2> 時，會跳過 Claude 呼叫並提前返回，而不重新產生。",
+  "heading_prev_aware": "略過未變更的工作",
+  "usage_prev_aware": "站點發佈器會將傳入的 <0>entry.hash</0> 與持久化的 <1>prev.hash</1> 比對。雜湊相符表示物件已上傳，因此 handler 會在接觸 <2>S3</2> 之前返回。",
+  "callout_idempotent": "Handlers 必須具備冪等性。重啟時，handlers 會對所有節點重新執行，以重新建立副作用（intervals、subscriptions 等）。輸出值會從狀態還原，但 handlers 必須重新建立所有執行時期的產物。",
+  "in_the_wild": "在 <0>durable-counter 逐步教學</0> 中觀看這些 handlers 如何在重啟後持久化並復原。",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

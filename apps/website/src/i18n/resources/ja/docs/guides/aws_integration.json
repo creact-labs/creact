@@ -1,0 +1,23 @@
+{
+  "title": "AWS 連携",
+  "description": "site-publisher の例から切り出した、冪等なハンドラーによる実際の S3 リソースの管理。",
+  "heading_aws_provider": "AWS プロバイダー",
+  "provider_intro": "site-publisher はコンテキスト経由で 1 つの <0>S3Client</0> を共有します。プロバイダーはクライアントを構築し、破棄のために <1>onCleanup</1> を登録し、すべての子孫に接続を渡します:",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "プロバイダー配下の任意のコンポーネントは <0>useAws</0> を呼び出してクライアントとリージョンを取得します。1 つの接続がツリー全体にサービスし、ツリーが <1>disposes</1> するときに正確に 1 回だけ破棄されます。",
+  "heading_ensure_bucket": "バケットの存在確認",
+  "ensure_bucket_intro": "バケットハンドラーはバケットを作成し、<0>BucketAlreadyOwnedByYou</0> を成功として扱います。ハンドラーは起動のたびに再実行されるためです:",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "既に所有済みのエラーを捕捉するのが、クラウドリソースの冪等性パターンです — ハンドラーは白紙状態を前提とせず、望ましい状態に収束します。それ以外のエラーは引き続き <0>throws</0> し、ノードを失敗させます。",
+  "heading_website_config": "静的ホスティングの設定",
+  "website_config_intro": "バケットが存在した後、同じハンドラーが Web サイトホスティングを有効にし、<0>setOutputs</0> でサイト URL を公開します:",
+  "website_config_notice": "URL はリアクティブな出力 — <0>bucket.url()</0> — となり、設定された瞬間に子コンポーネントや effect が消費できます。",
+  "heading_changed_check": "変更のないファイルのスキップ",
+  "changed_check_intro": "アップロードされる各ファイルは独立したリソースです。アップロード前に、ハンドラーは <0>setOutputs(prev => …)</0> を通じてファイルのコンテンツハッシュを永続化された出力と比較します:",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "ハッシュが一致する場合、ハンドラーは早期リターンします — <0>prev</0> は最後に永続化された値なので、変更のないファイルは再デプロイ時に API 呼び出しがゼロになります。",
+  "heading_upload": "変更されたファイルのアップロード",
+  "upload_intro": "変更されたファイルのみが <0>PutObjectCommand</0> に到達します。新しいハッシュはパスと共に永続化され、次回実行時の比較に備えます:",
+  "warning_idempotent": "クラウドハンドラーは冪等でなければなりません: 起動のたびに再実行されるため、作成または確認のパターンと変更検出によって、繰り返しの実行で作業が重複したり既存リソースで失敗したりすることを防ぎます。",
+  "see_walkthrough": "マニフェストのハッシュ化を含むデプロイ全体の流れは、<0>site-publisher walkthrough</0> をご覧ください。"
+}

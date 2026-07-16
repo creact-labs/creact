@@ -1,0 +1,11 @@
+{
+  "title": "onMount",
+  "description": "在元件初始化時執行一次函式，且不追蹤相依性。",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
+  "param_fn_desc": "掛載時執行一次的函式。以不追蹤方式執行；讀取 signal 不會建立相依性。",
+  "usage_sweep": "uptime monitor 的 <0>HttpCheck</0> 使用 <1>onMount</1> 觸發首次探測並啟動 sweep 間隔，且僅執行一次。配對的 <2>onCleanup</2> 會在 check 卸載時清除該間隔。",
+  "in_the_wild": "請見 <0>uptime-monitor walkthrough</0> 中此 sweep 迴圈如何依每個目標啟動。",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

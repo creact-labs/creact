@@ -1,0 +1,11 @@
+{
+  "title": "onMount",
+  "description": "Exécute une fonction une seule fois à l’initialisation du composant, sans suivre les dépendances.",
+  "signature": "onMount(fn: () => void): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => void</0>",
+  "param_fn_desc": "Fonction à exécuter une seule fois au montage. S’exécute hors suivi ; les lectures de signaux ne créent pas de dépendances.",
+  "usage_sweep": "Le <0>HttpCheck</0> du moniteur d’uptime utilise <1>onMount</1> pour déclencher la première sonde et démarrer l’intervalle de balayage exactement une fois. Le <2>onCleanup</2> associé efface cet intervalle lorsque le check se démonte.",
+  "in_the_wild": "Découvrez le démarrage de cette boucle de balayage par cible dans le <0>tutoriel uptime-monitor</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

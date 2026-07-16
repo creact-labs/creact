@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "Menjalankan fungsi di bawah reactive owner tertentu. Diperlukan untuk membuat effect di callback async.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "Scope owner tempat dijalankan. Ambil dari <0>getOwner()</0>. Menerima <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fungsi yang akan dijalankan. Setiap effect/cleanup yang dibuat di dalamnya dimiliki oleh <0>owner</0>.",
+  "info_async_owner": "Setelah <0>await</0> atau di dalam callback, reactive owner hilang. Tangkap secara sinkron dengan <1>getOwner()</1> dan pulihkan dengan <2>runWithOwner()</2>.",
+  "usage_deploy_write": "<0>retainOnDetach</0> dari page writer dijalankan di bawah owner yang ditangkap agar <1>onCleanup</1>-nya menempel ke scope page. Registrasi tersebut terjadi setelah write async, di mana <2>runWithOwner</2> adalah satu-satunya cara untuk kembali ke owner yang tepat.",
+  "in_the_wild": "Lihat owner yang dipulihkan di sekitar durable file write dalam <0>panduan page-writer</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

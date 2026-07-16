@@ -1,0 +1,14 @@
+{
+  "title": "错误处理",
+  "description": "ErrorBoundary、catchError 以及 handler 中的 try/catch 可防止失败的资源拖垮整棵树。",
+  "heading_error_boundary": "ErrorBoundary 组件",
+  "error_boundary_intro": "<0>ErrorBoundary</0> 捕获其子节点中抛出的错误并渲染回退内容。可用性监控将其探针包裹在其中，并渲染 <1>MonitorFault</1>，记录检查已停止，而不是让进程崩溃。",
+  "heading_catch_error": "catchError 原语",
+  "catch_error_intro": "如需更精细的控制，可用 <0>catchError</0> 包裹单个计算。状态页通过 <0>catchError</0> 渲染其 HTML，渲染失败时返回 <1>undefined</1>，使 effect 跳过发布而不是抛出异常。",
+  "heading_handler_errors": "Handler 中的错误",
+  "handler_errors_intro": "<0>useAsyncOutput</0> 的 handler 在部署循环中运行，因此它们抛出的错误<1>不会</1>被 <2>ErrorBoundary</2> 捕获。页面写入器的 handler 用 try/catch 包裹生成过程，并将失败记录为持久化输出，而不是让部署抛出错误。",
+  "warning_cleanup": "通过 <0>onCleanup</0> 注册的清理函数在错误边界捕获错误时仍会运行，从而释放资源。",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

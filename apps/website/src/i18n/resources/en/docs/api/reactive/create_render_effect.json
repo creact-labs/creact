@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "Runs a function synchronously during render instead of queuing it. Used internally by the runtime; rarely needed in application code.",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Effect function. Runs immediately during render.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Optional initial value.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Optional. <0>name</0> for debugging.",
+  "heading_reporting_state": "Reporting state during render",
+  "usage_reporting_state": "The page writer's <0>Page</0> component reports its outputs to the parent as they change. A <1>createRenderEffect</1> reads the page snapshot and calls <2>props.onState</2> synchronously during render, so the parent ledger sees the first state before any queued effect runs.",
+  "info_ordering": "Render effects run before user effects (<0>createEffect</0>). Use this when you need synchronous reactions during the render phase, such as component render tracking.",
+  "in_the_wild": "See this effect stream page state to the parent in the <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

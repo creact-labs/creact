@@ -1,0 +1,22 @@
+{
+  "title": "createEffect",
+  "description": "Crea un efecto secundario reactivo que se ejecuta cuando cambian sus dependencias. Úsalo para efectos secundarios (logging, llamadas externas). Se ejecuta después del batch actual.",
+  "signature": "createEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Función del efecto. Recibe el valor de retorno anterior. Se rastrea automáticamente.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "Valor inicial opcional que se pasa a la primera ejecución.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Opcional. <0>name</0> para depuración.",
+  "heading_durable_outputs": "Reaccionar a outputs durables",
+  "usage_durable_outputs": "El contador durable registra cada tick. El efecto lee <0>counter.count()</0>, por lo que se vuelve a ejecutar cada vez que el handler persiste un valor nuevo, incluido el conteo restaurado tras un reinicio.",
+  "heading_publish": "Publicar una página de estado",
+  "usage_publish": "El monitor de uptime reescribe <0>./out/status.html</0> cada vez que cambia el estado general o cualquier fila de la tabla. <1>createEffect</1> rastrea ambas lecturas y vuelve a ejecutar la publicación después de cada sweep.",
+  "info_batching": "Los efectos se agrupan en batch. Varias actualizaciones síncronas de signals solo provocan una reejecución. Usa <0>batch()</0> de forma explícita para secuencias de actualización complejas.",
+  "in_the_wild": "Consulta estos efectos en los walkthroughs de <0>durable-counter</0> y <1>uptime-monitor</1>.",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

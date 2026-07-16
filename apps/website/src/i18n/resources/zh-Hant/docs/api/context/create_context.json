@@ -1,0 +1,15 @@
+{
+  "title": "createContext",
+  "description": "建立一個 context，可在不透過 props 的情況下於元件樹中傳遞資料。",
+  "signature": "createContext<T>(defaultValue?: T): Context<T>",
+  "param_default_value_name": "<0>defaultValue</0>",
+  "param_default_value_type": "<0>T</0>",
+  "param_default_value_desc": "選用。當上方沒有 Provider 時，<0>useContext</0> 所回傳的值。",
+  "returns_desc": "含有 <1>Provider</1> 元件的 <0>Context<T></0> 物件。",
+  "heading_declaring_the_context": "宣告 AWS context",
+  "usage_declaring_the_context": "site-publisher 宣告一個攜帶 region 與 S3 client 的 <0>AwsContext</0>。其預設值為 <1>null</1>，因此元件可偵測上方是否沒有 <2>AwsProvider</2>。",
+  "heading_providing_a_value": "提供連線",
+  "usage_providing_a_value": "<0>AwsProvider</0> 只建立一次 S3 client，並透過 <1>AwsContext.Provider</1> 公開。每個要發佈物件的後代元件都會共用這一個連線。",
+  "in_the_wild": "請在 <0>site-publisher 導覽</0> 中查看此 provider 如何串接 S3。",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

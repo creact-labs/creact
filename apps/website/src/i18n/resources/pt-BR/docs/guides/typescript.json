@@ -1,0 +1,16 @@
+{
+  "title": "TypeScript",
+  "description": "O CReact é escrito em TypeScript. Veja como aproveitar ao máximo o sistema de tipos para signals, props e componentes.",
+  "heading_tsconfig": "Configuração do TypeScript",
+  "tsconfig_intro": "A configuração principal é <0>jsxImportSource</0>. Isso diz ao TypeScript para usar os tipos JSX do CReact:",
+  "code_tsconfig": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"jsxImportSource\": \"@creact-labs/creact\",\n    \"strict\": true,\n    \"outDir\": \"dist\"\n  }\n}",
+  "filename_tsconfig": "tsconfig.json",
+  "heading_value_or_accessor": "Tipando props value-or-accessor",
+  "value_or_accessor_intro": "O <0>SiteObjectProps</0> do site publisher tipa <1>bucket</1> e <2>entry</2> como <0>MaybeAccessor</0>, de modo que uma única interface aceita tanto valores simples quanto getters e o handler permanece totalmente tipado após o unwrap no acesso.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx",
+  "heading_typed_defaults": "Props tipadas com defaults",
+  "typed_defaults_intro": "O <0>TenantTreeProps</0> do tenant fleet marca <1>plan</1> como opcional; em seguida, o <2>mergeProps</2> fornece o default e estreita o resultado para um formato totalmente obrigatório no qual o restante da árvore pode confiar.",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx",
+  "info_types": "O CReact reexporta tipos principais: <0>Accessor</0>, <1>Setter</1>, <2>MaybeAccessor</2>, <3>SignalOptions</3>, <4>MemoOptions</4>, <5>Owner</5>, <6>Context</6> e todos os tipos de runtime.",
+  "in_the_wild": "Veja como essas props tipadas provisionam recursos reais no <0>site-publisher walkthrough</0>."
+}

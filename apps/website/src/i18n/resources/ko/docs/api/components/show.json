@@ -1,0 +1,19 @@
+{
+  "title": "Show",
+  "description": "반응형 조건에 따라 children을 조건부로 렌더링합니다.",
+  "signature": "Show<T>(props: { when: MaybeAccessor<T | undefined | null | false>; fallback?: MaybeAccessor<CReactNode>; children: CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode) }): JSXElement",
+  "heading_props": "Props",
+  "prop_when_name": "<0>when</0>",
+  "prop_when_type": "<0>MaybeAccessor<T | undefined | null | false></0>",
+  "prop_when_desc": "반응형 조건입니다. truthy일 때 children이 렌더링됩니다. 값 또는 accessor를 받습니다.",
+  "prop_fallback_name": "<0>fallback</0>",
+  "prop_fallback_type": "<0>MaybeAccessor<CReactNode></0>",
+  "prop_fallback_desc": "<0>when</0>이 falsy일 때 렌더링할 선택적 콘텐츠입니다.",
+  "prop_children_name": "<0>children</0>",
+  "prop_children_type": "<0>CReactNode | ((item: Accessor<NonNullable<T>>) => CReactNode)</0>",
+  "prop_children_desc": "렌더링할 콘텐츠이거나, truthy 값을 accessor로 받는 콜백입니다.",
+  "heading_usage": "사용법",
+  "usage_intro": "업타임 모니터는 전체 리포팅 레이어를 하나의 <0>Show</0> 게이트 뒤에 둡니다. 첫 번째 스윕이 타임스탬프를 기록할 때까지 상태 페이지와 배너는 마운트되지 않은 상태로 유지되다가, <1>lastSweepAt()</1>이 truthy가 되면 서브트리가 마운트됩니다.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "in_the_wild": "이 슬라이스는 업타임 모니터의 레이아웃입니다. 게이트가 전체 트리에 어떻게 들어맞는지 <0>uptime-monitor walkthrough</0>에서 확인하세요."
+}

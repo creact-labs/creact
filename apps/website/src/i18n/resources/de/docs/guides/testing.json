@@ -1,0 +1,18 @@
+{
+  "title": "Testing",
+  "description": "Testen Sie CReact-Apps, indem Sie sie gegen ein In-Memory-Memory-Backend rendern und echte Handler-Outputs prüfen.",
+  "heading_setup": "Setup",
+  "setup_intro": "Vitest installieren:",
+  "code_install": "npm install -D vitest",
+  "filename_terminal": "Terminal",
+  "heading_rendering": "Eine App rendern",
+  "rendering_intro": "Übergeben Sie <0>render</0> ein In-Memory-Memory-Backend und einen Stack-Namen und warten Sie auf <1>result.ready</1>, damit alle Handler abschließen können, bevor Sie asserten.",
+  "rendering_outputs": "Lesen Sie die deployten Instanzen mit <0>getNodes()</0> und prüfen Sie deren <1>outputs</1>. Weil Handler real laufen, nutzen Sie Vitests <0>vi.waitFor</0>, wenn sich ein Output über die Zeit ändert.",
+  "filename_counter_test": "durable-counter/src/__tests__/app.test.tsx",
+  "tip_reset_runtime": "Rufen Sie <0>resetRuntime()</0> und <1>result.dispose()</1> in einem afterEach-Hook auf, damit Runtime-State und Intervalle nie zwischen Tests leaken.",
+  "heading_mocking": "Globals mocken",
+  "mocking_intro": "Handler rufen dieselben Globals auf wie Ihre App – ersetzen Sie sie daher an der Grenze. Stubben Sie <0>fetch</0> mit <1>vi.stubGlobal</1>, um eine Komponente durch eine skriptierte Sequenz von Responses zu steuern.",
+  "mocking_transitions": "Füttern Sie den Stub mit einem Skript, rendern Sie die Komponente und asserten Sie die Status-Übergänge, die sie meldet. Stellen Sie den Stub nach jedem Test mit <0>vi.unstubAllGlobals</0> wieder her.",
+  "filename_http_check_test": "uptime-monitor/src/components/http-check/__tests__/http-check.test.tsx",
+  "in_the_wild": "Sehen Sie, wie diese Patterns eine vollständige Statusseite abdecken, im <0>uptime-monitor walkthrough</0>."
+}

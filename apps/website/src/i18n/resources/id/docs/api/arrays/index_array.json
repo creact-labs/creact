@@ -1,0 +1,15 @@
+{
+  "title": "indexArray",
+  "description": "Iterasi terindeks. Setiap posisi adalah accessor reaktif. Paling cocok untuk array primitif.",
+  "signature": "indexArray<T, U>(list: Accessor<readonly T[] | undefined | null | false>, mapFn: (v: Accessor<T>, i: number) => U, options?: { fallback?: Accessor<any> }): () => U[]",
+  "param_list_name": "<0>list</0>",
+  "param_list_type": "<0>Accessor<readonly T[] | undefined | null | false></0>",
+  "param_list_desc": "Sumber array reaktif.",
+  "param_map_fn_name": "<0>mapFn</0>",
+  "param_map_fn_type": "<0>(v: Accessor<T>, i: number) => U</0>",
+  "param_map_fn_desc": "Fungsi map. <0>v</0> adalah accessor (reaktif). <1>i</1> adalah indeks statis.",
+  "heading_numbered_roster": "Daftar bernomor berdasarkan slot",
+  "usage_numbered_roster": "Armada tenant membaca spesifikasi tenant-nya dari disk ke dalam signal, lalu membangun daftar bernomor dengan <0>indexArray</0>. Setiap posisi mempertahankan nomor <1>slot</1>-nya sementara <2>tenant()</2> tetap menjadi accessor, sehingga mengedit spesifikasi di tempat akan memperbarui baris tersebut tanpa menomori ulang sisanya.",
+  "in_the_wild": "Lihat daftar ini mengikuti file spesifikasi live di <0>tenant-fleet walkthrough</0>.",
+  "filename_app": "tenant-fleet/src/app.tsx"
+}

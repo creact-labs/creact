@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Menggabungkan beberapa objek props secara reaktif, dengan sumber yang lebih akhir menimpa yang lebih awal. Gunakan untuk default props.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Mengisi default props",
+  "usage_bucket": "<0>SiteBucket</0> milik site publisher menggabungkan objek defaults di depan <1>rawProps</1>, sehingga pemanggil yang menghilangkan <2>indexDocument</2> dan <2>errorDocument</2> fallback ke index.html sementara nilai yang disediakan tetap menang.",
+  "heading_tenant": "Default lintas batas runtime",
+  "usage_tenant": "<0>TenantTree</0> milik tenant fleet menggabungkan starter <1>plan</1> di depan props yang masuk, memberikan setiap tenant tier default tanpa memaksa setiap pemanggil menuliskannya secara eksplisit.",
+  "in_the_wild": "Lihat bagaimana default ini membentuk bucket dan tenant nyata di <0>panduan site-publisher</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

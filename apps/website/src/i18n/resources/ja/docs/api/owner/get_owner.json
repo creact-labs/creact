@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "現在のリアクティブオーナー（現在のスコープを所有する computation または root）を返します。",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "現在の <0>Owner</0>。リアクティブスコープの外で呼び出された場合は <1>null</1>。",
+  "usage_states": "page writer の <0>Page</0> は、同期スコープがまだ存在する間にコンポーネント本体で <1>getOwner</1> を呼び出します。そのオーナーをハンドラーに渡し、後で await したあとに <2>onCleanup</2> が正しいスコープにアタッチできるようにします。",
+  "in_the_wild": "このオーナーが非同期処理を通じて受け渡される様子は、<0>page-writer walkthrough</0> をご覧ください。",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

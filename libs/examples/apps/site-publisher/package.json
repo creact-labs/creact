@@ -1,0 +1,19 @@
+{
+  "name": "@creact-labs/example-site-publisher",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Publishes a local folder to an S3 static site, diff-aware, using an example mock S3 client so it runs anywhere",
+  "scripts": {
+    "start": "creact index.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@creact-labs/creact": "*",
+    "@creact-labs/example-file-memory": "*",
+    "@creact-labs/example-mock-s3": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "createReaction",
+  "description": "Разделяет отслеживание и выполнение. Отслеживайте одно выражение, запускайте другую функцию при его изменении. Реакция срабатывает один раз, после чего её нужно снова активировать.",
+  "signature": "createReaction(onInvalidate: () => void, options?: EffectOptions): (tracking: () => void) => void",
+  "param_on_invalidate_name": "<0>onInvalidate</0>",
+  "param_on_invalidate_type": "<0>() => void</0>",
+  "param_on_invalidate_desc": "Колбэк, который срабатывает один раз при изменении отслеживаемых сигналов.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "Необязательный. <0>name</0> для отладки.",
+  "returns_body": "Функция <0>(tracking: () => void) => void</0>, которая активирует реакцию. Вызовите её с выражением отслеживания. Сигналы, прочитанные внутри, отслеживаются. При изменении любого из них <1>onInvalidate</1> срабатывает один раз, и отслеживание прекращается, пока вы снова не вызовете функцию.",
+  "heading_alert_on_first_failure": "Оповещение о первом сбое",
+  "usage_alert_on_first_failure": "Компонент <0>Alert</0> монитора uptime активирует реакцию по <1>props.incidents()</1>. При каждом изменении списка он фиксирует любой инцидент, о котором ещё не оповещал, затем снова активирует себя, чтобы следующее изменение снова сработало. Обычный effect перезапускал бы всё сканирование целиком; реакция разделяет отслеживание и побочный эффект.",
+  "in_the_wild": "Посмотрите, как эта реакция управляет логом алертов в <0>uptime-monitor walkthrough</0>.",
+  "filename_alert": "uptime-monitor/src/components/alert/index.tsx"
+}

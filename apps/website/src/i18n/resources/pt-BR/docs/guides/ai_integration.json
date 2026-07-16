@@ -1,0 +1,19 @@
+{
+  "title": "Integração com IA",
+  "description": "Chame o Claude a partir de um handler de recurso durável, extraído do exemplo page-writer.",
+  "heading_client": "A interface de injeção do cliente",
+  "client_intro": "O page-writer encapsula o SDK da Anthropic por trás de uma interface pequena. <0>HtmlWriterClient</0> declara o único método que o app usa, e <1>createHtmlWriterClient</1> constrói o cliente real a partir do ambiente:",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "Esta interface é o ponto de injeção de dependência (seam). O código de produção não passa nada e recebe o SDK real, enquanto os testes entregam a <0>writeHtml</0> um fake scriptado — sem rede, sem chave de API.",
+  "heading_request": "Fazendo a requisição",
+  "request_intro": "<0>writeHtml</0> envia o prompt do usuário com um system prompt fixo e usa por padrão o parâmetro <1>client</1> como o SDK real:",
+  "request_notice": "O system prompt fixa o contrato de saída — um documento HTML independente, sem cercas de markdown — para que o restante do pipeline possa tratar a resposta como um artefato implantável em vez de chat.",
+  "heading_extract": "Extraindo o documento",
+  "extract_intro": "As respostas chegam como blocos de conteúdo. <0>extractHtmlDocument</0> extrai o primeiro bloco de texto e falha de forma explícita quando o Claude não retorna nada utilizável:",
+  "heading_generate_handler": "O handler de geração",
+  "generate_intro": "O componente Page transforma um prompt em um recurso durável. Seu handler restaura a partir do ledger primeiro e só chama <0>writeHtml</0> quando a página nunca foi gerada — essa verificação é o que o torna idempotente:",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> recebe o último valor persistido, mesmo entre reinicializações. Se a execução anterior já chegou a <1>ready</1>, o handler mantém esse estado e retorna sem gastar outra chamada de API.",
+  "tip_persistence": "As saídas de IA persistem como qualquer outro resultado de <0>useAsyncOutput</0>. Reiniciar o app reexecuta todos os handlers, mas páginas restauradas pulam a geração — apenas prompts genuinamente novos chegam à API.",
+  "see_walkthrough": "Veja o pipeline completo de prompt até página no <0>passo a passo do page-writer</0>."
+}

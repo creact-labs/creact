@@ -1,0 +1,12 @@
+{
+  "title": "untrack",
+  "description": "Lit des signaux sans créer de dépendances réactives.",
+  "signature": "untrack<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fonction à exécuter sans tracking. Les lectures de signaux à l'intérieur n'enregistrent pas de dépendances.",
+  "heading_reading_aside": "Lire une valeur à part",
+  "usage_reading_aside": "Le moniteur d'uptime journalise une transition uniquement lorsque le <0>status</0> d'un check change. Il a toujours besoin de la dernière latence pour le message, donc il lit <1>latest()</1> via <2>untrack</2>, en maintenant la latence hors des dépendances de l'effet tandis que seul le status pilote la réexécution.",
+  "in_the_wild": "Voir ce journal de transition dans le <0>parcours uptime-monitor</0>.",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

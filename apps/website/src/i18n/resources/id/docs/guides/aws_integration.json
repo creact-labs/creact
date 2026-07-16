@@ -1,0 +1,23 @@
+{
+  "title": "Integrasi AWS",
+  "description": "Kelola resource S3 yang sesungguhnya dengan handler idempotent, diambil dari contoh site-publisher.",
+  "heading_aws_provider": "AWS Provider",
+  "provider_intro": "Site-publisher membagikan satu <0>S3Client</0> melalui context. Provider membangun client, mendaftarkan <1>onCleanup</1> untuk menghancurkannya, dan menyerahkan koneksi ke setiap descendant:",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx",
+  "provider_notice": "Setiap component di bawah provider memanggil <0>useAws</0> untuk mendapatkan client dan region. Satu koneksi melayani seluruh tree, dan dihancurkan tepat sekali saat tree <1>disposes</1>.",
+  "heading_ensure_bucket": "Memastikan Bucket Ada",
+  "ensure_bucket_intro": "Handler bucket membuat bucket dan memperlakukan <0>BucketAlreadyOwnedByYou</0> sebagai sukses, karena handler dijalankan ulang pada setiap startup:",
+  "filename_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "ensure_bucket_notice": "Menangkap error already-owned adalah pola idempotency untuk cloud resource — handler berkonvergensi ke desired state alih-alih mengasumsikan blank slate. Error lain tetap <0>throws</0> dan menggagalkan node.",
+  "heading_website_config": "Mengonfigurasi Static Hosting",
+  "website_config_intro": "Setelah bucket ada, handler yang sama mengaktifkan website hosting dan mempublikasikan URL situs dengan <0>setOutputs</0>:",
+  "website_config_notice": "URL menjadi reactive output — <0>bucket.url()</0> — yang dapat dikonsumsi child component dan effect segera setelah di-set.",
+  "heading_changed_check": "Melewati File yang Tidak Berubah",
+  "changed_check_intro": "Setiap file yang diunggah adalah resource tersendiri. Sebelum mengunggah, handler membandingkan content hash file dengan output yang dipersistensi melalui <0>setOutputs(prev => …)</0>:",
+  "filename_object": "site-publisher/src/aws/site-object/index.tsx",
+  "changed_check_notice": "Ketika hash cocok, handler return early — <0>prev</0> adalah nilai terakhir yang dipersistensi, sehingga file yang tidak berubah tidak memakan API call sama sekali pada redeploy.",
+  "heading_upload": "Mengunggah File yang Berubah",
+  "upload_intro": "Hanya file yang berubah yang sampai ke <0>PutObjectCommand</0>. Hash baru dipersistensi bersama path, siap untuk perbandingan pada run berikutnya:",
+  "warning_idempotent": "Cloud handler harus idempotent: mereka dijalankan ulang pada setiap startup, sehingga pola create-or-confirm dan deteksi perubahan menjaga run berulang agar tidak menduplikasi pekerjaan atau gagal pada resource yang sudah ada.",
+  "see_walkthrough": "Lihat kisah deployment lengkap, termasuk hashing manifest, di <0>site-publisher walkthrough</0>."
+}

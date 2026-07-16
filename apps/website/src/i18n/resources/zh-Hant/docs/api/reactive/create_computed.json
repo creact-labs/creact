@@ -1,0 +1,19 @@
+{
+  "title": "createComputed",
+  "description": "在 computation 階段、effects 之前同步執行函式。當相依項更新時需要寫入其他 signals 時使用。",
+  "signature": "createComputed<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "計算函式。同步執行。",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "可選的初始值。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "可選。<0>name</0> 供除錯使用。",
+  "heading_tracking_incidents": "推導未結案的 incidents",
+  "usage_tracking_incidents": "uptime monitor 會將未結案的 incidents 清單保存在 <0>incidents</0> signal 中。<1>createComputed</1> 讀取 <2>latestSamples()</2>，再把對齊後的 incident 清單寫回，讓 signal 寫入能在任何 effect 讀取之前同步完成。",
+  "warning_prefer_memo": "衍生值請優先使用 <0>createMemo</0>。僅在需要於 computation 階段同步寫入其他 signals 時，才使用 <1>createComputed</1>。",
+  "in_the_wild": "在 <0>uptime-monitor walkthrough</0> 中查看此 computation 如何開啟與關閉 incidents。",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

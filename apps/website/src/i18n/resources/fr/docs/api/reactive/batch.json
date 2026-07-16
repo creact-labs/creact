@@ -1,0 +1,13 @@
+{
+  "title": "batch",
+  "description": "Regroupe plusieurs mises à jour de signaux en un seul passage de calcul.",
+  "signature": "batch<T>(fn: () => T): T",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Fonction contenant les mises à jour de signaux. Toutes les mises à jour sont différées jusqu'à la fin de la fonction.",
+  "returns_body": "La valeur de retour de <0>fn</0>.",
+  "heading_record_sample": "Enregistrement d'une sonde en un seul passage",
+  "usage_record_sample": "Lorsque le moniteur d'uptime enregistre une sonde, <0>recordSample</0> écrit à la fois <1>setSamples</1> et <2>setLastSweepAt</2> à l'intérieur d'un seul batch, de sorte que chaque memo et effect qui les lit se réexécute une seule fois au lieu de deux.",
+  "in_the_wild": "Voir cette écriture en batch alimenter une page de statut en direct dans le <0>tutoriel uptime-monitor</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx"
+}

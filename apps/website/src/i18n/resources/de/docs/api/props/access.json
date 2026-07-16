@@ -1,0 +1,13 @@
+{
+  "title": "access",
+  "description": "Entpackt einen MaybeAccessor. Ruft ihn auf, wenn es eine Funktion ist, und gibt ihn ansonsten direkt zurück.",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "Ein Wert oder eine Accessor-Funktion.",
+  "returns_desc": "Der entpackte Wert vom Typ <0>T</0>.",
+  "heading_unwrapping": "Entpacken von Value-or-Accessor-Props",
+  "usage_unwrapping": "Das <0>SiteObject</0> des Site-Publishers akzeptiert <1>bucket</1> und <2>entry</2> als <3>MaybeAccessor</3>, sodass Aufrufer entweder einen einfachen Wert oder einen Getter übergeben können. Das reaktive Props-Objekt des Handlers ruft access für jedes davon auf und löst die jeweilige Form in den konkreten Wert auf, den der Upload benötigt.",
+  "in_the_wild": "Siehe, wie jede Datei ihren bucket und entry vor dem Upload auflöst, im <0>site-publisher walkthrough</0>.",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

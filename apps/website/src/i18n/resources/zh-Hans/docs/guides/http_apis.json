@@ -1,0 +1,17 @@
+{
+  "title": "HTTP API 与通道",
+  "description": "将真实的 node:http 服务器作为托管资源运行，摘自 page-writer 示例。",
+  "heading_channels": "什么是通道？",
+  "channels_desc": "通道是拥有网络端点的组件。当其 handler 运行时会启动服务器，通过回调 props 将传入请求送入响应式系统，并在 cleanup 时关闭套接字。",
+  "heading_server_resource": "服务器资源",
+  "server_intro": "page-writer 的 <0>HttpChannel</0> 用 useAsyncOutput 包装 <1>node:http</1> 服务器，因此监听套接字与任何其他托管资源具有相同的生命周期：",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "handler 仅在 <0>listen</0> 成功后 resolve，通过 <1>setOutputs</1> 发布 URL，并返回 cleanup 函数。请求从不直接接触 runtime——它们调用父组件传入的回调 props。",
+  "heading_routes": "路由请求",
+  "routes_intro": "路由就是普通的 Node.js 代码。每个路由验证其输入，并委托给诸如 <0>onCreatePage</0> 或 <1>onListPages</1> 这样的 prop：",
+  "routes_notice": "通道保持通用——它只了解 HTTP，不了解页面。<0>onCreatePage</0> 更新父组件中的 store，新的 Page 资源挂载，响应立即返回已接受的 slug。",
+  "heading_teardown": "响应与拆除",
+  "teardown_intro": "两个小型辅助函数补完该组件：一个 JSON 响应器，以及由 cleanup 函数使用的 promise 包装的 <0>server.close</0>：",
+  "info_cleanup": "handler 返回的 cleanup 会在组件卸载时或 handler 重新运行前释放端口，因此 <0>--watch</0> 重启时绝不会遇到 address-in-use 错误。",
+  "see_walkthrough": "在 <0>page-writer 演练</0> 中查看完整的请求到页面流水线。"
+}

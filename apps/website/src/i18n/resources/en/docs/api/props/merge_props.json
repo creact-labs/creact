@@ -1,0 +1,12 @@
+{
+  "title": "mergeProps",
+  "description": "Merges multiple props objects reactively, with later sources overriding earlier ones. Use for default props.",
+  "signature": "mergeProps<T extends object[]>(...sources: T): MergeProps<T>",
+  "heading_bucket": "Filling in default props",
+  "usage_bucket": "The site publisher's <0>SiteBucket</0> merges a defaults object ahead of <1>rawProps</1>, so callers that omit <2>indexDocument</2> and <2>errorDocument</2> fall back to index.html while any supplied value still wins.",
+  "heading_tenant": "Defaults across a runtime boundary",
+  "usage_tenant": "The tenant fleet's <0>TenantTree</0> merges a starter <1>plan</1> ahead of the incoming props, giving every tenant a default tier without forcing each caller to spell it out.",
+  "in_the_wild": "See these defaults shape real buckets and tenants in the <0>site-publisher walkthrough</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

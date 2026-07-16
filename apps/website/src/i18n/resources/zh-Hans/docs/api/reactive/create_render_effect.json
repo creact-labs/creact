@@ -1,0 +1,19 @@
+{
+  "title": "createRenderEffect",
+  "description": "在渲染期间同步运行函数，而不是将其排队。由运行时内部使用；应用代码中很少需要。",
+  "signature": "createRenderEffect<Next, Init = Next>(fn: (v: Init | Next) => Next, value?: Init, options?: EffectOptions): void",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(v: Init | Next) => Next</0>",
+  "param_fn_desc": "Effect 函数。在渲染期间立即运行。",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>Init</0>",
+  "param_value_desc": "可选的初始值。",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>EffectOptions</0>",
+  "param_options_desc": "可选。<0>name</0> 用于调试。",
+  "heading_reporting_state": "在渲染期间报告状态",
+  "usage_reporting_state": "页面编写器的 <0>Page</0> 组件会在输出变化时将其报告给父级。<1>createRenderEffect</1> 读取页面快照，并在渲染期间同步调用 <2>props.onState</2>，因此父级账本在任何排队的 effect 运行之前就能看到第一个状态。",
+  "info_ordering": "Render effect 在用户 effect（<0>createEffect</0>）之前运行。当你需要在渲染阶段进行同步反应时使用，例如组件渲染跟踪。",
+  "in_the_wild": "在 <0>page-writer walkthrough</0> 中查看此 effect 如何将页面状态流式传输到父级。",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

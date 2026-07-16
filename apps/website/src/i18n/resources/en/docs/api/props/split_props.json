@@ -1,0 +1,13 @@
+{
+  "title": "splitProps",
+  "description": "Splits a props object into multiple groups by key. Preserves reactivity.",
+  "signature": "splitProps<T>(props: T, ...keys: (keyof T)[][]): [...Pick<T, ...>[], Omit<T, ...>]",
+  "behavior": "Takes the props object followed by one or more arrays of keys. Returns a tuple with one object per key group plus a remainder object containing all unmatched keys.",
+  "heading_bucket": "Separating config from children",
+  "usage_bucket": "The site publisher's <0>SiteBucket</0> splits the merged props into a <1>site</1> group holding the bucket name and document settings, leaving a <2>rest</2> group whose children render underneath the provisioned bucket.",
+  "heading_tenant": "Placement versus service props",
+  "usage_tenant": "The tenant fleet's <0>TenantDatabase</0> splits its props into a <1>placement</1> group that provisions the database and a <2>service</2> remainder that flows on to the API tier.",
+  "in_the_wild": "See these groups drive real provisioning in the <0>site-publisher walkthrough</0>.",
+  "filename_site_bucket": "site-publisher/src/aws/site-bucket/index.tsx",
+  "filename_tenant_app": "tenant-fleet/src/components/tenant-app/index.tsx"
+}

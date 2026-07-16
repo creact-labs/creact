@@ -1,0 +1,15 @@
+{
+  "title": "runWithOwner",
+  "description": "Chạy một hàm dưới một reactive owner cụ thể. Bắt buộc khi tạo effect trong callback bất đồng bộ.",
+  "signature": "runWithOwner<T>(owner: Owner | null, fn: () => T): T | undefined",
+  "param_owner_name": "<0>owner</0>",
+  "param_owner_type": "<0>Owner | null</0>",
+  "param_owner_desc": "Phạm vi owner để chạy trong đó. Lấy từ <0>getOwner()</0>. Chấp nhận <1>null</1>.",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>() => T</0>",
+  "param_fn_desc": "Hàm cần chạy. Mọi effect/cleanup được tạo bên trong đều thuộc về <0>owner</0>.",
+  "info_async_owner": "Sau <0>await</0> hoặc bên trong callback, reactive owner sẽ bị mất. Bắt lấy đồng bộ bằng <1>getOwner()</1> và khôi phục bằng <2>runWithOwner()</2>.",
+  "usage_deploy_write": "<0>retainOnDetach</0> của page writer chạy dưới owner đã bắt lấy để <1>onCleanup</1> của nó gắn vào scope của page. Việc đăng ký đó diễn ra sau lần ghi bất đồng bộ, khi <2>runWithOwner</2> là cách duy nhất để quay lại đúng owner.",
+  "in_the_wild": "Xem owner này được khôi phục quanh một lần ghi file durable trong <0>page-writer walkthrough</0>.",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

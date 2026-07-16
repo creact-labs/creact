@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "Создаёт кэшированное производное значение. Используйте при вычислении значения на основе других сигналов. Пересчитывается только при изменении зависимостей.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "Функция вычисления. Получает предыдущее значение.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Необязательное начальное seed-значение.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "Необязательно. <0>equals</0> для пользовательского сравнения.",
+  "returns_body": "<0>Accessor<T></0>, возвращающий мемоизированное значение. Выступает одновременно как reader сигнала (trackable) и как вычисление (с автообновлением).",
+  "heading_chained_status": "Цепочка производного статуса",
+  "usage_chained_status": "Uptime-монитор вычисляет <0>latestSamples</0> из сырой истории samples, затем сворачивает их в единый статус <1>overall</1>. Поскольку memo сравнивают результаты перед уведомлением, проход, оставляющий свёрнутый статус без изменений, останавливает цепочку прямо здесь.",
+  "heading_table_rows": "Формирование строк статуса",
+  "usage_table_rows": "Страница статуса превращает targets, samples и tallies в строки для отображения с помощью одного memo. Write-эффект просто читает <0>rows()</0> и никогда не повторяет вычисления для каждого target.",
+  "in_the_wild": "Посмотрите, как оба memo питают сгенерированную страницу статуса, в <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

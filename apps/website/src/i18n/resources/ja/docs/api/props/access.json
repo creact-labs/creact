@@ -1,0 +1,13 @@
+{
+  "title": "access",
+  "description": "MaybeAccessorをアンラップします。関数であれば呼び出し、そうでなければそのまま返します。",
+  "signature": "access<T>(value: MaybeAccessor<T>): T",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T | () => T</0>",
+  "param_value_desc": "値、またはアクセサー関数。",
+  "returns_desc": "型 <0>T</0> のアンラップされた値。",
+  "heading_unwrapping": "値またはアクセサーのpropsをアンラップする",
+  "usage_unwrapping": "サイトパブリッシャーの <0>SiteObject</0> は <1>bucket</1> と <2>entry</2> を <3>MaybeAccessor</3> として受け取るため、呼び出し側はプレーンな値でもゲッターでも渡せます。ハンドラーのリアクティブなpropsオブジェクトはそれぞれに対してaccessを呼び出し、渡された形式をアップロードに必要な具体的な値に解決します。",
+  "in_the_wild": "<0>site-publisher walkthrough</0> で、各ファイルがアップロード前にbucketとentryを解決する様子を確認してください。",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

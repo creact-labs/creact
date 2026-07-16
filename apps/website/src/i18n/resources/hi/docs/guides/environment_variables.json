@@ -1,0 +1,16 @@
+{
+  "title": "एनवायरनमेंट वेरिएबल्स",
+  "description": "process.env का उपयोग करके अपने ऐप को अलग-अलग एनवायरनमेंट के लिए कॉन्फ़िगर करें।",
+  "heading_reading": "एनवायरनमेंट वेरिएबल्स पढ़ना",
+  "reading_intro": "किसी भी Node.js ऐप की तरह <0>process.env</0> के माध्यम से एनवायरनमेंट वेरिएबल्स पढ़ें। site publisher प्रत्येक lookup को एक <1>requireEnv</1> helper में wrap करता है जो value लौटाता है या <2>.env.example</2> की ओर इशारा करते हुए message throw करता है।",
+  "filename_app": "site-publisher/src/app.tsx",
+  "heading_fail_fast": "गायब key पर फेल फास्ट",
+  "fail_fast_intro": "page writer अपने entry point के शीर्ष पर <0>ANTHROPIC_API_KEY</0> की जाँच करता है और जब वह मौजूद नहीं होता तो setup instructions के साथ <1>process.exit(1)</1> कॉल करता है, ताकि run किसी handler के अंदर गहराई में जाने के बजाय किसी भी काम शुरू होने से पहले रुक जाए।",
+  "filename_entry": "page-writer/index.tsx",
+  "heading_secrets": "सीक्रेट्स को संभालना",
+  "secrets_intro": "सीक्रेट्स को एनवायरनमेंट वेरिएबल्स या secret manager के माध्यम से पास करें:",
+  "code_env": "# .env (add to .gitignore)\nAWS_ACCESS_KEY_ID=AKIA...\nAWS_SECRET_ACCESS_KEY=...\nANTHROPIC_API_KEY=sk-ant-...",
+  "filename_env": ".env",
+  "warning_dotenv": "CReact में built-in <0>.env</0> file loading नहीं है। <1>dotenv</1> जैसे package का उपयोग करें या अपने shell / CI environment में variables सेट करें।",
+  "in_the_wild": "इन env checks को एक real deployment को gate करते हुए <0>site-publisher walkthrough</0> में देखें।"
+}

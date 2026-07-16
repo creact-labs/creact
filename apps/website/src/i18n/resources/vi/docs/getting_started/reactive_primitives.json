@@ -1,0 +1,15 @@
+{
+  "title": "Các nguyên thủy reactive",
+  "description": "Signals, memos và computations giúp component phản ứng với thay đổi mà không cần re-render.",
+  "heading_signals": "Signals",
+  "signals_intro": "Signal là một giá trị reactive có getter và setter. <0>App</0> của uptime monitor giữ mọi probe sample và thời điểm sweep gần nhất trong signals, và việc đọc <1>samples()</1> bên trong memo hoặc effect sẽ đăng ký dependency và chạy lại khi <2>setSamples</2> ghi.",
+  "info_batch": "<0>batch()</0> nhóm nhiều lần ghi signal thành một pass re-evaluation. Ghi một sample cập nhật cả lịch sử sample và thời điểm sweep gần nhất, nhưng các memo downstream chỉ recompute một lần.",
+  "heading_memos": "Memos",
+  "memos_intro": "Memo cache một giá trị derived và chỉ recompute khi các dependency của nó thay đổi. <0>latestSamples</0> ánh xạ mỗi target tới sample mới nhất, và <1>overall</1> gộp các status đó thành một verdict duy nhất.",
+  "heading_computed": "Computations",
+  "computed_intro": "<0>createComputed</0> chạy trước effects, nên nó có thể derive state mà các effect sau đọc trong cùng một pass. Ở đây nó diff các target down với danh sách incident đang mở và chỉ ghi <1>setIncidents</1> khi tập hợp thực sự thay đổi.",
+  "heading_on_untrack": "on và untrack",
+  "on_untrack_intro": "<0>on</0> khai báo dependencies tường minh và truyền cho effect cả giá trị next lẫn previous. Mỗi lần check log các chuyển trạng thái status từ <1>on(status, ...)</1>, đọc latency bằng <2>untrack</2> để field đó không trở thành dependency.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

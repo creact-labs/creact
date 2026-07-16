@@ -1,0 +1,23 @@
+{
+  "title": "useAsyncOutput",
+  "description": "永続化された出力を持つリソースを作成します。外部システムとやり取りする CReact コンポーネントの主要なフックです。",
+  "signature": "useAsyncOutput<O, P>(propsOrGetter: P | (() => P), handler: Handler<P, O>): OutputAccessors<O>",
+  "param_props_or_getter_name": "<0>propsOrGetter</0>",
+  "param_props_or_getter_type": "<0>P | (() => P)</0>",
+  "param_props_or_getter_desc": "静的な props、またはリアクティブな追跡用の getter 関数。getter を使うと、依存関係が変化したときに handler が再実行されます。",
+  "param_handler_name": "<0>handler</0>",
+  "param_handler_type": "<0>(props: P, setOutputs: SetOutputs<O>) => Promise<(() => void) | void> | void</0>",
+  "param_handler_desc": "処理を実行し、出力を設定するセットアップ関数。クリーンアップ関数（同期または非同期）を返すことができます。",
+  "returns_desc": "各出力キーに対するアクセサ関数を持つオブジェクト。たとえば <0>setOutputs({ url: '...' })</0> を呼び出した場合、戻り値には <1>result.url()</1> が含まれます。",
+  "heading_counter": "永続リソース",
+  "usage_counter": "durable counter の <0>Counter</0> は、空の props と handler を使って <1>useAsyncOutput</1> を 1 回呼び出します。返される <2>counter.count()</2> は、任意の effect が読み取れるリアクティブなアクセサです。",
+  "heading_restore": "永続化された状態の復元",
+  "usage_restore": "page writer の handler は、<1>setOutputs</1> 内で <0>prev</0> を読み取り、すでに生成済みのページを検出します。<2>state === \"ready\"</2> が復元されている場合は、Claude の呼び出しをスキップして早期に return し、再生成しません。",
+  "heading_prev_aware": "変更のない作業のスキップ",
+  "usage_prev_aware": "site publisher は、受け取った <0>entry.hash</0> を永続化された <1>prev.hash</1> と比較します。ハッシュが一致する場合、オブジェクトはすでにアップロード済みなので、handler は <2>S3</2> に触れる前に return します。",
+  "callout_idempotent": "Handler は冪等でなければなりません。再起動時、すべてのノードで handler が再実行され、副作用（interval、サブスクリプションなど）が再確立されます。出力値は state から復元されますが、handler はランタイムの成果物を再作成する必要があります。",
+  "in_the_wild": "これらの handler が再起動をまたいで永続化・復旧する様子は、<0>durable-counter walkthrough</0> で確認できます。",
+  "filename_counter": "durable-counter/src/app.tsx",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "filename_site_object": "site-publisher/src/aws/site-object/index.tsx"
+}

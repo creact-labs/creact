@@ -1,0 +1,22 @@
+{
+  "title": "createMemo",
+  "description": "Crée une valeur dérivée mise en cache. À utiliser pour calculer une valeur à partir d'autres signaux. Ne se recalcule que lorsque les dépendances changent.",
+  "signature": "createMemo<T>(fn: (prev: T | undefined) => T, value?: T, options?: MemoOptions<T>): Accessor<T>",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(prev: T | undefined) => T</0>",
+  "param_fn_desc": "Fonction de calcul. Reçoit la valeur précédente.",
+  "param_value_name": "<0>value</0>",
+  "param_value_type": "<0>T</0>",
+  "param_value_desc": "Valeur initiale optionnelle.",
+  "param_options_name": "<0>options</0>",
+  "param_options_type": "<0>MemoOptions<T></0>",
+  "param_options_desc": "Optionnel. <0>equals</0> pour une comparaison personnalisée.",
+  "returns_body": "Un <0>Accessor<T></0> qui renvoie la valeur mémorisée. Agit à la fois comme un lecteur de signal (traçable) et comme un calcul (mise à jour automatique).",
+  "heading_chained_status": "Chaînage du statut dérivé",
+  "usage_chained_status": "Le moniteur d'uptime dérive <0>latestSamples</0> de l'historique brut des échantillons, puis l'agrège en un seul statut <1>overall</1>. Comme les memos comparent les résultats avant de notifier, un balayage qui laisse le statut agrégé inchangé arrête la chaîne à ce stade.",
+  "heading_table_rows": "Mise en forme des lignes de statut",
+  "usage_table_rows": "La page de statut transforme les cibles, les échantillons et les totaux en lignes d'affichage avec un seul memo. L'effet d'écriture se contente de lire <0>rows()</0> et ne répète jamais les calculs par cible.",
+  "in_the_wild": "Voir les deux memos alimenter la page de statut générée dans le <0>uptime-monitor walkthrough</0>.",
+  "filename_app": "uptime-monitor/src/app.tsx",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx"
+}

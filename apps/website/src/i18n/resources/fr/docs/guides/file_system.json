@@ -1,0 +1,16 @@
+{
+  "title": "Opérations sur le système de fichiers",
+  "description": "Écrivez des fichiers à partir de l’état réactif et persistez l’état de l’application sur le disque, extrait de l’exemple uptime-monitor.",
+  "heading_write_effect": "Écrire des fichiers depuis un Effect",
+  "write_effect_intro": "Le composant de page de statut d’uptime-monitor transforme l’état réactif en un fichier sur le disque. Un <0>createEffect</0> re-rend le HTML chaque fois qu’un résultat de sonde change, et <1>catchError</1> empêche un rendu erroné de faire planter l’application :",
+  "filename_status_page": "uptime-monitor/src/components/status-page/index.tsx",
+  "write_effect_notice": "L’effect suit <0>props.overall()</0> et <1>rows()</1> de manière synchrone, puis confie le HTML terminé à une étape de publication asynchrone. Lire les signaux avant le premier await est ce qui maintient le graphe de dépendances exact.",
+  "heading_publish": "L’étape de publication",
+  "publish_intro": "L’écriture réelle sur le disque est une simple fonction asynchrone construite sur <0>node:fs/promises</0>. Elle crée le répertoire de sortie à la demande et écrase <1>./out/status.html</1> en place :",
+  "publish_notice": "Rien ici n’est spécifique à CReact — le système réactif décide quand écrire, et les API Node.js ordinaires effectuent l’écriture. Chaque exécution d’effect produit un fichier frais et complet.",
+  "heading_file_memory": "Mémoire basée sur les fichiers",
+  "file_memory_intro": "L’autre modèle de système de fichiers dont chaque application a besoin est la persistance. <0>FileMemory</0> implémente le contrat <1>Memory</1> avec un fichier JSON par stack :",
+  "filename_memory": "packages/file-memory/src/index.ts",
+  "file_memory_notice": "<0>getState</0> renvoie null lorsqu’aucun ledger n’existe encore, et <1>saveState</1> réécrit l’état de déploiement complet après chaque modification. C’est le ledger que les applications d’exemple utilisent pour survivre aux redémarrages.",
+  "see_walkthrough": "Consultez l’application complète dans le <0>uptime-monitor walkthrough</0>."
+}

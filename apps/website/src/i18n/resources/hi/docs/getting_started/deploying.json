@@ -1,0 +1,23 @@
+{
+  "title": "डिप्लॉय करना",
+  "description": "State persistence और उचित process management के साथ production में CReact apps चलाएँ।",
+  "heading_production_run": "Production में चलाना",
+  "production_run_intro": "Production के लिए <0>start</0> script का उपयोग करें (<1>--watch</1> के बिना):",
+  "code_run_start": "npm run start",
+  "production_run_outro": "यह आपके entry point को एक बार चलाता है। CReact वर्तमान component tree को persisted state के साथ reconcile करता है, changes लागू करता है, नया state save करता है, और exit करता है।",
+  "heading_ci_cd": "CI/CD एकीकरण",
+  "ci_cd_intro": "CReact apps CI/CD pipelines में अच्छी तरह काम करते हैं। App previous state पढ़ता है, reconcile करता है, changes deploy करता है, और नया state लिखता है—सब एक ही run में।",
+  "code_ci_cd": "# GitHub Actions example\n- name: Deploy infrastructure\n  run: npx creact index.tsx\n  env:\n    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}\n    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+  "heading_state_storage": "State Storage",
+  "state_storage_intro": "Production के लिए, local file system की जगह remote backend में state store करें। अपने storage के लिए <0>Memory</0> interface implement करें:",
+  "storage_s3": "<0>S3:</0> S3 bucket में state JSON store करें",
+  "storage_dynamodb": "<0>DynamoDB:</0> concurrent-safe state के लिए table का उपयोग करें",
+  "storage_database": "<0>Database:</0> PostgreSQL, Redis, आदि।",
+  "heading_watch_mode": "Watch Mode के साथ Long-Running",
+  "watch_mode_intro": "ऐसे apps के लिए जो continuously चलने चाहिए (जैसे servers या monitors), watch mode का उपयोग करें:",
+  "code_watch": "creact --watch index.tsx",
+  "watch_mode_outro": "Watch mode source files बदलने पर app को restart करता है, restarts के बीच state को preserve रखते हुए।",
+  "tip_process_manager": "Long-running processes के लिए, restarts और logging manage करने हेतु PM2 या systemd का उपयोग करें।",
+  "filename_terminal": "Terminal",
+  "filename_workflow": ".github/workflows/deploy.yml"
+}

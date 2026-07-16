@@ -1,0 +1,25 @@
+{
+  "reference": "संदर्भ",
+  "usage": "उपयोग",
+  "parameters": "पैरामीटर",
+  "returns": "रिटर्न",
+  "param_table": {
+    "parameter": "पैरामीटर",
+    "type": "टाइप",
+    "description": "विवरण"
+  },
+  "prop_table": {
+    "prop": "Prop",
+    "type": "टाइप",
+    "description": "विवरण"
+  },
+  "copy": "कॉपी",
+  "copied": "कॉपी हो गया",
+  "open_playground": "Playground में खोलें",
+  "open_playground_sub": "इस उदाहरण को अपने ब्राउज़र में लाइव चलाएँ — editor, terminal, real Node",
+  "callout": {
+    "info": "नोट",
+    "warning": "चेतावनी",
+    "tip": "जानना अच्छा है"
+  }
+}

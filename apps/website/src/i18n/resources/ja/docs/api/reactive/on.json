@@ -1,0 +1,18 @@
+{
+  "title": "on",
+  "description": "計算の依存関係を明示的にします。特定のシグナルを追跡しつつ、他は追跡せずに読み取ります。",
+  "signature": "on<S, T>(deps: Accessor<S> | Accessor<unknown>[], fn: (input: S, prevInput: S | undefined, prevValue: T | undefined) => T, options?: { defer?: boolean }): (prevValue: T | undefined) => T",
+  "param_deps_name": "<0>deps</0>",
+  "param_deps_type": "<0>Accessor<S> | Accessor<unknown>[]</0>",
+  "param_deps_desc": "明示的に追跡するシグナル。",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>(input, prevInput, prevValue) => T</0>",
+  "param_fn_desc": "コールバック。追跡なしで実行され、<0>deps</0> のみが追跡されます。",
+  "param_defer_name": "<0>options.defer</0>",
+  "param_defer_type": "<0>boolean</0>",
+  "param_defer_desc": "<0>true</0> の場合、最初の実行をスキップします。",
+  "heading_status_transitions": "ステータス変更への反応",
+  "usage_status_transitions": "uptime モニターはトランジションエフェクトを <0>on(status, ...)</0> でラップしているため、チェックの <1>status</1> シグナルが変化したときのみ再実行されます。コールバックは <2>next</2> と <3>prev</3> を受け取り、<4>defer: true</4> を渡すと最初の実行をスキップするため、マウント時にトランジションはログに記録されません。",
+  "in_the_wild": "これらのトランジションが <0>uptime-monitor walkthrough</0> にログとして記録されているのを確認してください。",
+  "filename_http_check": "uptime-monitor/src/components/http-check/index.tsx"
+}

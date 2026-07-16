@@ -1,0 +1,17 @@
+{
+  "title": "APIs HTTP y canales",
+  "description": "Ejecuta un servidor node:http real como recurso gestionado, extraído del ejemplo page-writer.",
+  "heading_channels": "¿Qué son los canales?",
+  "channels_desc": "Un canal es un componente que posee un endpoint de red. Inicia un servidor cuando se ejecuta su handler, introduce las solicitudes entrantes en el sistema reactivo a través de props de callback y cierra el socket en el cleanup.",
+  "heading_server_resource": "El recurso del servidor",
+  "server_intro": "El <0>HttpChannel</0> de page-writer envuelve un servidor <1>node:http</1> en useAsyncOutput, de modo que el socket de escucha tiene el mismo ciclo de vida que cualquier otro recurso gestionado:",
+  "filename_channel": "page-writer/src/components/http-channel/index.tsx",
+  "server_notice": "El handler se resuelve solo después de que <0>listen</0> tenga éxito, publica la URL con <1>setOutputs</1> y devuelve una función de cleanup. Las solicitudes nunca tocan el runtime directamente: llaman a las props de callback que el padre les pasó.",
+  "heading_routes": "Enrutamiento de solicitudes",
+  "routes_intro": "El enrutamiento es código Node.js estándar. Cada ruta valida su entrada y delega a una prop como <0>onCreatePage</0> o <1>onListPages</1>:",
+  "routes_notice": "El canal se mantiene genérico: conoce HTTP, no las páginas. <0>onCreatePage</0> actualiza un store en el padre, se montan nuevos recursos Page y la respuesta se devuelve de inmediato con el slug aceptado.",
+  "heading_teardown": "Respuestas y desmontaje",
+  "teardown_intro": "Dos pequeños helpers completan el componente: un respondedor JSON y un <0>server.close</0> envuelto en una promesa usado por la función de cleanup:",
+  "info_cleanup": "El cleanup devuelto por el handler libera el puerto cuando el componente se desmonta o antes de que el handler se vuelva a ejecutar, de modo que los reinicios con <0>--watch</0> nunca se topan con un error address-in-use.",
+  "see_walkthrough": "Consulta todo el pipeline de solicitud a página en el <0>tutorial de page-writer</0>."
+}

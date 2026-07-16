@@ -1,0 +1,13 @@
+{
+  "title": "children",
+  "description": "Résout les children passés à un composant en un accessor réactif. Gère les children lazy et les tableaux.",
+  "signature": "children(fn: Accessor<JSXElement>): ChildrenReturn",
+  "param_fn_name": "<0>fn</0>",
+  "param_fn_type": "<0>Accessor<JSXElement></0>",
+  "param_fn_desc": "Accessor qui renvoie la prop children.",
+  "returns_desc": "Un <0>ChildrenReturn</0>, un accessor appelable qui renvoie les children résolus. Dispose également d'une méthode <1>toArray()</1> qui renvoie les children résolus sous forme de tableau plat.",
+  "heading_provider": "Résolution des children d'un provider",
+  "usage_provider": "Le <0>AwsProvider</0> du site publisher enveloppe son sous-arbre dans <1>children(() => props.children)</1> et rend <2>resolved()</2> à l'intérieur du provider de contexte, de sorte que le client S3 est résolu et détruit en même temps que l'arbre qu'il sert.",
+  "in_the_wild": "Voyez comment ce provider assemble tout l'arbre de déploiement dans le <0>tutoriel site-publisher</0>.",
+  "filename_provider": "site-publisher/src/aws/provider/index.tsx"
+}

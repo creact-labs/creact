@@ -1,0 +1,9 @@
+{
+  "title": "getOwner",
+  "description": "वर्तमान reactive owner लौटाता है (वह computation या root जो वर्तमान scope को own करता है)।",
+  "signature": "getOwner(): Owner | null",
+  "returns_desc": "वर्तमान <0>Owner</0>, या <1>null</1> यदि reactive scope के बाहर call किया गया हो।",
+  "usage_states": "page writer का <0>Page</0> component body में <1>getOwner</1> को call करता है, जबकि एक synchronous scope अभी भी मौजूद होता है। यह उस owner को handler को सौंपता है ताकि बाद में await करने के बाद <2>onCleanup</2> सही scope से attach हो सके।",
+  "in_the_wild": "async work के माध्यम से thread किए गए इस owner को <0>page-writer walkthrough</0> में देखें।",
+  "filename_page": "page-writer/src/components/page/index.tsx"
+}

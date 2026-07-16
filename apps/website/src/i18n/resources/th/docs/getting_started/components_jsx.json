@@ -1,0 +1,13 @@
+{
+  "title": "Components และ JSX",
+  "description": "คอมโพเนนต์ของ CReact เป็นฟังก์ชันที่ return JSX JSX อธิบาย resources และ processes ไม่ใช่ DOM elements",
+  "heading_jsx": "JSX ใน CReact",
+  "jsx_intro": "CReact ใช้ JSX เพื่ออธิบาย <0>resources และ processes</0> ไม่ใช่ DOM elements <1>App</1> ของ durable counter return node <2>Counter</2> ตัวเดียวที่ประกาศว่า counter ควรมีอยู่",
+  "heading_component_functions": "Components รันเพียงครั้งเดียว",
+  "component_functions_intro": "คอมโพเนนต์คือฟังก์ชันธรรมดาที่ return JSX โดยรันเพียงครั้งเดียวในฐานะ setup <0>Counter</0> เรียก <1>useAsyncOutput</1> เพื่อเป็นเจ้าของ durable state ผูก effect แล้ว return Reactivity มาจาก signals และ effects ไม่ใช่จากการ re-render",
+  "heading_composing": "การประกอบ Resources",
+  "composing_intro": "การซ้อน JSX จะประกอบ resources จริง ๆ ให้เป็น tree <0>App</0> ของ uptime monitor จับคู่ <1>For</1> บน targets กับ <2>StatusPage</2> ทำให้ probe แต่ละตัวและ page ที่ render อยู่ใน component body เดียวกัน",
+  "filename_app": "durable-counter/src/app.tsx",
+  "filename_monitor": "uptime-monitor/src/app.tsx",
+  "tip_reactive_props": "Props สามารถเป็น reactive ได้ ส่ง accessor เช่น <0>overall</0> หรือ callback เช่น <1>onSample</1> แล้ว children จะ re-run เมื่อค่าเปลี่ยนแปลง โดยไม่ re-run parent"
+}

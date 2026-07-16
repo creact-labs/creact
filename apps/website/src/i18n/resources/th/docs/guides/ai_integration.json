@@ -1,0 +1,19 @@
+{
+  "title": "การผสาน AI",
+  "description": "เรียกใช้ Claude จาก durable resource handler ที่ตัดมาจากตัวอย่าง page-writer",
+  "heading_client": "Client Seam",
+  "client_intro": "page-writer ห่อ Anthropic SDK ไว้หลัง interface ขนาดเล็ก <0>HtmlWriterClient</0> ประกาศ method เดียวที่แอปใช้งาน และ <1>createHtmlWriterClient</1> สร้าง client จริงจาก environment:",
+  "filename_writer": "page-writer/src/claude/html-writer/index.ts",
+  "client_notice": "interface นี้คือ dependency-injection seam โค้ด production ไม่ส่งอะไรเข้าไปและได้ SDK จริง ขณะที่เทสส่ง fake ที่ script ไว้ให้ <0>writeHtml</0> — ไม่มี network ไม่มี API key",
+  "heading_request": "การส่ง Request",
+  "request_intro": "<0>writeHtml</0> ส่ง prompt ของผู้ใช้พร้อม system prompt ที่กำหนดไว้ และตั้งค่าเริ่มต้น parameter <1>client</1> เป็น SDK จริง:",
+  "request_notice": "system prompt กำหนด output contract ไว้ — HTML document แบบ standalone หนึ่งชิ้น ไม่มี markdown fences — เพื่อให้ส่วนที่เหลือของ pipeline จัดการ response เป็น artifact ที่ deploy ได้แทนที่จะเป็น chat",
+  "heading_extract": "การดึง Document",
+  "extract_intro": "Response มาในรูปแบบ content blocks <0>extractHtmlDocument</0> ดึง text block แรกและ fail อย่างชัดเจนเมื่อ Claude ส่งกลับมาไม่มีอะไรที่ใช้ได้:",
+  "heading_generate_handler": "Generation Handler",
+  "generate_intro": "Page component แปลง prompt หนึ่งอันเป็น durable resource หนึ่งชิ้น handler ของมัน restore จาก ledger ก่อน และเรียก <0>writeHtml</0> เฉพาะเมื่อ page ยังไม่เคย generate — การตรวจนี้คือสิ่งที่ทำให้มัน idempotent:",
+  "filename_page": "page-writer/src/components/page/index.tsx",
+  "generate_notice": "<0>setOutputs(prev => …)</0> รับค่าที่ persist ล่าสุด แม้ข้าม restart ถ้า run ก่อนหน้าถึงสถานะ <1>ready</1> แล้ว handler จะคง state นั้นไว้และ return โดยไม่ใช้ API call เพิ่ม",
+  "tip_persistence": "output ของ AI persist เหมือน result ของ <0>useAsyncOutput</0> อื่นๆ การ restart แอปจะ re-run ทุก handler แต่ page ที่ restore แล้วจะข้าม generation — มีเพียง prompt ใหม่จริงๆ เท่านั้นที่ไปถึง API",
+  "see_walkthrough": "ดู pipeline แบบ prompt-to-page ทั้งหมดใน <0>page-writer walkthrough</0>"
+}
