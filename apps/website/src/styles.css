@@ -212,7 +212,7 @@ body {
   color: var(--syn-function);
 }
 
-/* Playground — full-page StackBlitz IDE */
+/* Playground IDE (full page) — Monaco editor + file tree + WebContainer terminal */
 .pg {
   position: fixed;
   inset: 0;
@@ -226,7 +226,7 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 16px;
+  padding: 8px 14px;
   background: var(--code-header-bg);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -244,25 +244,111 @@ body {
 
 .pg-title {
   font-weight: 600;
-}
-
-.pg-sub {
   flex: 1;
-  color: var(--text-muted);
-  font-size: 13px;
 }
 
-.pg-embed {
+.pg-run {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--bg);
+  background: var(--syn-function);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.pg-run:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pg-body {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
   flex: 1;
   min-height: 0;
 }
 
-.pg-embed-slot,
-.pg-embed iframe {
-  display: block;
-  width: 100%;
+.pg-files {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  border-right: 1px solid var(--border);
+  padding: 6px 0;
+  background: var(--docs-sidebar-bg);
+}
+
+.pg-file {
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pg-file:hover {
+  color: var(--text);
+}
+
+.pg-file.active {
+  color: var(--text);
+  background: var(--docs-active);
+}
+
+.pg-main {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 220px;
+  min-height: 0;
+}
+
+.pg-editor-area {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pg-editor {
   height: 100%;
-  border: 0;
+}
+
+.pg-editor.hidden {
+  display: none;
+}
+
+.pg-readonly {
+  height: 100%;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+.pg-terminal-wrap {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  min-height: 0;
+}
+
+.pg-pane-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pg-terminal {
+  flex: 1;
+  min-height: 0;
+  padding: 6px 10px;
 }
 
 .pg-unknown {

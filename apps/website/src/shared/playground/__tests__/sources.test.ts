@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appSources, examplePackageFiles } from "../sources";
+import { appSources, packageSources } from "../sources";
 
 describe("appSources", () => {
   it("returns a real app's files, excluding tests and mocks", () => {
@@ -20,19 +20,11 @@ describe("appSources", () => {
   });
 });
 
-describe("examplePackageFiles", () => {
-  it("returns a real example package's files, keyed to its root", () => {
-    const files = examplePackageFiles("file-memory");
-    expect(files["package.json"]).toContain("@creact-labs/example-file-memory");
-    expect(files["src/index.ts"]).toContain("FileMemory");
-  });
-
-  it("scopes to the requested package and drops tests and mocks", () => {
-    const files = examplePackageFiles("mock-s3");
-    expect(files["src/index.ts"]).toContain("S3Client");
-    for (const path of Object.keys(files)) {
-      expect(path).not.toContain("__tests__/");
-      expect(path).not.toContain("__mocks__/");
-    }
+describe("packageSources", () => {
+  it("keys each example package by its bare specifier", () => {
+    const packages = packageSources();
+    expect(packages["@creact-labs/example-file-memory"]).toContain("FileMemory");
+    expect(packages["@creact-labs/example-mock-s3"]).toContain("S3Client");
+    expect(packages["@creact-labs/example-mock-anthropic"]).toBeDefined();
   });
 });
