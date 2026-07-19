@@ -1,5 +1,11 @@
 import { execFileSync, execSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,7 +17,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 // CLI created nothing. The bin now runs unconditionally (create-vite style), so
 // invoking it through a symlink — exactly how `npm create` does — must scaffold.
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const cliJs = join(pkgRoot, "dist/src/cli.js");
+// Resolve the target from the declared bin so the test validates the actual
+// package.json `bin` contract — not a path that could drift from it.
+const pkg = JSON.parse(readFileSync(join(pkgRoot, "package.json"), "utf-8"));
+const binPath = pkg.bin["create-creact-app"];
+const cliJs = join(pkgRoot, binPath);
 
 describe("bin invoked through a symlink (like `npm create`)", () => {
   let base: string;
@@ -24,6 +34,10 @@ describe("bin invoked through a symlink (like `npm create`)", () => {
 
   afterAll(() => {
     rmSync(base, { recursive: true, force: true });
+  });
+
+  it("declares the bin so npm can install it", () => {
+    expect(binPath).toBeTruthy();
   });
 
   it("scaffolds a project when run through its bin symlink", () => {
