@@ -1,6 +1,6 @@
 {
   "name": "@creact-labs/testing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Testing utilities for CReact applications",
   "files": ["dist"],
@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && tsc-alias -p tsconfig.json --resolve-full-paths && tsc-alias -p ../creact/tsconfig.json --resolve-full-paths",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
     "typecheck": "tsc --noEmit"
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@creact-labs/creact": "*",
+    "tsc-alias": "^1.9.1",
     "vitest": "^3.2.4"
   }
 }

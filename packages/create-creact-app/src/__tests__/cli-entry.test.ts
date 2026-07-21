@@ -7,14 +7,14 @@ import { afterEach, expect, test, vi } from "vitest";
 // "does it call main?" check with no scaffolding side effects.
 afterEach(() => {
   vi.resetModules();
-  vi.doUnmock("../index.js");
+  vi.doUnmock("../index");
 });
 
 test("bin entry invokes the scaffolder exactly once", async () => {
   const main = vi.fn().mockResolvedValue(undefined);
-  vi.doMock("../index.js", () => ({ main }));
+  vi.doMock("../index", () => ({ main }));
 
-  await import("../cli.js");
+  await import("../cli");
 
   expect(main).toHaveBeenCalledTimes(1);
 });

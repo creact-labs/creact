@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { spinnerMock } from "../__mocks__/mock-ora";
-import * as logger from "../cli-logger.js";
+import * as logger from "../cli-logger";
 import {
   AppRunner,
   isSourceFile,
@@ -14,8 +14,8 @@ import {
   shutdown,
   startApp,
   watchLoop,
-} from "../cli-main.js";
-import { loadTypeScript } from "../cli-typecheck.js";
+} from "../cli-main";
+import { loadTypeScript } from "../cli-typecheck";
 
 // ora renders to a TTY — CLI output goes through the shared inspectable fake
 vi.mock("ora", async () =>
