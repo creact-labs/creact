@@ -2,12 +2,17 @@ name: Release
 
 # Standardized release flow:
 #   1. Land work on develop (the trunk; Quality Gate runs on every push/PR).
-#   2. Bump the version in packages/creact/package.json on develop.
+#   2. Bump the version of each package you intend to release, in its own
+#      package.json on develop. Packages version independently.
 #   3. Open a PR develop → release; merging it is the release action.
-#   4. This workflow re-runs the full quality gate on release, then publishes
-#      to npm, tags vX.Y.Z, and creates a GitHub Release with generated notes.
-#      Every step is independently idempotent: a retry after a partial
-#      failure publishes/tags/releases only whatever is still missing.
+#   4. This workflow re-runs the full quality gate on release, then reconciles
+#      every package independently: it publishes `<name>@<version>` to npm,
+#      creates the git tag `<name>@<version>`, and cuts a GitHub Release for
+#      it. The three artifacts are checked and healed on their own, per
+#      package — nothing is keyed off another package's version — so any
+#      partial state (on npm but untagged, tagged but unpublished, a version
+#      already fully released) converges to the same correct end state on
+#      every run, and a re-run with nothing new is a clean no-op.
 #
 # Requires the NPM_TOKEN repository secret (npm automation token).
 
@@ -36,19 +41,20 @@ jobs:
     uses: ./.github/workflows/code-quality.yml
 
   publish:
-    name: Publish packages to npm
+    name: Publish packages, tags, and releases
     needs: [quality]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: write # tag + GitHub Release
+      contents: write # git tags + GitHub Releases
       id-token: write # npm provenance
     steps:
       - uses: actions/checkout@v4
         with:
           # npm lifecycle scripts run below — never leave the token in
-          # .git/config for them to read. The tag/release steps
-          # authenticate explicitly through GH_TOKEN instead.
+          # .git/config for them to read. Tags and releases are created
+          # through the API with GH_TOKEN; tag existence is read anonymously
+          # (public repo). So no persisted git credentials are needed.
           persist-credentials: false
 
       - uses: actions/setup-node@v4
@@ -59,62 +65,56 @@ jobs:
 
       - run: npm ci
 
-      # The repo tag/release track the creact version. creact and the
-      # scaffolder share it; the testing helpers version independently, and
-      # each package publishes at its own version below.
-      - name: Resolve version
-        id: version
-        run: |
-          VERSION=$(node -p "require('./packages/creact/package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      # Publish creact, the scaffolder, and the testing helpers together. Each
-      # is independently idempotent: a package already on npm at its version is
-      # skipped, so a retry after a partial publish heals only what is missing.
-      - name: Publish packages to npm (with provenance)
+      # Reconcile every package independently. For each one the three artifacts
+      # — npm publish, git tag, GitHub Release — are checked and created on
+      # their own, keyed only on THIS package's name+version (tag/release id:
+      # `<name>@<version>`). A run heals whatever is missing for whichever
+      # package, in any partial state, and is a no-op once all three exist.
+      # Nothing depends on another package's version, so the workflow never has
+      # to pick a single "release version" — it follows each package's state.
+      - name: Reconcile npm + tag + release per package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
           for pkg in packages/creact packages/create-creact-app packages/testing; do
             NAME=$(node -p "require('./$pkg/package.json').name")
-            PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
-            if npm view "$NAME@$PKG_VERSION" version > /dev/null 2>&1; then
-              echo "$NAME@$PKG_VERSION already on npm — skipping."
-              continue
+            VERSION=$(node -p "require('./$pkg/package.json').version")
+            TAG="${NAME}@${VERSION}"
+            echo "::group::${TAG}"
+
+            # 1) npm — publish only if this exact version is not already there.
+            if npm view "${NAME}@${VERSION}" version > /dev/null 2>&1; then
+              echo "${TAG} already on npm — skipping publish."
+            else
+              # Quality job already ran typecheck + tests. Build then publish
+              # with --ignore-scripts so npm does not re-run prepublishOnly
+              # (which would run the whole suite again here).
+              npm run build -w "${NAME}" --ignore-scripts
+              npm publish -w "${NAME}" --provenance --access public --ignore-scripts
+              echo "Published ${TAG} to npm."
             fi
-            # The quality job already ran typecheck + tests. Build explicitly,
-            # then publish the built artifact with --ignore-scripts so npm does
-            # NOT re-trigger prepublishOnly (which would re-run the whole test
-            # suite a second time here). Both steps skip lifecycle scripts.
-            npm run build -w "$NAME" --ignore-scripts
-            npm publish -w "$NAME" --provenance --access public --ignore-scripts
+
+            # 2) git tag — create at this commit if the ref is absent. Reading
+            # the remote anonymously means the `@`/`/` in scoped names needs no
+            # URL encoding; creation goes through the refs API (ref is a body
+            # field), and points the tag at the release commit.
+            if [ -n "$(git ls-remote --tags "${REPO_URL}" "refs/tags/${TAG}")" ]; then
+              echo "Tag ${TAG} already exists — skipping."
+            else
+              gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
+                -f ref="refs/tags/${TAG}" -f sha="${GITHUB_SHA}" > /dev/null
+              echo "Created tag ${TAG}."
+            fi
+
+            # 3) GitHub Release — cut from the tag if one does not exist yet.
+            if gh release view "${TAG}" > /dev/null 2>&1; then
+              echo "Release ${TAG} already exists — skipping."
+            else
+              gh release create "${TAG}" --title "${TAG}" --generate-notes
+              echo "Created release ${TAG}."
+            fi
+            echo "::endgroup::"
           done
-
-      # Not gated on the publish outputs: a retry after "published but not
-      # tagged" (or "tagged but not released") must still heal the rest.
-      # ${{ }} expressions are hoisted into env: (zizmor: no raw template
-      # interpolation inside run: scripts).
-      - name: Ensure tag exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          TAG="v${VERSION}"
-          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$TAG" > /dev/null 2>&1; then
-            echo "Tag $TAG already exists — skipping."
-          else
-            gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
-              -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA"
-          fi
-
-      - name: Ensure GitHub Release exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          TAG="v${VERSION}"
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "Release $TAG already exists — skipping."
-          else
-            gh release create "$TAG" --generate-notes --title "$TAG"
-          fi
