@@ -10,7 +10,7 @@
   "files": ["dist"],
   "keywords": ["creact", "create", "scaffold", "starter", "template"],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias -p tsconfig.json --resolve-full-paths",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
     "typecheck": "tsc --noEmit"
@@ -27,6 +27,7 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
+    "tsc-alias": "^1.9.1",
     "vitest": "^3.2.7"
   }
 }

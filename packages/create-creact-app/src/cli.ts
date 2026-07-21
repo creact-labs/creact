@@ -4,6 +4,6 @@
 // that check breaks when npm invokes the bin through its symlink, and it is
 // unnecessary because the testable logic lives in ./index.ts, which tests
 // import directly and which never self-executes.
-import { main } from "./index.js";
+import { main } from "./index";
 
 await main();

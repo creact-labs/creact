@@ -7,7 +7,7 @@ import {
   nextSteps,
   parseArgs,
   scaffold,
-} from "../index.js";
+} from "../index";
 
 describe("parseArgs", () => {
   it("defaults the directory and leaves memory unset", () => {

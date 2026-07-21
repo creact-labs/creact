@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import * as clack from "@clack/prompts";
 import pc from "picocolors";
-import { type MemoryKind, MEMORY_KINDS, projectFiles } from "./templates.js";
+import { type MemoryKind, MEMORY_KINDS, projectFiles } from "./templates";
 
 export interface CliArgs {
   targetDir: string;

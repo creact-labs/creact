@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MEMORY_KINDS, projectFiles } from "../templates.js";
+import { MEMORY_KINDS, projectFiles } from "../templates";
 
 describe("projectFiles", () => {
   const files = projectFiles("my-app");
@@ -34,8 +34,8 @@ describe("projectFiles", () => {
     expect(pkg.scripts.start).toBe("creact index.tsx");
     expect(pkg.scripts.test).toBe("vitest --run");
     expect(pkg.scripts.build).toBeUndefined();
-    expect(pkg.dependencies["@creact-labs/creact"]).toBe("^0.4.0");
-    expect(pkg.devDependencies["@creact-labs/testing"]).toBe("^0.1.0");
+    expect(pkg.dependencies["@creact-labs/creact"]).toBe("^0.4.1");
+    expect(pkg.devDependencies["@creact-labs/testing"]).toBe("^0.1.1");
     expect(pkg.devDependencies.vitest).toBeDefined();
   });
 
@@ -60,7 +60,7 @@ describe("projectFiles", () => {
     const index = files["index.tsx"]!;
     expect(index).toContain("useAsyncOutput");
     expect(index).toContain("render(");
-    expect(index).toContain('from "./memory.js"');
+    expect(index).toContain('from "./memory"');
     expect(index).toContain("export default async function");
   });
 

@@ -9,7 +9,7 @@ export const MEMORY_KINDS: MemoryKind[] = [
 
 function indexTsx(name: string): string {
   return `import { createEffect, render, useAsyncOutput } from "@creact-labs/creact";
-import { memory } from "./memory.js";
+import { memory } from "./memory";
 
 // A durable counter: it increments once a second and, with a persistent
 // memory backend, picks up where it left off after a restart. Exported so
@@ -35,7 +35,7 @@ export default async function () {
 const indexTest = `import { afterEach, expect, test } from "vitest";
 import { resetRuntime } from "@creact-labs/creact";
 import { findNode, h, readOutput, renderTest } from "@creact-labs/testing";
-import { Counter } from "./index.js";
+import { Counter } from "./index";
 
 afterEach(() => resetRuntime());
 
@@ -61,13 +61,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    server: {
-      deps: {
-        // Load the CReact packages through Vite's resolver (which fills in
-        // extensionless imports) instead of Node's strict ESM resolver.
-        inline: [/@creact-labs\\//],
-      },
-    },
   },
 });
 `;
@@ -172,10 +165,10 @@ const memoryModules: Record<MemoryKind, string> = {
 
 function packageJson(name: string, kind: MemoryKind): string {
   const dependencies: Record<string, string> = {
-    "@creact-labs/creact": "^0.4.0",
+    "@creact-labs/creact": "^0.4.1",
   };
   const devDependencies: Record<string, string> = {
-    "@creact-labs/testing": "^0.1.0",
+    "@creact-labs/testing": "^0.1.1",
     "@types/node": "^20.0.0",
     typescript: "^5.0.0",
     vitest: "^3.0.0",
