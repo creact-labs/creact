@@ -18,31 +18,98 @@ permissions:
   contents: read
 
 jobs:
-  # Cheap, independent checks run in parallel — typecheck/test/build surface
-  # co-failures in a single CI cycle (twd code-quality pattern).
+  # Enumerate every workspace and the tasks it defines, so typecheck/build/test
+  # fan out over ALL packages — nothing hardcoded. This is what stops a package
+  # (e.g. packages/testing) from being built at release time but never in CI.
+  # Add a package and it is covered automatically. Each entry also carries the
+  # workspace dependencies it must build first (matrix.deps).
+  discover:
+    name: Discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      typecheckJobs: ${{ steps.discover.outputs.typecheckJobs }}
+      buildJobs: ${{ steps.discover.outputs.buildJobs }}
+      testJobs: ${{ steps.discover.outputs.testJobs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Test the discovery script
+        run: node --test '.github/scripts/**/*.test.mjs'
+      - id: discover
+        run: node .github/scripts/discover-jobs.mjs
+
+  # Cheap, independent checks fan out per package and run in parallel — a
+  # typecheck failure in one package doesn't hide a build break in another.
   typecheck:
-    name: Typecheck
+    name: Typecheck (${{ matrix.name }})
+    needs: [discover]
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.typecheckJobs) }}
     steps:
       - uses: actions/checkout@v4
         with:
-          # PR-controlled code runs after checkout — no token in .git/config
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Root (packages + testing, strict flags)
-        run: npx tsc --noEmit
-      - name: creact test suites
-        run: npx tsc --noEmit -p packages/creact/tsconfig.test.json
+      # A package typechecks against the published dist of its workspace deps
+      # (e.g. testing → creact's dist/*.d.ts), so build those first. Empty for
+      # packages with no workspace deps. --ignore-scripts keeps it to the build.
+      - name: Build workspace dependencies
+        if: matrix.deps != ''
+        run: |
+          for dep in ${{ matrix.deps }}; do
+            npm run build -w "$dep" --ignore-scripts
+          done
+      - run: npm run typecheck -w ${{ matrix.path }}
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: [discover]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.buildJobs) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Build workspace deps first (e.g. testing builds against creact's dist),
+      # so this package's build resolves them. Empty for packages with none.
+      - name: Build workspace dependencies
+        if: matrix.deps != ''
+        run: |
+          for dep in ${{ matrix.deps }}; do
+            npm run build -w "$dep" --ignore-scripts
+          done
+      # --ignore-scripts so the build task runs in isolation (no prebuild/
+      # prepublishOnly re-running the suite), matching what release publishes.
+      - run: npm run build -w ${{ matrix.path }} --ignore-scripts
 
   test:
-    name: Test
+    name: Test (${{ matrix.name }})
+    needs: [discover]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.testJobs) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,14 +119,39 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: creact — tests + enforced 100% coverage gate
-        run: npm run test:coverage -w packages/creact
-      - name: testing package (with coverage)
-        run: npx vitest --run --coverage --root packages/testing
-      - name: create-creact-app (with coverage)
-        run: npx vitest --run --coverage --root packages/create-creact-app
-      - name: Merge coverage across workspaces
-        run: npm run coverage:merge
+      - run: npm run test:coverage -w ${{ matrix.path }}
+      - name: Upload package coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.safeName }}
+          path: ${{ matrix.path }}/coverage/coverage-final.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Combine each package's coverage into one file for fallow's CRAP scoring.
+  coverage-merge:
+    name: Merge coverage
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Download per-package coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-test-coverage-*
+          path: coverage-parts
+      - name: Merge into coverage/coverage-final.json
+        run: |
+          mkdir -p coverage
+          node scripts/merge-coverage.mjs coverage/coverage-final.json \
+            $(find coverage-parts -name coverage-final.json)
       - name: Upload merged coverage (consumed by the fallow job)
         uses: actions/upload-artifact@v4
         with:
@@ -67,27 +159,11 @@ jobs:
           path: coverage/coverage-final.json
           retention-days: 14
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - name: creact (tsc; typecheck+test hooks covered by sibling jobs)
-        run: npm run build -w packages/creact --ignore-scripts
-
   # Fallow static analysis: dead code, duplication, complexity/CRAP health,
   # and a changed-files audit. Config + justified ignores in .fallowrc.jsonc.
   fallow:
     name: Fallow
-    needs: [test]
+    needs: [coverage-merge]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -242,13 +318,15 @@ jobs:
           echo "Grok verdict: proceed"
 
   # Single stable aggregate — THE required status check for branch
-  # protection. Required checks are selected per job and job matrices/names
-  # drift; this one context stays stable: "Code Quality / Quality Gate".
+  # protection. Required checks are selected per job, and the typecheck/build/
+  # test matrices' job names drift as packages are added; this one context
+  # stays stable: "Code Quality / Quality Gate". A matrix job's result here is
+  # the aggregate of all its legs (success only if every package passed).
   # `if: always()` is load-bearing: without it a failing job would make this
   # SKIP, and GitHub treats a skipped required check as a PASS.
   quality-gate:
     name: Quality Gate
-    needs: [typecheck, test, build, fallow, grok-review]
+    needs: [typecheck, build, test, fallow, grok-review]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 1
@@ -256,8 +334,8 @@ jobs:
       - name: Verify all checks passed
         env:
           TYPECHECK: ${{ needs.typecheck.result }}
-          TEST: ${{ needs.test.result }}
           BUILD: ${{ needs.build.result }}
+          TEST: ${{ needs.test.result }}
           FALLOW: ${{ needs.fallow.result }}
           GROK: ${{ needs['grok-review'].result }}
         run: |
@@ -268,8 +346,8 @@ jobs:
             FAILED="$FAILED $1=$2"
           }
           check typecheck "$TYPECHECK" always
-          check test "$TEST" always
           check build "$BUILD" always
+          check test "$TEST" always
           check fallow "$FALLOW" always
           check grok-review "$GROK" pr-only
           if [ -n "$FAILED" ]; then

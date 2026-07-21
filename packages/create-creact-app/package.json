@@ -1,17 +1,18 @@
 {
   "name": "create-creact-app",
-  "version": "0.4.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Scaffold a new CReact project — npm create creact-app@latest my-app",
   "main": "dist/src/index.js",
   "bin": {
-    "create-creact-app": "dist/src/index.js"
+    "create-creact-app": "dist/src/cli.js"
   },
   "files": ["dist"],
   "keywords": ["creact", "create", "scaffold", "starter", "template"],
   "scripts": {
     "build": "tsc",
     "test": "vitest --run",
+    "test:coverage": "vitest --run --coverage",
     "typecheck": "tsc --noEmit"
   },
   "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
