@@ -11,8 +11,8 @@ import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { tsImport } from "tsx/esm/api";
-import * as logger from "./cli-logger.js";
-import { loadTypeScript, typeCheck } from "./cli-typecheck.js";
+import * as logger from "./cli-logger";
+import { loadTypeScript, typeCheck } from "./cli-typecheck";
 
 const require = createRequire(import.meta.url);
 

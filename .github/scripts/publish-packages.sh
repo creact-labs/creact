@@ -88,11 +88,18 @@ for dir in "${PACKAGES[@]}"; do
   clean_builds
   npm run build -w "$NAME" --ignore-scripts
 
-  # Validate the publishable artifact's packaging — tarball contents, exports
-  # map, types, files. publint packs the package itself, so it needs no registry
-  # access and works even when this version is already on npm (npm publish
-  # --dry-run does not: it still errors on an already-published version).
+  # Validate the publishable artifact two ways, both packing the package
+  # themselves (no registry access, so they work even for an already-published
+  # version):
+  #   - publint: packaging metadata — the exports/main/types map, files, module
+  #     type. Catches a broken or inconsistent package.json contract.
+  #   - arethetypeswrong: how a consumer actually RESOLVES the types/runtime.
+  #     The esm-only profile fits these `type: module` packages (it ignores the
+  #     expected "CJS must dynamic-import" and legacy-node10 notes). This is the
+  #     check that catches extensionless-import / resolution breaks — the class
+  #     of bug that shipped in 0.4.0 and broke every ESM consumer.
   npx --yes publint "$dir"
+  npx --yes @arethetypeswrong/cli@0.18.5 --pack "$dir" --profile esm-only
 
   if [ "$DRY_RUN" = "true" ]; then
     echo "dryRun: built and validated ${TAG}; skipping publish/tag/release."

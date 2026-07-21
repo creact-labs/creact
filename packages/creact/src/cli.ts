@@ -10,7 +10,7 @@
  * tested implementation in cli-main.ts.
  */
 
-import { AppRunner, runCli, shutdown } from "./cli-main.js";
+import { AppRunner, runCli, shutdown } from "./cli-main";
 
 const runner = new AppRunner();
 

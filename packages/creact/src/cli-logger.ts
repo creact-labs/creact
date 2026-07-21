@@ -1,6 +1,6 @@
 import ora, { type Ora } from "ora";
 import pc from "picocolors";
-import type { TypeCheckResult } from "./cli-typecheck.js";
+import type { TypeCheckResult } from "./cli-typecheck";
 
 // ── Semantic theme (mirrors React's scripts/release/theme.js) ────
 
