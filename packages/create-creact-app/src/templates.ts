@@ -7,24 +7,69 @@ export const MEMORY_KINDS: MemoryKind[] = [
   "custom",
 ];
 
-const indexTsx = `import { createEffect, render, useAsyncOutput } from "@creact-labs/creact";
+function indexTsx(name: string): string {
+  return `import { createEffect, render, useAsyncOutput } from "@creact-labs/creact";
 import { memory } from "./memory.js";
 
 // A durable counter: it increments once a second and, with a persistent
-// memory backend, picks up where it left off after a restart.
-function Counter() {
+// memory backend, picks up where it left off after a restart. Exported so
+// index.test.ts can render it in isolation.
+export function Counter() {
   const counter = useAsyncOutput<{ count: number }>({}, async (_props, setOutputs) => {
     setOutputs((prev) => ({ count: prev?.count ?? 0 }));
     const interval = setInterval(() => setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 })), 1000);
     return () => clearInterval(interval);
   });
-  createEffect(() => console.log("Count:", counter.count()));
+  createEffect(() => console.log("Count:", counter.count() ?? 0));
   return <></>;
 }
 
 export default async function () {
-  return render(() => <Counter key="counter" />, memory, "my-app");
+  return render(() => <Counter key="counter" />, memory, ${JSON.stringify(name)});
 }
+`;
+}
+
+// A test for the counter, using @creact-labs/testing to render the component in
+// isolation and read its outputs — no running process, no real timers.
+const indexTest = `import { afterEach, expect, test } from "vitest";
+import { resetRuntime } from "@creact-labs/creact";
+import { findNode, h, readOutput, renderTest } from "@creact-labs/testing";
+import { Counter } from "./index.js";
+
+afterEach(() => resetRuntime());
+
+test("the counter deploys and starts its count at 0", async () => {
+  const app = renderTest(() => h(Counter, { key: "counter" }));
+  await app.ready;
+
+  const counter = findNode(app.getNodes(), (node) => node.id.includes("counter"));
+  expect(readOutput(counter, "count")).toBe(0);
+
+  app.dispose();
+});
+`;
+
+// vitest transforms index.tsx, so it needs CReact's JSX runtime. \`h\` in the test
+// keeps the test itself JSX-free, but the component under test is still .tsx.
+const vitestConfig = `import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  esbuild: {
+    jsx: "automatic",
+    jsxImportSource: "@creact-labs/creact",
+  },
+  test: {
+    environment: "node",
+    server: {
+      deps: {
+        // Load the CReact packages through Vite's resolver (which fills in
+        // extensionless imports) instead of Node's strict ESM resolver.
+        inline: [/@creact-labs\\//],
+      },
+    },
+  },
+});
 `;
 
 const fileMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
@@ -97,15 +142,21 @@ export const memory: Memory = new InMemoryMemory();
 
 const customMemory = `import type { DeploymentState, Memory } from "@creact-labs/creact";
 
-// Write your own backend: implement getState/saveState against whatever you
-// like — Redis, Postgres, S3, a REST API. getState returns the persisted
-// state for a stack, or null on the first run; saveState persists it.
+// A starting point for your own backend. It keeps state in a Map so the app
+// runs right away; swap the Map for real reads and writes against whatever you
+// like — Redis, Postgres, S3, a REST API. getState returns the persisted state
+// for a stack (or null on the first run); saveState persists it.
 class CustomMemory implements Memory {
+  private store = new Map<string, DeploymentState>();
+
   async getState(stack: string): Promise<DeploymentState | null> {
-    throw new Error(\`getState(\${stack}) not implemented\`);
+    // TODO: read the persisted state for \`stack\` from your backend.
+    return this.store.get(stack) ?? null;
   }
+
   async saveState(stack: string, state: DeploymentState): Promise<void> {
-    throw new Error(\`saveState(\${stack}) not implemented\`);
+    // TODO: persist \`state\` for \`stack\` to your backend.
+    this.store.set(stack, state);
   }
 }
 
@@ -124,8 +175,10 @@ function packageJson(name: string, kind: MemoryKind): string {
     "@creact-labs/creact": "^0.4.0",
   };
   const devDependencies: Record<string, string> = {
+    "@creact-labs/testing": "^0.1.0",
     "@types/node": "^20.0.0",
     typescript: "^5.0.0",
+    vitest: "^3.0.0",
   };
   if (kind === "sqlite") {
     dependencies["better-sqlite3"] = "^11.0.0";
@@ -141,6 +194,7 @@ function packageJson(name: string, kind: MemoryKind): string {
         scripts: {
           dev: "creact --watch index.tsx",
           start: "creact index.tsx",
+          test: "vitest --run",
           typecheck: "tsc --noEmit",
         },
         dependencies,
@@ -190,6 +244,16 @@ npm run dev
 \`npm run dev\` runs \`index.tsx\` in watch mode. The starter is a durable counter that
 increments once a second. State is persisted by the memory backend in \`memory.ts\`.
 
+## Testing
+
+\`\`\`bash
+npm test
+\`\`\`
+
+\`index.test.ts\` uses [@creact-labs/testing](https://github.com/creact-labs/creact)
+to render the counter in isolation and assert its output — no running process,
+no real timers.
+
 Learn more at https://github.com/creact-labs/creact.
 `;
 }
@@ -205,10 +269,12 @@ export function projectFiles(
   kind: MemoryKind = "file",
 ): Record<string, string> {
   return {
-    "index.tsx": indexTsx,
+    "index.tsx": indexTsx(name),
+    "index.test.ts": indexTest,
     "memory.ts": memoryModules[kind],
     "package.json": packageJson(name, kind),
     "tsconfig.json": tsconfig,
+    "vitest.config.ts": vitestConfig,
     "README.md": readme(name),
     ".gitignore": gitignore(kind),
   };
