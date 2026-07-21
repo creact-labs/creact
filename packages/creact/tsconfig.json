@@ -2,6 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
+    // composite lets other workspace packages reference this one, so a
+    // `tsc -b` there builds creact's declarations first (see packages/testing).
+    "composite": true,
+    // Keep the incremental build cache out of dist so it is not published.
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
     "outDir": "dist",
     "rootDir": ".",
     "jsx": "react-jsx",

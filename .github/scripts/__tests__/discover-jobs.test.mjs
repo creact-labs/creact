@@ -1,4 +1,6 @@
 // Tests for the CI matrix discovery script. Run with `node --test`.
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
@@ -153,4 +155,22 @@ test("collectPackages reads the real workspaces and wires the graph", () => {
 
 test("collectPackages tolerates missing workspace roots", () => {
   assert.equal(collectPackages(["does-not-exist"]).size, 0);
+});
+
+test("importing under `node -e` (no argv[1]) neither throws nor runs main", () => {
+  // publish-packages.sh imports the exports via `node --input-type=module -e`,
+  // where process.argv[1] is undefined. The entry guard must tolerate that: it
+  // must not throw on pathToFileURL(undefined) and must not run main().
+  const modulePath = fileURLToPath(new URL("../discover-jobs.mjs", import.meta.url));
+  const out = execFileSync(
+    "node",
+    [
+      "--input-type=module",
+      "-e",
+      `import(${JSON.stringify(modulePath)}).then((m) => console.log(typeof m.buildOrder))`,
+    ],
+    { encoding: "utf8" },
+  );
+  // main() would have logged "Discovered CI jobs:"; only the probe line prints.
+  assert.equal(out.trim(), "function");
 });

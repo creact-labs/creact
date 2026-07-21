@@ -2,13 +2,21 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
+    // Composite build (tsc -b) — keep the cache out of dist so it is not published.
+    "composite": true,
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
     "outDir": "dist",
     "rootDir": ".",
-    // Publish builds resolve @creact-labs/creact through its published
-    // types (dist), not repo source — build creact first. This clears the
-    // source-first path mappings inherited from the root tsconfig.
+    // Resolve @creact-labs/creact through its published types (dist), not repo
+    // source, so the emitted declarations match what consumers install. This
+    // clears the source-first path mappings inherited from the root tsconfig;
+    // the project reference below guarantees that dist exists.
     "paths": {}
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/__tests__/**"]
+  "exclude": ["node_modules", "dist", "**/__tests__/**"],
+  // `tsc -b` here builds creact first (it is a composite project), so its
+  // dist/*.d.ts are present for the dist resolution above — the package builds
+  // standalone, with no external "build creact first" ordering step.
+  "references": [{ "path": "../creact" }]
 }
