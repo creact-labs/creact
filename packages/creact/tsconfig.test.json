@@ -4,7 +4,10 @@
     "noEmit": true,
     "declaration": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "./src/jsx"
+    // Resolve the JSX runtime through the workspace path mapping (to src) so a
+    // .tsx test at any depth type-checks; the relative "./src/jsx" would only
+    // resolve from the package root.
+    "jsxImportSource": "@creact-labs/creact"
     // workspace path mappings are inherited from the root tsconfig
   },
   "include": ["src/**/*"]
