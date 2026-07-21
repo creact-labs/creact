@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -b && tsc-alias -p tsconfig.json --resolve-full-paths",
+    "build": "tsc -b && tsc-alias -p tsconfig.json --resolve-full-paths && tsc-alias -p ../creact/tsconfig.json --resolve-full-paths",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
     "typecheck": "tsc --noEmit"
