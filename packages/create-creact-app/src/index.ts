@@ -157,7 +157,10 @@ async function run(
 
 export async function main(): Promise<void> {
   const argv = process.argv.slice(2);
-  const interactive = Boolean(process.stdin.isTTY);
+  // Both streams must be a TTY: clack reads keystrokes from stdin and draws the
+  // UI to stdout, so a piped stdout (even with an interactive stdin) must stay
+  // non-interactive rather than spill control codes into the pipe.
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
   try {
     await run(parseArgs(argv), argv, interactive);
   } catch (err) {
