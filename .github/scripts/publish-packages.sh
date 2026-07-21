@@ -40,6 +40,41 @@ clean_builds() {
   done
 }
 
+# The three "does this artifact already exist?" checks below must distinguish a
+# definitive "no" from a transient error (a network blip or a 5xx). Treating an
+# error as "absent" would proceed to the create path on a flake; instead each
+# helper returns 0 = exists, 1 = definitively absent, and aborts the whole step
+# on anything ambiguous so a re-run retries the check itself.
+abort_transient() { # what detail
+  echo "::error::$1 could not be determined ($2) — aborting so a re-run can retry." >&2
+  exit 1
+}
+
+npm_version_published() { # NAME@VERSION
+  local out
+  if out=$(npm view "$1" version 2>&1); then
+    [ -n "$out" ] # published only if a version actually came back
+    return
+  fi
+  grep -q 'E404' <<<"$out" && return 1 # 404 is a definitive "not published"
+  abort_transient "npm publish state for $1" "$out"
+}
+
+tag_exists() { # TAG
+  local out
+  out=$(git ls-remote --tags "$REPO_URL" "refs/tags/$1") \
+    || abort_transient "tag $1" "git ls-remote failed"
+  [ -n "$out" ] # ls-remote succeeds with empty output when the tag is absent
+}
+
+release_exists() { # TAG
+  local out
+  gh release view "$1" > /dev/null 2>&1 && return 0
+  out=$(gh release view "$1" 2>&1 || true)
+  grep -qiE 'release not found|HTTP 404' <<<"$out" && return 1
+  abort_transient "release $1" "$out"
+}
+
 for dir in "${PACKAGES[@]}"; do
   NAME=$(node -p "require('./$dir/package.json').name")
   VERSION=$(node -p "require('./$dir/package.json').version")
@@ -66,19 +101,20 @@ for dir in "${PACKAGES[@]}"; do
   fi
 
   # Reconcile the three release artifacts independently and idempotently, keyed
-  # only on this package's own name+version.
+  # only on this package's own name+version. Each existence check aborts on a
+  # transient error rather than mistaking it for "absent".
   # 1) npm — publish only if this exact version is not already there.
-  if npm view "${NAME}@${VERSION}" version > /dev/null 2>&1; then
+  if npm_version_published "${NAME}@${VERSION}"; then
     echo "${TAG} already on npm — skipping publish."
   else
     npm publish -w "$NAME" --provenance --access public --ignore-scripts
     echo "Published ${TAG} to npm."
   fi
 
-  # 2) git tag — create at this commit if the ref is absent. Read the remote
-  # anonymously so scoped `@`/`/` names need no URL encoding; create via the
-  # refs API (the ref is a request-body field, not part of the URL path).
-  if [ -n "$(git ls-remote --tags "$REPO_URL" "refs/tags/${TAG}")" ]; then
+  # 2) git tag — create at this commit if the ref is absent. Reads the remote
+  # anonymously so scoped `@`/`/` names need no URL encoding; creation goes
+  # through the refs API (the ref is a request-body field, not the URL path).
+  if tag_exists "${TAG}"; then
     echo "Tag ${TAG} already exists — skipping."
   else
     gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
@@ -87,7 +123,7 @@ for dir in "${PACKAGES[@]}"; do
   fi
 
   # 3) GitHub Release — cut from the tag if none exists yet.
-  if gh release view "${TAG}" > /dev/null 2>&1; then
+  if release_exists "${TAG}"; then
     echo "Release ${TAG} already exists — skipping."
   else
     gh release create "${TAG}" --title "${TAG}" --generate-notes
