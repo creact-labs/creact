@@ -5,14 +5,14 @@ name: Release
 #   2. Bump the version of each package you intend to release, in its own
 #      package.json on develop. Packages version independently.
 #   3. Open a PR develop → release; merging it is the release action.
-#   4. This workflow re-runs the full quality gate on release, then reconciles
-#      every package independently: it publishes `<name>@<version>` to npm,
-#      creates the git tag `<name>@<version>`, and cuts a GitHub Release for
-#      it. The three artifacts are checked and healed on their own, per
-#      package — nothing is keyed off another package's version — so any
-#      partial state (on npm but untagged, tagged but unpublished, a version
-#      already fully released) converges to the same correct end state on
-#      every run, and a re-run with nothing new is a clean no-op.
+#   4. This workflow re-runs the full quality gate on release (the same
+#      code-quality workflow every PR runs — which already builds and validates
+#      each package as published), then runs the SAME publish-packages.sh script
+#      the gate runs, only with DRY_RUN=false: it publishes `<name>@<version>`
+#      to npm, tags `<name>@<version>`, and cuts a GitHub Release. Each artifact
+#      is reconciled independently per package (nothing keyed off another
+#      package's version), so any partial state converges to the correct end
+#      state on every run and a re-run with nothing new is a clean no-op.
 #
 # Requires the NPM_TOKEN repository secret (npm automation token).
 
@@ -20,8 +20,8 @@ on:
   push:
     branches: [release]
 
-# No workflow-level grants: repository-controlled code runs in these jobs,
-# so write and OIDC permissions are scoped to the publish job only.
+# No workflow-level grants: repository-controlled code runs in these jobs, so
+# write and OIDC permissions are scoped to the publish job only.
 permissions: {}
 
 concurrency:
@@ -41,7 +41,7 @@ jobs:
     uses: ./.github/workflows/code-quality.yml
 
   publish:
-    name: Publish packages, tags, and releases
+    name: Publish
     needs: [quality]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -52,69 +52,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # npm lifecycle scripts run below — never leave the token in
-          # .git/config for them to read. Tags and releases are created
-          # through the API with GH_TOKEN; tag existence is read anonymously
-          # (public repo). So no persisted git credentials are needed.
+          # .git/config. Tags/releases go through the API with GH_TOKEN; tag
+          # existence is read anonymously (public repo). No persisted git creds.
           persist-credentials: false
-
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
           registry-url: https://registry.npmjs.org
-
       - run: npm ci
-
-      # Reconcile every package independently. For each one the three artifacts
-      # — npm publish, git tag, GitHub Release — are checked and created on
-      # their own, keyed only on THIS package's name+version (tag/release id:
-      # `<name>@<version>`). A run heals whatever is missing for whichever
-      # package, in any partial state, and is a no-op once all three exist.
-      # Nothing depends on another package's version, so the workflow never has
-      # to pick a single "release version" — it follows each package's state.
-      - name: Reconcile npm + tag + release per package
+      # The SAME script the quality gate runs (DRY_RUN there); here DRY_RUN is
+      # false, so after the identical build + validation it also publishes, tags,
+      # and releases each package idempotently.
+      - name: Build, publish, tag, and release each package
+        shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
-          for pkg in packages/creact packages/create-creact-app packages/testing; do
-            NAME=$(node -p "require('./$pkg/package.json').name")
-            VERSION=$(node -p "require('./$pkg/package.json').version")
-            TAG="${NAME}@${VERSION}"
-            echo "::group::${TAG}"
-
-            # 1) npm — publish only if this exact version is not already there.
-            if npm view "${NAME}@${VERSION}" version > /dev/null 2>&1; then
-              echo "${TAG} already on npm — skipping publish."
-            else
-              # Quality job already ran typecheck + tests. Build then publish
-              # with --ignore-scripts so npm does not re-run prepublishOnly
-              # (which would run the whole suite again here).
-              npm run build -w "${NAME}" --ignore-scripts
-              npm publish -w "${NAME}" --provenance --access public --ignore-scripts
-              echo "Published ${TAG} to npm."
-            fi
-
-            # 2) git tag — create at this commit if the ref is absent. Reading
-            # the remote anonymously means the `@`/`/` in scoped names needs no
-            # URL encoding; creation goes through the refs API (ref is a body
-            # field), and points the tag at the release commit.
-            if [ -n "$(git ls-remote --tags "${REPO_URL}" "refs/tags/${TAG}")" ]; then
-              echo "Tag ${TAG} already exists — skipping."
-            else
-              gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
-                -f ref="refs/tags/${TAG}" -f sha="${GITHUB_SHA}" > /dev/null
-              echo "Created tag ${TAG}."
-            fi
-
-            # 3) GitHub Release — cut from the tag if one does not exist yet.
-            if gh release view "${TAG}" > /dev/null 2>&1; then
-              echo "Release ${TAG} already exists — skipping."
-            else
-              gh release create "${TAG}" --title "${TAG}" --generate-notes
-              echo "Created release ${TAG}."
-            fi
-            echo "::endgroup::"
-          done
+          DRY_RUN: "false"
+        run: bash .github/scripts/publish-packages.sh

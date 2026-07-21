@@ -211,4 +211,6 @@ function main() {
   }
 }
 
-if (import.meta.url === pathToFileURL(argv[1]).href) main();
+// Only run as a script, never on import. argv[1] is undefined under `node -e`
+// (how publish-packages.sh imports the exports), so guard before resolving it.
+if (argv[1] && import.meta.url === pathToFileURL(argv[1]).href) main();

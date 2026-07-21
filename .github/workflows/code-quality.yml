@@ -90,16 +90,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Build workspace deps first (e.g. testing builds against creact's dist),
-      # so this package's build resolves them. Empty for packages with none.
-      - name: Build workspace dependencies
-        if: matrix.deps != ''
-        run: |
-          for dep in ${{ matrix.deps }}; do
-            npm run build -w "$dep" --ignore-scripts
-          done
-      # --ignore-scripts so the build task runs in isolation (no prebuild/
-      # prepublishOnly re-running the suite), matching what release publishes.
+      # No dependency pre-build: a package that compiles against another
+      # package's dist declares it as a project reference, so `npm run build`
+      # (tsc -b) builds that dependency itself. This validates each package
+      # builds STANDALONE — exactly as it is built at publish time.
+      # --ignore-scripts matches publish (no prepublishOnly re-running the suite).
       - run: npm run build -w ${{ matrix.path }} --ignore-scripts
 
   test:
@@ -128,6 +123,34 @@ jobs:
           path: ${{ matrix.path }}/coverage/coverage-final.json
           if-no-files-found: ignore
           retention-days: 14
+
+  # Build and validate every publishable package exactly as the release does —
+  # isolated, as published — by running the SAME script the release runs, with
+  # DRY_RUN so nothing is published/tagged. Because this workflow also runs on
+  # the release branch (release.yml calls it as its quality gate), the check runs
+  # identically on PRs and on release, and the release publish step runs this
+  # same script with DRY_RUN=false. A package that only breaks at publish time
+  # (e.g. one that cannot build standalone) therefore fails here, on the PR.
+  packages:
+    name: Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Build each package as published and validate packaging
+        shell: bash
+        env:
+          DRY_RUN: "true"
+        run: bash .github/scripts/publish-packages.sh
 
   # Combine each package's coverage into one file for fallow's CRAP scoring.
   coverage-merge:
@@ -326,7 +349,7 @@ jobs:
   # SKIP, and GitHub treats a skipped required check as a PASS.
   quality-gate:
     name: Quality Gate
-    needs: [typecheck, build, test, fallow, grok-review]
+    needs: [typecheck, build, test, packages, fallow, grok-review]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 1
@@ -336,6 +359,7 @@ jobs:
           TYPECHECK: ${{ needs.typecheck.result }}
           BUILD: ${{ needs.build.result }}
           TEST: ${{ needs.test.result }}
+          PACKAGES: ${{ needs.packages.result }}
           FALLOW: ${{ needs.fallow.result }}
           GROK: ${{ needs['grok-review'].result }}
         run: |
@@ -348,6 +372,7 @@ jobs:
           check typecheck "$TYPECHECK" always
           check build "$BUILD" always
           check test "$TEST" always
+          check packages "$PACKAGES" always
           check fallow "$FALLOW" always
           check grok-review "$GROK" pr-only
           if [ -n "$FAILED" ]; then
