@@ -9,7 +9,7 @@ describe("projectFiles", () => {
       [
         ".gitignore",
         "README.md",
-        "index.test.ts",
+        "index.test.tsx",
         "index.tsx",
         "memory.ts",
         "package.json",
@@ -42,10 +42,11 @@ describe("projectFiles", () => {
 
   it("scaffolds a vitest test that drives the counter with @creact-labs/testing", () => {
     expect(files["index.tsx"]).toContain("export function Counter");
-    const test = files["index.test.ts"]!;
+    const test = files["index.test.tsx"]!;
     expect(test).toContain("@creact-labs/testing");
-    expect(test).toContain("renderTest");
-    expect(test).toContain("Counter");
+    expect(test).toContain("render(");
+    expect(test).toContain("getByTestId");
+    expect(test).not.toContain("renderTest");
     expect(files["vitest.config.ts"]).toContain(
       'jsxImportSource: "@creact-labs/creact"',
     );
