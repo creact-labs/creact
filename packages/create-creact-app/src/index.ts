@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -87,7 +86,7 @@ async function resolveMemory(args: CliArgs): Promise<MemoryKind> {
   return "file";
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   try {
     scaffold(args.targetDir, await resolveMemory(args));
@@ -96,11 +95,4 @@ async function main(): Promise<void> {
     console.error(errorMessage(err));
     process.exit(1);
   }
-}
-
-const isMain =
-  process.argv[1] !== undefined &&
-  import.meta.url === `file://${resolve(process.argv[1])}`;
-if (isMain) {
-  await main();
 }
