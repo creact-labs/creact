@@ -20,7 +20,12 @@ export function Counter() {
     const interval = setInterval(() => setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 })), 1000);
     return () => clearInterval(interval);
   });
-  createEffect(() => console.log("Count:", counter.count() ?? 0));
+  // count() is undefined until the async handler sets it — wait for the first
+  // real value so we log "0" once, not a spurious 0 before it.
+  createEffect(() => {
+    const count = counter.count();
+    if (count !== undefined) console.log("Count:", count);
+  });
   return <></>;
 }
 
@@ -165,10 +170,10 @@ const memoryModules: Record<MemoryKind, string> = {
 
 function packageJson(name: string, kind: MemoryKind): string {
   const dependencies: Record<string, string> = {
-    "@creact-labs/creact": "^0.4.1",
+    "@creact-labs/creact": "latest",
   };
   const devDependencies: Record<string, string> = {
-    "@creact-labs/testing": "^0.1.1",
+    "@creact-labs/testing": "latest",
     "@types/node": "^20.0.0",
     typescript: "^5.0.0",
     vitest: "^3.0.0",

@@ -1,14 +1,22 @@
 {
   "name": "create-creact-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Scaffold a new CReact project — npm create creact-app@latest my-app",
   "main": "dist/src/index.js",
   "bin": {
     "create-creact-app": "dist/src/cli.js"
   },
-  "files": ["dist"],
-  "keywords": ["creact", "create", "scaffold", "starter", "template"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "creact",
+    "create",
+    "scaffold",
+    "starter",
+    "template"
+  ],
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json --resolve-full-paths",
     "test": "vitest --run",

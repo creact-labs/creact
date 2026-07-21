@@ -34,8 +34,9 @@ describe("projectFiles", () => {
     expect(pkg.scripts.start).toBe("creact index.tsx");
     expect(pkg.scripts.test).toBe("vitest --run");
     expect(pkg.scripts.build).toBeUndefined();
-    expect(pkg.dependencies["@creact-labs/creact"]).toBe("^0.4.1");
-    expect(pkg.devDependencies["@creact-labs/testing"]).toBe("^0.1.1");
+    // Always the latest — a fresh scaffold should never pin an old runtime.
+    expect(pkg.dependencies["@creact-labs/creact"]).toBe("latest");
+    expect(pkg.devDependencies["@creact-labs/testing"]).toBe("latest");
     expect(pkg.devDependencies.vitest).toBeDefined();
   });
 
