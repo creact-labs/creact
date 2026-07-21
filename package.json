@@ -14,7 +14,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
-  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
+  "author": "CReact Labs",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
