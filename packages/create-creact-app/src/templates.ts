@@ -13,7 +13,7 @@ import { memory } from "./memory";
 
 // A durable counter: it increments once a second and, with a persistent
 // memory backend, picks up where it left off after a restart. Exported so
-// index.test.ts can render it in isolation.
+// index.test.tsx can render it in isolation.
 export function Counter() {
   const counter = useAsyncOutput<{ count: number }>({}, async (_props, setOutputs) => {
     setOutputs((prev) => ({ count: prev?.count ?? 0 }));
@@ -256,7 +256,7 @@ npm test
 
 \`index.test.tsx\` uses [@creact-labs/testing](https://github.com/creact-labs/creact)
 to render the counter in isolation and query it (by testId, type, or key) — no
-running process, no real timers.
+running app, and no waiting on its timer.
 
 Learn more at https://github.com/creact-labs/creact.
 `;

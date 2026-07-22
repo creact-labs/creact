@@ -15,6 +15,18 @@ describe("waitFor()", () => {
     expect(await waitFor(() => "ready")).toBe("ready");
   });
 
+  it("awaits an async callback and retries its resolved value", async () => {
+    let tries = 0;
+    // resolves falsy on the first call — must be retried, not treated as a
+    // (truthy) pending promise
+    const result = await waitFor(async () => {
+      tries += 1;
+      return tries >= 2 ? "async-done" : false;
+    });
+    expect(result).toBe("async-done");
+    expect(tries).toBe(2);
+  });
+
   it("retries past a thrown error until it stops throwing", async () => {
     let tries = 0;
     const result = await waitFor(() => {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { resetRuntime, useAsyncOutput } from "@creact-labs/creact";
 import { InMemoryMemory, NoopMemory, render } from "../index";
 
@@ -119,12 +119,14 @@ describe("render() options", () => {
     view.dispose();
   });
 
-  test("defaults to a no-op backend that saves nothing", async () => {
-    const memory = new NoopMemory();
+  test("defaults to a NoopMemory backend", async () => {
+    // With no memory option, render must construct a NoopMemory and drive it —
+    // spy the prototype so we observe render's actual default, not a local stub.
+    const save = vi.spyOn(NoopMemory.prototype, "saveState");
     const view = render(() => <Counter key="c" />);
     await view.ready;
 
-    expect(await memory.getState()).toBeNull();
+    expect(save).toHaveBeenCalled();
     view.dispose();
   });
 });

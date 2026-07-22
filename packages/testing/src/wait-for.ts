@@ -18,7 +18,7 @@ export const delay = (ms: number): Promise<void> =>
  *   await waitFor(() => counter.output("count") === 5);
  */
 export async function waitFor<T>(
-  callback: () => T,
+  callback: () => T | PromiseLike<T>,
   options: WaitOptions = {},
 ): Promise<T> {
   const timeout = options.timeout ?? 1000;
@@ -27,7 +27,9 @@ export async function waitFor<T>(
   let lastError: unknown = new Error("waitFor timed out");
   for (;;) {
     try {
-      const result = callback();
+      // await so an async callback retries on its resolved value, not on the
+      // (always-truthy) pending promise it would otherwise return.
+      const result = await callback();
       if (result) return result;
       lastError = new Error("waitFor: callback never returned a truthy value");
     } catch (error) {

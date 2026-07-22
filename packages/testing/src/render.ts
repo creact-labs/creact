@@ -47,7 +47,10 @@ export interface TestView {
   getAllByType(type: unknown): TestNode[];
   findByType(type: unknown, options?: WaitOptions): Promise<TestNode>;
   /** Retry until the callback returns truthy (see the standalone `waitFor`). */
-  waitFor<T>(callback: () => T, options?: WaitOptions): Promise<T>;
+  waitFor<T>(
+    callback: () => T | PromiseLike<T>,
+    options?: WaitOptions,
+  ): Promise<T>;
 }
 
 function wrap(node: InstanceNode): TestNode {
