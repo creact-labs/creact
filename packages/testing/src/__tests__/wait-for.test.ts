@@ -50,6 +50,28 @@ describe("waitFor()", () => {
       waitFor(() => false, { timeout: 20, interval: 5 }),
     ).rejects.toThrow(/truthy/);
   });
+
+  it("retries past an async rejection", async () => {
+    let tries = 0;
+    const result = await waitFor(async () => {
+      tries += 1;
+      if (tries < 2) throw new Error("async not yet");
+      return "recovered";
+    });
+    expect(result).toBe("recovered");
+  });
+
+  it("gives up near the timeout even if the callback hangs forever", async () => {
+    const start = Date.now();
+    await expect(
+      waitFor(() => new Promise<boolean>(() => {}), {
+        timeout: 30,
+        interval: 5,
+      }),
+    ).rejects.toThrow(/did not settle|timed out/);
+    // bounded by the timeout, not blocked indefinitely by the hanging callback
+    expect(Date.now() - start).toBeLessThan(300);
+  });
 });
 
 describe("delay()", () => {
