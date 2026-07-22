@@ -1,5 +1,4 @@
 import { describe, expect, it} from "vitest";
-import { h } from "@creact-labs/testing";
 import { Show, createMemo, createRoot, createSignal } from "../../index";
 
 /**
@@ -14,7 +13,7 @@ describe("Show", () => {
   describe("basic conditional rendering", () => {
     it("returns undefined when condition is falsy and no fallback", () => {
       createRoot(() => {
-        const hello = h("t", { v: "hello" });
+        const hello = { type: "t", props: { v: "hello" } };
         const result = Show({
           when: false,
           children: hello,
@@ -25,7 +24,7 @@ describe("Show", () => {
 
     it("returns children when condition is truthy", () => {
       createRoot(() => {
-        const hello = h("t", { v: "hello" });
+        const hello = { type: "t", props: { v: "hello" } };
         const result = Show({
           when: true,
           children: hello,
@@ -36,8 +35,8 @@ describe("Show", () => {
 
     it("returns fallback when condition is falsy", () => {
       createRoot(() => {
-        const hello = h("t", { v: "hello" });
-        const bye = h("t", { v: "bye" });
+        const hello = { type: "t", props: { v: "hello" } };
+        const bye = { type: "t", props: { v: "bye" } };
         const result = Show({
           when: false,
           children: hello,
@@ -52,8 +51,8 @@ describe("Show", () => {
     it("toggles between children and fallback when signal changes", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(0);
-        const visible = h("t", { v: "visible" });
-        const hidden = h("t", { v: "hidden" });
+        const visible = { type: "t", props: { v: "visible" } };
+        const hidden = { type: "t", props: { v: "hidden" } };
         const result = Show({
           when: () => count() >= 5,
           children: visible,
@@ -73,7 +72,7 @@ describe("Show", () => {
     it("returns undefined when toggled off with no fallback", () => {
       createRoot(() => {
         const [show, setShow] = createSignal(true);
-        const content = h("t", { v: "content" });
+        const content = { type: "t", props: { v: "content" } };
         const result = Show({
           when: () => show(),
           children: content,
@@ -94,7 +93,7 @@ describe("Show", () => {
         const [count, setCount] = createSignal(0);
         let whenExecuted = 0;
 
-        const content = h("t", { v: "content" });
+        const content = { type: "t", props: { v: "content" } };
         const result = Show({
           when: () => {
             whenExecuted++;
@@ -132,7 +131,7 @@ describe("Show", () => {
 
         const content = (() => {
           childrenExecuted++;
-          return h("t", { v: "content" });
+          return { type: "t", props: { v: "content" } };
         })();
         const result = Show({
           when: () => {
@@ -184,7 +183,10 @@ describe("Show", () => {
             childExecuted++;
             // In non-keyed mode, item is an accessor
             // Wrap in createMemo to make the result reactive
-            return createMemo(() => h("text", { v: `value: ${item()}` }));
+            return createMemo(() => ({
+              type: "text",
+              props: { v: `value: ${item()}` },
+            }));
           },
         }) as unknown as () => any;
 
@@ -204,13 +206,13 @@ describe("Show", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(0);
         let childExecuted = 0;
-        const none = h("t", { v: "none" });
+        const none = { type: "t", props: { v: "none" } };
 
         const result = Show({
           when: () => count(),
           children: (item: () => number) => {
             childExecuted++;
-            return h("val", { n: item() });
+            return { type: "val", props: { n: item() } };
           },
           fallback: none,
         }) as unknown as () => any;
@@ -236,10 +238,11 @@ describe("Show", () => {
     it("supports accessor fallback", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(0);
-        const [fallbackEl, setFallbackEl] = createSignal(
-          h("fb", { v: "loading" }),
-        );
-        const content = h("t", { v: "content" });
+        const [fallbackEl, setFallbackEl] = createSignal({
+          type: "fb",
+          props: { v: "loading" },
+        });
+        const content = { type: "t", props: { v: "content" } };
 
         const result = Show({
           when: () => count() > 0,
@@ -248,7 +251,7 @@ describe("Show", () => {
         }) as unknown as () => any;
 
         expect(result().props.v).toBe("loading");
-        setFallbackEl(h("fb", { v: "waiting" }));
+        setFallbackEl({ type: "fb", props: { v: "waiting" } });
         expect(result().props.v).toBe("waiting");
         setCount(1);
         expect(result()).toBe(content);

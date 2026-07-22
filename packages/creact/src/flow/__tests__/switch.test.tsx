@@ -1,5 +1,4 @@
 import { describe, expect, it} from "vitest";
-import { h } from "@creact-labs/testing";
 import { Match, Switch, createMemo, createRoot, createSignal} from "../../index";
 
 /**
@@ -15,8 +14,8 @@ describe("Switch", () => {
     it("renders fallback when no match", () => {
       createRoot(() => {
         const [count] = createSignal(0);
-        const fallback = h("fb", { v: "fallback" });
-        const one = h("t", { v: "one" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const one = { type: "t", props: { v: "one" } };
         const result = Switch({
           fallback,
           children: [
@@ -34,8 +33,8 @@ describe("Switch", () => {
     it("toggles between match and fallback", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(0);
-        const fallback = h("fb", { v: "fallback" });
-        const one = h("t", { v: "one" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const one = { type: "t", props: { v: "one" } };
         const result = Switch({
           fallback,
           children: [
@@ -59,10 +58,10 @@ describe("Switch", () => {
     it("renders first truthy match", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(0);
-        const fallback = h("fb", { v: "fallback" });
-        const one = h("t", { v: "one" });
-        const two = h("t", { v: "two" });
-        const three = h("t", { v: "three" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const one = { type: "t", props: { v: "one" } };
+        const two = { type: "t", props: { v: "two" } };
+        const three = { type: "t", props: { v: "three" } };
         const result = Switch({
           fallback,
           children: [
@@ -96,8 +95,8 @@ describe("Switch", () => {
     it("does not re-render on same matched option", () => {
       createRoot(() => {
         const [count, setCount] = createSignal(4);
-        const fallback = h("fb", { v: "fallback" });
-        const matched = h("t", { v: "matched" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const matched = { type: "t", props: { v: "matched" } };
         const result = Switch({
           fallback,
           children: [
@@ -124,10 +123,10 @@ describe("Switch", () => {
         const [b, setB] = createSignal(0);
         const [c, setC] = createSignal(0);
 
-        const fallback = h("fb", { v: "fallback" });
-        const aEl = h("t", { v: "a" });
-        const bEl = h("t", { v: "b" });
-        const cEl = h("t", { v: "c" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const aEl = { type: "t", props: { v: "a" } };
+        const bEl = { type: "t", props: { v: "b" } };
+        const cEl = { type: "t", props: { v: "c" } };
 
         const result = Switch({
           fallback,
@@ -162,24 +161,24 @@ describe("Switch", () => {
         const [b, setB] = createSignal(0);
         const [c, setC] = createSignal(0);
 
-        const fallback = h("fb", { v: "fallback" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
         const result = Switch({
           fallback,
           children: [
             Match({
               when: () => a(),
               children: (val: () => number) =>
-                createMemo(() => h("m", { v: `a=${val()}` })),
+                createMemo(() => ({ type: "m", props: { v: `a=${val()}` } })),
             }),
             Match({
               when: () => b(),
               children: (val: () => number) =>
-                createMemo(() => h("m", { v: `b=${val()}` })),
+                createMemo(() => ({ type: "m", props: { v: `b=${val()}` } })),
             }),
             Match({
               when: () => c(),
               children: (val: () => number) =>
-                createMemo(() => h("m", { v: `c=${val()}` })),
+                createMemo(() => ({ type: "m", props: { v: `c=${val()}` } })),
             }),
           ],
         }) as unknown as () => any;
@@ -204,7 +203,7 @@ describe("Switch", () => {
   describe("zero-argument accessor children", () => {
     it("evaluates accessor children like reactive fallbacks, not returning the raw function", () => {
       createRoot(() => {
-        const view = h("view", { v: "rendered" });
+        const view = { type: "view", props: { v: "rendered" } };
         const result = Switch({
           children: Match({
             when: true,
@@ -224,7 +223,7 @@ describe("Switch", () => {
         const result = Switch({
           children: Match({
             when: true,
-            children: () => h("view", { v: label() }),
+            children: () => ({ type: "view", props: { v: label() } }),
           }),
         }) as unknown as () => any;
 
@@ -246,10 +245,10 @@ describe("Switch", () => {
         const [b, _setB] = createSignal(0);
         const [c, setC] = createSignal(0);
 
-        const fallback = h("fb", { v: "fallback" });
-        const aEl = h("t", { v: "a" });
-        const bEl = h("t", { v: "b" });
-        const cEl = h("t", { v: "c" });
+        const fallback = { type: "fb", props: { v: "fallback" } };
+        const aEl = { type: "t", props: { v: "a" } };
+        const bEl = { type: "t", props: { v: "b" } };
+        const cEl = { type: "t", props: { v: "c" } };
 
         const result = Switch({
           fallback,
@@ -303,7 +302,7 @@ describe("Switch", () => {
       createRoot(() => {
         const [status, setStatus] = createSignal("loading");
         const result = Switch({
-          fallback: () => h("fb", { v: `status: ${status()}` }),
+          fallback: () => ({ type: "fb", props: { v: `status: ${status()}` } }),
           children: [],
         }) as unknown as () => any;
 
@@ -319,15 +318,15 @@ describe("JSX Match elements", () => {
   it("resolves raw <Match> elements created by the JSX runtime", () => {
     createRoot(() => {
       const [mode, setMode] = createSignal("a");
-      const fallback = h("fb", { v: "fallback" });
-      const aEl = h("t", { v: "a" });
-      const bEl = h("t", { v: "b" });
+      const fallback = { type: "fb", props: { v: "fallback" } };
+      const aEl = { type: "t", props: { v: "a" } };
+      const bEl = { type: "t", props: { v: "b" } };
 
       const result = Switch({
         fallback,
         children: [
-          h(Match, { when: () => mode() === "a", children: aEl }),
-          h(Match, { when: () => mode() === "b", children: bEl }),
+          <Match when={() => mode() === "a"}>{aEl}</Match>,
+          <Match when={() => mode() === "b"}>{bEl}</Match>,
         ] as any,
       }) as unknown as () => any;
 
@@ -341,9 +340,9 @@ describe("JSX Match elements", () => {
 
   it("resolves a single raw <Match> element child", () => {
     createRoot(() => {
-      const matched = h("t", { v: "matched" });
+      const matched = { type: "t", props: { v: "matched" } };
       const result = Switch({
-        children: h(Match, { when: true, children: matched }) as any,
+        children: (<Match when={true}>{matched}</Match>) as any,
       }) as unknown as () => any;
 
       expect(result()).toBe(matched);
@@ -352,16 +351,16 @@ describe("JSX Match elements", () => {
 
   it("ignores null and non-match children mixed into the array", () => {
     createRoot(() => {
-      const fallback = h("fb", { v: "fallback" });
-      const stray = h("div", { v: "stray" });
-      const matched = h("t", { v: "matched" });
+      const fallback = { type: "fb", props: { v: "fallback" } };
+      const stray = { type: "div", props: { v: "stray" } };
+      const matched = { type: "t", props: { v: "matched" } };
 
       const result = Switch({
         fallback,
         children: [
           null,
           stray,
-          h(Match, { when: true, children: matched }),
+          <Match when={true}>{matched}</Match>,
         ] as any,
       }) as unknown as () => any;
 

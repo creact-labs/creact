@@ -13,19 +13,24 @@ import { memory } from "./memory";
 
 // A durable counter: it increments once a second and, with a persistent
 // memory backend, picks up where it left off after a restart. Exported so
-// index.test.ts can render it in isolation.
+// index.test.tsx can render it in isolation.
 export function Counter() {
   const counter = useAsyncOutput<{ count: number }>({}, async (_props, setOutputs) => {
     setOutputs((prev) => ({ count: prev?.count ?? 0 }));
     const interval = setInterval(() => setOutputs((prev) => ({ count: (prev?.count ?? 0) + 1 })), 1000);
     return () => clearInterval(interval);
   });
-  createEffect(() => console.log("Count:", counter.count() ?? 0));
+  // count() is undefined until the async handler sets it — wait for the first
+  // real value so we log "0" once, not a spurious 0 before it.
+  createEffect(() => {
+    const count = counter.count();
+    if (count !== undefined) console.log("Count:", count);
+  });
   return <></>;
 }
 
 export default async function () {
-  return render(() => <Counter key="counter" />, memory, ${JSON.stringify(name)});
+  return render(() => <Counter />, memory, ${JSON.stringify(name)});
 }
 `;
 }
@@ -34,19 +39,25 @@ export default async function () {
 // isolation and read its outputs — no running process, no real timers.
 const indexTest = `import { afterEach, expect, test } from "vitest";
 import { resetRuntime } from "@creact-labs/creact";
-import { findNode, h, readOutput, renderTest } from "@creact-labs/testing";
+import { render } from "@creact-labs/testing";
 import { Counter } from "./index";
 
+// Reset the runtime between tests so each one renders a fresh tree.
 afterEach(() => resetRuntime());
 
 test("the counter deploys and starts its count at 0", async () => {
-  const app = renderTest(() => h(Counter, { key: "counter" }));
-  await app.ready;
+  // render() returns a view with React-Testing-Library-style queries over the
+  // deployed nodes. Give a component a testId to find it, then read its output.
+  const view = render(() => <Counter testId="counter" />);
+  await view.ready;
 
-  const counter = findNode(app.getNodes(), (node) => node.id.includes("counter"));
-  expect(readOutput(counter, "count")).toBe(0);
+  // getByTestId — or getByType(Counter), or getByKey("...") — all return a node.
+  expect(view.getByTestId("counter").output("count")).toBe(0);
 
-  app.dispose();
+  // Wait for durable state to change over time:
+  //   await view.waitFor(() => view.getByTestId("counter").output("count") >= 3);
+
+  view.dispose();
 });
 `;
 
@@ -165,10 +176,10 @@ const memoryModules: Record<MemoryKind, string> = {
 
 function packageJson(name: string, kind: MemoryKind): string {
   const dependencies: Record<string, string> = {
-    "@creact-labs/creact": "^0.4.1",
+    "@creact-labs/creact": "latest",
   };
   const devDependencies: Record<string, string> = {
-    "@creact-labs/testing": "^0.1.1",
+    "@creact-labs/testing": "latest",
     "@types/node": "^20.0.0",
     typescript: "^5.0.0",
     vitest: "^3.0.0",
@@ -243,9 +254,9 @@ increments once a second. State is persisted by the memory backend in \`memory.t
 npm test
 \`\`\`
 
-\`index.test.ts\` uses [@creact-labs/testing](https://github.com/creact-labs/creact)
-to render the counter in isolation and assert its output — no running process,
-no real timers.
+\`index.test.tsx\` uses [@creact-labs/testing](https://github.com/creact-labs/creact)
+to render the counter in isolation and query it (by testId, type, or key) — no
+running app, and no waiting on its timer.
 
 Learn more at https://github.com/creact-labs/creact.
 `;
@@ -263,7 +274,7 @@ export function projectFiles(
 ): Record<string, string> {
   return {
     "index.tsx": indexTsx(name),
-    "index.test.ts": indexTest,
+    "index.test.tsx": indexTest,
     "memory.ts": memoryModules[kind],
     "package.json": packageJson(name, kind),
     "tsconfig.json": tsconfig,

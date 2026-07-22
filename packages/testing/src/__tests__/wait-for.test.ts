@@ -1,48 +1,92 @@
-import { afterEach, describe, expect, it } from "vitest";
-import {
-  createRoot,
-  createSignal,
-  resetRuntime,
-} from "@creact-labs/creact";
-import {
-  waitFor,
-} from "../index";
-
-afterEach(() => {
-  resetRuntime();
-});
+import { describe, expect, it } from "vitest";
+import { delay, waitFor } from "../index";
 
 describe("waitFor()", () => {
-  it("resolves when accessor becomes truthy", async () => {
-    const [value, setValue] = createRoot(() => createSignal<string | null>(null));
-
-    const promise = waitFor(value);
-
-    // Set value after a tick
-    queueMicrotask(() => setValue("hello"));
-
-    const result = await promise;
-    expect(result).toBe("hello");
+  it("resolves with the first truthy value the callback returns", async () => {
+    let count = 0;
+    const result = await waitFor(() => {
+      count += 1;
+      return count >= 3 ? `done-${count}` : false;
+    });
+    expect(result).toBe("done-3");
   });
 
-  it("resolves when predicate passes", async () => {
-    const [count, setCount] = createRoot(() => createSignal(0));
-
-    const promise = waitFor(count, (v) => v >= 3);
-
-    // Increment over time
-    queueMicrotask(() => setCount(1));
-    queueMicrotask(() => setCount(2));
-    queueMicrotask(() => setCount(3));
-
-    const result = await promise;
-    expect(result).toBe(3);
+  it("resolves immediately when the callback is already truthy", async () => {
+    expect(await waitFor(() => "ready")).toBe("ready");
   });
 
-  it("resolves immediately if accessor is already truthy", async () => {
-    const [value] = createRoot(() => createSignal("already-set"));
+  it("awaits an async callback and retries its resolved value", async () => {
+    let tries = 0;
+    // resolves falsy on the first call — must be retried, not treated as a
+    // (truthy) pending promise
+    const result = await waitFor(async () => {
+      tries += 1;
+      return tries >= 2 ? "async-done" : false;
+    });
+    expect(result).toBe("async-done");
+    expect(tries).toBe(2);
+  });
 
-    const result = await waitFor(value);
-    expect(result).toBe("already-set");
+  it("retries past a thrown error until it stops throwing", async () => {
+    let tries = 0;
+    const result = await waitFor(() => {
+      tries += 1;
+      if (tries < 2) throw new Error("not yet");
+      return tries;
+    });
+    expect(result).toBe(2);
+  });
+
+  it("rejects with the last error after the timeout", async () => {
+    await expect(
+      waitFor(() => {
+        throw new Error("still failing");
+      }, { timeout: 20, interval: 5 }),
+    ).rejects.toThrow("still failing");
+  });
+
+  it("rejects when a falsy callback never becomes truthy", async () => {
+    await expect(
+      waitFor(() => false, { timeout: 20, interval: 5 }),
+    ).rejects.toThrow(/truthy/);
+  });
+
+  it("gives up near the timeout even when interval is larger than it", async () => {
+    const start = Date.now();
+    await expect(
+      waitFor(() => false, { timeout: 20, interval: 10_000 }),
+    ).rejects.toThrow();
+    // the long interval must not overshoot the timeout
+    expect(Date.now() - start).toBeLessThan(500);
+  });
+
+  it("retries past an async rejection", async () => {
+    let tries = 0;
+    const result = await waitFor(async () => {
+      tries += 1;
+      if (tries < 2) throw new Error("async not yet");
+      return "recovered";
+    });
+    expect(result).toBe("recovered");
+  });
+
+  it("gives up near the timeout even if the callback hangs forever", async () => {
+    const start = Date.now();
+    await expect(
+      waitFor(() => new Promise<boolean>(() => {}), {
+        timeout: 30,
+        interval: 5,
+      }),
+    ).rejects.toThrow(/did not settle|timed out/);
+    // bounded by the timeout, not blocked indefinitely by the hanging callback
+    expect(Date.now() - start).toBeLessThan(300);
+  });
+});
+
+describe("delay()", () => {
+  it("resolves after roughly the requested time", async () => {
+    const start = Date.now();
+    await delay(15);
+    expect(Date.now() - start).toBeGreaterThanOrEqual(10);
   });
 });

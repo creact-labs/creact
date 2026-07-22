@@ -1,9 +1,8 @@
 import { faker} from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi} from "vitest";
-import { InMemoryMemory, delay, h } from "@creact-labs/testing";
+import { InMemoryMemory, delay } from "@creact-labs/testing";
 import {
   For,
-  Fragment,
   Show,
   createContext,
   createEffect,
@@ -32,10 +31,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, stackName);
+    const result = render(() => <App key="app" />, memory, stackName);
 
     await expect(result.ready).rejects.toThrow(/is locked/);
     expect(errorSpy).toHaveBeenCalled();
@@ -50,10 +49,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const first = render(() => h(App, {}, "app"), memory, stackName);
+    const first = render(() => <App key="app" />, memory, stackName);
     await first.ready;
 
     // While the first runtime is alive the stack is protected
@@ -62,7 +61,7 @@ describe("deployment locking", () => {
     first.dispose();
     resetRuntime();
 
-    const second = render(() => h(App, {}, "app"), memory, stackName);
+    const second = render(() => <App key="app" />, memory, stackName);
     await expect(second.ready).resolves.toBeUndefined();
     second.dispose();
   });
@@ -80,10 +79,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), bare, "bare-stack");
+    const result = render(() => <App key="app" />, bare, "bare-stack");
 
     await expect(result.ready).resolves.toBeUndefined();
     result.dispose();
@@ -97,10 +96,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, stackName, {
+    const result = render(() => <App key="app" />, memory, stackName, {
       lockTtlSeconds: 1,
     });
     await result.ready;
@@ -127,10 +126,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), losing, "lost-stack", {
+    const result = render(() => <App key="app" />, losing, "lost-stack", {
       lockTtlSeconds: 0.1,
     });
     await result.ready;
@@ -159,10 +158,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), flaky, "flaky-stack", {
+    const result = render(() => <App key="app" />, flaky, "flaky-stack", {
       lockTtlSeconds: 0.1,
     });
     await result.ready;
@@ -192,10 +191,10 @@ describe("deployment locking", () => {
         executed = true;
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "raced-stack");
+    const result = render(() => <App key="app" />, memory, "raced-stack");
     result.dispose();
     resolveAcquire(true);
     await result.ready;
@@ -227,10 +226,10 @@ describe("deployment locking", () => {
         executed = true;
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "mid-read-stack");
+    const result = render(() => <App key="app" />, memory, "mid-read-stack");
     await vi.waitFor(() => {
       expect(gated).toBe(true); // the lock is held, state read in flight
     });
@@ -257,10 +256,10 @@ describe("deployment locking", () => {
         executed = true;
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    result = render(() => h(SelfDestruct, {}, "s"), memory, "self-destruct");
+    result = render(() => <SelfDestruct key="s" />, memory, "self-destruct");
     await result.ready;
 
     expect(executed).toBe(false);
@@ -275,10 +274,10 @@ describe("deployment locking", () => {
       useAsyncOutput({}, async () => {
         throw new Error("boom");
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Doomed, {}, "d"), memory, stackName);
+    const result = render(() => <Doomed key="d" />, memory, stackName);
     await expect(result.ready).rejects.toThrow("boom");
 
     // No manual dispose — the runtime already released its resources
@@ -303,10 +302,10 @@ describe("interrupted deployment recovery", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ran: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, stackName);
+    const result = render(() => <App key="app" />, memory, stackName);
     await result.ready;
 
     expect(warnSpy).toHaveBeenCalledWith(
@@ -330,10 +329,10 @@ describe("settled()", () => {
         handlerFinished = true;
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "settle-early");
+    const result = render(() => <App key="app" />, memory, "settle-early");
 
     // Deliberately NOT awaiting ready first
     await result.settled();
@@ -345,9 +344,9 @@ describe("settled()", () => {
   it("rejects when called on a disposed runtime", async () => {
     const memory = new InMemoryMemory();
     function App() {
-      return h(Fragment, {});
+      return <></>;
     }
-    const result = render(() => h(App, {}, "app"), memory, "settle-disposed");
+    const result = render(() => <App key="app" />, memory, "settle-disposed");
     await result.ready;
 
     result.dispose();
@@ -371,17 +370,14 @@ describe("resource deletion", () => {
           cleanupCalls++;
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return Show({
-        when: visible,
-        children: () => h(Ephemeral, {}, "eph"),
-      });
+      return <Show when={visible}>{() => <Ephemeral key="eph" />}</Show>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "delete-once");
+    const result = render(() => <App key="app" />, memory, "delete-once");
     await result.ready;
     await result.settled();
 
@@ -405,17 +401,14 @@ describe("resource deletion", () => {
         deploys++;
         setOutputs({ generation: deploys });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return Show({
-        when: visible,
-        children: () => h(Toggle, {}, "toggle"),
-      });
+      return <Show when={visible}>{() => <Toggle key="toggle" />}</Show>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "delete-return");
+    const result = render(() => <App key="app" />, memory, "delete-return");
     await result.ready;
     await result.settled();
     expect(deploys).toBe(1);
@@ -447,10 +440,10 @@ describe("handler cleanup on re-run", () => {
           };
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Res, {}, "r"), memory, "cleanup-order");
+    const result = render(() => <Res key="r" />, memory, "cleanup-order");
     await result.ready;
     expect(order).toEqual(["handler:first"]);
 
@@ -478,7 +471,7 @@ describe("mid-deployment prop updates", () => {
         setSharedVal("from-producer");
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function FastConsumer() {
@@ -489,17 +482,17 @@ describe("mid-deployment prop updates", () => {
           setOutputs({ saw: p.val });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        h(SlowProducer, {}, "producer"),
-        h(FastConsumer, {}, "consumer"),
+        <SlowProducer key="producer" />,
+        <FastConsumer key="consumer" />,
       ];
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "cascade-update");
+    const result = render(() => <App key="app" />, memory, "cascade-update");
     await result.ready;
     await result.settled();
 
@@ -525,7 +518,7 @@ describe("multiple concurrent runtimes", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Gated() {
@@ -533,15 +526,15 @@ describe("multiple concurrent runtimes", () => {
         gatedDeployed = true;
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function AppB() {
-      return Show({ when: gate, children: () => h(Gated, {}, "gated") });
+      return <Show when={gate}>{() => <Gated key="gated" />}</Show>;
     }
 
-    const first = render(() => h(Simple, {}, "s"), memoryA, "stack-a");
-    const second = render(() => h(AppB, {}, "b"), memoryB, "stack-b");
+    const first = render(() => <Simple key="s" />, memoryA, "stack-a");
+    const second = render(() => <AppB key="b" />, memoryB, "stack-b");
     await first.ready;
     await second.ready;
 
@@ -567,16 +560,16 @@ describe("multiple concurrent runtimes", () => {
       useAsyncOutput({ tag: props.tag }, async (p, setOutputs) => {
         setOutputs({ tag: p.tag });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const first = render(
-      () => h(Tagged, { tag: tagA }, "shared"),
+      () => <Tagged tag={tagA} key="shared" />,
       memoryA,
       "stack-a",
     );
     const second = render(
-      () => h(Tagged, { tag: tagB }, "shared"),
+      () => <Tagged tag={tagB} key="shared" />,
       memoryB,
       "stack-b",
     );
@@ -608,11 +601,11 @@ describe("multiple concurrent runtimes", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const first = render(() => h(Simple, {}, "s"), memory, "stack-a");
-    const second = render(() => h(Simple, {}, "s"), memory, "stack-b");
+    const first = render(() => <Simple key="s" />, memory, "stack-a");
+    const second = render(() => <Simple key="s" />, memory, "stack-b");
     await first.ready;
     await second.ready;
 
@@ -638,11 +631,11 @@ describe("multiple concurrent runtimes", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function AppA() {
-      return Show({ when: gate, children: () => h(Gated, {}, "gated") });
+      return <Show when={gate}>{() => <Gated key="gated" />}</Show>;
     }
 
     function CountedB() {
@@ -650,11 +643,11 @@ describe("multiple concurrent runtimes", () => {
         executionsB++;
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const first = render(() => h(AppA, {}, "a"), memoryA, "stack-a");
-    const second = render(() => h(CountedB, {}, "b"), memoryB, "stack-b");
+    const first = render(() => <AppA key="a" />, memoryA, "stack-a");
+    const second = render(() => <CountedB key="b" />, memoryB, "stack-b");
     await first.ready;
     await second.ready;
     expect(executionsB).toBe(1);
@@ -687,15 +680,15 @@ describe("multiple concurrent runtimes", () => {
         seen[p.slot] = value;
         setOutputs({ value });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function makeApp(value: string, slot: string) {
-      return () =>
-        Ctx.Provider({
-          value,
-          children: h(Reader, { slot }, slot),
-        });
+      return () => (
+        <Ctx.Provider value={value}>
+          <Reader slot={slot} key={slot} />
+        </Ctx.Provider>
+      );
     }
 
     const first = render(makeApp(valueA, "a"), memoryA, "stack-a");
@@ -721,16 +714,14 @@ describe("multiple concurrent runtimes", () => {
         useAsyncOutput({}, async (_p, setOutputs) => {
           setOutputs({ label: state.label });
         });
-        return h(Fragment, {});
+        return <></>;
       };
     }
 
-    const first = render(() => h(makeApp(labelA), {}, "s"), memoryA, "stack-a");
-    const second = render(
-      () => h(makeApp(labelB), {}, "s"),
-      memoryB,
-      "stack-b",
-    );
+    const AppA = makeApp(labelA);
+    const AppB = makeApp(labelB);
+    const first = render(() => <AppA key="s" />, memoryA, "stack-a");
+    const second = render(() => <AppB key="s" />, memoryB, "stack-b");
     await first.ready;
     await second.ready;
     await first.settled();
@@ -759,10 +750,10 @@ describe("state persistence", () => {
         push = setOutputs;
         setOutputs({ counter: 0 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, stackName);
+    const result = render(() => <App key="app" />, memory, stackName);
     await result.ready;
     await result.settled();
 
@@ -791,10 +782,10 @@ describe("state persistence", () => {
         push = setOutputs;
         setOutputs({ counter: 0 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "failing-save");
+    const result = render(() => <App key="app" />, memory, "failing-save");
     await result.ready;
     await result.settled();
 
@@ -838,10 +829,10 @@ describe("state persistence", () => {
         push = setOutputs;
         setOutputs({ counter: 0 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "in-flight-save");
+    const result = render(() => <App key="app" />, memory, "in-flight-save");
     await result.ready;
     await result.settled();
 
@@ -876,10 +867,10 @@ describe("state persistence", () => {
         push = setOutputs;
         setOutputs({ phase: "boot" });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "live-nodes");
+    const result = render(() => <App key="app" />, memory, "live-nodes");
     await result.ready;
 
     push!({ phase: "running" });
@@ -902,14 +893,14 @@ describe("reactive flush failures", () => {
       useAsyncOutput({}, async () => {
         throw new Error(faker.hacker.phrase());
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return Show({ when: gate, children: () => h(Exploding, {}, "boom") });
+      return <Show when={gate}>{() => <Exploding key="boom" />}</Show>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, stackName);
+    const result = render(() => <App key="app" />, memory, stackName);
     await result.ready;
 
     setGate(true);
@@ -936,10 +927,10 @@ describe("dispose", () => {
           cleanups++;
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "dispose-once");
+    const result = render(() => <App key="app" />, memory, "dispose-once");
     await result.ready;
 
     result.dispose();
@@ -968,9 +959,9 @@ describe("restart with persisted state", () => {
           return { boots: (prev?.boots ?? 0) + 1 };
         });
       });
-      return h(Fragment, {});
+      return <></>;
     }
-    const app = () => h(Counter, {}, "app");
+    const app = () => <Counter key="app" />;
 
     const first = render(app, memory, stackName);
     await first.ready;
@@ -999,9 +990,9 @@ describe("restart with persisted state", () => {
         setOutputs({ url: "http://live" });
       });
       readUrl = () => out.url();
-      return h(Fragment, {});
+      return <></>;
     }
-    const app = () => h(Db, {}, "db");
+    const app = () => <Db key="db" />;
 
     const first = render(app, memory, stackName);
     await first.ready;
@@ -1028,7 +1019,7 @@ describe("props changing while a handler is in flight", () => {
         setSharedVal("updated");
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function SlowConsumer() {
@@ -1040,15 +1031,15 @@ describe("props changing while a handler is in flight", () => {
           setOutputs({ saw: p.val });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return [h(QuickProducer, {}, "p"), h(SlowConsumer, {}, "c")];
+      return [<QuickProducer key="p" />, <SlowConsumer key="c" />];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       memory,
       "dirty-while-running",
     );
@@ -1073,7 +1064,7 @@ describe("resources removed mid-deployment", () => {
           doomedCleanedUp = true;
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Killer() {
@@ -1082,18 +1073,18 @@ describe("resources removed mid-deployment", () => {
         setKilled(true); // removes Doomed from the tree mid-deployment
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        Show({ when: () => !killed(), children: () => h(Doomed, {}, "d") }),
-        h(Killer, {}, "k"),
+        <Show when={() => !killed()}>{() => <Doomed key="d" />}</Show>,
+        <Killer key="k" />,
       ];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       memory,
       "deferred-delete",
     );
@@ -1117,7 +1108,7 @@ describe("signal writes racing the initial deployment", () => {
         await delay(30);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Gated() {
@@ -1125,17 +1116,17 @@ describe("signal writes racing the initial deployment", () => {
         gatedDeployed = true;
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        h(Slow, {}, "slow"),
-        Show({ when: gate, children: () => h(Gated, {}, "gated") }),
+        <Slow key="slow" />,
+        <Show when={gate}>{() => <Gated key="gated" />}</Show>,
       ];
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "race-initial");
+    const result = render(() => <App key="app" />, memory, "race-initial");
 
     await delay(5); // initial deployment still applying
     setGate(true);
@@ -1156,14 +1147,14 @@ describe("getNodes", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return h(Db, {}, "solo");
+      return <Db key="solo" />;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "nodes-fallback");
+    const result = render(() => <App key="app" />, memory, "nodes-fallback");
     await result.ready;
 
     // Removal is scoped to one runtime's context — name it explicitly
@@ -1199,11 +1190,11 @@ describe("infinite cascade backstop", () => {
           setOutputs({ ok: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(PerpetualMotion, {}, "pm"),
+      () => <PerpetualMotion key="pm" />,
       memory,
       "runaway-cascade",
       { maxHandlerExecutions: 5 },
@@ -1231,7 +1222,7 @@ describe("changes made by teardown during a deployment", () => {
           setPhoenixWanted(true);
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Killer() {
@@ -1240,7 +1231,7 @@ describe("changes made by teardown during a deployment", () => {
         setKilled(true);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Phoenix() {
@@ -1248,19 +1239,19 @@ describe("changes made by teardown during a deployment", () => {
         phoenixDeployed = true;
         setOutputs({ risen: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        Show({ when: () => !killed(), children: () => h(Doomed, {}, "d") }),
-        h(Killer, {}, "k"),
-        Show({ when: phoenixWanted, children: () => h(Phoenix, {}, "p") }),
+        <Show when={() => !killed()}>{() => <Doomed key="d" />}</Show>,
+        <Killer key="k" />,
+        <Show when={phoenixWanted}>{() => <Phoenix key="p" />}</Show>,
       ];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       memory,
       "phoenix-from-cleanup",
     );
@@ -1282,10 +1273,10 @@ describe("handlers throwing non-Error values", () => {
         // intentionally a non-Error value — that's what this test verifies
         throw "string-failure";
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Rude, {}, "r"), memory, "non-error-throw");
+    const result = render(() => <Rude key="r" />, memory, "non-error-throw");
 
     await expect(result.ready).rejects.toThrow("string-failure");
     expect((await memory.getState("non-error-throw"))?.status).toBe("failed");
@@ -1301,10 +1292,10 @@ describe("handlers that never set outputs", () => {
       useAsyncOutput({}, async () => {
         // side-effect only — no setOutputs call
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Silent, {}, "s"), memory, "no-outputs");
+    const result = render(() => <Silent key="s" />, memory, "no-outputs");
     await result.ready;
 
     expect(result.getNodes()[0]?.outputs).toBeUndefined();
@@ -1325,10 +1316,10 @@ describe("dispose before the deployment starts", () => {
         handlerRan = true;
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "instant-dispose");
+    const result = render(() => <App key="app" />, memory, "instant-dispose");
     result.dispose(); // before run()'s first await resumes
 
     await result.ready;
@@ -1349,7 +1340,7 @@ describe("dispose during the initial deployment", () => {
         await delay(30);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Gated() {
@@ -1357,17 +1348,17 @@ describe("dispose during the initial deployment", () => {
         gatedDeployed = true;
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        h(Slow, {}, "slow"),
-        Show({ when: gate, children: () => h(Gated, {}, "gated") }),
+        <Slow key="slow" />,
+        <Show when={gate}>{() => <Gated key="gated" />}</Show>,
       ];
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "dispose-mid-run");
+    const result = render(() => <App key="app" />, memory, "dispose-mid-run");
 
     await delay(5);
     setGate(true); // queues a flush while the deployment is applying
@@ -1400,11 +1391,11 @@ afterEach(() => {
 describe("settled()", () => {
   it("resolves immediately when no async handlers exist", async () => {
     function Empty() {
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
-    const result = render(() => h(Empty, {}, "root"), memory, "test-settled");
+    const result = render(() => <Empty key="root" />, memory, "test-settled");
 
     await result.ready;
     // settled() should resolve immediately — no pending work
@@ -1416,18 +1407,18 @@ describe("settled()", () => {
   it("resolves after all async handlers complete", async () => {
     const handlerOrder: string[] = [];
 
-    function AsyncNode(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function AsyncNode() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         await delay(50);
         handlerOrder.push("handler-done");
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(AsyncNode, { key: "a" }, "a"),
+      () => <AsyncNode key="a" />,
       memory,
       "test-settled-async",
     );
@@ -1443,35 +1434,32 @@ describe("settled()", () => {
   it("waits for reactive cascades (handler A → setOutputs → Show materializes → handler B)", async () => {
     const handlerOrder: string[] = [];
 
-    function Parent(props: { key: string }) {
+    function Parent() {
       const out = useAsyncOutput<{ url: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("parent");
           setOutputs({ url: "http://example.com" });
         },
       );
-      return Show({
-        when: () => out.url(),
-        children: (url: () => string) =>
-          h(Child, { url: url(), key: "child" }, "child"),
-      });
+      return (
+        <Show when={() => out.url()}>
+          {(url: () => string) => <Child url={url()} key="child" />}
+        </Show>
+      );
     }
 
-    function Child(props: { url: string; key: string }) {
-      useAsyncOutput(
-        { url: props.url, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`child:${p.url}`);
-          setOutputs({ connected: true });
-        },
-      );
-      return h(Fragment, {});
+    function Child(props: { url: string }) {
+      useAsyncOutput({ url: props.url }, async (p, setOutputs) => {
+        handlerOrder.push(`child:${p.url}`);
+        setOutputs({ connected: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Parent, { key: "p" }, "p"),
+      () => <Parent key="p" />,
       memory,
       "test-settled-cascade",
     );
@@ -1494,15 +1482,15 @@ describe("settled()", () => {
       return origSave(stackName, state);
     };
 
-    function Node(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Node() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ value: 1 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory,
       "test-settled-save",
     );
@@ -1517,17 +1505,17 @@ describe("settled()", () => {
   });
 
   it("multiple concurrent settled() calls all resolve", async () => {
-    function Node(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Node() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         await delay(30);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory,
       "test-settled-concurrent",
     );
@@ -1551,12 +1539,12 @@ describe("settled()", () => {
 
   it("throws if runtime is disposed", async () => {
     function Empty() {
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Empty, {}, "root"),
+      () => <Empty key="root" />,
       memory,
       "test-settled-disposed",
     );
@@ -1578,36 +1566,33 @@ describe("eager handler cascading", () => {
   it("handler A outputs → component B materializes → B's handler runs in same apply call", async () => {
     const handlerOrder: string[] = [];
 
-    function Analysis(props: { key: string }) {
+    function Analysis() {
       const out = useAsyncOutput<{ summary: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Analysis");
           setOutputs({ summary: "analyzed-data" });
         },
       );
       // Use function children so summary is evaluated reactively when Show renders
-      return Show({
-        when: () => out.summary(),
-        children: (summary: () => string) =>
-          h(Connects, { summary: summary(), key: "c1" }, "c1"),
-      });
+      return (
+        <Show when={() => out.summary()}>
+          {(summary: () => string) => <Connects summary={summary()} key="c1" />}
+        </Show>
+      );
     }
 
-    function Connects(props: { summary: string; key: string }) {
-      useAsyncOutput(
-        { summary: props.summary, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Connects:${p.summary}`);
-          setOutputs({ connected: true });
-        },
-      );
-      return h(Fragment, {});
+    function Connects(props: { summary: string }) {
+      useAsyncOutput({ summary: props.summary }, async (p, setOutputs) => {
+        handlerOrder.push(`Connects:${p.summary}`);
+        setOutputs({ connected: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Analysis, { key: "a1" }, "a1"),
+      () => <Analysis key="a1" />,
       memory,
       "test-eager-cascade",
     );
@@ -1624,32 +1609,32 @@ describe("eager handler cascading", () => {
     const timeline: { node: string; event: string; time: number }[] = [];
     const start = Date.now();
 
-    function NodeA(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeA() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         timeline.push({ node: "A", event: "start", time: Date.now() - start });
         await delay(50);
         timeline.push({ node: "A", event: "end", time: Date.now() - start });
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function NodeB(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeB() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         timeline.push({ node: "B", event: "start", time: Date.now() - start });
         await delay(50);
         timeline.push({ node: "B", event: "end", time: Date.now() - start });
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Root() {
-      return [h(NodeA, { key: "a" }, "a"), h(NodeB, { key: "b" }, "b")];
+      return [<NodeA key="a" />, <NodeB key="b" />];
     }
 
     const memory = new InMemoryMemory();
-    const result = render(() => h(Root, {}, "root"), memory, "test-parallel");
+    const result = render(() => <Root key="root" />, memory, "test-parallel");
 
     await result.ready;
 
@@ -1674,69 +1659,65 @@ describe("eager handler cascading", () => {
     const handlerOrder: string[] = [];
 
     // A is the root
-    function A(props: { key: string }) {
+    function A() {
       const out = useAsyncOutput<{ aVal: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("A");
           setOutputs({ aVal: "from-A" });
         },
       );
-      return Show({
-        when: () => out.aVal(),
-        children: (aVal: () => string) => [
-          h(B, { aVal: aVal(), key: "b" }, "b"),
-          h(C, { aVal: aVal(), key: "c" }, "c"),
-        ],
-      });
+      return (
+        <Show when={() => out.aVal()}>
+          {(aVal: () => string) => [
+            <B aVal={aVal()} key="b" />,
+            <C aVal={aVal()} key="c" />,
+          ]}
+        </Show>
+      );
     }
 
     // B depends on A
-    function B(props: { aVal: string; key: string }) {
+    function B(props: { aVal: string }) {
       const out = useAsyncOutput<{ bVal: string }>(
-        { aVal: props.aVal, key: props.key },
+        { aVal: props.aVal },
         async (p, setOutputs) => {
           handlerOrder.push("B");
           setOutputs({ bVal: `B(${p.aVal})` });
         },
       );
-      return Show({
-        when: () => out.bVal(),
-        children: (bVal: () => string) =>
-          h(D, { bVal: bVal(), cVal: "pending", key: "d-from-b" }, "d-from-b"),
-      });
+      return (
+        <Show when={() => out.bVal()}>
+          {(bVal: () => string) => (
+            <D bVal={bVal()} cVal="pending" key="d-from-b" />
+          )}
+        </Show>
+      );
     }
 
     // C depends on A
-    function C(props: { aVal: string; key: string }) {
-      useAsyncOutput(
-        { aVal: props.aVal, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push("C");
-          setOutputs({ cVal: `C(${p.aVal})` });
-        },
-      );
-      return h(Fragment, {});
+    function C(props: { aVal: string }) {
+      useAsyncOutput({ aVal: props.aVal }, async (p, setOutputs) => {
+        handlerOrder.push("C");
+        setOutputs({ cVal: `C(${p.aVal})` });
+      });
+      return <></>;
     }
 
     // D depends on B (materializes when B outputs)
-    function D(props: { bVal: string; cVal: string; key: string }) {
+    function D(props: { bVal: string; cVal: string }) {
       useAsyncOutput(
-        { bVal: props.bVal, cVal: props.cVal, key: props.key },
+        { bVal: props.bVal, cVal: props.cVal },
         async (_p, setOutputs) => {
           handlerOrder.push("D");
           setOutputs({ done: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
-    const result = render(
-      () => h(A, { key: "a" }, "a"),
-      memory,
-      "test-diamond",
-    );
+    const result = render(() => <A key="a" />, memory, "test-diamond");
 
     await result.ready;
 
@@ -1751,34 +1732,28 @@ describe("eager handler cascading", () => {
   it("error propagation: handler throws → dependents don't run, deployment fails", async () => {
     const handlerOrder: string[] = [];
 
-    function Failing(props: { key: string }) {
-      const out = useAsyncOutput<{ val: string }>(
-        { key: props.key },
-        async () => {
-          handlerOrder.push("Failing");
-          throw new Error("handler-error");
-        },
-      );
-      return Show({
-        when: () => out.val(),
-        children: h(Dependent, { key: "dep" }, "dep"),
+    function Failing() {
+      const out = useAsyncOutput<{ val: string }>({}, async () => {
+        handlerOrder.push("Failing");
+        throw new Error("handler-error");
       });
+      return (
+        <Show when={() => out.val()}>
+          <Dependent key="dep" />
+        </Show>
+      );
     }
 
-    function Dependent(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Dependent() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         handlerOrder.push("Dependent");
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
-    const result = render(
-      () => h(Failing, { key: "f1" }, "f1"),
-      memory,
-      "test-error",
-    );
+    const result = render(() => <Failing key="f1" />, memory, "test-error");
 
     await expect(result.ready).rejects.toThrow("handler-error");
 
@@ -1795,19 +1770,19 @@ describe("eager handler cascading", () => {
   it("initial run with unchanged nodes re-executes handlers idempotently", async () => {
     let handlerCallCount = 0;
 
-    function Idempotent(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Idempotent() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         handlerCallCount++;
         setOutputs({ count: handlerCallCount });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
 
     // First run
     const result1 = render(
-      () => h(Idempotent, { key: "idem" }, "idem"),
+      () => <Idempotent key="idem" />,
       memory,
       "test-idempotent",
     );
@@ -1819,7 +1794,7 @@ describe("eager handler cascading", () => {
     // Second run — handler should run again (idempotent re-execution)
     handlerCallCount = 0;
     const result2 = render(
-      () => h(Idempotent, { key: "idem" }, "idem"),
+      () => <Idempotent key="idem" />,
       memory,
       "test-idempotent",
     );
@@ -1831,80 +1806,77 @@ describe("eager handler cascading", () => {
   it("deep chain cascade resolves all levels", async () => {
     const handlerOrder: string[] = [];
 
-    function Stage1(props: { key: string }) {
+    function Stage1() {
       const out = useAsyncOutput<{ s1: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("S1");
           setOutputs({ s1: "from-s1" });
         },
       );
-      return Show({
-        when: () => out.s1(),
-        children: (s1: () => string) =>
-          h(Stage2, { input: s1(), key: "s2" }, "s2"),
-      });
+      return (
+        <Show when={() => out.s1()}>
+          {(s1: () => string) => <Stage2 input={s1()} key="s2" />}
+        </Show>
+      );
     }
 
-    function Stage2(props: { input: string; key: string }) {
+    function Stage2(props: { input: string }) {
       const out = useAsyncOutput<{ s2: string }>(
-        { input: props.input, key: props.key },
+        { input: props.input },
         async (p, setOutputs) => {
           handlerOrder.push(`S2:${p.input}`);
           setOutputs({ s2: `s2(${p.input})` });
         },
       );
-      return Show({
-        when: () => out.s2(),
-        children: (s2: () => string) =>
-          h(Stage3, { input: s2(), key: "s3" }, "s3"),
-      });
+      return (
+        <Show when={() => out.s2()}>
+          {(s2: () => string) => <Stage3 input={s2()} key="s3" />}
+        </Show>
+      );
     }
 
-    function Stage3(props: { input: string; key: string }) {
+    function Stage3(props: { input: string }) {
       const out = useAsyncOutput<{ s3: string }>(
-        { input: props.input, key: props.key },
+        { input: props.input },
         async (p, setOutputs) => {
           handlerOrder.push(`S3:${p.input}`);
           setOutputs({ s3: `s3(${p.input})` });
         },
       );
-      return Show({
-        when: () => out.s3(),
-        children: (s3: () => string) =>
-          h(Stage4, { input: s3(), key: "s4" }, "s4"),
-      });
+      return (
+        <Show when={() => out.s3()}>
+          {(s3: () => string) => <Stage4 input={s3()} key="s4" />}
+        </Show>
+      );
     }
 
-    function Stage4(props: { input: string; key: string }) {
+    function Stage4(props: { input: string }) {
       const out = useAsyncOutput<{ s4: string }>(
-        { input: props.input, key: props.key },
+        { input: props.input },
         async (p, setOutputs) => {
           handlerOrder.push(`S4:${p.input}`);
           setOutputs({ s4: `s4(${p.input})` });
         },
       );
-      return Show({
-        when: () => out.s4(),
-        children: (s4: () => string) =>
-          h(Stage5, { input: s4(), key: "s5" }, "s5"),
-      });
+      return (
+        <Show when={() => out.s4()}>
+          {(s4: () => string) => <Stage5 input={s4()} key="s5" />}
+        </Show>
+      );
     }
 
-    function Stage5(props: { input: string; key: string }) {
-      useAsyncOutput(
-        { input: props.input, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`S5:${p.input}`);
-          setOutputs({ done: true });
-        },
-      );
-      return h(Fragment, {});
+    function Stage5(props: { input: string }) {
+      useAsyncOutput({ input: props.input }, async (p, setOutputs) => {
+        handlerOrder.push(`S5:${p.input}`);
+        setOutputs({ done: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Stage1, { key: "s1" }, "s1"),
+      () => <Stage1 key="s1" />,
       memory,
       "test-deep-chain",
     );
@@ -1925,75 +1897,67 @@ describe("eager handler cascading", () => {
   it("wide fan-out with secondary cascade", async () => {
     const handlerOrder: string[] = [];
 
-    function Root(props: { key: string }) {
+    function Root() {
       const out = useAsyncOutput<{ ready: boolean }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Root");
           setOutputs({ ready: true });
         },
       );
-      return Show({
-        when: () => out.ready(),
-        children: () => [
-          h(BranchA, { key: "a" }, "a"),
-          h(BranchB, { key: "b" }, "b"),
-          h(BranchC, { key: "c" }, "c"),
-        ],
-      });
+      return (
+        <Show when={() => out.ready()}>
+          {() => [
+            <BranchA key="a" />,
+            <BranchB key="b" />,
+            <BranchC key="c" />,
+          ]}
+        </Show>
+      );
     }
 
-    function BranchA(props: { key: string }) {
+    function BranchA() {
       const out = useAsyncOutput<{ aVal: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("A");
           setOutputs({ aVal: "done-a" });
         },
       );
-      return Show({
-        when: () => out.aVal(),
-        children: (aVal: () => string) =>
-          h(Leaf, { from: aVal(), key: "leaf-a" }, "leaf-a"),
+      return (
+        <Show when={() => out.aVal()}>
+          {(aVal: () => string) => <Leaf from={aVal()} key="leaf-a" />}
+        </Show>
+      );
+    }
+
+    function BranchB() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        handlerOrder.push("B");
+        setOutputs({ bVal: "done-b" });
       });
+      return <></>;
     }
 
-    function BranchB(props: { key: string }) {
-      useAsyncOutput(
-        { key: props.key },
-        async (_p, setOutputs) => {
-          handlerOrder.push("B");
-          setOutputs({ bVal: "done-b" });
-        },
-      );
-      return h(Fragment, {});
+    function BranchC() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        handlerOrder.push("C");
+        setOutputs({ cVal: "done-c" });
+      });
+      return <></>;
     }
 
-    function BranchC(props: { key: string }) {
-      useAsyncOutput(
-        { key: props.key },
-        async (_p, setOutputs) => {
-          handlerOrder.push("C");
-          setOutputs({ cVal: "done-c" });
-        },
-      );
-      return h(Fragment, {});
-    }
-
-    function Leaf(props: { from: string; key: string }) {
-      useAsyncOutput(
-        { from: props.from, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Leaf:${p.from}`);
-          setOutputs({ processed: true });
-        },
-      );
-      return h(Fragment, {});
+    function Leaf(props: { from: string }) {
+      useAsyncOutput({ from: props.from }, async (p, setOutputs) => {
+        handlerOrder.push(`Leaf:${p.from}`);
+        setOutputs({ processed: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Root, { key: "root" }, "root"),
+      () => <Root key="root" />,
       memory,
       "test-wide-cascade",
     );
@@ -2027,20 +1991,17 @@ describe("eager handler cascading", () => {
     function Root() {
       return [
         // Branch 1: multiple workers
-        h(Worker, { id: "w1", key: "w1" }, "w1"),
-        h(Worker, { id: "w2", key: "w2" }, "w2"),
-        h(Worker, { id: "w3", key: "w3" }, "w3"),
+        <Worker id="w1" key="w1" />,
+        <Worker id="w2" key="w2" />,
+        <Worker id="w3" key="w3" />,
         // Branch 2: gated downstream (sibling of workers)
-        Show({
-          when: allDone,
-          children: () => h(Downstream, { key: "ds" }, "ds"),
-        }),
+        <Show when={allDone}>{() => <Downstream key="ds" />}</Show>,
       ];
     }
 
-    function Worker(props: { id: string; key: string }) {
+    function Worker(props: { id: string }) {
       const out = useAsyncOutput<{ result: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push(`Worker:${props.id}`);
           setOutputs({ result: `done-${props.id}` });
@@ -2058,23 +2019,20 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function Downstream(props: { key: string }) {
-      useAsyncOutput(
-        { key: props.key },
-        async (_p, setOutputs) => {
-          handlerOrder.push("Downstream");
-          setOutputs({ final: true });
-        },
-      );
-      return h(Fragment, {});
+    function Downstream() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        handlerOrder.push("Downstream");
+        setOutputs({ final: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Root, {}, "root"),
+      () => <Root key="root" />,
       memory,
       "test-cross-branch",
     );
@@ -2099,9 +2057,9 @@ describe("eager handler cascading", () => {
 
     interface Item { id: string; name: string }
 
-    function Parent(props: { key: string }) {
+    function Parent() {
       const out = useAsyncOutput<{ items: Item[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Parent");
           await delay(10);
@@ -2113,27 +2071,24 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return For({
-        each: () => out.items() ?? [],
-        keyFn: (item: Item) => item.id,
-        children: (item) => h(Child, { item: item(), key: item().id }, item().id),
-      });
+      return (
+        <For each={() => out.items() ?? []} keyFn={(item: Item) => item.id}>
+          {(item) => <Child item={item()} key={item().id} />}
+        </For>
+      );
     }
 
-    function Child(props: { item: Item; key: string }) {
-      useAsyncOutput(
-        { item: props.item, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Child:${p.item.id}`);
-          setOutputs({ processed: true });
-        },
-      );
-      return h(Fragment, {});
+    function Child(props: { item: Item }) {
+      useAsyncOutput({ item: props.item }, async (p, setOutputs) => {
+        handlerOrder.push(`Child:${p.item.id}`);
+        setOutputs({ processed: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Parent, { key: "parent" }, "parent"),
+      () => <Parent key="parent" />,
       memory,
       "test-async-for",
     );
@@ -2154,9 +2109,9 @@ describe("eager handler cascading", () => {
 
     interface FileInfo { name: string; content: string }
 
-    function FileTree(props: { key: string }) {
+    function FileTree() {
       const out = useAsyncOutput<{ files: FileInfo[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("FileTree");
           await delay(10);
@@ -2167,16 +2122,16 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return For({
-        each: () => out.files() ?? [],
-        keyFn: (f: FileInfo) => f.name,
-        children: (file) => h(FileAnalysis, { file: file(), key: file().name }, file().name),
-      });
+      return (
+        <For each={() => out.files() ?? []} keyFn={(f: FileInfo) => f.name}>
+          {(file) => <FileAnalysis file={file()} key={file().name} />}
+        </For>
+      );
     }
 
-    function FileAnalysis(props: { file: FileInfo; key: string }) {
+    function FileAnalysis(props: { file: FileInfo }) {
       const out = useAsyncOutput<{ summary: string }>(
-        { file: props.file, key: props.key },
+        { file: props.file },
         async (p, setOutputs) => {
           handlerOrder.push(`Analysis:${p.file.name}`);
           await delay(5);
@@ -2184,27 +2139,30 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return Show({
-        when: () => out.summary(),
-        children: (summary: () => string) =>
-          h(FileConnects, { summary: summary(), fileName: props.file.name, key: `conn-${props.key}` }, `conn-${props.key}`),
-      });
+      return (
+        <Show when={() => out.summary()}>
+          {(summary: () => string) => (
+            <FileConnects
+              summary={summary()}
+              fileName={props.file.name}
+              key={`conn-${props.file.name}`}
+            />
+          )}
+        </Show>
+      );
     }
 
-    function FileConnects(props: { summary: string; fileName: string; key: string }) {
-      useAsyncOutput(
-        { summary: props.summary, key: props.key },
-        async (_p, setOutputs) => {
-          handlerOrder.push(`Connects:${props.fileName}`);
-          setOutputs({ deps: ["dep1"] });
-        },
-      );
-      return h(Fragment, {});
+    function FileConnects(props: { summary: string; fileName: string }) {
+      useAsyncOutput({ summary: props.summary }, async (_p, setOutputs) => {
+        handlerOrder.push(`Connects:${props.fileName}`);
+        setOutputs({ deps: ["dep1"] });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(FileTree, { key: "tree" }, "tree"),
+      () => <FileTree key="tree" />,
       memory,
       "test-async-deep-cascade",
     );
@@ -2232,20 +2190,15 @@ describe("eager handler cascading", () => {
     function Root() {
       return [
         // Branch 1: file analysis (For with async children)
-        ...fileNames.map(name =>
-          h(FileWorker, { name, key: name }, name)
-        ),
+        ...fileNames.map(name => <FileWorker name={name} key={name} />),
         // Branch 2: anatomy gate — only mounts when all files analyzed
-        Show({
-          when: allAnalyzed,
-          children: () => h(Anatomy, { key: "anatomy" }, "anatomy"),
-        }),
+        <Show when={allAnalyzed}>{() => <Anatomy key="anatomy" />}</Show>,
       ];
     }
 
-    function FileWorker(props: { name: string; key: string }) {
+    function FileWorker(props: { name: string }) {
       const out = useAsyncOutput<{ summary: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push(`Worker:${props.name}`);
           await delay(5);
@@ -2263,24 +2216,21 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function Anatomy(props: { key: string }) {
-      useAsyncOutput(
-        { key: props.key },
-        async (_p, setOutputs) => {
-          handlerOrder.push("Anatomy");
-          await delay(5);
-          setOutputs({ tissues: ["tissue-1"] });
-        },
-      );
-      return h(Fragment, {});
+    function Anatomy() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
+        handlerOrder.push("Anatomy");
+        await delay(5);
+        setOutputs({ tissues: ["tissue-1"] });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Root, {}, "root"),
+      () => <Root key="root" />,
       memory,
       "test-async-gate-pattern",
     );
@@ -2301,9 +2251,9 @@ describe("eager handler cascading", () => {
 
     interface Tissue { name: string; cells: string[] }
 
-    function Pipeline(props: { key: string }) {
+    function Pipeline() {
       const out = useAsyncOutput<{ files: string[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Discovery");
           await delay(5);
@@ -2313,22 +2263,17 @@ describe("eager handler cascading", () => {
 
       return [
         // Stage 1: file analysis via For
-        For({
-          each: () => out.files() ?? [],
-          keyFn: (f: string) => f,
-          children: (file) => h(Analyzer, { file: file(), key: file() }, file()),
-        }),
+        <For each={() => out.files() ?? []} keyFn={(f: string) => f}>
+          {(file) => <Analyzer file={file()} key={file()} />}
+        </For>,
         // Stage 2: anatomy, gated on all files
-        Show({
-          when: anatomyDone,
-          children: () => h(AnatomyStage, { key: "anatomy" }, "anatomy"),
-        }),
+        <Show when={anatomyDone}>{() => <AnatomyStage key="anatomy" />}</Show>,
       ];
     }
 
-    function Analyzer(props: { file: string; key: string }) {
+    function Analyzer(props: { file: string }) {
       const out = useAsyncOutput<{ summary: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push(`Analyze:${props.file}`);
           await delay(5);
@@ -2343,12 +2288,12 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function AnatomyStage(props: { key: string }) {
+    function AnatomyStage() {
       const out = useAsyncOutput<{ tissues: Tissue[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Anatomy");
           await delay(5);
@@ -2359,31 +2304,25 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return For({
-        each: () => out.tissues() ?? [],
-        keyFn: (t: Tissue) => t.name,
-        children: (tissue) => h(TissueWorker, {
-          tissue: tissue(),
-          key: tissue().name,
-        }, tissue().name),
-      });
+      return (
+        <For each={() => out.tissues() ?? []} keyFn={(t: Tissue) => t.name}>
+          {(tissue) => <TissueWorker tissue={tissue()} key={tissue().name} />}
+        </For>
+      );
     }
 
-    function TissueWorker(props: { tissue: Tissue; key: string }) {
-      useAsyncOutput(
-        { tissue: props.tissue, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Tissue:${p.tissue.name}`);
-          await delay(5);
-          setOutputs({ organs: [`organ-${p.tissue.name}`] });
-        },
-      );
-      return h(Fragment, {});
+    function TissueWorker(props: { tissue: Tissue }) {
+      useAsyncOutput({ tissue: props.tissue }, async (p, setOutputs) => {
+        handlerOrder.push(`Tissue:${p.tissue.name}`);
+        await delay(5);
+        setOutputs({ organs: [`organ-${p.tissue.name}`] });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Pipeline, { key: "pipeline" }, "pipeline"),
+      () => <Pipeline key="pipeline" />,
       memory,
       "test-full-pipeline",
     );
@@ -2410,9 +2349,9 @@ describe("eager handler cascading", () => {
 
     interface Item { id: string }
 
-    function Parent(props: { key: string }) {
+    function Parent() {
       const out = useAsyncOutput<{ items: Item[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Parent");
           await tick(); // microtask, not setTimeout
@@ -2420,28 +2359,25 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return For({
-        each: () => out.items() ?? [],
-        keyFn: (item: Item) => item.id,
-        children: (item) => h(Child, { item: item(), key: item().id }, item().id),
-      });
+      return (
+        <For each={() => out.items() ?? []} keyFn={(item: Item) => item.id}>
+          {(item) => <Child item={item()} key={item().id} />}
+        </For>
+      );
     }
 
-    function Child(props: { item: Item; key: string }) {
-      useAsyncOutput(
-        { item: props.item, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Child:${p.item.id}`);
-          await tick();
-          setOutputs({ done: true });
-        },
-      );
-      return h(Fragment, {});
+    function Child(props: { item: Item }) {
+      useAsyncOutput({ item: props.item }, async (p, setOutputs) => {
+        handlerOrder.push(`Child:${p.item.id}`);
+        await tick();
+        setOutputs({ done: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Parent, { key: "p" }, "p"),
+      () => <Parent key="p" />,
       memory,
       "test-microtask-for",
     );
@@ -2467,21 +2403,18 @@ describe("eager handler cascading", () => {
 
     function Root() {
       return [
-        h(Worker, { id: "w1", key: "w1" }, "w1"),
-        h(Worker, { id: "w2", key: "w2" }, "w2"),
-        h(Worker, { id: "w3", key: "w3" }, "w3"),
-        h(Worker, { id: "w4", key: "w4" }, "w4"),
-        h(Worker, { id: "w5", key: "w5" }, "w5"),
-        Show({
-          when: gateOpen,
-          children: () => h(ForConsumer, { key: "fc" }, "fc"),
-        }),
+        <Worker id="w1" key="w1" />,
+        <Worker id="w2" key="w2" />,
+        <Worker id="w3" key="w3" />,
+        <Worker id="w4" key="w4" />,
+        <Worker id="w5" key="w5" />,
+        <Show when={gateOpen}>{() => <ForConsumer key="fc" />}</Show>,
       ];
     }
 
-    function Worker(props: { id: string; key: string }) {
+    function Worker(props: { id: string }) {
       const out = useAsyncOutput<{ result: string }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push(`Worker:${props.id}`);
           // All resolve on same microtask
@@ -2497,12 +2430,12 @@ describe("eager handler cascading", () => {
         }
       });
 
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function ForConsumer(props: { key: string }) {
+    function ForConsumer() {
       const out = useAsyncOutput<{ items: string[] }>(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("ForConsumer");
           await Promise.resolve();
@@ -2510,27 +2443,24 @@ describe("eager handler cascading", () => {
         },
       );
 
-      return For({
-        each: () => out.items() ?? [],
-        keyFn: (i: string) => i,
-        children: (item) => h(Leaf, { item: item(), key: item() }, item()),
-      });
+      return (
+        <For each={() => out.items() ?? []} keyFn={(i: string) => i}>
+          {(item) => <Leaf item={item()} key={item()} />}
+        </For>
+      );
     }
 
-    function Leaf(props: { item: string; key: string }) {
-      useAsyncOutput(
-        { item: props.item, key: props.key },
-        async (p, setOutputs) => {
-          handlerOrder.push(`Leaf:${p.item}`);
-          setOutputs({ processed: true });
-        },
-      );
-      return h(Fragment, {});
+    function Leaf(props: { item: string }) {
+      useAsyncOutput({ item: props.item }, async (p, setOutputs) => {
+        handlerOrder.push(`Leaf:${p.item}`);
+        setOutputs({ processed: true });
+      });
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Root, {}, "root"),
+      () => <Root key="root" />,
       memory,
       "test-race-condition",
     );
@@ -2564,28 +2494,28 @@ describe("eager handler cascading", () => {
       },
     } as any;
 
-    function NodeA(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeA() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         await delay(20);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function NodeB(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeB() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         await delay(20);
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Root() {
-      return [h(NodeA, { key: "a" }, "a"), h(NodeB, { key: "b" }, "b")];
+      return [<NodeA key="a" />, <NodeB key="b" />];
     }
 
     const result = render(
-      () => h(Root, {}, "root"),
+      () => <Root key="root" />,
       trackingMemory,
       "test-multi-apply",
     );
@@ -2608,32 +2538,32 @@ describe("resetRuntime()", () => {
   it("calls cleanup functions on all registered nodes", async () => {
     const cleanupCalls: string[] = [];
 
-    function NodeA(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeA() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ done: true });
         return () => {
           cleanupCalls.push("A");
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    function NodeB(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function NodeB() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ done: true });
         return () => {
           cleanupCalls.push("B");
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Root() {
-      return [h(NodeA, { key: "a" }, "a"), h(NodeB, { key: "b" }, "b")];
+      return [<NodeA key="a" />, <NodeB key="b" />];
     }
 
     const memory = new InMemoryMemory();
-    const result = render(() => h(Root, {}, "root"), memory, "test-reset");
+    const result = render(() => <Root key="root" />, memory, "test-reset");
     await result.ready;
 
     expect(cleanupCalls).toEqual([]);
@@ -2650,15 +2580,15 @@ describe("resetRuntime()", () => {
     const memory = new InMemoryMemory();
     let saveCountAfterReset = 0;
 
-    function Node(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Node() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ value: 1 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory,
       "test-reset-timers",
     );
@@ -2682,18 +2612,18 @@ describe("resetRuntime()", () => {
   });
 
   it("clears nodeOwnership — no 'Duplicate resource ID' errors on re-render", async () => {
-    function Node(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Node() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ done: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
 
     // First render
     const result1 = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory,
       "test-reset-ownership",
     );
@@ -2705,7 +2635,7 @@ describe("resetRuntime()", () => {
     // Second render with same node IDs should not throw
     const memory2 = new InMemoryMemory();
     const result2 = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory2,
       "test-reset-ownership",
     );
@@ -2720,18 +2650,18 @@ describe("resetRuntime()", () => {
   it("after resetRuntime(), a fresh render() works cleanly", async () => {
     const handlerCalls: string[] = [];
 
-    function Node(props: { key: string }) {
-      useAsyncOutput({ key: props.key }, async (_p, setOutputs) => {
+    function Node() {
+      useAsyncOutput({}, async (_p, setOutputs) => {
         handlerCalls.push("handler");
         setOutputs({ value: 42 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     // First render
     const memory1 = new InMemoryMemory();
     const result1 = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory1,
       "test-fresh",
     );
@@ -2746,7 +2676,7 @@ describe("resetRuntime()", () => {
     handlerCalls.length = 0;
 
     const result2 = render(
-      () => h(Node, { key: "n" }, "n"),
+      () => <Node key="n" />,
       memory2,
       "test-fresh",
     );

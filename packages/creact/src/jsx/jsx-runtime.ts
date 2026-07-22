@@ -21,8 +21,11 @@ export interface JSXElement {
  */
 export type CReactNode =
   | JSXElement
-  | JSXElement[]
+  | CReactNode[]
   | (() => CReactNode)
+  | string
+  | number
+  | boolean
   | null
   | undefined;
 
@@ -31,15 +34,21 @@ export type CReactNode =
  * Handles key and children automatically - no need to declare in component props
  */
 export namespace JSX {
-  export type Element = JSXElement;
+  // A component may return a single element, several elements (a fragment or a
+  // bare array), a reactive accessor, or nothing — the runtime resolves each.
+  // This mirrors Solid: the return contract is wider than a lone element.
+  export type Element = CReactNode;
 
   // CReact has no host elements (no DOM), so this stays empty and any
   // lowercase JSX tag is a compile-time error by design.
   export interface IntrinsicElements {}
 
-  // key is handled automatically by JSX, not passed to component
+  // key is handled automatically by JSX, not passed to the component. testId is
+  // a universal attribute for tests (queryable via @creact-labs/testing) — any
+  // component accepts it without declaring it, and it flows through to the node.
   export interface IntrinsicAttributes {
     key?: string | number;
+    testId?: string;
   }
 
   // children is handled automatically by JSX
