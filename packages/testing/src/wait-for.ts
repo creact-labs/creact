@@ -47,7 +47,7 @@ export async function waitFor<T>(
   const interval = options.interval ?? 10;
   const deadline = Date.now() + timeout;
   let lastError: unknown = new Error(`waitFor timed out after ${timeout}ms`);
-  while (Date.now() < deadline) {
+  for (;;) {
     try {
       // Race the callback against the deadline: await so an async callback
       // retries on its resolved value (not the always-truthy pending promise),
@@ -58,7 +58,9 @@ export async function waitFor<T>(
     } catch (error) {
       lastError = error;
     }
-    await delay(interval);
+    // Sleep only up to the deadline, so a long interval can't overshoot it.
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw lastError;
+    await delay(Math.min(interval, remaining));
   }
-  throw lastError;
 }

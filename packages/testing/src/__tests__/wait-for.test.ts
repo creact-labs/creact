@@ -51,6 +51,15 @@ describe("waitFor()", () => {
     ).rejects.toThrow(/truthy/);
   });
 
+  it("gives up near the timeout even when interval is larger than it", async () => {
+    const start = Date.now();
+    await expect(
+      waitFor(() => false, { timeout: 20, interval: 10_000 }),
+    ).rejects.toThrow();
+    // the long interval must not overshoot the timeout
+    expect(Date.now() - start).toBeLessThan(500);
+  });
+
   it("retries past an async rejection", async () => {
     let tries = 0;
     const result = await waitFor(async () => {
