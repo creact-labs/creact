@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi} from "vitest";
-import { InMemoryMemory, h } from "@creact-labs/testing";
-import { type Accessor, For, Fragment, Match, Show, Switch, createEffect, createRoot, createSignal} from "../../index";
+import { InMemoryMemory } from "@creact-labs/testing";
+import { type Accessor, For, Match, Show, Switch, createEffect, createRoot, createSignal} from "../../index";
 import { createContext, useContext} from "../../primitives/context";
 import { onCleanup} from "../../reactive/owner";
 import type { Fiber} from "../fiber";
@@ -79,7 +79,7 @@ describe("component execution", () => {
       onCleanup(() => {
         cleaned = true;
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const fiber = renderFiber({ type: WithCleanup, props: {} }, []);
@@ -104,17 +104,17 @@ describe("anonymous components", () => {
     const [Anonymous] = [
       function (props: { children?: any }) {
         void props;
-        return h(Fragment, {});
+        return <></>;
       },
     ];
     Object.defineProperty(Anonymous, "name", { value: "" });
 
     function App() {
-      return h(Anonymous, {});
+      return <Anonymous />;
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "anon-component",
     );
@@ -130,17 +130,17 @@ describe("anonymous components", () => {
         useAsyncOutput({}, async (_p, setOutputs) => {
           setOutputs({ up: true });
         });
-        return h(Fragment, {});
+        return <></>;
       },
     ];
     Object.defineProperty(AnonymousDb, "name", { value: "" });
 
     function App() {
-      return h(AnonymousDb, {}, "anon");
+      return <AnonymousDb key="anon" />;
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "anon-resource",
     );
@@ -160,15 +160,15 @@ describe("boundaries yielding empty children", () => {
         deployed++;
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return () => [h(Real, {}, "real"), null, false];
+      return () => [<Real key="real" />, null, false];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "sparse-children",
     );
@@ -186,7 +186,7 @@ describe("boundaries yielding empty children", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "null-boundary",
     );
@@ -207,11 +207,11 @@ describe("provider as the root element", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => Region.Provider({ value: "root-value", children: h(Db, {}, "db") }),
+      () => Region.Provider({ value: "root-value", children: <Db key="db" /> }),
       new InMemoryMemory(),
       "root-provider",
     );
@@ -231,7 +231,7 @@ describe("reactive boundaries producing non-component children", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "boundary-text",
     );
@@ -257,18 +257,18 @@ describe("reactive boundaries producing non-component children", () => {
           setOutputs({ ok: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return () => {
         tick(); // subscribe so the boundary re-runs
-        return [[h(Item, { id: "a" }, "a"), h(Item, { id: "b" }, "b")]];
+        return [[<Item id="a" key="a" />, <Item id="b" key="b" />]];
       };
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "boundary-nested-array",
     );
@@ -290,18 +290,18 @@ describe("context providers through the runtime", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return Region.Provider({
         value: "eu-west-1",
-        children: h(Db, {}, "db"),
+        children: <Db key="db" />,
       });
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "ctx-provider",
     );
@@ -324,19 +324,19 @@ describe("context providers through the runtime", () => {
           setOutputs({ ok: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return () =>
         Mode.Provider({
           value: "stable",
-          children: h(Reader, { tick: tick() }, "reader"),
+          children: <Reader tick={tick()} key="reader" />,
         });
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "ctx-boundary",
     );
@@ -378,7 +378,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "keyed-reorder",
     );
@@ -410,7 +410,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "keyed-vs-unkeyed",
     );
@@ -435,10 +435,10 @@ describe("fiber reconciliation across reactive re-renders", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
     // Stable element reference — mapArray-style reuse across re-renders
-    const leafElement = h(Leaf, {}, "leaf");
+    const leafElement = <Leaf key="leaf" />;
 
     function App() {
       // The nested array must reconcile against its old fragment fiber
@@ -447,7 +447,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "nested-array",
     );
@@ -472,7 +472,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "type-swap",
     );
@@ -498,7 +498,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "keyed-plain",
     );
@@ -518,12 +518,12 @@ describe("fiber reconciliation across reactive re-renders", () => {
     function App() {
       return () =>
         showProvider()
-          ? Mode.Provider({ value: "on", children: h(Fragment, {}) })
+          ? Mode.Provider({ value: "on", children: <></> })
           : { type: "plain", props: {} };
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "provider-swap",
     );
@@ -546,7 +546,7 @@ describe("fiber reconciliation across reactive re-renders", () => {
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "positional-update",
     );
@@ -569,15 +569,15 @@ describe("fiber reconciliation across reactive re-renders", () => {
         deployCount++;
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return Show({ when: on, children: () => h(Nested, {}, "n") });
+      return Show({ when: on, children: () => <Nested key="n" /> });
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "show-toggle",
     );
@@ -623,7 +623,7 @@ describe("renderFiber — Show reactive boundary", () => {
     createRoot(() => {
       const show = Show({
         when: true,
-        children: h("child", { value: "hello" }),
+        children: { type: "child", props: { value: "hello" } },
       });
 
       const fiber = renderFiber(show, ["root"]);
@@ -637,7 +637,7 @@ describe("renderFiber — Show reactive boundary", () => {
     createRoot(() => {
       const show = Show({
         when: false,
-        children: h("child"),
+        children: { type: "child", props: {} },
       });
 
       const fiber = renderFiber(show, ["root"]);
@@ -651,8 +651,8 @@ describe("renderFiber — Show reactive boundary", () => {
       const [visible, setVisible] = createSignal(false);
       const show = Show({
         when: () => visible(),
-        children: h("content", { value: "hello" }),
-        fallback: h("fallback"),
+        children: { type: "content", props: { value: "hello" } },
+        fallback: { type: "fallback", props: {} },
       });
 
       const fiber = renderFiber(show, ["root"]);
@@ -683,7 +683,10 @@ describe("renderFiber — Show reactive boundary", () => {
       // Show with function children — non-keyed
       const show = Show({
         when: () => count(),
-        children: (val: () => number) => h("child", { v: val() }),
+        children: (val: () => number) => ({
+          type: "child",
+          props: { v: val() },
+        }),
       });
 
       const fiber = renderFiber(show, ["root"]);
@@ -713,7 +716,10 @@ describe("renderFiber — For reactive boundary", () => {
       const items = ["a", "b", "c"];
       const forResult = For({
         each: () => items,
-        children: (item: Accessor<string>) => h("item", { value: item() }),
+        children: (item: Accessor<string>) => ({
+          type: "item",
+          props: { value: item() },
+        }),
       });
 
       const fiber = renderFiber(forResult, ["root"]);
@@ -732,8 +738,10 @@ describe("renderFiber — For reactive boundary", () => {
 
       const forResult = For({
         each: () => list(),
-        children: (item: Accessor<{ v: string }>) =>
-          h("item", { value: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { value: item().v },
+        }),
       });
 
       const fiber = renderFiber(forResult, ["root"]);
@@ -765,8 +773,10 @@ describe("renderFiber — For reactive boundary", () => {
 
       const forResult = For({
         each: () => list(),
-        children: (item: Accessor<{ v: string }>) =>
-          h("item", { value: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { value: item().v },
+        }),
       });
 
       const fiber = renderFiber(forResult, ["root"]);
@@ -794,8 +804,8 @@ describe("renderFiber — nested Show inside For", () => {
         children: (item: Accessor<{ id: string; visible: boolean }>) =>
           Show({
             when: () => item().visible,
-            children: h("visible-item", { id: item().id }),
-            fallback: h("hidden-item", { id: item().id }),
+            children: { type: "visible-item", props: { id: item().id } },
+            fallback: { type: "hidden-item", props: { id: item().id } },
           }),
       });
 
@@ -825,7 +835,7 @@ describe("renderFiber — nested Show inside For", () => {
         children: (item: Accessor<{ id: string }>) =>
           Show({
             when: () => visible(),
-            children: h("item", { id: item().id }),
+            children: { type: "item", props: { id: item().id } },
           }),
       });
 
@@ -856,7 +866,7 @@ describe("renderFiber — nested Show inside For", () => {
 describe("renderFiber — For with function components", () => {
   it("function components inside For survive list changes", () => {
     function Item(props: { id: string }) {
-      return h("rendered-item", { id: props.id });
+      return { type: "rendered-item", props: { id: props.id } };
     }
 
     createRoot(() => {
@@ -866,8 +876,7 @@ describe("renderFiber — For with function components", () => {
 
       const forResult = For({
         each: () => list(),
-        children: (item: Accessor<{ id: string }>) =>
-          h(Item, { id: item().id }),
+        children: (item: Accessor<{ id: string }>) => <Item id={item().id} />,
       });
 
       const fiber = renderFiber(forResult, ["root"]);
@@ -893,7 +902,7 @@ describe("renderFiber — For with function components", () => {
     function Card(props: { label: string }) {
       return Show({
         when: true,
-        children: h("card-content", { label: props.label }),
+        children: { type: "card-content", props: { label: props.label } },
       });
     }
 
@@ -905,8 +914,9 @@ describe("renderFiber — For with function components", () => {
 
       const forResult = For({
         each: () => list(),
-        children: (item: Accessor<{ id: string }>) =>
-          h(Card, { label: item().id }),
+        children: (item: Accessor<{ id: string }>) => (
+          <Card label={item().id} />
+        ),
       });
 
       const fiber = renderFiber(forResult, ["root"]);
@@ -943,7 +953,7 @@ describe("renderFiber — Show inside Show", () => {
         children: (val: () => string) =>
           Show({
             when: () => inner(),
-            children: h("inner-content", { text: val() }),
+            children: { type: "inner-content", props: { text: val() } },
           }),
       });
 
@@ -983,8 +993,10 @@ describe("renderFiber — For inside Show", () => {
         children: (_val: () => string) =>
           For({
             each: () => [a, b],
-            children: (item: Accessor<{ id: string }>) =>
-              h("for-item", { id: item().id }),
+            children: (item: Accessor<{ id: string }>) => ({
+              type: "for-item",
+              props: { id: item().id },
+            }),
           }),
       });
 
@@ -1013,8 +1025,10 @@ describe("renderFiber — For inside Show", () => {
         when: () => visible(),
         children: For({
           each: () => list(),
-          children: (item: Accessor<{ id: string }>) =>
-            h("for-item", { id: item().id }),
+          children: (item: Accessor<{ id: string }>) => ({
+            type: "for-item",
+            props: { id: item().id },
+          }),
         }),
       });
 
@@ -1047,23 +1061,20 @@ describe("reactive boundary branch disposal", () => {
         pulse();
         log.push(props.label);
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () =>
-        h(Switch, {
-          children: [
-            h(Match, {
-              when: () => mode() === "a",
-              children: h(Banner, { label: "a" }),
-            }),
-            h(Match, {
-              when: () => mode() === "b",
-              children: h(Banner, { label: "b" }),
-            }),
-          ],
-        }),
+      () => (
+        <Switch>
+          <Match when={() => mode() === "a"}>
+            <Banner label="a" />
+          </Match>
+          <Match when={() => mode() === "b"}>
+            <Banner label="b" />
+          </Match>
+        </Switch>
+      ),
       new InMemoryMemory(),
       "switch-branch-disposal",
     );

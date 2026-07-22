@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it} from "vitest";
-import { InMemoryMemory, h } from "@creact-labs/testing";
-import { type Accessor, For, Fragment, type JSXElement, Show, createEffect, createMemo, createRoot, createSignal, indexArray, mapArray, onCleanup} from "../../index";
+import { InMemoryMemory } from "@creact-labs/testing";
+import { type Accessor, For, type JSXElement, Show, createEffect, createMemo, createRoot, createSignal, indexArray, mapArray, onCleanup} from "../../index";
 import { useAsyncOutput} from "../../runtime/instance";
 import { render, resetRuntime} from "../../runtime/run";
 
@@ -226,7 +226,10 @@ describe("For component", () => {
       const [items] = createSignal(["a", "b", "c"]);
       const result = For({
         each: () => items(),
-        children: (item: Accessor<string>) => h("item", { v: item() }),
+        children: (item: Accessor<string>) => ({
+          type: "item",
+          props: { v: item() },
+        }),
       }) as unknown as () => any[];
 
       expect(result().map((el: JSXElement) => el.props.v)).toEqual([
@@ -247,7 +250,10 @@ describe("For component", () => {
 
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -288,7 +294,10 @@ describe("For component", () => {
 
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -311,7 +320,10 @@ describe("For component", () => {
 
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -337,7 +349,10 @@ describe("For component", () => {
 
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -353,7 +368,10 @@ describe("For component", () => {
 
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -367,10 +385,13 @@ describe("For component", () => {
   it("renders fallback when empty", () => {
     createRoot(() => {
       const [items, setItems] = createSignal<string[]>([]);
-      const empty = h("empty", { v: "Empty" });
+      const empty = { type: "empty", props: { v: "Empty" } };
       const result = For({
         each: () => items(),
-        children: (item: Accessor<string>) => h("item", { v: item() }),
+        children: (item: Accessor<string>) => ({
+          type: "item",
+          props: { v: item() },
+        }),
         fallback: empty,
       }) as unknown as () => any[];
 
@@ -395,7 +416,10 @@ describe("For component", () => {
       const result = For({
         each: () => items(),
         children: (item: Accessor<{ v: string }>, index: Accessor<number>) =>
-          createMemo(() => h("item", { label: `${item().v}:${index()}` })),
+          createMemo(() => ({
+            type: "item",
+            props: { label: `${item().v}:${index()}` },
+          })),
       }) as unknown as () => any[];
 
       expect(result().map((m: any) => m().props.label)).toEqual([
@@ -430,7 +454,10 @@ describe("For component", () => {
       ]);
       const result = For({
         each: () => items(),
-        children: (item: Accessor<{ v: string }>) => h("item", { v: item().v }),
+        children: (item: Accessor<{ v: string }>) => ({
+          type: "item",
+          props: { v: item().v },
+        }),
       }) as unknown as () => any[];
 
       const vals = () => result().map((el: JSXElement) => el.props.v);
@@ -655,8 +682,8 @@ describe("nested Show inside For", () => {
         mapArray(list, (item) => {
           const show = Show({
             when: () => item().visible,
-            children: h("t", { v: `content:${item().id}` }),
-            fallback: h("t", { v: `hidden:${item().id}` }),
+            children: { type: "t", props: { v: `content:${item().id}` } },
+            fallback: { type: "t", props: { v: `hidden:${item().id}` } },
           }) as unknown as () => any;
           return show;
         }),
@@ -691,7 +718,10 @@ describe("nested Show inside For", () => {
             when: () => item().v > 0,
             children: (_val: () => any) => {
               // Internal memo inside Show children
-              return createMemo(() => h("t", { n: item().v * multiplier() }));
+              return createMemo(() => ({
+                type: "t",
+                props: { n: item().v * multiplier() },
+              }));
             },
           }) as unknown as () => any;
         }),
@@ -722,8 +752,8 @@ describe("nested Show inside For", () => {
         mapArray(list, (item) => {
           return Show({
             when: () => visible(),
-            children: h("t", { v: `yes:${item().id}` }),
-            fallback: h("t", { v: `no:${item().id}` }),
+            children: { type: "t", props: { v: `yes:${item().id}` } },
+            fallback: { type: "t", props: { v: `no:${item().id}` } },
           }) as unknown as () => any;
         }),
       );
@@ -769,8 +799,11 @@ describe("nested Show inside Show", () => {
           // Inner Show depends on different signal
           return Show({
             when: () => inner() > 0,
-            children: createMemo(() => h("t", { v: `${val()}:${inner()}` })),
-            fallback: h("t", { v: "inner-hidden" }),
+            children: createMemo(() => ({
+              type: "t",
+              props: { v: `${val()}:${inner()}` },
+            })),
+            fallback: { type: "t", props: { v: "inner-hidden" } },
           });
         },
       }) as unknown as () => any;
@@ -793,8 +826,8 @@ describe("nested Show inside Show", () => {
       const [outer] = createSignal(true);
       const [inner, setInner] = createSignal(true);
 
-      const bothVisible = h("t", { v: "both-visible" });
-      const innerHidden = h("t", { v: "inner-hidden" });
+      const bothVisible = { type: "t", props: { v: "both-visible" } };
+      const innerHidden = { type: "t", props: { v: "inner-hidden" } };
 
       const outerShow = Show({
         when: () => outer(),
@@ -830,7 +863,10 @@ describe("For inside Show", () => {
           return For({
             each: () => list(),
             children: (item: Accessor<{ id: string }>) =>
-              createMemo(() => h("t", { label: `${val()}:${item().id}` })),
+              createMemo(() => ({
+                type: "t",
+                props: { label: `${val()}:${item().id}` },
+              })),
           });
         },
       }) as unknown as () => any;
@@ -873,7 +909,7 @@ describe("For inside Show", () => {
           each: () => [a, b],
           children: (item: Accessor<{ id: string }>) => {
             mapCallCount++;
-            return h("item", { v: item().id });
+            return { type: "item", props: { v: item().id } };
           },
         }),
       }) as unknown as () => any;
@@ -905,9 +941,10 @@ describe("For with keyFn — nested reactive state", () => {
         mapArray(
           list,
           (item) => {
-            return createMemo(() =>
-              h("t", { label: `${item().id}:${item().v}` }),
-            );
+            return createMemo(() => ({
+              type: "t",
+              props: { label: `${item().id}:${item().v}` },
+            }));
           },
           { keyFn: (x) => x.id },
         ),
@@ -948,9 +985,10 @@ describe("For with keyFn — nested reactive state", () => {
         mapArray(
           list,
           (item) => {
-            return createMemo(() =>
-              h("t", { label: `${item().v}${suffix()}` }),
-            );
+            return createMemo(() => ({
+              type: "t",
+              props: { label: `${item().v}${suffix()}` },
+            }));
           },
           { keyFn: (x) => x.id },
         ),
@@ -981,9 +1019,9 @@ describe("signal write inside handler → For cascade", () => {
     const handlerOrder: string[] = [];
     const [items, setItems] = createSignal<string[]>([]);
 
-    function Parent(props: { key: string }) {
+    function Parent() {
       useAsyncOutput(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Parent");
           setItems(["a", "b", "c"]);
@@ -993,25 +1031,26 @@ describe("signal write inside handler → For cascade", () => {
       return For({
         each: items,
         keyFn: (s: string) => s,
-        children: (item: () => string) =>
-          h(Child, { name: item(), key: item() }, item()),
+        children: (item: () => string) => (
+          <Child name={item()} key={item()} />
+        ),
       });
     }
 
-    function Child(props: { name: string; key: string }) {
+    function Child(props: { name: string }) {
       useAsyncOutput(
-        { name: props.name, key: props.key },
+        { name: props.name },
         async (p, setOutputs) => {
           handlerOrder.push(`Child:${p.name}`);
           setOutputs({ created: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const mem = new InMemoryMemory();
     const result = render(
-      () => h(Parent, { key: "p" }, "p"),
+      () => <Parent key="p" />,
       mem,
       "test-signal-for",
     );
@@ -1036,9 +1075,9 @@ describe("signal write inside handler → For cascade", () => {
   it("setOutputs with Map value fires signal correctly", async () => {
     const handlerOrder: string[] = [];
 
-    function Registry(props: { key: string }) {
+    function Registry() {
       useAsyncOutput(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           handlerOrder.push("Registry");
           setOutputs({
@@ -1049,12 +1088,12 @@ describe("signal write inside handler → For cascade", () => {
           });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const mem = new InMemoryMemory();
     const result = render(
-      () => h(Registry, { key: "r" }, "r"),
+      () => <Registry key="r" />,
       mem,
       "test-map-output",
     );
@@ -1075,20 +1114,20 @@ describe("signal write inside handler → For cascade", () => {
   it("second setOutputs with different Map triggers signal update", async () => {
     let setOutputsRef: any = null;
 
-    function Tracker(props: { key: string }) {
+    function Tracker() {
       useAsyncOutput(
-        { key: props.key },
+        {},
         async (_p, setOutputs) => {
           setOutputsRef = setOutputs;
           setOutputs({ items: new Map([["x", 1]]) });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const mem = new InMemoryMemory();
     const result = render(
-      () => h(Tracker, { key: "t" }, "t"),
+      () => <Tracker key="t" />,
       mem,
       "test-map-update",
     );

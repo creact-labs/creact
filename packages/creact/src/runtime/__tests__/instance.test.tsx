@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi} from "vitest";
-import { InMemoryMemory, h } from "@creact-labs/testing";
-import { Fragment, Show, createSignal} from "../../index";
+import { InMemoryMemory } from "@creact-labs/testing";
+import { Show, createSignal} from "../../index";
 import { callAllCleanupFunctions, getAllNodes, getNodeById, removeNodeFromRegistry, shallowEqual, useAsyncOutput} from "../instance";
 import type { Memory} from "../memory";
 import { render, resetRuntime} from "../run";
@@ -33,11 +33,11 @@ describe("useAsyncOutput developer errors", () => {
     function DoubleTrouble() {
       useAsyncOutput({}, async () => {});
       useAsyncOutput({}, async () => {});
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(DoubleTrouble, {}, "dt"),
+      () => <DoubleTrouble key="dt" />,
       new InMemoryMemory(),
       "double-hook",
     );
@@ -46,26 +46,72 @@ describe("useAsyncOutput developer errors", () => {
     result.dispose();
   });
 
-  it("requires a key on components that manage resources", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-
-    function KeylessResource() {
-      useAsyncOutput({}, async () => {});
-      return h(Fragment, {});
+  it("addresses a lone resource component by name — no key required", async () => {
+    function LoneResource() {
+      useAsyncOutput({}, async (_p, set) => set({ ok: true }));
+      return <></>;
     }
 
     function App() {
-      // note: no key on the child
-      return h(KeylessResource, {});
+      // no key on the child — it is the only LoneResource, so it addresses by name
+      return <LoneResource />;
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "keyless",
     );
+    await result.ready;
 
-    await expect(result.ready).rejects.toThrow(/has no key/);
+    const node = getAllNodes().find((n) => n.type === LoneResource)!;
+    expect(node.outputs).toEqual({ ok: true });
+    result.dispose();
+  });
+
+  it("captures the testId prop off the element onto the node", async () => {
+    function Tagged() {
+      useAsyncOutput({}, async (_p, set) => set({ ok: true }));
+      return <></>;
+    }
+
+    const result = render(
+      () => <Tagged testId="my-tag" />,
+      new InMemoryMemory(),
+      "testid",
+    );
+    await result.ready;
+
+    const node = getAllNodes().find((n) => n.type === Tagged)!;
+    expect(node.testId).toBe("my-tag");
+    result.dispose();
+  });
+
+  it("requires a key only when sibling resource components collide", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    function Resource() {
+      useAsyncOutput({}, async () => {});
+      return <></>;
+    }
+
+    function App() {
+      // two unkeyed siblings of the same type derive the same address
+      return (
+        <>
+          <Resource />
+          <Resource />
+        </>
+      );
+    }
+
+    const result = render(
+      () => <App key="app" />,
+      new InMemoryMemory(),
+      "siblings",
+    );
+
+    await expect(result.ready).rejects.toThrow(/resource path|key/);
     result.dispose();
   });
 
@@ -74,15 +120,15 @@ describe("useAsyncOutput developer errors", () => {
 
     function Db() {
       useAsyncOutput({}, async () => {});
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return [h(Db, {}, "same"), h(Db, {}, "same")];
+      return [<Db key="same" />, <Db key="same" />];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "dup-id",
     );
@@ -102,18 +148,18 @@ describe("useAsyncOutput developer errors", () => {
         // Wipes ownership in the buggy version
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
       return [
-        h(Db, {}, "same"),
-        Show({ when: gate, children: () => h(Db, {}, "same") }),
+        <Db key="same" />,
+        Show({ when: gate, children: () => <Db key="same" /> }),
       ];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "late-dup-id",
     );
@@ -136,10 +182,10 @@ describe("cleanup functions returning promises", () => {
           throw new Error("teardown failed");
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Flaky, {}, "f"), memory, "async-cleanup");
+    const result = render(() => <Flaky key="f" />, memory, "async-cleanup");
     await result.ready;
 
     // The sweep starts the async cleanup; its rejection must be absorbed
@@ -160,10 +206,10 @@ describe("cleanup functions returning promises", () => {
           throw new Error("teardown failed");
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Flaky, {}, "f"), memory, "async-dispose");
+    const result = render(() => <Flaky key="f" />, memory, "async-dispose");
     await result.ready;
 
     expect(() => result.dispose()).not.toThrow();
@@ -177,16 +223,16 @@ describe("resource identity", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     // wrapped in a root — render() overrides the root element's key with the stack name
     function App() {
-      return h(MyDatabaseCluster, {}, "primary");
+      return <MyDatabaseCluster key="primary" />;
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "kebab",
     );
@@ -213,11 +259,11 @@ describe("setOutputs", () => {
       const read = () => (observed = out.count());
       // read after ready via accessor below
       (Counter as any).read = read;
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(Counter, {}, "c"),
+      () => <Counter key="c" />,
       new InMemoryMemory(),
       "functional-outputs",
     );
@@ -236,11 +282,11 @@ describe("setOutputs", () => {
         push = setOutputs;
         setOutputs({ list: [1, 2, 3] });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     const result = render(
-      () => h(Stable, {}, "s"),
+      () => <Stable key="s" />,
       new InMemoryMemory(),
       "stable-outputs",
     );
@@ -265,11 +311,11 @@ describe("setOutputs", () => {
         },
       );
       readCompute = () => out.compute();
-      return h(Fragment, {});
+      return <></>;
     }
 
     // bare memory: function outputs are not structured-cloneable
-    const result = render(() => h(Lazy, {}, "l"), bareMemory(), "fn-outputs");
+    const result = render(() => <Lazy key="l" />, bareMemory(), "fn-outputs");
     await result.ready;
 
     expect(readCompute!()).toBe("computed-value");
@@ -283,15 +329,15 @@ describe("node registry maintenance", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ up: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return [h(Db, {}, "one"), h(Db, {}, "two")];
+      return [<Db key="one" />, <Db key="two" />];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "registry-list",
     );
@@ -314,15 +360,15 @@ describe("node registry maintenance", () => {
           cleanups++;
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return h(Db, {}, "gone");
+      return <Db key="gone" />;
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "registry-remove",
     );
@@ -351,7 +397,7 @@ describe("node registry maintenance", () => {
           throw new Error("teardown exploded");
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function Healthy() {
@@ -361,15 +407,15 @@ describe("node registry maintenance", () => {
           secondCleanupRan = true;
         };
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return [h(Fragile, {}, "f"), h(Healthy, {}, "h")];
+      return [<Fragile key="f" />, <Healthy key="h" />];
     }
 
     const result = render(
-      () => h(App, {}, "app"),
+      () => <App key="app" />,
       new InMemoryMemory(),
       "fragile-cleanup",
     );
@@ -395,14 +441,14 @@ describe("deferred resources (undefined dependencies)", () => {
       useAsyncOutput({ dep: undefined }, async () => {
         handlerRan = true;
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return h(NeverReady, {}, "nr");
+      return <NeverReady key="nr" />;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "static-deferred");
+    const result = render(() => <App key="app" />, memory, "static-deferred");
     await result.ready;
 
     expect(handlerRan).toBe(false);
@@ -424,14 +470,14 @@ describe("deferred resources (undefined dependencies)", () => {
           setOutputs({ ok: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return h(Waiting, {}, "w");
+      return <Waiting key="w" />;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "getter-deferred");
+    const result = render(() => <App key="app" />, memory, "getter-deferred");
     await result.ready;
     expect(runs).toEqual([]); // dep still undefined — placeholder only
 
@@ -454,14 +500,14 @@ describe("setOutputs change detection for collection values", () => {
         push = setOutputs;
         setOutputs({ ready: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function App() {
-      return h(Db, {}, "coll");
+      return <Db key="coll" />;
     }
 
-    const result = render(() => h(App, {}, "app"), memory, "collections");
+    const result = render(() => <App key="app" />, memory, "collections");
     await result.ready;
     return { result, push: push! };
   }
@@ -685,20 +731,20 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     let handlerCount = 0;
     const [count, setCount] = createSignal(1);
 
-    function Counter(props: { key: string }) {
+    function Counter() {
       useAsyncOutput(
-        () => ({ count: count(), key: props.key }),
+        () => ({ count: count() }),
         async (p, setOutputs) => {
           handlerCount++;
           setOutputs({ seen: p.count });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Counter, { key: "c1" }, "c1"),
+      () => <Counter key="c1" />,
       memory,
       "test-prop-rerun",
     );
@@ -718,20 +764,20 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     const receivedProps: number[] = [];
     const [count, setCount] = createSignal(10);
 
-    function Tracker(props: { key: string }) {
+    function Tracker() {
       useAsyncOutput(
-        () => ({ count: count(), key: props.key }),
+        () => ({ count: count() }),
         async (p, setOutputs) => {
           receivedProps.push(p.count);
           setOutputs({ last: p.count });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Tracker, { key: "t1" }, "t1"),
+      () => <Tracker key="t1" />,
       memory,
       "test-prop-values",
     );
@@ -753,19 +799,19 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     const [count, setCount] = createSignal(1);
     let outputAccessors: any;
 
-    function Doubler(props: { key: string }) {
+    function Doubler() {
       outputAccessors = useAsyncOutput<{ doubled: number }>(
-        () => ({ count: count(), key: props.key }),
+        () => ({ count: count() }),
         async (p, setOutputs) => {
           setOutputs({ doubled: p.count * 2 });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Doubler, { key: "d1" }, "d1"),
+      () => <Doubler key="d1" />,
       memory,
       "test-prop-outputs",
     );
@@ -783,20 +829,20 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     let handlerCount = 0;
     const [count, setCount] = createSignal(42);
 
-    function Stable(props: { key: string }) {
+    function Stable() {
       useAsyncOutput(
-        () => ({ count: count(), key: props.key }),
+        () => ({ count: count() }),
         async (p, setOutputs) => {
           handlerCount++;
           setOutputs({ v: p.count });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Stable, { key: "s1" }, "s1"),
+      () => <Stable key="s1" />,
       memory,
       "test-prop-noop",
     );
@@ -815,9 +861,9 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
     const handlerOrder: string[] = [];
     const [trigger, setTrigger] = createSignal("initial");
 
-    function Producer(props: { key: string }) {
+    function Producer() {
       const out = useAsyncOutput<{ data: string }>(
-        () => ({ trigger: trigger(), key: props.key }),
+        () => ({ trigger: trigger() }),
         async (p, setOutputs) => {
           handlerOrder.push(`Producer:${p.trigger}`);
           setOutputs({ data: `produced-${p.trigger}` });
@@ -827,25 +873,25 @@ describe("prop reactivity — signal changes trigger handler re-runs", () => {
       return Show({
         when: () => out.data(),
         children: (data: () => string) =>
-          h(Consumer, { getData: data, key: "consumer" }, "consumer"),
+          <Consumer getData={data} key="consumer" />,
       });
     }
 
     // Consumer uses a getter to reactively track Producer's output
-    function Consumer(props: { getData: () => string; key: string }) {
+    function Consumer(props: { getData: () => string }) {
       useAsyncOutput(
-        () => ({ input: props.getData(), key: props.key }),
+        () => ({ input: props.getData() }),
         async (p, setOutputs) => {
           handlerOrder.push(`Consumer:${p.input}`);
           setOutputs({ processed: true });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
 
     const memory = new InMemoryMemory();
     const result = render(
-      () => h(Producer, { key: "p1" }, "p1"),
+      () => <Producer key="p1" />,
       memory,
       "test-prop-cascade",
     );

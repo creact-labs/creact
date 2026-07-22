@@ -101,6 +101,12 @@ export type Handler<P, O> = (
 export interface InstanceNode {
   id: string;
   path: string[];
+  /** The element key (`<Comp key="…" />`) that addressed this node, if keyed. */
+  key?: string | number;
+  /** The component function that owns this node — lets tools query by type. */
+  type?: unknown;
+  /** The `testId` prop (`<Comp testId="…" />`), for querying in tests. */
+  testId?: string;
   // Props/outputs carry arbitrary user data. Values stay `any` so callers
   // can read fields without casting, and so interface-typed user objects
   // remain assignable (Record<string, unknown> rejects interfaces without
@@ -211,7 +217,6 @@ export function useAsyncOutput<
   // Only function components execute code, so fiber.type is always a function
   const componentType = fiber.type as (props: unknown) => unknown;
   const componentName = componentType.name || "Instance";
-  requireKey(fiber, componentName);
 
   // Generate deterministic ID using resource path + key
   const { name, fullPath, nodeId } = deriveInstanceAddress(fiber);
@@ -224,10 +229,21 @@ export function useAsyncOutput<
 
   claimOwnership(ctx, nodeId, fiber, componentName);
 
-  // Create or get existing node
+  // Create or get existing node. testId comes off the element props, so it
+  // works on any component without the component having to thread it anywhere.
+  const testId =
+    typeof fiber.props.testId === "string" ? fiber.props.testId : undefined;
   let node = ctx.nodeRegistry.get(nodeId);
   if (!node) {
-    node = createInstanceNode(nodeId, fullPath, props, handler);
+    node = createInstanceNode(
+      nodeId,
+      fullPath,
+      props,
+      handler,
+      fiber.key,
+      componentType,
+      testId,
+    );
     ctx.nodeRegistry.set(nodeId, node);
   } else {
     node.props = props;
@@ -263,7 +279,12 @@ export function deriveInstanceAddress(fiber: Fiber): {
 } {
   const componentType = fiber.type as (props: unknown) => unknown;
   const componentName = componentType.name || "Instance";
-  const name = `${toKebabCase(componentName)}-${fiber.key}`;
+  const kebab = toKebabCase(componentName);
+  // A lone component needs no key — it addresses by its name (name-name). A key
+  // is only required to disambiguate siblings, and then it replaces the second
+  // half. `key` stays a normal React key; it just doubles as the address here.
+  const keySegment = fiber.key !== undefined ? String(fiber.key) : kebab;
+  const name = `${kebab}-${keySegment}`;
   const fullPath = [...getCurrentResourcePath(), name];
   return { name, fullPath, nodeId: fullPath.join(".") };
 }
@@ -297,20 +318,6 @@ function keyHint(componentName: string): string {
     `    {(item) => <${componentName} ... />}\n` +
     `  </For>`
   );
-}
-
-/** Key is required for components using useAsyncOutput */
-function requireKey(
-  fiber: NonNullable<ReturnType<typeof getCurrentFiber>>,
-  componentName: string,
-): void {
-  if (fiber.key === undefined) {
-    throw new Error(
-      `Component "${componentName}" uses useAsyncOutput but has no key.\n\n` +
-        `Components with useAsyncOutput require a unique key for state persistence:\n\n` +
-        keyHint(componentName),
-    );
-  }
 }
 
 /**
@@ -365,10 +372,16 @@ function createInstanceNode(
   fullPath: string[],
   props: Record<string, any>,
   handler: Handler<any, any>,
+  key: string | number | undefined,
+  type: unknown,
+  testId: string | undefined,
 ): InstanceNode {
   const node: InstanceNode = {
     id: nodeId,
     path: fullPath,
+    key,
+    type,
+    testId,
     props,
     handler,
     outputSignals: new Map(),

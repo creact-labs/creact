@@ -1,6 +1,6 @@
 {
   "name": "@creact-labs/creact",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "module",
   "description": "Use JSX to automate durable workflows",
   "main": "dist/src/index.js",
@@ -60,7 +60,7 @@
     "reconciler",
     "multi-cloud"
   ],
-  "author": "Daniel Coutinho Ribeiro <dcoutinho.96@gmail.com>",
+  "author": "CReact Labs",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

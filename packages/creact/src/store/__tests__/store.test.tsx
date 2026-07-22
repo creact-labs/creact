@@ -1,7 +1,7 @@
 import { faker} from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi} from "vitest";
-import { InMemoryMemory, h } from "@creact-labs/testing";
-import { Fragment, createStore} from "../../index";
+import { InMemoryMemory } from "@creact-labs/testing";
+import { createStore} from "../../index";
 import { createEffect} from "../../reactive/effect";
 import { createRoot} from "../../reactive/owner";
 import { createMemo} from "../../reactive/signal";
@@ -481,9 +481,9 @@ describe("createStore persistence through Memory", () => {
         bootCounts.push(state.boots);
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
-    const app = () => h(Worker, {}, "w");
+    const app = () => <Worker key="w" />;
 
     const first = render(app, memory, stackName);
     await first.ready;
@@ -511,10 +511,10 @@ describe("createStore persistence through Memory", () => {
         state.progress;
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Worker, {}, "w"), memory, stackName);
+    const result = render(() => <Worker key="w" />, memory, stackName);
     await result.ready;
     await result.settled();
     result.dispose();
@@ -543,10 +543,10 @@ describe("createStore persistence through Memory", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
-    const result = render(() => h(Greedy, {}, "g"), memory, "two-stores");
+    const result = render(() => <Greedy key="g" />, memory, "two-stores");
 
     await expect(result.ready).rejects.toThrow(/once per component/);
     result.dispose();

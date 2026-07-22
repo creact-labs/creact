@@ -1,8 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { InMemoryMemory, h } from "@creact-labs/testing";
+import { InMemoryMemory } from "@creact-labs/testing";
 import {
-  Fragment,
   Show,
   createContext,
   createSignal,
@@ -20,7 +19,7 @@ afterEach(() => {
 
 /** render() stamps the root element's key with the stack name — fragment
  * roots keep the wrapper elements' own keys intact */
-const asRoot = (element: unknown) => h(Fragment, { children: element });
+const asRoot = (element: unknown) => <>{element}</>;
 
 /** Root whose single resource reports the tag it deployed with */
 function makeTaggedRoot() {
@@ -30,7 +29,7 @@ function makeTaggedRoot() {
       executions.push(p.tag);
       setOutputs({ tag: p.tag });
     });
-    return h(Fragment, {});
+    return <></>;
   }
   return { Tagged, executions };
 }
@@ -43,7 +42,7 @@ describe("createRuntime", () => {
     const TaggedRuntime = createRuntime(Tagged);
 
     const result = render(
-      () => asRoot(h(TaggedRuntime, { tag }, "child")),
+      () => asRoot(<TaggedRuntime tag={tag} key="child" />),
       memory,
       "parent",
     );
@@ -70,13 +69,14 @@ describe("createRuntime", () => {
     const TaggedRuntime = createRuntime(Tagged);
 
     const result = render(
-      () =>
-        h(Fragment, {
-          children: [
-            h(TaggedRuntime, { tag: "inherited" }, "a"),
-            h(TaggedRuntime, { tag: "sovereign", memory: sovereign }, "b"),
-          ],
-        }),
+      () => (
+        <>
+          {[
+            <TaggedRuntime tag="inherited" key="a" />,
+            <TaggedRuntime tag="sovereign" memory={sovereign} key="b" />,
+          ]}
+        </>
+      ),
       parentMemory,
       "parent",
     );
@@ -92,19 +92,26 @@ describe("createRuntime", () => {
     result.dispose();
   });
 
-  it("requires a key like any resource component", async () => {
+  it("addresses a lone runtime by name — no key required", async () => {
     const memory = new InMemoryMemory();
-    const { Tagged } = makeTaggedRoot();
+    const { Tagged, executions } = makeTaggedRoot();
+    const tag = faker.string.uuid();
     const TaggedRuntime = createRuntime(Tagged);
-    vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = render(
-      () => asRoot(h(TaggedRuntime, { tag: "x" })),
+      () => asRoot(<TaggedRuntime tag={tag} />), // no key
       memory,
       "parent",
     );
+    await result.ready;
 
-    await expect(result.ready).rejects.toThrow(/has no key/);
+    // A lone runtime needs no key — it addresses by name (name-name)
+    const wrapper = result.getNodes()[0]!;
+    expect(wrapper.id).toBe("tagged-runtime-tagged-runtime");
+    expect(wrapper.outputs).toEqual({ status: "ready", ready: true });
+    await result.settled();
+    expect(executions).toEqual([tag]);
+
     result.dispose();
   });
 
@@ -117,12 +124,12 @@ describe("createRuntime", () => {
       useAsyncOutput({}, async () => {
         throw new Error(message);
       });
-      return h(Fragment, {});
+      return <></>;
     }
     const DoomedRuntime = createRuntime(Doomed);
 
     const result = render(
-      () => asRoot(h(DoomedRuntime, {}, "child")),
+      () => asRoot(<DoomedRuntime key="child" />),
       memory,
       "parent",
     );
@@ -148,7 +155,7 @@ describe("createRuntime", () => {
     await memory.acquireLock("tagged-runtime-child", "other", 300);
 
     const result = render(
-      () => asRoot(h(TaggedRuntime, { tag: "x" }, "child")),
+      () => asRoot(<TaggedRuntime tag="x" key="child" />),
       memory,
       "parent",
     );
@@ -172,11 +179,11 @@ describe("createRuntime", () => {
           return { boots: ((prev?.boots as number) ?? 0) + 1 };
         });
       });
-      return h(Fragment, {});
+      return <></>;
     }
     const CounterRuntime = createRuntime(Counter);
     const mount = () =>
-      render(() => asRoot(h(CounterRuntime, {}, "child")), memory, "parent");
+      render(() => asRoot(<CounterRuntime key="child" />), memory, "parent");
 
     const first = mount();
     await first.ready;
@@ -213,7 +220,7 @@ describe("createRuntime", () => {
         seen = value;
         setOutputs({ value });
       });
-      return h(Fragment, {});
+      return <></>;
     }
     const ReaderRuntime = createRuntime(Reader);
 
@@ -221,7 +228,7 @@ describe("createRuntime", () => {
       () =>
         Ctx.Provider({
           value: parentValue,
-          children: h(ReaderRuntime, {}, "child"),
+          children: <ReaderRuntime key="child" />,
         }),
       memory,
       "parent",
@@ -245,7 +252,7 @@ describe("createRuntime", () => {
         seen.push(value);
         setOutputs({ value });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     // Provider + consumers live entirely inside the child universe,
@@ -255,15 +262,15 @@ describe("createRuntime", () => {
       return Ctx.Provider({
         value: childValue,
         children: [
-          h(Reader, { slot: "eager" }, "eager"),
-          Show({ when: gate, children: () => h(Reader, { slot: "late" }, "late") }),
+          <Reader slot="eager" key="eager" />,
+          Show({ when: gate, children: () => <Reader slot="late" key="late" /> }),
         ],
       });
     }
     const ChildRuntime = createRuntime(ChildRoot);
 
     const result = render(
-      () => asRoot(h(ChildRuntime, {}, "child")),
+      () => asRoot(<ChildRuntime key="child" />),
       memory,
       "parent",
     );
@@ -293,13 +300,13 @@ describe("createRuntime", () => {
         seen[p.slot] = value;
         setOutputs({ value });
       });
-      return h(Fragment, {});
+      return <></>;
     }
 
     function ChildRoot() {
       return Ctx.Provider({
         value: childValue,
-        children: h(Reader, { slot: "child" }, "in-child"),
+        children: <Reader slot="child" key="in-child" />,
       });
     }
     const ChildRuntime = createRuntime(ChildRoot);
@@ -309,8 +316,8 @@ describe("createRuntime", () => {
         Ctx.Provider({
           value: parentValue,
           children: [
-            h(Reader, { slot: "parent" }, "in-parent"),
-            h(ChildRuntime, {}, "child"),
+            <Reader slot="parent" key="in-parent" />,
+            <ChildRuntime key="child" />,
           ],
         }),
       memory,
@@ -333,21 +340,21 @@ describe("createRuntime", () => {
         deepestDeployed = true;
         setOutputs({ depth: 3 });
       });
-      return h(Fragment, {});
+      return <></>;
     }
     const LeafRuntime = createRuntime(Leaf);
 
     function Middle() {
-      return h(LeafRuntime, {}, "l3");
+      return <LeafRuntime key="l3" />;
     }
     const MiddleRuntime = createRuntime(Middle);
 
     function Top() {
-      return h(MiddleRuntime, {}, "l2");
+      return <MiddleRuntime key="l2" />;
     }
     const TopRuntime = createRuntime(Top);
 
-    const result = render(() => asRoot(h(TopRuntime, {}, "l1")), memory, "root");
+    const result = render(() => asRoot(<TopRuntime key="l1" />), memory, "root");
     await result.ready;
 
     // Each level's wrapper deploys inside its parent universe...
@@ -370,7 +377,7 @@ describe("createRuntime", () => {
 
     // Rendered on the default context — no parent runtime to inherit from
     expect(() =>
-      renderFiber(h(TaggedRuntime, { tag: "x" }, "child"), []),
+      renderFiber(<TaggedRuntime tag="x" key="child" />, []),
     ).toThrow(/has no Memory/);
   });
 
@@ -384,14 +391,14 @@ describe("createRuntime", () => {
   it("names anonymous roots Root", async () => {
     const memory = new InMemoryMemory();
     // Array element keeps the arrow anonymous (no name inference)
-    const [anonymousRoot] = [(_props: Record<string, unknown>) => h(Fragment, {})];
+    const [anonymousRoot] = [(_props: Record<string, unknown>) => <></>];
     const AnonymousRuntime = createRuntime(anonymousRoot!);
 
     // The wrapper is named after the fallback
     expect(AnonymousRuntime.name).toBe("RootRuntime");
 
     const result = render(
-      () => asRoot(h(AnonymousRuntime, {}, "child")),
+      () => asRoot(<AnonymousRuntime key="child" />),
       memory,
       "parent",
     );
@@ -414,12 +421,20 @@ describe("props cross the boundary like any component boundary", () => {
       useAsyncOutput({}, async (_p, setOutputs) => {
         setOutputs({ ok: true });
       });
-      return h(Fragment, {});
+      return <></>;
     }
     const ReceiverRuntime = createRuntime(Receiver);
 
     const result = render(
-      () => asRoot(h(ReceiverRuntime, { config, onEvent, count }, "child")),
+      () =>
+        asRoot(
+          <ReceiverRuntime
+            config={config}
+            onEvent={onEvent}
+            count={count}
+            key="child"
+          />,
+        ),
       memory,
       "parent",
     );
@@ -446,12 +461,12 @@ describe("props cross the boundary like any component boundary", () => {
           setOutputs({ level: p.level });
         },
       );
-      return h(Fragment, {});
+      return <></>;
     }
     const ScalerRuntime = createRuntime(Scaler);
 
     const result = render(
-      () => asRoot(h(ScalerRuntime, { level }, "child")),
+      () => asRoot(<ScalerRuntime level={level} key="child" />),
       memory,
       "parent",
     );

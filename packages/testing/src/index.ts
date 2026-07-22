@@ -1,5 +1,8 @@
-export { h } from "./jsx";
 export { InMemoryMemory, NoopMemory } from "./memory";
-export { findNode, queryNodes, readOutput } from "./query";
-export { renderTest } from "./render-test";
-export { delay, waitFor } from "./wait-for";
+export {
+  render,
+  type RenderTestOptions,
+  type TestNode,
+  type TestView,
+} from "./render";
+export { delay, waitFor, type WaitOptions } from "./wait-for";

@@ -786,7 +786,6 @@ export function render(
   // (a zero-arg callback would reuse the shared UNOWNED sentinel).
   createRoot((_dispose) => {
     const element = fn();
-    injectRootKey(element, stackName);
 
     runtime
       .run(element)
@@ -806,13 +805,6 @@ export function render(
     ready,
     settled: () => runtime.settled(),
   };
-}
-
-/** Inject the stack name as the root element's key */
-function injectRootKey(element: unknown, stackName: string): void {
-  if (element && typeof element === "object" && "type" in element) {
-    (element as { key?: string }).key = stackName;
-  }
 }
 
 /**

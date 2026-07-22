@@ -1,5 +1,4 @@
 import { describe, expect, it} from "vitest";
-import { h } from "@creact-labs/testing";
 import { ErrorBoundary, createRoot, createSignal} from "../../index";
 
 /**
@@ -13,7 +12,7 @@ import { ErrorBoundary, createRoot, createSignal} from "../../index";
 describe("ErrorBoundary", () => {
   it("catches error and renders static fallback", () => {
     createRoot(() => {
-      const fallback = h("err", { v: "Failed Miserably" });
+      const fallback = { type: "err", props: { v: "Failed Miserably" } };
       const result = ErrorBoundary({
         fallback,
         children: () => {
@@ -27,7 +26,7 @@ describe("ErrorBoundary", () => {
 
   it("catches null error and renders static fallback", () => {
     createRoot(() => {
-      const fallback = h("err", { v: "Failed Miserably" });
+      const fallback = { type: "err", props: { v: "Failed Miserably" } };
       const result = ErrorBoundary({
         fallback,
         children: () => {
@@ -43,7 +42,7 @@ describe("ErrorBoundary", () => {
   it("catches error with callback fallback", () => {
     createRoot(() => {
       const result = ErrorBoundary({
-        fallback: (e: any, _reset: () => void) => h("err", { v: e.message }),
+        fallback: (e: any, _reset: () => void) => ({ type: "err", props: { v: e.message } }),
         children: () => {
           throw new Error("Failure");
         },
@@ -56,13 +55,13 @@ describe("ErrorBoundary", () => {
   it("catches error with callback and reset", () => {
     createRoot(() => {
       let first = true;
-      const success = h("ok", { v: "Success" });
+      const success = { type: "ok", props: { v: "Success" } };
 
       let resetFn: () => void;
       const result = ErrorBoundary({
         fallback: (e: any, reset: () => void) => {
           resetFn = reset;
-          return h("err", { v: e.message });
+          return { type: "err", props: { v: e.message } };
         },
         children: () => {
           if (first) {
@@ -83,8 +82,8 @@ describe("ErrorBoundary", () => {
 
   it("renders children when no error", () => {
     createRoot(() => {
-      const fallback = h("err", { v: "error" });
-      const success = h("ok", { v: "Success" });
+      const fallback = { type: "err", props: { v: "error" } };
+      const success = { type: "ok", props: { v: "Success" } };
       const result = ErrorBoundary({
         fallback,
         children: success,
@@ -97,11 +96,11 @@ describe("ErrorBoundary", () => {
   it("catches errors from reactive children", () => {
     createRoot(() => {
       const [shouldThrow, setShouldThrow] = createSignal(false);
-      const ok = h("ok", { v: "ok" });
+      const ok = { type: "ok", props: { v: "ok" } };
 
       const result = ErrorBoundary({
         fallback: (e: any, _reset: () => void) =>
-          h("err", { v: `Error: ${e.message}` }),
+          ({ type: "err", props: { v: `Error: ${e.message}` } }),
         children: () => {
           if (shouldThrow()) throw new Error("reactive error");
           return ok;
