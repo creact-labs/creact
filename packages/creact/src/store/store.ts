@@ -318,8 +318,11 @@ export function prepareHydration(
 
   for (const node of flattenNodes(previousNodes)) {
     if (node.store) {
-      const componentPath = node.path.slice(0, -1).join(".");
-      ctx.storeHydration.set(componentPath, node.store);
+      // The node's OWN path, including its `<kebab-name>-<key>` segment.
+      // Stripping that segment keyed every sibling under one entry, so a
+      // component with keyed siblings restored whichever store was persisted
+      // last instead of its own.
+      ctx.storeHydration.set(node.path.join("."), node.store);
     }
   }
 }

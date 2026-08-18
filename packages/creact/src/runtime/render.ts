@@ -11,6 +11,7 @@ import {
   restoreContextSnapshot,
 } from "../primitives/context";
 import { hydrateStore, setStoreAttachHook } from "../store/store";
+import { instanceName } from "./identity";
 import { createComputed } from "../reactive/effect";
 import {
   cleanupOwner,
@@ -28,8 +29,8 @@ const IS_DEV = process.env.NODE_ENV !== "production";
 
 // Wire createStore to the fiber tree: stores created during component
 // execution are attached to the fiber (persisted with its instance nodes)
-// and hydrated from the previous run's state. Keyed by the component's
-// resource path — matches prepareHydration's node.path.slice(0, -1).
+// and hydrated from the previous run's state. Keyed by the component's OWN
+// full node path — matches prepareHydration's node.path.
 setStoreAttachHook(attachStoreToCurrentFiber);
 
 function attachStoreToCurrentFiber(initial: object): object | undefined {
@@ -44,7 +45,13 @@ function attachStoreToCurrentFiber(initial: object): object | undefined {
         "or split into child components.",
     );
   }
-  const state = hydrateStore<object>(getCurrentResourcePath()) ?? initial;
+  // The component's own segment, not just its ancestors: two keyed siblings
+  // share an ancestor path, so keying on that alone made them hydrate each
+  // other's state — whichever was persisted last won for all of them.
+  // `useAsyncOutput` has not pushed this component's segment yet (createStore
+  // runs first, by contract), so it is derived the same way here.
+  const ownPath = [...getCurrentResourcePath(), instanceName(fiber)];
+  const state = hydrateStore<object>(ownPath) ?? initial;
   fiber.store = state; // live reference — snapshotted on every collect
   return state;
 }

@@ -305,15 +305,27 @@ describe("unwrap", () => {
 });
 
 describe("store hydration from Memory", () => {
-  it("restores a store snapshot for a component path", () => {
+  it("restores a store snapshot by the node's own full path", () => {
     const stored = { count: faker.number.int() };
     prepareHydration([
       { path: ["app", "db", "instance"], store: stored },
     ]);
 
-    const hydrated = hydrateStore<{ count: number }>(["app", "db"]);
+    const hydrated = hydrateStore<{ count: number }>(["app", "db", "instance"]);
 
     expect(hydrated).toEqual(stored);
+  });
+
+  it("does not hand a node's store to its parent path — that is how siblings collided", () => {
+    prepareHydration([
+      { path: ["app", "worker-a"], store: { which: "a" } },
+      { path: ["app", "worker-b"], store: { which: "b" } },
+    ]);
+
+    // Each addresses its own; the shared ancestor addresses neither.
+    expect(hydrateStore(["app", "worker-a"])).toEqual({ which: "a" });
+    expect(hydrateStore(["app", "worker-b"])).toEqual({ which: "b" });
+    expect(hydrateStore(["app"])).toBeUndefined();
   });
 
   it("walks nested node children when collecting snapshots", () => {
@@ -326,7 +338,7 @@ describe("store hydration from Memory", () => {
       },
     ]);
 
-    expect(hydrateStore(["app", "child"])).toEqual(childStore);
+    expect(hydrateStore(["app", "child", "instance"])).toEqual(childStore);
   });
 
   it("returns undefined when there is nothing stored for the path", () => {
@@ -340,10 +352,10 @@ describe("store hydration from Memory", () => {
     const stored = { items: ["a"] };
     prepareHydration([{ path: ["app", "x"], store: stored }]);
 
-    const first = hydrateStore<{ items: string[] }>(["app"]) as any;
+    const first = hydrateStore<{ items: string[] }>(["app", "x"]) as any;
     first.items.push("b");
 
-    expect(hydrateStore<{ items: string[] }>(["app"])).toEqual({
+    expect(hydrateStore<{ items: string[] }>(["app", "x"])).toEqual({
       items: ["a"],
     });
   });
@@ -498,6 +510,44 @@ describe("createStore persistence through Memory", () => {
 
     // First boot started fresh; second boot restored the persisted store
     expect(bootCounts).toEqual([1, 2]);
+  });
+
+  it("keyed siblings each restore their OWN store, not the last one persisted", async () => {
+    const memory = new InMemoryMemory();
+    const stackName = "store-siblings";
+    const restored: string[] = [];
+
+    function Holder(props: { seed: string }) {
+      const [state] = createStore({ value: props.seed });
+      useAsyncOutput({ seed: props.seed }, async (_p, setOutputs) => {
+        restored.push(state.value);
+        setOutputs({ value: state.value });
+      });
+      return <></>;
+    }
+    const app = () => (
+      <>
+        <Holder key="a" seed="A" />
+        <Holder key="b" seed="B" />
+      </>
+    );
+
+    const first = render(app, memory, stackName);
+    await first.ready;
+    await first.settled();
+    first.dispose();
+    resetRuntime();
+
+    restored.length = 0;
+    const second = render(app, memory, stackName);
+    await second.ready;
+    await second.settled();
+    second.dispose();
+
+    // Both were persisted correctly under their own keyed node all along; it
+    // was the RESTORE that keyed by the shared ancestor path, so every sibling
+    // came back holding whichever store was written last.
+    expect(restored).toEqual(["A", "B"]);
   });
 
   it("the store snapshot is persisted alongside the component's resource", async () => {
