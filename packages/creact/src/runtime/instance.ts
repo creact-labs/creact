@@ -12,6 +12,7 @@ import {
 } from "../reactive/signal";
 import { batch, untrack } from "../reactive/tracking";
 import type { Fiber } from "./fiber";
+import { instanceName } from "./identity";
 import { plainObjectsEqualWith } from "./plain-objects-equal";
 import {
   getCurrentFiber,
@@ -277,14 +278,9 @@ export function deriveInstanceAddress(fiber: Fiber): {
   fullPath: string[];
   nodeId: string;
 } {
-  const componentType = fiber.type as (props: unknown) => unknown;
-  const componentName = componentType.name || "Instance";
-  const kebab = toKebabCase(componentName);
-  // A lone component needs no key — it addresses by its name (name-name). A key
-  // is only required to disambiguate siblings, and then it replaces the second
-  // half. `key` stays a normal React key; it just doubles as the address here.
-  const keySegment = fiber.key !== undefined ? String(fiber.key) : kebab;
-  const name = `${kebab}-${keySegment}`;
+  // The segment itself comes from `identity.ts`, so the store attach hook can
+  // derive the very same one without importing this module.
+  const name = instanceName(fiber);
   const fullPath = [...getCurrentResourcePath(), name];
   return { name, fullPath, nodeId: fullPath.join(".") };
 }
@@ -489,13 +485,6 @@ function createOutputProxy<O extends Record<string, any>>(
       };
     },
   });
-}
-
-/**
- * Convert PascalCase to kebab-case
- */
-function toKebabCase(str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
 /**
