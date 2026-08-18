@@ -525,28 +525,31 @@ describe("createStore persistence through Memory", () => {
       });
       return <></>;
     }
-    const app = () => (
+    const app = (seeds: [string, string]) => () => (
       <>
-        <Holder key="a" seed="A" />
-        <Holder key="b" seed="B" />
+        <Holder key="a" seed={seeds[0]} />
+        <Holder key="b" seed={seeds[1]} />
       </>
     );
 
-    const first = render(app, memory, stackName);
+    const first = render(app(["A", "B"]), memory, stackName);
     await first.ready;
     await first.settled();
     first.dispose();
     resetRuntime();
 
     restored.length = 0;
-    const second = render(app, memory, stackName);
+    // DIFFERENT seeds on the second boot, deliberately: with the same ones a
+    // total hydration failure would fall back to the initial value and look
+    // exactly like a successful restore.
+    const second = render(app(["X", "Y"]), memory, stackName);
     await second.ready;
     await second.settled();
     second.dispose();
 
-    // Both were persisted correctly under their own keyed node all along; it
-    // was the RESTORE that keyed by the shared ancestor path, so every sibling
-    // came back holding whichever store was written last.
+    // Each restored its OWN persisted value rather than its fresh seed, and
+    // rather than whichever sibling was written last — which is what keying
+    // hydration by the shared ancestor path used to produce.
     expect(restored).toEqual(["A", "B"]);
   });
 
